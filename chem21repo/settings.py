@@ -103,6 +103,9 @@ AWS_IS_GZIPPED = False
 
 # Cache settings.
 CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
     # Long cache timeout for staticfiles, since this is used heavily by the optimizing storage.
     "staticfiles": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
