@@ -45,7 +45,7 @@ class Module(OrderedModel,NameUnicodeMixin):
 		return "%s: %s" % (unicode(self.topic), self.name)
 
 class Path(BaseModel,NameUnicodeMixin):
-	name = models.CharField(max_length=200,unique=True)
+	name = models.CharField(max_length=800,unique=True)
 	topic = models.ForeignKey(Topic,related_name='paths',null=True)
 	module = models.ForeignKey(Module, related_name='paths',null=True)
 	active = models.BooleanField(default=True)
