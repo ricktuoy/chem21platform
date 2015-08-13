@@ -67,7 +67,7 @@ class Event(BaseModel, EventUnicodeMixin):
 		index_together = (('name','date'),)
 
 class File(OrderedModel, PathUnicodeMixin):
-	path = models.CharField(max_length=200,unique = True)
+	path = models.CharField(max_length=800,unique = True)
 	title = models.CharField(max_length=200,null=True)
 	containing_path = models.ForeignKey(Path, related_name="files", null=True)
 	dir_level = models.IntegerField(default=0)
