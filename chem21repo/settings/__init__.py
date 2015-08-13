@@ -1,5 +1,5 @@
 import os
-try:
+if 'DJANGO_DEVELOPMENT' in os.environ
 	from local import *
-except ImportError:
+else:
 	from production import *
