@@ -4,7 +4,8 @@ import sys
 
 if __name__ == "__main__":
     from herokuapp.env import load_env
-    load_env(__file__, "chem21repo")
+    if not 'DJANGO_DEVELOPMENT' in os.environ:
+        load_env(__file__, "chem21repo")
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "chem21repo.settings")
 
