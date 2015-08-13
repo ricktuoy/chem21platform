@@ -1,55 +1,50 @@
-from django.db import Model
-from ordered_model import OrderedModel, OrderedRelationalModel
+from django.db import models
 
 class BaseModel(Model):
+	class Meta:
+		abstract=True
 	pass
 
 def NameMixin(name_field):
 	class _NameMixin(object):
 		def __unicode__(self):
 			return getattr(self,name_field)
-
 	return _NameMixin
 
-class Topic(OrderedModel,NameMixin("name")):
-	name = CharField()
-	code = CharField(unique = True)
+class OrderedMixin(object):
+	order = models.IntegerField()
 
-class Module(OrderedModel,NameMixin("name")):
-	name = CharField()
-	code = CharField(unique = True)
-	topic = ForeignKeyField(Topic, related_name='modules')
-	working = BooleanField(default=False)
+class Topic(OrderedMixin,NameMixin("name")):
+	name = models.CharField(max_length=200)
+	code = models.CharField(max_length=10,unique = True)
+
+class Module(OrderedMixin,NameMixin("name")):
+	name = models.CharField(max_length=200)
+	code = models.CharField(max_length=10, unique = True)
+	topic = models.ForeignKey(Topic, related_name='modules')
+	working = models.BooleanField(default=False)
 	def __unicode__(self):
 		return "%s: %s" % (unicode(self.topic), self.name)
 
 class Path(BaseModel, NameMixin("name")):
-	name = CharField(unique=True)
-	topic = ForeignKeyField(Topic,related_name='paths',null=True)
-	module = ForeignKeyField(Module, related_name='paths',null=True)
-	active = BooleanField(default=True)
+	name = models.CharField(max_length=200,unique=True)
+	topic = models.ForeignKey(Topic,related_name='paths',null=True)
+	module = models.ForeignKey(Module, related_name='paths',null=True)
+	active = models.BooleanField(default=True)
 
-class File(OrderedModel,NameMixin("path")):
-	path = CharField(unique = True)
-	containing_path = ForeignKeyField(Path, related_name="files", null=True)
-	dir_level = IntegerField()
-	ready = BooleanField(default=False)
-	type = CharField(default="text", null=True)
-	size = IntegerField(default=0)
-	status = CharField(default="raw")
+class File(OrderedMixin,NameMixin("path")):
+	path = models.CharField(max_length=200,unique = True)
+	containing_path = models.ForeignKey(Path, related_name="files", null=True)
+	dir_level = models.IntegerField(default=0)
+	ready = models.BooleanField(default=False)
+	type = models.CharField(max_length=15,default="text", null=True)
+	size = models.IntegerField(default=0)
+	status = models.CharField(default="raw")
 
 class Status(BaseModel, NameMixin("name")):
-	name = CharField()
+	name = models.CharField(max_length=200)
 
 class FileStatus(BaseModel):
-	file =  ForeignKeyField(File)
-	status = ForeignKeyField(Status)
-	user = ForeignKeyField(User)	
-
-"""
-class FilesInModule(OrderedModel):
-	module = ForeignKeyField(Module, related_name = 'files')
-	file = ForeignKeyField(File, related_name = 'modules')
-	class Meta:
-		primary_key = CompositeKey('module', 'file')
-"""
+	file =  models.ForeignKey(File)
+	status = models.ForeignKey(Status)
+	user = models.ForeignKey(User)
