@@ -1,0 +1,11 @@
+{% include 'repo/base.html' %}
+{% block content %}
+
+
+{% regroup files by topic as topic_list %}
+{% regroup topic_list.list by module as module_list %}
+
+<h3>{{ module.name }}</h3>
+
+{% endblock %}
+

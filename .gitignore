@@ -1,3 +1,4 @@
 *.pyc
 chem21repo/credentials.csv
 *.db
+devserver.log

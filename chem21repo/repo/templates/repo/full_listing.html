@@ -1,0 +1,13 @@
+{% extends 'repo/base.html' %}
+{% block content %}
+{% regroup files by containing_path.topic as topic_list %}
+{% for topic in topic_list %}
+<h2>{{ topic.grouper }}</h2>
+{% regroup topic.list by containing_path.module as module_list %}
+{% for module in module_list %}
+<h3>{{ module.grouper }}</h3>
+{% include 'repo/file_listing.html' with file_list=module.list with_list=1 %}
+{% endfor %}
+{% endfor %}
+{% endblock %}
+

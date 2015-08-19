@@ -76,12 +76,21 @@ class File(OrderedModel, PathUnicodeMixin):
 	size = models.IntegerField(default=0)
 	event = models.ForeignKey(Event, null=True)
 	status = models.ForeignKey(Status,null=True)
+	file = models.FileField(null=True)
 	def suggested_filename(self):
 		_,ext = os.path.splitext(self.path)
 		if self.event is not None:
 			return slugify(self.event.name+" "+datetime.strftime(self.event.date,"%m %Y")+" "+self.title)+ext
 		else:
 			return slugify(" ".join([a.author.full_name for a in self.authors])+" "+self.title)+ext
+	@property
+	def topic():
+		return containing_path.topic
+	@property 
+	def module():
+		return containing_path.module
+	class Meta:
+		ordering = [ 'containing_path__topic','containing_path__module' ]
 
 class FileLink(BaseModel):
 	origin = models.ForeignKey(File, related_name="filelink_destinations")

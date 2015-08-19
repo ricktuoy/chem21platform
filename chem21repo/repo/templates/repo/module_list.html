@@ -1,0 +1,14 @@
+
+<ul>
+{% for f in file_list %}
+<li>
+<a class="file_type_{{ f.type }}" href="{{ f.get_absolute_url }}">{{ f.title }}</a> 
+{% if with_links %}
+<span class="topic_link"><a href="{{ f.topic.get_absolute_url }}">{{ f.topic.name }}</a></span>
+<span class="module_link">{{ f.module.name }}</span>
+{% endif %}
+</li>
+{% endfor %}
+</ul>
+
+{% endblock %}
