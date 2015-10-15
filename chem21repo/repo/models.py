@@ -77,6 +77,10 @@ class File(OrderedModel, PathUnicodeMixin):
 	event = models.ForeignKey(Event, null=True)
 	status = models.ForeignKey(Status,null=True)
 	file = models.FileField(null=True)
+	cut_of = models.ForeignKey('self',related_name='cuts',null=True)
+	checksum = models.CharField(max_length=100,null=True)
+	active = models.BooleanField(default=True)
+
 	def suggested_filename(self):
 		_,ext = os.path.splitext(self.path)
 		if self.event is not None:
@@ -84,10 +88,10 @@ class File(OrderedModel, PathUnicodeMixin):
 		else:
 			return slugify(" ".join([a.author.full_name for a in self.authors])+" "+self.title)+ext
 	@property
-	def topic():
-		return containing_path.topic
+	def default_topic():
+		return containing_path.module.topic
 	@property 
-	def module():
+	def default_module():
 		return containing_path.module
 	class Meta:
 		ordering = [ 'containing_path__topic','containing_path__module' ]
