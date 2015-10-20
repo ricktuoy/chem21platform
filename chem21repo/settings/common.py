@@ -10,7 +10,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'chem21repo.repo'
+    'chem21repo.repo',
+    'require'
 )
 
 
@@ -59,10 +60,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+STATICFILES_DIRS = ( os.path.join(BASE_DIR, 'static'),)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 from django.utils.crypto import get_random_string

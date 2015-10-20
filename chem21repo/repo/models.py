@@ -6,7 +6,6 @@ class BaseModel(models.Model):
 		abstract=True
 	pass
 
-
 def UnicodeMixinFactory(name_field):
 	class _NameMixin(object):
 		def __unicode__(self):
@@ -15,7 +14,6 @@ def UnicodeMixinFactory(name_field):
 			except TypeError:
 				return " ".join([unicode(getattr(self, field)) for field in name_field])
 	return _NameMixin
-
 
 # needed for migration
 NameUnicodeMixin = UnicodeMixinFactory("name")
@@ -114,7 +112,3 @@ class FileStatus(BaseModel):
 	file =  models.ForeignKey(File)
 	status = models.ForeignKey(Status)
 	user = models.ForeignKey(User)
-
-
-
-

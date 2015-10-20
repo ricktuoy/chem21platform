@@ -3,7 +3,6 @@ dj-database-url==0.3.0
 dj-static==0.0.6
 Django>=1.8
 django-herokuapp==0.9.20
--e hg+https://hg@bitbucket.org/ricktaylord/django-ordered-model@f325d0cd3a14fbf962a6e840209d37833fdc468d#egg=django_ordered_model-dev
 django-require==1.0.8
 django-require-s3==1.0.0
 django-storages==1.1.8
