@@ -73,7 +73,7 @@ class UniqueFile(OrderedModel):
 	checksum = models.CharField(max_length=100,null=True, unique=True)
 	type = models.CharField(max_length=15,default="text", null=True)
 	title = models.CharField(max_length=200,null=True)
-	size = models.IntegerField(default=0)
+	size = models.BigIntegerField(default=0)
 	event = models.ForeignKey(Event, null=True)
 	status = models.ForeignKey(Status,null=True)
 	file = FileBrowseField(max_length=500,null=True)
