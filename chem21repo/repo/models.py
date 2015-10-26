@@ -35,30 +35,6 @@ class OrderedModel(BaseModel):
 	class Meta:
 		abstract=True
 
-class Topic(OrderedModel,NameUnicodeMixin):
-	name = models.CharField(max_length=200)
-	code = models.CharField(max_length=10, unique = True)
-
-class Module(OrderedModel,NameUnicodeMixin):
-	name = models.CharField(max_length=200)
-	code = models.CharField(max_length=10, unique = True)
-	topic = models.ForeignKey(Topic, related_name='modules')
-	working = models.BooleanField(default=False)
-	def __unicode__(self):
-		return "%s: %s" % (unicode(self.topic), self.name)
-
-class Path(BaseModel,NameUnicodeMixin):
-	name = models.CharField(max_length=800,unique=True)
-	topic = models.ForeignKey(Topic,related_name='paths',null=True)
-	module = models.ForeignKey(Module, related_name='paths',null=True)
-	active = models.BooleanField(default=True)
-
-class Status(BaseModel,NameUnicodeMixin):
-	name = models.CharField(max_length=200)
-
-class Author(BaseModel, AuthorUnicodeMixin):
-	full_name = models.CharField(max_length=200,unique=True)
-
 class Event(BaseModel, EventUnicodeMixin):
 	name = models.CharField(max_length=100)
 	date = models.DateField(null=True)
@@ -68,6 +44,12 @@ class Event(BaseModel, EventUnicodeMixin):
 	class Meta:
 		unique_together = (('name','date'),)
 		index_together = (('name','date'),)
+
+class Status(BaseModel,NameUnicodeMixin):
+	name = models.CharField(max_length=200)
+
+class Author(BaseModel, AuthorUnicodeMixin):
+	full_name = models.CharField(max_length=200,unique=True)
 
 class UniqueFile(OrderedModel):
 	checksum = models.CharField(max_length=100,null=True, unique=True)
@@ -79,7 +61,42 @@ class UniqueFile(OrderedModel):
 	file = FileBrowseField(max_length=500,null=True)
 	cut_of = models.ForeignKey('self',related_name='cuts',null=True)
 	ready = models.BooleanField(default=False)
+	active = models.BooleanField(default=True)#
+	def absolute_url():
+		return file.url
+
+
+class Topic(OrderedModel,NameUnicodeMixin):
+	name = models.CharField(max_length=200)
+	code = models.CharField(max_length=10, unique = True)
+
+class Module(OrderedModel,NameUnicodeMixin):
+	name = models.CharField(max_length=200)
+	code = models.CharField(max_length=10, unique = True)
+	topic = models.ForeignKey(Topic, related_name='modules')
+	working = models.BooleanField(default=False)
+	files = models.ManyToManyField(UniqueFile, through='UniqueFilesofModule')
+	def __unicode__(self):
+		return "%s: %s" % (unicode(self.topic), self.name)
+
+class Path(BaseModel,NameUnicodeMixin):
+	name = models.CharField(max_length=800,unique=True)
+	topic = models.ForeignKey(Topic,related_name='paths',null=True)
+	module = models.ForeignKey(Module, related_name='paths',null=True)
 	active = models.BooleanField(default=True)
+
+
+
+
+
+
+
+class UniqueFilesofModule(BaseModel):
+	file = models.ForeignKey(UniqueFile)
+	module = models.ForeignKey(Module)
+	class Meta:
+		unique_together = ('file','module')
+		index_together = ('file','module')
 	
 
 class File(OrderedModel, PathUnicodeMixin):
@@ -99,12 +116,6 @@ class File(OrderedModel, PathUnicodeMixin):
 	class Meta:
 		ordering = [ 'containing_path__topic','containing_path__module' ]
 
-class UniqueFilesofModule(BaseModel):
-	file = models.ForeignKey(UniqueFile)
-	module = models.ForeignKey(Module)
-	class Meta:
-		unique_together = ('file','module')
-		index_together = ('file','module')
 
 
 class FileLink(BaseModel):

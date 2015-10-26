@@ -16,8 +16,11 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from repo.views import HomePageView
+from filebrowser.sites import site as fbsite
 
 urlpatterns = [
+	url(r'^filebrowser/', include(fbsite.urls)),
+	url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^[/]?$', HomePageView.as_view())
 ]
