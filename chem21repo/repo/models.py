@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from filebrowser.fields import FileBrowseField
-
+from django.core.urlresolvers import reverse
 class BaseModel(models.Model):
 	class Meta:
 		abstract=True
@@ -53,6 +53,8 @@ class Author(BaseModel, AuthorUnicodeMixin):
 
 class UniqueFile(OrderedModel):
 	checksum = models.CharField(max_length=100,null=True, unique=True)
+	path = models.CharField(max_length=255,null=True)
+	ext = models.CharField(max_length=8,null=True)
 	type = models.CharField(max_length=15,default="text", null=True)
 	title = models.CharField(max_length=200,null=True)
 	size = models.BigIntegerField(default=0)
@@ -61,9 +63,24 @@ class UniqueFile(OrderedModel):
 	file = FileBrowseField(max_length=500,null=True)
 	cut_of = models.ForeignKey('self',related_name='cuts',null=True)
 	ready = models.BooleanField(default=False)
-	active = models.BooleanField(default=True)#
-	def absolute_url():
-		return file.url
+	active = models.BooleanField(default=True)
+
+	def __unicode__(self):
+		return self.checksum
+
+	@property
+	def _stripped_ext(self):
+		return self.ext.replace(".","")
+
+	def get_absolute_url(self):
+		return reverse('video_detail',kwargs={'checksum':self.checksum})
+
+	def get_file_relative_url(self):
+		return "sources/"+self.checksum+self.ext
+
+	def get_mime_type(self):
+		return self.type+"/"+self._stripped_ext
+
 
 
 class Topic(OrderedModel,NameUnicodeMixin):
@@ -85,19 +102,12 @@ class Path(BaseModel,NameUnicodeMixin):
 	module = models.ForeignKey(Module, related_name='paths',null=True)
 	active = models.BooleanField(default=True)
 
-
-
-
-
-
-
 class UniqueFilesofModule(BaseModel):
 	file = models.ForeignKey(UniqueFile)
 	module = models.ForeignKey(Module)
 	class Meta:
 		unique_together = ('file','module')
-		index_together = ('file','module')
-	
+		index_together = ('file','module')	
 
 class File(OrderedModel, PathUnicodeMixin):
 	path = models.CharField(max_length=800,unique = True)

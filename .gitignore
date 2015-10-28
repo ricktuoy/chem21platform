@@ -3,3 +3,4 @@ chem21repo/credentials.csv
 *.db
 devserver.log
 *.swp
+static/*

@@ -1,6 +1,10 @@
 {% load staticfiles %}
+{% load require %}
 <html>
 <head>
+
+{% block scripts %}
+{% endblock %}
 <link rel="stylesheet" type="text/css" href="{% static "repo/css/main.css" %}" />
 </head>
 <body>

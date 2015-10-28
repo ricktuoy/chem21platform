@@ -1,0 +1,7 @@
+{% extends 'repo/base.html' %}
+{% load static %}
+{% block content %}
+<video width="900" height="600" autoplay controls>
+	<source src="{% get_media_prefix %}{{ object.get_file_relative_url }}" type="{{ object.get_mime_type }}">
+</video>
+{% endblock %}
