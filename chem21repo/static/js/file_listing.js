@@ -8,7 +8,7 @@ requirejs.config({
       "file_listing": "../file_listing",
     },
     "shim": {
-    	'jquery.colorbox': ['jquery']
+    	'jquery.colorbox': ['jquery'],
     }
 });
 

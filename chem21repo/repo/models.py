@@ -51,7 +51,12 @@ class Status(BaseModel,NameUnicodeMixin):
 class Author(BaseModel, AuthorUnicodeMixin):
 	full_name = models.CharField(max_length=200,unique=True)
 
+class ActiveManager(models.Manager):
+	def get_queryset(self):
+		return super(ActiveManager,self).get_queryset().filter(active=True)
+
 class UniqueFile(OrderedModel):
+	objects = ActiveManager()
 	checksum = models.CharField(max_length=100,null=True, unique=True)
 	path = models.CharField(max_length=255,null=True)
 	ext = models.CharField(max_length=8,null=True)
@@ -64,6 +69,7 @@ class UniqueFile(OrderedModel):
 	cut_of = models.ForeignKey('self',related_name='cuts',null=True)
 	ready = models.BooleanField(default=False)
 	active = models.BooleanField(default=True)
+	s3d = models.BooleanField(default=False)
 
 	def __unicode__(self):
 		return self.checksum
@@ -80,8 +86,6 @@ class UniqueFile(OrderedModel):
 
 	def get_mime_type(self):
 		return self.type+"/"+self._stripped_ext
-
-
 
 class Topic(OrderedModel,NameUnicodeMixin):
 	name = models.CharField(max_length=200)
@@ -122,11 +126,8 @@ class File(OrderedModel, PathUnicodeMixin):
 			return slugify(self.event.name+" "+datetime.strftime(self.event.date,"%m %Y")+" "+self.title)+ext
 		else:
 			return slugify(" ".join([a.author.full_name for a in self.authors])+" "+self.title)+ext
-
 	class Meta:
 		ordering = [ 'containing_path__topic','containing_path__module' ]
-
-
 
 class FileLink(BaseModel):
 	origin = models.ForeignKey(File, related_name="filelink_destinations")
@@ -147,12 +148,9 @@ class FileStatus(BaseModel):
 	status = models.ForeignKey(Status)
 	user = models.ForeignKey(User)
 
-
-
 class Presentation(BaseModel):
 	source_files = models.ManyToManyField(UniqueFile)
 	
-
 class PresentationSlide(OrderedModel):
 	file = FileBrowseField(max_length=500,null=True)
 	duration = models.IntegerField(help_text='Duration of this slide in milliseconds')

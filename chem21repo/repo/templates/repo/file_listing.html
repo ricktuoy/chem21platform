@@ -1,5 +1,5 @@
 
-<ul>
+<ol class="sortable">
 {% for f in file_list %}
 <li>
 <a class="file_type_{{ f.type }}" href="{{ f.get_absolute_url }}">{{ f.title }}</a>
@@ -18,5 +18,5 @@
 {% endif %}
 </li>
 {% endfor %}
-</ul>
+</ol>
 
