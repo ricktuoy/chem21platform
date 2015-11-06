@@ -1,22 +1,34 @@
-
-<ol class="sortable">
-{% for f in file_list %}
-<li>
-<a class="file_type_{{ f.type }}" href="{{ f.get_absolute_url }}">{{ f.title }}</a>
-{% if with_links %} 
-<span class="topic_link"><a href="{{ f.topic.get_absolute_url }}">{{ f.topic.name }}</a></span>
-<span class="module_link">{{ f.module.name }}</span>
-{% endif %}
-{% if f.cuts %}
-<ul class="cuts">
-{% for cut in f.cuts.all %}
-<li>
-{{ cut.title }}
-</li>
-{% endfor %}
-</ul>
-{% endif %}
-</li>
-{% endfor %}
+<ol>
+    {% for v in file_list %}
+    {% with f=v.file %}
+    <li id="source_file-{{ v.id }}">
+        <div>
+        <span title="Click to show/hide children" class="disclose">
+            <span></span>
+        </span>
+            <a class="file_type_{{ f.type }}" href="{{ f.get_absolute_url }}">{{ f.title }}</a>
+            {% for module in f.module_set.all %}
+            <span class="module_link">{{ module.name }} </span>
+            {% endfor %}
+            {% if f.cuts %}
+            <ol class="cuts">
+                {% for cut in f.cuts.all %}
+                <li id="cut_file-{{ cut.id }}">
+                    <div>
+                        <span title="Click to show/hide children" class="disclose">
+                        <span></span>
+                        </span>
+                        <a class="file_type_{{ cut.type }}" href="{{ cut.get_absolute_url }}">{{ cut.title }}</a>
+                        {% for module in f.module_set.all %}
+                            <span class="module_link">{{ module.name }} </span>
+                        {% endfor %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ol>
+            {% endif %}
+        </div>
+    </li>
+    {% endwith %}
+    {% endfor %}
 </ol>
-

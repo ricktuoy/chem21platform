@@ -1,6 +1,6 @@
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
+from django.utils.crypto import get_random_string
 # Application definition
 
 INSTALLED_APPS = (
@@ -15,7 +15,6 @@ INSTALLED_APPS = (
     'chem21repo.repo',
     'require',
     'cachedS3'
-
 )
 
 
@@ -84,7 +83,7 @@ AWS_IS_GZIPPED = False
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-STATICFILES_DIRS = ( os.path.join(BASE_DIR, 'static'),)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 
 REQUIRE_BASE_URL = 'js/lib'
@@ -92,13 +91,12 @@ REQUIRE_BASE_URL = 'js/lib'
 S3_URL = 'http://%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 MEDIA_ROOT = '/media/'
-MEDIA_URL = S3_URL+MEDIA_ROOT
+MEDIA_URL = S3_URL + MEDIA_ROOT
 
 # SECURITY WARNING: keep the secret key used in production secret!
-from django.utils.crypto import get_random_string
-SECRET_KEY = os.environ.get("SECRET_KEY", get_random_string(50, "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"))
+
+SECRET_KEY = os.environ.get("SECRET_KEY", get_random_string(
+    50, "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"))
 
 # Use Amazon S3 for storage for uploaded media files.
 DEFAULT_FILE_STORAGE = "chem21repo.storage.MediaRootS3BotoStorage"
-
-

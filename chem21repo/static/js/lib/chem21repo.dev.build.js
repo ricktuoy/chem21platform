@@ -8,18 +8,14 @@
  *   - 'dir' will be overidden by django-require during the build process. 
  */
 ({
-    
     /*
      * List the modules that will be optimized. All their immediate and deep
      * dependencies will be included in the module's file when the build is
      * done. A minimum module entry is {name: "module_name"}.
      */
-    modules: [
-        {
-            name:'file_listing'
-        }
-    ],
-
+    modules: [{
+        name: 'file_listing'
+    }],
     /*
      * Allow CSS optimizations. Allowed values:
      * - "standard": @import inlining, comment removal and line returns.
@@ -31,7 +27,6 @@
      * - "standard.keepComments.keepLines": Keeps the file comments and line returns.
      */
     optimizeCss: "none",
-
     /*
      * How to optimize all the JS files in the build output directory.
      * Right now only the following values are supported:
@@ -42,7 +37,6 @@
      * - "none": No minification will be done.
      */
     optimize: "none",
-    
     /*
      * By default, comments that have a license in them are preserved in the
      * output. However, for a larger built files there could be a lot of
@@ -52,7 +46,6 @@
      * work out how best to surface the license information.
      */
     preserveLicenseComments: true,
-    
     /*
      * The default behaviour is to optimize the build layers (the "modules"
      * section of the config) and any other JS file in the directory. However, if
@@ -62,8 +55,5 @@
      * files.
      */
     skipDirOptimize: true,
-
     mainConfigFile: "../file_listing.js",
-
-    
 })

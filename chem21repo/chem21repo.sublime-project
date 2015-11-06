@@ -1,0 +1,37 @@
+{
+	"build_systems":
+	[
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "python -u \"$file\""
+		}
+	],
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"__init__.py"
+			],
+			"folder_exclude_patterns":
+			[
+				"fixtures",
+				"repo/migrations",
+				"repo/static",
+				"static"
+			],
+			"path": "."
+		},
+		{
+			"folder_exclude_patterns":
+			[
+				"repo/migrations",
+				"repo/static"
+			],
+			"follow_symlinks": true,
+			"path": "T:\\Local CMS\\chem21repo\\repo"
+		}
+	]
+}

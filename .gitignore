@@ -4,3 +4,5 @@ chem21repo/credentials.csv
 devserver.log
 *.swp
 static/*
+*.sublime-workspace
+logs/*

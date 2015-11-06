@@ -1,5 +1,12 @@
+from .models import Author
+from .models import Event
+from .models import FileLink
+from .models import Module
+from .models import Path
+from .models import Topic
+from .models import UniqueFile
+from .models import UniqueFilesofModule
 from django.contrib import admin
-from .models import Topic, Module, Path, Author, Event, FileLink, UniqueFile, UniqueFilesofModule
 
 # Register your models here.
 admin.site.register(UniqueFile)

@@ -11,9 +11,6 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 (function( factory ) {
-	"use strict";
-
-	var define = window.define;
 
 	if ( typeof define === "function" && define.amd ) {
 
@@ -25,7 +22,7 @@
 	} else {
 
 		// Browser globals
-		factory( window.jQuery );
+		factory( jQuery );
 	}
 }(function($) {
 	"use strict";

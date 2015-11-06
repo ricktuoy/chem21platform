@@ -3,14 +3,30 @@
 {% block scripts %}
 {% require_module '../file_listing' %}
 {% endblock %}
-
 {% block content %}
-{% for topic in topics %}
-<h2>{{ topic }}</h2>
-{% for module in topic.modules.all %}
-<h3>{{ module }}</h3>
-{% include 'repo/file_listing.html' with file_list=module.video_files with_list=1 %}
-{% endfor %}
-{% endfor %}
+<ol class="sortable">
+	{% for topic in topics %}
+	<li id="topic-{{ topic.id }}">
+		<div>
+		    <span title="Click to show/hide children" class="disclose">
+            <span></span>
+        	</span>
+			{{ topic }}
+			<ol>
+			{% for module in topic.modules.all %}
+				<li id="module-{{ module.id }}">
+					<div>
+					        <span title="Click to show/hide children" class="disclose">
+            <span></span>
+        </span>
+						{{ module }}
+						{% include 'repo/file_listing.html' with file_list=module.ordered_videos with_list=1 module=module %}
+					</div>
+				</li>
+			{% endfor %}
+			</ol>
+		</div>
+	</li>
+	{% endfor %}
+</ol>
 {% endblock %}
-
