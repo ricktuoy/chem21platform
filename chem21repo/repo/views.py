@@ -1,5 +1,7 @@
 import logging
 
+from .models import Lesson
+from .models import LessonsInModule
 from .models import Module
 from .models import Topic
 from .models import UniqueFile
@@ -60,7 +62,11 @@ class HomePageView(TemplateView):
                      to_attr="ordered_videos"),
             Prefetch("modules__ordered_videos__file__cuts",
                      queryset=UniqueFile.objects.filter(
-                         type="video").order_by('cut_order')))
+                         type="video").order_by('cut_order')),
+            Prefetch("modules__lessonsofmodule_set",
+                     queryset=LessonsInModule.objects.all().order_by('order'),
+                     to_attr="ordered_lessons")
+            )
 
         context['topics'] = topics
         return context

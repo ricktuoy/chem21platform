@@ -251,6 +251,66 @@ class FileInModuleManager(models.Manager, OrderedRelationalManagerBase):
         return "module"
 
 
+class PresentationsInQuestionManager(models.Manager,
+                                     OrderedRelationalManagerBase):
+
+    @property
+    def order_field(self):
+        return "order"
+
+    @property
+    def order_key(self):
+        return "question"
+
+
+class LessonsInModuleManager(models.Manager,
+                             OrderedRelationalManagerBase):
+
+    @property
+    def order_field(self):
+        return "order"
+
+    @property
+    def order_key(self):
+        return "module"
+
+
+class SourceFilesInPresentationManager(models.Manager,
+                                       OrderedRelationalManagerBase):
+
+    @property
+    def order_field(self):
+        return "order"
+
+    @property
+    def order_key(self):
+        return "presentation"
+
+
+class SlidesInPresentationVersionManager(models.Manager,
+                                         OrderedRelationalManagerBase):
+
+    @property
+    def order_field(self):
+        return "order"
+
+    @property
+    def order_key(self):
+        return "presentation"
+
+
+class VideosInQuestionManager(models.Manager,
+                              OrderedRelationalManagerBase):
+
+    @property
+    def order_field(self):
+        return "order"
+
+    @property
+    def order_key(self):
+        return "question"
+
+
 class Event(BaseModel, EventUnicodeMixin):
     name = models.CharField(max_length=100)
     date = models.DateField(null=True)
@@ -393,7 +453,14 @@ class FileStatus(BaseModel):
 
 
 class Presentation(BaseModel):
-    source_files = models.ManyToManyField(UniqueFile)
+    source_files = models.ManyToManyField(
+        UniqueFile, through="SourceFilesInPresentation")
+
+
+class SourceFilesInPresentation(OrderedModel):
+    objects = SourceFilesInPresentationManager()
+    file = models.ForeignKey(UniqueFile)
+    presentation = models.ForeignKey(Presentation)
 
 
 class PresentationSlide(OrderedModel):
@@ -406,5 +473,44 @@ class PresentationSlide(OrderedModel):
 class PresentationVersion(BaseModel):
     presentation = models.ForeignKey(Presentation)
     version = models.IntegerField()
-    slides = models.ManyToManyField(PresentationSlide)
+    slides = models.ManyToManyField(
+        PresentationSlide, through='SlidesInPresentationVersion')
     audio = models.ForeignKey(UniqueFile)
+
+
+class SlidesInPresentationVersion(OrderedModel):
+    objects = SlidesInPresentationVersionManager()
+    presentation = models.ForeignKey(PresentationVersion)
+    slide = models.ForeignKey(PresentationSlide)
+
+
+class Lesson(OrderedModel):
+    modules = models.ManyToManyField(Module, through="LessonsInModule")
+    title = models.CharField(max_length=100, blank=True, default="")
+
+
+class Question(OrderedModel):
+    presentations = models.ManyToManyField(
+        Presentation, through='PresentationsInQuestion')
+    videos = models.ManyToManyField(
+        UniqueFile, through='VideosInQuestion')
+    text = models.TextField(blank=True, default="")
+    pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
+
+
+class VideosInQuestion(OrderedModel):
+    objects = VideosInQuestionManager()
+    file = models.ForeignKey(UniqueFile)
+    question = models.ForeignKey(Question)
+
+
+class LessonsInModule(OrderedModel):
+    objects = LessonsInModuleManager()
+    lesson = models.ForeignKey(Lesson)
+    module = models.ForeignKey(Module)
+
+
+class PresentationsInQuestion(OrderedModel):
+    objects = PresentationsInQuestionManager()
+    question = models.ForeignKey(Question)
+    presentation = models.ForeignKey(Presentation)

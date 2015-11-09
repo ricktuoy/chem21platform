@@ -20,7 +20,8 @@
 				"fixtures",
 				"repo/migrations",
 				"repo/static",
-				"static"
+				"static",
+				"repo/templates"
 			],
 			"path": "."
 		},
@@ -28,10 +29,13 @@
 			"folder_exclude_patterns":
 			[
 				"repo/migrations",
-				"repo/static"
+				"repo/static",
+				"repo/templates"
 			],
-			"follow_symlinks": true,
-			"path": "T:\\Local CMS\\chem21repo\\repo"
+			"path": "repo"
+		},
+		{
+			"path": "repo\\migrations"
 		}
 	]
 }

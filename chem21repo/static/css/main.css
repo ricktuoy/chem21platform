@@ -2,8 +2,21 @@ body {
     font-family: "Open Sans", sans-serif;
 }
 
+div#sources_tree {
+    width: 45%;
+    margin-right: 2.5%;
+    padding: 0;
+    float: left;
+}
+
+div#lessons_tree {
+    width: 45%;
+    padding: 0;
+    float: left;
+}
+
 ol {
-    max-width: 75%;
+    max-width: 100%;
     padding-left: 25px;
 }
 

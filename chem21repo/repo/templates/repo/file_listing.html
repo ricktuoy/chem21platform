@@ -1,24 +1,26 @@
 <ol>
     {% for v in file_list %}
     {% with f=v.file %}
-    <li id="source_file-{{ v.id }}">
+    <li class="repo-object-source_file-{{ v.id }}">
         <div>
+        {% if f.cuts.count %}
         <span title="Click to show/hide children" class="disclose">
             <span></span>
         </span>
+        {% endif %}
             <a class="file_type_{{ f.type }}" href="{{ f.get_absolute_url }}">{{ f.title }}</a>
             {% for module in f.module_set.all %}
+            
             <span class="module_link">{{ module.name }} </span>
+            
             {% endfor %}
+
             </div>
             {% if f.cuts %}
             <ol class="cuts">
                 {% for cut in f.cuts.all %}
-                <li id="cut_file-{{ cut.id }}">
+                <li id="repo-object-cut_file-{{ cut.id }}">
                     <div>
-                        <span title="Click to show/hide children" class="disclose">
-                        <span></span>
-                        </span>
                         <a class="file_type_{{ cut.type }}" href="{{ cut.get_absolute_url }}">{{ cut.title }}</a>
                         {% for module in f.module_set.all %}
                             <span class="module_link">{{ module.name }} </span>

@@ -4,9 +4,41 @@
 {% require_module '../file_listing' %}
 {% endblock %}
 {% block content %}
+<div id="sources_tree">
 <ol class="sortable">
 	{% for topic in topics %}
-	<li id="topic-{{ topic.id }}">
+	<li class="repo-object-topic-{{ topic.id }}">
+		<div>
+			{% if topic.modules.count %}
+		    <span title="Click to show/hide children" class="disclose">
+            <span></span>
+        	</span>
+        	{% endif %}
+			{{ topic }}
+			</div>
+			<ol>
+			{% for module in topic.modules.all %}
+				<li class="repo-object-module-{{ module.id }}">
+					<div>
+						{% if module.ordered_videos %}
+					    <span title="Click to show/hide children" class="disclose">
+            			<span></span>
+        				</span>
+        				{% endif %}
+						{{ module }}
+					</div>
+					{% include 'repo/file_listing.html' with file_list=module.ordered_videos with_list=1 module=module %}
+				</li>
+			{% endfor %}
+			</ol>
+	</li>
+	{% endfor %}
+</ol>
+</div>
+<div id="lessons_tree">
+<ol class="sortable">
+{% for topic in topics %}
+	<li class="topic-{{ topic.id }}">
 		<div>
 		    <span title="Click to show/hide children" class="disclose">
             <span></span>
@@ -15,20 +47,19 @@
 			</div>
 			<ol>
 			{% for module in topic.modules.all %}
-				<li id="module-{{ module.id }}">
+				<li class="module-{{ module.id }}">
 					<div>
-					        <span title="Click to show/hide children" class="disclose">
-            <span></span>
-        </span>
+					    <span title="Click to show/hide children" class="disclose">
+            			<span></span>
+        				</span>
 						{{ module }}
-						</div>
-						{% include 'repo/file_listing.html' with file_list=module.ordered_videos with_list=1 module=module %}
-					
+					</div>
+					{% include 'repo/file_listing.html' with file_list=module.ordered_lessons with_list=1 module=module %}
 				</li>
 			{% endfor %}
 			</ol>
-		
 	</li>
 	{% endfor %}
-</ol>
+	</ol>
+</div>
 {% endblock %}

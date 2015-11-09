@@ -20,18 +20,24 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
         var onRelocate = function(e) {
             function getAjaxUrlFromEl(el, dest) {
                 console.debug(el);
-                var sparts = el.attr("id").split("-");
+                console.debug(el.attr("class"));
+                var sparts = el.attr("class").match(/\brepo-object-(.+)-(\d+)\b/);
+                console.debug(sparts);
                 if ($.type(dest) == "string" && dest == "top") {
                     var to = "0";
                 } else {
-                    var dparts = dest.attr("id").split("-");
-                    var to = dparts[1];
+                    console.debug(dest);
+                    var dparts = dest.attr("class").match(/\brepo-object-(.+)-(\d+)\b/);
+                    console.debug(dparts);
+                    var to = dparts[2];
                 }
-                var url = "/" + sparts[0] + "/move/" + sparts[1] + "/" + to;
+                var url = "/" + sparts[1] + "/move/" + sparts[2] + "/" + to;
                 return url;
             }
+            console.debug("relocate; el");
             console.debug(e);
             var movedEl = $(e.toElement).closest("li");
+            console.debug("toElement");
             console.debug($(e.toElement));  
             var allEls = movedEl.closest("ol").children("li");
             var newPos = allEls.index(movedEl) + 1;
