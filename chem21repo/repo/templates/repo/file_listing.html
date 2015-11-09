@@ -10,6 +10,7 @@
             {% for module in f.module_set.all %}
             <span class="module_link">{{ module.name }} </span>
             {% endfor %}
+            </div>
             {% if f.cuts %}
             <ol class="cuts">
                 {% for cut in f.cuts.all %}
@@ -27,7 +28,7 @@
                 {% endfor %}
             </ol>
             {% endif %}
-        </div>
+        
     </li>
     {% endwith %}
     {% endfor %}

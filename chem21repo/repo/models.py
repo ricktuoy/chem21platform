@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db import transaction
-from django.templatetags import slugify
+from django.template.defaultfilters import slugify
 from filebrowser.fields import FileBrowseField
 
 
@@ -110,8 +110,7 @@ class OrderedManagerBase:
             o.save()
 
     def _ensure_order_consistent(self):
-        # this does a quick check that orders seem to be consistent in DB.
-        # if not it recalculates them (1..2..3..)
+        """ Check orders are consistent in DB, else recalculates """
         if self.order_sum() != self.order_triangle() or \
                 self.force_reset_order is True:
             self._reset_order()

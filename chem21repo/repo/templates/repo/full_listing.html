@@ -12,6 +12,7 @@
             <span></span>
         	</span>
 			{{ topic }}
+			</div>
 			<ol>
 			{% for module in topic.modules.all %}
 				<li id="module-{{ module.id }}">
@@ -20,12 +21,13 @@
             <span></span>
         </span>
 						{{ module }}
+						</div>
 						{% include 'repo/file_listing.html' with file_list=module.ordered_videos with_list=1 module=module %}
-					</div>
+					
 				</li>
 			{% endfor %}
 			</ol>
-		</div>
+		
 	</li>
 	{% endfor %}
 </ol>

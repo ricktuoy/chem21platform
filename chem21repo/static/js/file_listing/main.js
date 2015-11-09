@@ -16,8 +16,10 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
         var isDropAllowed = function(placeholder, placeholderParent, currentItem) {
             return true;
         }
+
         var onRelocate = function(e) {
             function getAjaxUrlFromEl(el, dest) {
+                console.debug(el);
                 var sparts = el.attr("id").split("-");
                 if ($.type(dest) == "string" && dest == "top") {
                     var to = "0";
@@ -28,7 +30,9 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 var url = "/" + sparts[0] + "/move/" + sparts[1] + "/" + to;
                 return url;
             }
+            console.debug(e);
             var movedEl = $(e.toElement).closest("li");
+            console.debug($(e.toElement));  
             var allEls = movedEl.closest("ol").children("li");
             var newPos = allEls.index(movedEl) + 1;
             if (newPos > 1) {
@@ -58,7 +62,7 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
             tabSize: 25,
             maxLevels: 5,
             isTree: true,
-            expandOnHover: 700,
+            expandOnHover: null,
             isAllowed: isDropAllowed,
             startCollapsed: true,
             relocate: onRelocate,

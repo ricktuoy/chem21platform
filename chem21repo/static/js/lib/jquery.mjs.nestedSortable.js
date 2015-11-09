@@ -95,6 +95,7 @@
 							if (self.options.startCollapsed) {
 								$li.addClass(self.options.collapsedClass);
 							} else {
+								console.debug("Prepare tree");
 								$li.addClass(self.options.expandedClass);
 							}
 						}
@@ -332,6 +333,7 @@
 						if (!this.hovering) {
 							$(itemElement).addClass(o.hoveringClass);
 							this.hovering = window.setTimeout(function() {
+								console.debug("Expang on hover callback");
 								$(itemElement)
 									.removeClass(o.collapsedClass)
 									.addClass(o.expandedClass);
@@ -812,9 +814,11 @@
 			if (o.isTree) {
 				replaceClass(item, o.branchClass, o.leafClass, doNotClear);
 
-				if (doNotClear && hasChildren) {
+				/*if (doNotClear && hasChildren) {
+					console.debug("_clearEmpty");
 					replaceClass(item, o.collapsedClass, o.expandedClass);
 				}
+				*/
 			}
 
 			if (!doNotClear) {
