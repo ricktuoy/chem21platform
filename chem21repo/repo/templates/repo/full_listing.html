@@ -54,7 +54,7 @@
         				</span>
 						{{ module }}
 					</div>
-					{% include 'repo/file_listing.html' with file_list=module.ordered_lessons with_list=1 module=module %}
+					{% include 'repo/lesson_listing.html' with lesson_list=module.ordered_lessons with_list=1 module=module %}
 				</li>
 			{% endfor %}
 			</ol>

@@ -311,6 +311,18 @@ class VideosInQuestionManager(models.Manager,
         return "question"
 
 
+class QuestionsInLessonManager(models.Manager,
+                               OrderedRelationalManagerBase):
+
+    @property
+    def order_field(self):
+        return "order"
+
+    @property
+    def order_key(self):
+        return "lesson"
+
+
 class Event(BaseModel, EventUnicodeMixin):
     name = models.CharField(max_length=100)
     date = models.DateField(null=True)
@@ -381,6 +393,7 @@ class Module(OrderedModel, NameUnicodeMixin):
     topic = models.ForeignKey(Topic, related_name='modules')
     working = models.BooleanField(default=False)
     files = models.ManyToManyField(UniqueFile, through='UniqueFilesofModule')
+    remote_id = models.IntegerField(null=True, db_index=True)
 
     def __unicode__(self):
         return "%s: %s" % (unicode(self.topic), self.name)
@@ -462,6 +475,10 @@ class SourceFilesInPresentation(OrderedModel):
     file = models.ForeignKey(UniqueFile)
     presentation = models.ForeignKey(Presentation)
 
+    class Meta(OrderedModel.Meta):
+        unique_together = ('presentation', 'file')
+        index_together = ('presentation', 'file')
+
 
 class PresentationSlide(OrderedModel):
     file = FileBrowseField(max_length=500, null=True)
@@ -483,19 +500,38 @@ class SlidesInPresentationVersion(OrderedModel):
     presentation = models.ForeignKey(PresentationVersion)
     slide = models.ForeignKey(PresentationSlide)
 
+    class Meta(OrderedModel.Meta):
+        unique_together = ('presentation', 'slide')
+        index_together = ('presentation', 'slide')
+
 
 class Lesson(OrderedModel):
     modules = models.ManyToManyField(Module, through="LessonsInModule")
     title = models.CharField(max_length=100, blank=True, default="")
+    remote_id = models.IntegerField(null=True, db_index=True)
 
 
 class Question(OrderedModel):
+    title = models.CharField(max_length=100, blank=True, default="")
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
     videos = models.ManyToManyField(
         UniqueFile, through='VideosInQuestion')
     text = models.TextField(blank=True, default="")
     pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
+    remote_id = models.IntegerField(null=True, db_index=True)
+    lessons = models.ManyToManyField(
+        Lesson, through='QuestionsInLesson')
+
+
+class QuestionsInLesson(OrderedModel):
+    objects = QuestionsInLessonManager()
+    question = models.ForeignKey(Question)
+    lesson = models.ForeignKey(Lesson)
+
+    class Meta(OrderedModel.Meta):
+        unique_together = ('question', 'lesson')
+        index_together = ('question', 'lesson')
 
 
 class VideosInQuestion(OrderedModel):
@@ -503,14 +539,26 @@ class VideosInQuestion(OrderedModel):
     file = models.ForeignKey(UniqueFile)
     question = models.ForeignKey(Question)
 
+    class Meta(OrderedModel.Meta):
+        unique_together = ('file', 'question')
+        index_together = ('file', 'question')
+
 
 class LessonsInModule(OrderedModel):
     objects = LessonsInModuleManager()
     lesson = models.ForeignKey(Lesson)
     module = models.ForeignKey(Module)
 
+    class Meta(OrderedModel.Meta):
+        unique_together = ('lesson', 'module')
+        index_together = ('lesson', 'module')
+
 
 class PresentationsInQuestion(OrderedModel):
     objects = PresentationsInQuestionManager()
     question = models.ForeignKey(Question)
     presentation = models.ForeignKey(Presentation)
+
+    class Meta(OrderedModel.Meta):
+        unique_together = ('question', 'presentation')
+        index_together = ('question', 'presentation')

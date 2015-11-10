@@ -6,6 +6,7 @@ from .models import Module
 from .models import Topic
 from .models import UniqueFile
 from .models import UniqueFilesofModule
+from .models import QuestionsInLesson
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
@@ -63,10 +64,14 @@ class HomePageView(TemplateView):
             Prefetch("modules__ordered_videos__file__cuts",
                      queryset=UniqueFile.objects.filter(
                          type="video").order_by('cut_order')),
-            Prefetch("modules__lessonsofmodule_set",
+            Prefetch("modules__lessonsinmodule_set",
                      queryset=LessonsInModule.objects.all().order_by('order'),
-                     to_attr="ordered_lessons")
-            )
+                     to_attr="ordered_lessons"),
+            Prefetch("modules__ordered_lessons__lesson__questionsinlesson_set",
+                     queryset=QuestionsInLesson.objects.all().order_by(
+                         'order'),
+                     to_attr="ordered_questions")
+        )
 
         context['topics'] = topics
         return context
