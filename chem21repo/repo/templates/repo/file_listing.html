@@ -9,11 +9,7 @@
         </span>
         {% endif %}
             <a class="file_type_{{ f.type }}" href="{{ f.get_absolute_url }}">{{ f.title }}</a>
-            {% for module in f.module_set.all %}
-            
-            <span class="module_link">{{ module.name }} </span>
-            
-            {% endfor %}
+
 
             </div>
             {% if f.cuts %}
@@ -22,9 +18,7 @@
                 <li id="repo-object-cut_file-{{ cut.id }}">
                     <div>
                         <a class="file_type_{{ cut.type }}" href="{{ cut.get_absolute_url }}">{{ cut.title }}</a>
-                        {% for module in f.module_set.all %}
-                            <span class="module_link">{{ module.name }} </span>
-                        {% endfor %}
+
                     </div>
                 </li>
                 {% endfor %}

@@ -299,8 +299,8 @@ class SlidesInPresentationVersionManager(models.Manager,
         return "presentation"
 
 
-class VideosInQuestionManager(models.Manager,
-                              OrderedRelationalManagerBase):
+class FilesInQuestionManager(models.Manager,
+                             OrderedRelationalManagerBase):
 
     @property
     def order_field(self):
@@ -362,6 +362,7 @@ class UniqueFile(OrderedModel):
     ready = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
     s3d = models.BooleanField(default=False)
+    remote_path = models.CharField(max_length=255, null=True)
 
     def __unicode__(self):
         return self.checksum
@@ -515,8 +516,8 @@ class Question(OrderedModel):
     title = models.CharField(max_length=100, blank=True, default="")
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
-    videos = models.ManyToManyField(
-        UniqueFile, through='VideosInQuestion')
+    files = models.ManyToManyField(
+        UniqueFile, through='FilesInQuestion')
     text = models.TextField(blank=True, default="")
     pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
     remote_id = models.IntegerField(null=True, db_index=True)
@@ -534,10 +535,11 @@ class QuestionsInLesson(OrderedModel):
         index_together = ('question', 'lesson')
 
 
-class VideosInQuestion(OrderedModel):
-    objects = VideosInQuestionManager()
+class FilesInQuestion(OrderedModel):
+    objects = FilesInQuestionManager()
     file = models.ForeignKey(UniqueFile)
     question = models.ForeignKey(Question)
+    product = models.BooleanField(default=False)
 
     class Meta(OrderedModel.Meta):
         unique_together = ('file', 'question')

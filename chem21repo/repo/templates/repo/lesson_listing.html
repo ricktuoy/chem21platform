@@ -10,20 +10,17 @@
             {% endif %}  
             {{ l.title }}
         </div>
-            {% if l.ordered_questions %}
-            <ol class="questions">
-                {% for q in l.ordered_questions %}
-
-                <li id="repo-object-question-{{ q.question.id }}">
-                    <div>
-                       {{ q.question.title }} 
-                    </div>
-                </li>
-
-                {% endfor %}
-            </ol>
-            {% endif %}
-        
+        {% if l.ordered_questions %}
+        <ol class="questions">
+            {% for q in l.ordered_questions %}
+            <li id="repo-object-question-{{ q.question.id }}">
+                <div>
+                   {{ q.question.title }} 
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+        {% endif %}
     </li>
     {% endwith %}
     {% endfor %}

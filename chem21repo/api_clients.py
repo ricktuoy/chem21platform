@@ -1,5 +1,9 @@
+import base64
+import json
 import requests
+
 from django.conf import settings
+from django.core.files.storage import DefaultStorage
 
 
 class RESTAuthError(Exception):
@@ -18,6 +22,7 @@ class DrupalRESTRequests(object):
         self.base_url = base_url
         self.username = username
         self.password = password
+        self.auth_data = None
 
     def abs_url(self, rel_url):
         return self.base_url + rel_url
@@ -64,6 +69,24 @@ class DrupalRESTRequests(object):
                     self.response, self.method_name))
 
 
+class DrupalNode(object):
+
+    """wrapper for Drupal node via API"""
+
+    def __init__(self, json=None):
+        self.json = json
+
+    def is_h5p(self):
+        return self.json['type'] == "h5p_content"
+
+    @property
+    def h5p_data(self):
+        if not self.is_h5p():
+            return None
+        else:
+            return json.loads(self.json['json_content'])
+
+
 class C21RESTRequests(DrupalRESTRequests):
 
     """wrappers for CHEM21 API methods"""
@@ -79,7 +102,7 @@ class C21RESTRequests(DrupalRESTRequests):
         kwargs['password'] = getattr(kwargs,
                                      'password',
                                      settings.CHEM21_PLATFORM_API_PWD)
-        return super(C21RESTRequest, self).init(*args, **kwargs)
+        return super(C21RESTRequests, self).__init__(*args, **kwargs)
 
     def get_courses(self):
         self.method_name = "get_courses"
@@ -99,4 +122,12 @@ class C21RESTRequests(DrupalRESTRequests):
             "/node/%d" % nId)
         return self.get_json_response()
 
-
+    def create_video_question(self, lId, title, ufile, intro):
+        self.method_name = "create_video_question"
+        storage = DefaultStorage()
+        with storage.open(ufile.path, "rb") as v_file:
+            encoded_video = base64.b64encode(v_file.read())
+        #with storage.open
+        self.response = self.put_auth(
+            "/h5p_video", data={'json_content': json.dumps(h5p),
+                                'video': encoded_video})

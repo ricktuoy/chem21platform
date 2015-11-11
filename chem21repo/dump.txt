@@ -1,0 +1,1033 @@
+Getting tree for Critical elements
+Getting tree for Biocatalysis
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": []
+        },
+        "summary": {
+            "displayAt": 3,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "Choose the correct statement.",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "",
+            "files": [
+                {
+                    "copyright": {
+                        "license": "U"
+                    },
+                    "mime": "video/mp4",
+                    "path": "videos/files-561b897d2a965.mp4"
+                }
+            ],
+            "startScreenOptions": {
+                "hideStartTitle": false,
+                "shortStartDescription": "Prof. Nicholas Turner from the University of Manchester"
+            },
+            "title": "Three approaches to synthesis"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+null
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": []
+        },
+        "summary": {
+            "displayAt": 3,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "Choose the correct statement.",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "",
+            "files": [
+                {
+                    "copyright": {
+                        "license": "U"
+                    },
+                    "mime": "video/mp4",
+                    "path": "videos/files-561d0aa557274.mp4"
+                }
+            ],
+            "startScreenOptions": {
+                "hideStartTitle": false,
+                "shortStartDescription": "Dr Bettina Nestl from the Institut f\u00fcr Technische Biochemie in Stuttgart"
+            },
+            "title": "Categorisation of enzymes"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": []
+        },
+        "summary": {
+            "displayAt": 3,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "Choose the correct statement.",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "",
+            "files": [
+                {
+                    "copyright": {
+                        "license": "U"
+                    },
+                    "mime": "video/mp4",
+                    "path": "videos/files-561ba15f6592d.mp4"
+                }
+            ],
+            "startScreenOptions": {
+                "hideStartTitle": false,
+                "shortStartDescription": "Dr Bettina Nestl from the Institut f\u00fcr Technische Biochemie"
+            },
+            "title": "Mechanism of enzyme catalysis"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": []
+        },
+        "summary": {
+            "displayAt": 3,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "Choose the correct statement.",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "",
+            "files": [
+                {
+                    "copyright": {
+                        "license": "U"
+                    },
+                    "mime": "video/mp4",
+                    "path": "videos/files-561bc812aa3c5.mp4"
+                }
+            ],
+            "startScreenOptions": {
+                "hideStartTitle": false,
+                "shortStartDescription": "Dr Bettina Nestl from the Institut f\u00fcr Technische Biochemie"
+            },
+            "title": "Individual enzyme classes"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+Getting tree for Metrics
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": []
+        },
+        "summary": {
+            "displayAt": 3,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "Choose the correct statement.",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "",
+            "files": [
+                {
+                    "copyright": {
+                        "license": "U"
+                    },
+                    "mime": "video/mp4",
+                    "path": "videos/files-5613c403d4ad3.mp4"
+                }
+            ],
+            "startScreenOptions": {
+                "hideStartTitle": false
+            },
+            "title": "Interactive Video"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+null
+Getting tree for Production of Pharmaceuticals and Fine Chemicals using Biocatalysis
+Enter module code (X to skip): Getting tree for Tools and Guides
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": [
+                {
+                    "action": {
+                        "library": "H5P.SingleChoiceSet 1.2",
+                        "params": {
+                            "behaviour": {
+                                "enableRetry": true,
+                                "enableSolutionsButton": true,
+                                "soundEffectsEnabled": true,
+                                "timeoutCorrect": 2000,
+                                "timeoutWrong": 3000
+                            },
+                            "choices": [
+                                {
+                                    "answers": [
+                                        "More than half of mass in reactions is solvent.",
+                                        "More than three-quarters of mass in reactions is solvent.",
+                                        "Less than half of mass in reactions is solvent."
+                                    ],
+                                    "question": "Choose the correct statement."
+                                },
+                                {
+                                    "answers": [
+                                        "The use of solvents of concern, including chlorinated solvents, remains significant in scaled API manufacture, even though the percentage decreases at greater than 100 kg scale.",
+                                        "The percentage use of solvents of concern, including chlorinated solvents, is significant, and increases at greater than 100 kg scale.",
+                                        "The use of solvents of concern, including chlorinated solvents, is insignificant these days in scaled API manufacture."
+                                    ],
+                                    "question": "Choose the correct statement."
+                                }
+                            ],
+                            "l10n": {
+                                "goBackButtonLabel": "Go back",
+                                "resultSlideTitle": "You got :numcorrect of :maxscore correct",
+                                "retryButtonLabel": "Retry",
+                                "showSolutionButtonLabel": "Show solution",
+                                "solutionViewTitle": "Solution"
+                            }
+                        },
+                        "subContentId": "a7c454df-9b9c-48f5-96a8-12a0875d932c"
+                    },
+                    "adaptivity": {
+                        "correct": {
+                            "allowOptOut": false,
+                            "message": ""
+                        },
+                        "wrong": {
+                            "allowOptOut": false,
+                            "message": ""
+                        }
+                    },
+                    "displayAsButton": false,
+                    "duration": {
+                        "from": 85,
+                        "to": 86
+                    },
+                    "height": 17.39347826087,
+                    "label": "",
+                    "pause": true,
+                    "width": 38.436956521739,
+                    "x": 1.0460251046025,
+                    "y": 1.32802124834
+                }
+            ]
+        },
+        "summary": {
+            "displayAt": 1,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "<p>Choose the correct statement.</p>\n",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "",
+            "files": [
+                {
+                    "copyright": {
+                        "license": "U"
+                    },
+                    "mime": "video/mp4",
+                    "path": "videos/files-56026195d7674.mp4"
+                }
+            ],
+            "startScreenOptions": {
+                "hideStartTitle": false,
+                "shortStartDescription": "Listen to Barry from the ACS GCI Round Table and Helen from GSK explain why guidance on solvent selection is needed."
+            },
+            "title": "The need for solvent selection guidance"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": [
+                {
+                    "action": {
+                        "library": "H5P.SingleChoiceSet 1.2",
+                        "params": {
+                            "behaviour": {
+                                "enableRetry": true,
+                                "enableSolutionsButton": true,
+                                "soundEffectsEnabled": true,
+                                "timeoutCorrect": 2000,
+                                "timeoutWrong": 3000
+                            },
+                            "choices": [
+                                {
+                                    "answers": [
+                                        "pH",
+                                        "Flammability / flashpoint",
+                                        "Reactivity / stability",
+                                        "Boiling point",
+                                        "Whether it could give rise to VOCs",
+                                        "Ease of recycling",
+                                        "Whether the solvent is a 1a/1b carcinogen"
+                                    ],
+                                    "question": "Which of the following criteria would generally not be considered when assessing a solvent&#039;s green credentials?"
+                                },
+                                {
+                                    "answers": [
+                                        "Molecular weight",
+                                        "Carbon footprint",
+                                        "Toxicity",
+                                        "Biodegradability",
+                                        "Produced from renewable feedstock"
+                                    ],
+                                    "question": "Which of the following criteria would generally not be considered when assessing a solvent&#039;s green credentials?"
+                                }
+                            ],
+                            "l10n": {
+                                "goBackButtonLabel": "Go back",
+                                "resultSlideTitle": "You got :numcorrect of :maxscore correct",
+                                "retryButtonLabel": "Retry",
+                                "showSolutionButtonLabel": "Show solution",
+                                "solutionViewTitle": "Solution"
+                            }
+                        },
+                        "subContentId": "f87b1ca7-ddbf-4193-a4bd-0fe32dcdb2d8"
+                    },
+                    "adaptivity": {
+                        "correct": {
+                            "allowOptOut": false,
+                            "message": ""
+                        },
+                        "wrong": {
+                            "allowOptOut": false,
+                            "message": ""
+                        }
+                    },
+                    "displayAsButton": false,
+                    "duration": {
+                        "from": 92,
+                        "to": 98
+                    },
+                    "height": 28.219565217391,
+                    "label": "",
+                    "pause": true,
+                    "width": 39.219565217391,
+                    "x": 1.0460251046025,
+                    "y": 1.32802124834
+                }
+            ]
+        },
+        "summary": {
+            "displayAt": 3,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "Choose the correct statement.",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "",
+            "files": [
+                {
+                    "copyright": {
+                        "license": "U"
+                    },
+                    "mime": "video/mp4",
+                    "path": "videos/files-5603f17b91baf.mp4"
+                }
+            ],
+            "startScreenOptions": {
+                "hideStartTitle": false,
+                "shortStartDescription": "Listen to Helen Sneddon from GSK describe the criteria used when selecting solvents."
+            },
+            "title": "Criteria for solvent selection"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": []
+        },
+        "summary": {
+            "displayAt": 3,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "Choose the correct statement.",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "",
+            "files": [
+                {
+                    "copyright": {
+                        "license": "U"
+                    },
+                    "mime": "video/mp4",
+                    "path": "videos/files-56051cd4c4602.mp4"
+                }
+            ],
+            "startScreenOptions": {
+                "hideStartTitle": false,
+                "shortStartDescription": "Denis Prat from Sanofi surveys the similarities and differences between different organisations&#039; approaches"
+            },
+            "title": "In-house selection guides"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": [
+                {
+                    "action": {
+                        "library": "H5P.SingleChoiceSet 1.2",
+                        "params": {
+                            "behaviour": {
+                                "enableRetry": true,
+                                "enableSolutionsButton": true,
+                                "soundEffectsEnabled": true,
+                                "timeoutCorrect": 2000,
+                                "timeoutWrong": 3000
+                            },
+                            "choices": [
+                                {
+                                    "answers": [
+                                        "Solvent guides are designed to provide a &#039;one size fits all&#039; solution to solvent selection",
+                                        "Stability of solvents is&nbsp;a factor when designing solvent guides because less stable solvents tend to produce lower yields:&nbsp;they are more likely to create byproducts",
+                                        "Health and safety factors are considered when designing solvent guides as&nbsp;the cost in safety measures for risky solvents&nbsp;can be prohibitive"
+                                    ],
+                                    "question": "Which of the following statements are *not* true"
+                                }
+                            ],
+                            "l10n": {
+                                "goBackButtonLabel": "Go back",
+                                "resultSlideTitle": "You got :numcorrect of :maxscore correct",
+                                "retryButtonLabel": "Retry",
+                                "showSolutionButtonLabel": "Show solution",
+                                "solutionViewTitle": "Solution"
+                            }
+                        },
+                        "subContentId": "2b657885-4d38-4b2d-a6bd-5fe929ff2da7"
+                    },
+                    "adaptivity": {
+                        "correct": {
+                            "allowOptOut": false,
+                            "message": ""
+                        },
+                        "wrong": {
+                            "allowOptOut": false,
+                            "message": ""
+                        }
+                    },
+                    "displayAsButton": false,
+                    "duration": {
+                        "from": 248,
+                        "to": 250
+                    },
+                    "height": 29.697826086957,
+                    "label": "",
+                    "pause": true,
+                    "width": 41.089130434783,
+                    "x": 0,
+                    "y": 0
+                }
+            ]
+        },
+        "summary": {
+            "displayAt": 3,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "Choose the correct statement.",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "<p>Test</p>\n",
+            "files": [
+                {
+                    "copyright": {
+                        "license": "U"
+                    },
+                    "mime": "video/mp4",
+                    "path": "videos/files-5603f2cbadf1f.mp4"
+                }
+            ],
+            "startScreenOptions": {
+                "hideStartTitle": false,
+                "shortStartDescription": "Helen talks us through the general GSK solvent selection guide"
+            },
+            "title": "GSK Solvent Selection Guide"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": []
+        },
+        "summary": {
+            "displayAt": 3,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "Choose the correct statement.",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "",
+            "startScreenOptions": {
+                "hideStartTitle": false
+            },
+            "title": "Interactive Video"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+{
+    "bookmarks": "Bookmarks",
+    "defaultAdaptivitySeekLabel": "Continue",
+    "exitFullscreen": "Exit Fullscreen",
+    "fullscreen": "Fullscreen",
+    "interaction": "Interaction",
+    "interactiveVideo": {
+        "assets": {
+            "bookmarks": [],
+            "interactions": []
+        },
+        "summary": {
+            "displayAt": 3,
+            "task": {
+                "library": "H5P.Summary 1.3",
+                "params": {
+                    "intro": "<p>Which of the following would you generally not consider when ...</p>\n",
+                    "response": {
+                        "scoreOver0": {
+                            "message": "Have another try!",
+                            "title": "A few mistakes."
+                        },
+                        "scoreOver40": {
+                            "message": "You got some of the statements correct on your first try.",
+                            "title": "Ok"
+                        },
+                        "scoreOver70": {
+                            "message": "You got most of the statements correct on your first try.",
+                            "title": "Great!"
+                        },
+                        "scorePerfect": {
+                            "message": "You got everything correct on your first try!",
+                            "title": "PERFECT!"
+                        }
+                    },
+                    "resultLabel": "Your result",
+                    "scoreLabel": "Wrong answers:",
+                    "solvedLabel": "Progress:",
+                    "summaries": [
+                        {
+                            "summary": []
+                        }
+                    ],
+                    "summary": "You got @score of @total statements (@percent %) correct."
+                }
+            }
+        },
+        "video": {
+            "copyright": "",
+            "files": [
+                {
+                    "copyright": {
+                        "license": "U"
+                    },
+                    "mime": "video/mp4",
+                    "path": "videos/files-5603b6133a151.mp4"
+                }
+            ],
+            "startScreenOptions": {
+                "hideStartTitle": false,
+                "shortStartDescription": "Helen from GSK describes guidance available for more specific types of reaction"
+            },
+            "title": "Guidance for specific reaction types"
+        }
+    },
+    "mute": "Mute",
+    "override": {
+        "overrideButtons": false,
+        "overrideRetry": false,
+        "overrideShowSolutionButton": false
+    },
+    "pause": "Pause",
+    "play": "Play",
+    "quality": "Video Quality",
+    "summary": "Summary",
+    "unmute": "Unmute"
+}
+null
+Getting tree for Intro to Pharmaceutical Industry
+Getting tree for Introduction to Green Chemistry
+null
+null
+null

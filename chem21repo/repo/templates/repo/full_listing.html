@@ -5,6 +5,7 @@
 {% endblock %}
 {% block content %}
 <div id="sources_tree">
+<h2>Source files</h2>
 <ol class="sortable">
 	{% for topic in topics %}
 	<li class="repo-object-topic-{{ topic.id }}">
@@ -36,9 +37,10 @@
 </ol>
 </div>
 <div id="lessons_tree">
+<h2>Lesson structure</h2>
 <ol class="sortable">
 {% for topic in topics %}
-	<li class="topic-{{ topic.id }}">
+	<li class="repo-object-topic-{{ topic.id }}">
 		<div>
 		    <span title="Click to show/hide children" class="disclose">
             <span></span>
@@ -47,7 +49,7 @@
 			</div>
 			<ol>
 			{% for module in topic.modules.all %}
-				<li class="module-{{ module.id }}">
+				<li class="repo-object-module-{{ module.id }}">
 					<div>
 					    <span title="Click to show/hide children" class="disclose">
             			<span></span>

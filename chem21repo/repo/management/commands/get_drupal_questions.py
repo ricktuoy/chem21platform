@@ -1,14 +1,14 @@
-import requests
-
+from chem21repo.api_clients import C21RESTRequests, DrupalNode
 from chem21repo.repo.models import Lesson
 from chem21repo.repo.models import LessonsInModule
 from chem21repo.repo.models import Module
 from chem21repo.repo.models import Question
 from chem21repo.repo.models import QuestionsInLesson
-from chem21repo.api_clients import C21RESTRequests
 
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
+
+import json
 
 
 class Command(BaseCommand):
@@ -27,7 +27,7 @@ class Command(BaseCommand):
             break
         return m_obj
 
-    def save_question(self, question):
+    def save_question(self, question, lesson):
         q_obj, created = \
             Question.objects.get_or_create(remote_id=question['nid'],
                                            defaults={'title':
@@ -38,12 +38,13 @@ class Command(BaseCommand):
         try:
             QuestionsInLesson.objects.create(
                 question=q_obj,
-                lesson=l_obj,
+                lesson=lesson,
                 order=question['number'])
         except IntegrityError:
             pass
+        return (q_obj, created)
 
-    def save_lesson(self, lesson):
+    def save_lesson(self, lesson, module):
         l_obj, created = \
             Lesson.objects.get_or_create(remote_id=lesson['nid'],
                                          defaults={'title': lesson['title']})
@@ -52,15 +53,14 @@ class Command(BaseCommand):
             l_obj.save()
         try:
             LessonsInModule.objects.create(
-                lesson=l_obj, module=m_obj)
+                lesson=l_obj, module=module)
         except IntegrityError:
-            print "Lesson %s not added to module" % l_obj.title
             pass
-        for question in lesson['questions']:
-            self.save_question(question)
+        return (l_obj, created)
 
     def handle(self, *args, **options):
         c21_requests = C21RESTRequests()
+        c21_requests.authenticate()
         courses_data = c21_requests.get_courses()
         for module in courses_data:
             print "Getting tree for %s" % module['title']
@@ -74,5 +74,13 @@ class Command(BaseCommand):
                 m_obj.remote_id = module['nid']
                 m_obj.save()
 
-            for lesson in tree_data['lessons']:
-                self.save_lesson(lesson)
+            for lesson in tree_data['lessons'][0:1]:
+                l_obj, l_created = self.save_lesson(lesson, m_obj)
+                for question in lesson['questions']:
+                    q_obj, q_created = self.save_question(question, l_obj)
+                    node = DrupalNode(
+                        c21_requests.get_node(int(question['nid'])))
+                    h5p = node.h5p_data
+                    print json.dumps(node.json, sort_keys=True,
+                                     indent=4,
+                                     separators=(',', ': '))
