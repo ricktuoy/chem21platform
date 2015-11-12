@@ -81,6 +81,13 @@ class Command(BaseCommand):
                     node = DrupalNode(
                         c21_requests.get_node(int(question['nid'])))
                     h5p = node.h5p_data
+                    try:
+                        node.json['filtered'] = json.loads(
+                            node.json['filtered'])
+                        node.json['json_content'] = json.loads(
+                            node.json['json_content'])
+                    except KeyError:
+                        pass
                     print json.dumps(node.json, sort_keys=True,
                                      indent=4,
                                      separators=(',', ': '))

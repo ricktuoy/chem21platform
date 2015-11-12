@@ -3,7 +3,7 @@ import json
 import requests
 
 from django.conf import settings
-from django.core.files.storage import DefaultStorage
+from django.core.files.storage import get_storage_class
 
 
 class RESTAuthError(Exception):
@@ -42,23 +42,26 @@ class DrupalRESTRequests(object):
         cookies[self.auth_data['session_name']] = self.auth_data['sessid']
         return cookies
 
-    def get(self, method, **kwargs):
-        return requests.get(self.abs_url(method), **kwargs)
+    def auth(fn):
+        def inner(obj, method, **kwargs):
+            if not obj.auth_data:
+                raise RESTAuthError(
+                    "Method %s requires authentication" % method)
+            kwargs['cookies'] = obj._merge_auth_cookies(kwargs)
+            return fn(obj, method, **kwargs)
+        return inner
 
-    def get_auth(self, method, **kwargs):
-        if not self.auth_data:
-            raise RESTAuthError("Method %s requires authentication" % method)
-        kwargs['cookies'] = self._merge_auth_cookies(kwargs)
-        return self.get(method, **kwargs)
+    def extend_method(fn):
+        def inner(obj, method, **kwargs):
+            return fn(obj.abs_url(method), **kwargs)
+        return inner
 
-    def post(self, method, **kwargs):
-        return requests.post(self.abs_url(method), **kwargs)
-
-    def post_auth(self, method, **kwargs):
-        if not self.auth_data:
-            raise RESTAuthError("Method %s requires authentication" % method)
-        kwargs['cookies'] = self._merge_auth_cookies(kwargs)
-        return self.post(method, **kwargs)
+    get = extend_method(requests.get)
+    post = extend_method(requests.post)
+    put = extend_method(requests.put)
+    get_auth = auth(get)
+    post_auth = auth(post)
+    put_auth = auth(put)
 
     def get_json_response(self):
         try:
@@ -73,19 +76,39 @@ class DrupalNode(object):
 
     """wrapper for Drupal node via API"""
 
-    def __init__(self, json=None):
-        self.json = json
+    def __init__(self, node={}):
+        self.node = node
 
     def is_h5p(self):
         return self.json['type'] == "h5p_content"
+
+    def is_h5p_video(self):
+        try:
+            if self.node['main_library']['name'] == "H5P.InteractiveVideo":
+                return True
+        except KeyError:
+            pass
+        return False
 
     @property
     def h5p_data(self):
         if not self.is_h5p():
             return None
         else:
-            return json.loads(self.json['json_content'])
+            return self.node['json_content']
 
+    @property
+    def title(self):
+        return self.node['title']
+
+    @title.setter
+    def title(self, title):
+        self.node['title'] = title
+        if self.is_h5p_video():
+            self.node['json_content']['interactiveVideo'][
+                'video']['title'] = title
+
+    
 
 class C21RESTRequests(DrupalRESTRequests):
 
@@ -113,7 +136,7 @@ class C21RESTRequests(DrupalRESTRequests):
     def get_lesson_tree(self, cId):
         self.method_name = "get_lesson_tree"
         self.response = self.get_auth(
-            "/lesson_tree/retrieve", params={'course': cId})
+            "/lesson_tree/retrieved/", params={'course': cId})
         return self.get_json_response()
 
     def get_node(self, nId):
@@ -124,10 +147,17 @@ class C21RESTRequests(DrupalRESTRequests):
 
     def create_video_question(self, lId, title, ufile, intro):
         self.method_name = "create_video_question"
-        storage = DefaultStorage()
-        with storage.open(ufile.path, "rb") as v_file:
+        mstorage = get_storage_class(settings.MEDIAFILES_STORAGE)()
+        lstorage = get_storage_class(settings.STATICFILES_STORAGE)()
+        with mstorage.open(ufile.path, "rb") as v_file:
             encoded_video = base64.b64encode(v_file.read())
-        #with storage.open
-        self.response = self.put_auth(
-            "/h5p_video", data={'json_content': json.dumps(h5p),
-                                'video': encoded_video})
+        # with storage.open
+        with lstorage.open(settings.STATIC_ROOT +
+                           "video_template.json") as v_file:
+            node = DrupalNode(json.loads(v_file.read()))
+        node.title = title
+        self.response = self.post_auth(
+            "/question/", data={'node': node,
+                                'video': encoded_video,
+                                'lesson': lId,
+                                'intro': intro})
