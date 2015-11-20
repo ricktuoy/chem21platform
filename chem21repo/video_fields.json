@@ -49,13 +49,6 @@
             "video": {
                 "copyright": "",
                 "files": [
-                    {
-                        "copyright": {
-                            "license": "U"
-                        },
-                        "mime": "video/mp4",
-                        "path": ""
-                    }
                 ],
                 "startScreenOptions": {
                     "hideStartTitle": false,
@@ -76,5 +69,4 @@
         "unmute": "Unmute"
     },
     "main_library_id": "32",
-    "type": "h5p_content",
 }

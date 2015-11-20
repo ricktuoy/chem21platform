@@ -1,4 +1,4 @@
-from chem21repo.api_clients import C21RESTRequests, DrupalNode
+from chem21repo.api_clients import C21RESTRequests, DrupalQuestion
 from chem21repo.repo.models import Lesson
 from chem21repo.repo.models import LessonsInModule
 from chem21repo.repo.models import Module
@@ -61,10 +61,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         c21_requests = C21RESTRequests()
         c21_requests.authenticate()
-        courses_data = c21_requests.get_courses()
+        courses_data = c21_requests.index_courses()
         for module in courses_data:
             print "Getting tree for %s" % module['title']
-            tree_data = c21_requests.get_lesson_tree(cId=module['nid'])
+
+            tree_data = c21_requests.get("course", int(module['nid']))
             try:
                 m_obj = Module.objects.get(remote_id=module['nid'])
             except Module.DoesNotExist:
@@ -74,20 +75,13 @@ class Command(BaseCommand):
                 m_obj.remote_id = module['nid']
                 m_obj.save()
 
-            for lesson in tree_data['lessons'][0:1]:
+            for lesson in tree_data['lessons']:
                 l_obj, l_created = self.save_lesson(lesson, m_obj)
                 for question in lesson['questions']:
                     q_obj, q_created = self.save_question(question, l_obj)
-                    node = DrupalNode(
-                        c21_requests.get_node(int(question['nid'])))
-                    h5p = node.h5p_data
-                    try:
-                        node.json['filtered'] = json.loads(
-                            node.json['filtered'])
-                        node.json['json_content'] = json.loads(
-                            node.json['json_content'])
-                    except KeyError:
-                        pass
-                    print json.dumps(node.json, sort_keys=True,
+                    node = DrupalQuestion(
+                        **c21_requests.get("question", int(question['nid'])))
+                    print json.dumps(node, sort_keys=True,
                                      indent=4,
                                      separators=(',', ': '))
+        print json.dumps(DrupalQuestion(**c21_requests.get("question", 62)))

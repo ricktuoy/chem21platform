@@ -1,16 +1,20 @@
+import json
 import logging
 import os
 
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
+from chem21repo.drupal import drupal_node_factory
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db import transaction
+from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from filebrowser.fields import FileBrowseField
+from chem21repo.api_clients import C21RESTRequests
 
 
 class BaseModel(models.Model):
@@ -323,6 +327,103 @@ class QuestionsInLessonManager(models.Manager,
         return "lesson"
 
 
+class DrupalModel(models.Model):
+    __metaclass__ = ABCMeta
+    dirty = models.TextField(default="[]")
+
+    def __init__(self, *args, **kwargs):
+        self.drupal.instantiate(self)
+        super(DrupalModel, self).__init__(*args, **kwargs)
+
+
+class DrupalConnector(object):
+
+    def __init__(self, tpe, api, obj=None, fle=None, **kwargs):
+        self.original = kwargs
+        self.tpe = tpe
+        self.api = api
+        self.file = fle
+
+        if obj:
+            def connection(value):
+                def inner(obj):
+                    return getattr(obj, value)
+                return inner
+            self.connector = dict([(k, connection(v))
+                                   for k, v in self.original.iteritems()])
+            self.parent = obj
+            self.generate_node_from_parent()
+
+
+            def push():
+                api.push(self.node)
+                self.mark_all_clean()
+                self.parent.save(update_fields=['dirty', ])
+
+            def pull():
+                old_node = self.generate_node_from_parent()
+                api.pull(self.node)
+                diff = self.node_class.get_field_diff(old_node, self.node)
+                for f in diff:
+                    setattr(self.parent, f, self.node.get(f))
+                self.parent.save(update_fields=diff)
+                self.mark_all_clean()
+                self.parent.save(update_fields=['dirty', ])
+
+            self.push = push
+            self.pull = pull
+        return self
+
+    @property
+    def node_class(self):
+        return drupal_node_factory(self.tpe)
+
+    def generate_node_from_parent(self):
+        self.node = self.node_class(**dict([(k, v(self.parent))
+                                            for k, v in
+                                            self.connector.iteritems()]))
+        if self.file:
+            self.node.add_file_data(getattr(self.parent,self.file))
+
+    def instantiate(self, obj):
+        obj.drupal = DrupalConnector(
+            self.tpe, obj=obj, api=self.api ** self.original)
+
+    def get_field_diff(self, changed):
+        diff = set([])
+        for k, v in self.connector:
+            if v != changed.connector[k]:
+                diff.add(k)
+        return diff
+
+    def mark_fields_changed(self, fields):
+        fields = self.fields.intersection(fields)
+        if fields:
+            self.parent.dirty = json.dumps(
+                set(json.loads(self.parent.dirty)) + fields)
+        self.node.mark_changed(fields)
+
+    def mark_all_clean(self):
+        self.parent.dirty = "[]"
+        self.node.mark_all_fields_unchanged()
+
+
+@receiver(models.signals.pre_save, sender=DrupalModel)
+def generate_dirty_record(sender, instance, raw, using, update_fields):
+    if update_fields:
+        instance.drupal.mark_fields_changed(update_fields)
+        return
+    if not raw:
+        try:
+            original = sender.get(instance.pk)
+            instance.drupal.mark_fields_changed(
+                original.drupal.get_field_diff(instance.drupal))
+            return
+        except sender.DoesNotExist:
+            pass
+    instance.mark_fields_changed(instance.drupal.fields)
+
+
 class Event(BaseModel, EventUnicodeMixin):
     name = models.CharField(max_length=100)
     date = models.DateField(null=True)
@@ -387,7 +488,7 @@ class Topic(OrderedModel, NameUnicodeMixin):
     code = models.CharField(max_length=10, unique=True)
 
 
-class Module(OrderedModel, NameUnicodeMixin):
+class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     objects = OrderedManager()
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=10, unique=True)
@@ -395,6 +496,14 @@ class Module(OrderedModel, NameUnicodeMixin):
     working = models.BooleanField(default=False)
     files = models.ManyToManyField(UniqueFile, through='UniqueFilesofModule')
     remote_id = models.IntegerField(null=True, db_index=True)
+
+    @property
+    def topic_remote_id(self):
+        return self.topic.remote_id
+
+    drupal = DrupalConnector(
+        'course', C21RESTRequests(),
+        title='name', id='remote_id', klass='topic_remote_id')
 
     def __unicode__(self):
         return "%s: %s" % (unicode(self.topic), self.name)
@@ -506,13 +615,22 @@ class SlidesInPresentationVersion(OrderedModel):
         index_together = ('presentation', 'slide')
 
 
-class Lesson(OrderedModel):
+class Lesson(OrderedModel, DrupalModel):
     modules = models.ManyToManyField(Module, through="LessonsInModule")
     title = models.CharField(max_length=100, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
 
+    @property
+    def main_module_remote_id(self):
+        return self.modules.all()[0].get().remote_id
 
-class Question(OrderedModel):
+    drupal = DrupalConnector(
+        'lesson', C21RESTRequests(),
+        title='title', id='remote_id',
+        course='main_module_remote_id')
+
+
+class Question(OrderedModel, DrupalModel):
     title = models.CharField(max_length=100, blank=True, default="")
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
@@ -523,6 +641,15 @@ class Question(OrderedModel):
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(
         Lesson, through='QuestionsInLesson')
+
+    @property
+    def main_lesson_remote_id(self):
+        return self.lessons.all()[0].get().remote_id
+
+    drupal = DrupalConnector(
+        'question', C21RESTRequests(),
+        title='title', intro='text', id='remote_id',
+        lesson='main_lesson_remote_id')
 
 
 class QuestionsInLesson(OrderedModel):
@@ -540,6 +667,13 @@ class FilesInQuestion(OrderedModel):
     file = models.ForeignKey(UniqueFile)
     question = models.ForeignKey(Question)
     product = models.BooleanField(default=False)
+
+    @property
+    def question_remote_id(self):
+        return self.question.remote_id
+
+    drupal = DrupalConnector(
+        "question", C21RESTRequests(), file="file", id="question_remote_id")
 
     class Meta(OrderedModel.Meta):
         unique_together = ('file', 'question')
