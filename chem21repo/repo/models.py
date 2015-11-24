@@ -103,9 +103,7 @@ class OrderedManagerBase:
         return (n * (n + 1)) / 2
 
     def _reset_order(self):
-        logging.debug("Resetting orders")
         i = 1
-        logging.debug(self.order_queryset())
         for o in self.order_queryset().order_by(self.order_field):
             logging.debug("Changing order %s " % self.get_order_value(o))
             self.set_order_value(o, i)
@@ -328,12 +326,14 @@ class QuestionsInLessonManager(models.Manager,
 
 
 class DrupalModel(models.Model):
-    __metaclass__ = ABCMeta
     dirty = models.TextField(default="[]")
 
     def __init__(self, *args, **kwargs):
-        self.drupal.instantiate(self)
         super(DrupalModel, self).__init__(*args, **kwargs)
+        self.drupal.instantiate(self)
+
+    class Meta:
+        abstract = True
 
 
 class DrupalConnector(object):
@@ -346,16 +346,20 @@ class DrupalConnector(object):
 
         if obj:
             def connection(value):
+                logging.debug(value)
+
                 def inner(obj):
-                    return getattr(obj, value)
+                    logging.debug(type(obj))
+                    return obj.__getattribute__(value)
                 return inner
             self.connector = dict([(k, connection(v))
                                    for k, v in self.original.iteritems()])
             self.parent = obj
             self.generate_node_from_parent()
 
-
             def push():
+                # if self.node.file_changed():
+                #   self.
                 api.push(self.node)
                 self.mark_all_clean()
                 self.parent.save(update_fields=['dirty', ])
@@ -372,7 +376,7 @@ class DrupalConnector(object):
 
             self.push = push
             self.pull = pull
-        return self
+        # return self
 
     @property
     def node_class(self):
@@ -383,11 +387,11 @@ class DrupalConnector(object):
                                             for k, v in
                                             self.connector.iteritems()]))
         if self.file:
-            self.node.add_file_data(getattr(self.parent,self.file))
+            self.node.add_file_data(getattr(self.parent, self.file))
 
     def instantiate(self, obj):
         obj.drupal = DrupalConnector(
-            self.tpe, obj=obj, api=self.api ** self.original)
+            self.tpe, obj=obj, api=self.api, **self.original)
 
     def get_field_diff(self, changed):
         diff = set([])
@@ -409,7 +413,10 @@ class DrupalConnector(object):
 
 
 @receiver(models.signals.pre_save, sender=DrupalModel)
-def generate_dirty_record(sender, instance, raw, using, update_fields):
+def generate_dirty_record(sender,
+                          instance, raw,
+                          using, update_fields,
+                          **kwargs):
     if update_fields:
         instance.drupal.mark_fields_changed(update_fields)
         return
@@ -486,6 +493,7 @@ class Topic(OrderedModel, NameUnicodeMixin):
     objects = OrderedManager()
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=10, unique=True)
+    remote_id = models.IntegerField(null=True, db_index=True)
 
 
 class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
@@ -499,7 +507,10 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
 
     @property
     def topic_remote_id(self):
-        return self.topic.remote_id
+        try:
+            return self.topic.remote_id
+        except Topic.DoesNotExist:
+            return None
 
     drupal = DrupalConnector(
         'course', C21RESTRequests(),
@@ -622,7 +633,10 @@ class Lesson(OrderedModel, DrupalModel):
 
     @property
     def main_module_remote_id(self):
-        return self.modules.all()[0].get().remote_id
+        try:
+            return self.modules.all()[0].remote_id
+        except KeyError:
+            return None
 
     drupal = DrupalConnector(
         'lesson', C21RESTRequests(),
@@ -644,7 +658,10 @@ class Question(OrderedModel, DrupalModel):
 
     @property
     def main_lesson_remote_id(self):
-        return self.lessons.all()[0].get().remote_id
+        try:
+            return self.lessons.all()[0].remote_id
+        except KeyError:
+            return None
 
     drupal = DrupalConnector(
         'question', C21RESTRequests(),

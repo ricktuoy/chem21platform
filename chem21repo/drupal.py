@@ -8,30 +8,23 @@ from django.core.files.storage import DefaultStorage
 from django.core.files.storage import get_storage_class
 
 
-class DrupalNodeFile(list):
+class DrupalNodeFiles(list):
 
     def append(self, ufile, *args, **kwargs):
         with self.storage.open(ufile.path, "rb") as v_file:
-            return super(DrupalNodeFile, self).append(
+            return super(DrupalNodeFiles, self).append(
                 {'data': base64.b64encode(v_file.read()),
-                 'mimetype': ufile.mimetype, 'type': ufile.type},
-                *args, **kwargs)
+                 'mimetype': ufile.mimetype, 'type': ufile.type} + kwargs)
 
 
-class DrupalNodeVideoFile(DrupalNodeFile):
+class DrupalNodeVideoFiles(DrupalNodeFiles):
 
     def append(self, ufile, *args, **kwargs):
-        if ufile.type == "video":
-            self._add_video_data(ufile)
-            added_files = []
-            self.files = []
-            for rfile in ufile.versions:
-                added_file = super(DrupalNodeVideoFile, self).append(rfile)
-                added_file['filename'] = "videos/" + rfile.checksum + rfile.ext
-                added_files.append(added_file)
-            return added_files
-        else:
-            return super(DrupalQuestion, self).add_file_data(ufile)
+        results = []
+        for rfile in ufile.versions:
+            results.append(super(DrupalNodeVideoFiles, self).append(
+                rfile, filename="videos/" + rfile.checksum + rfile.ext))
+        return results
 
 
 class DrupalNode(dict):
@@ -59,8 +52,6 @@ class DrupalNode(dict):
         course.set("title", "UPDATED: " + course.get("title"))
         response = my_drupal_requests.push(course)
 
-        This results in JSON
-        {'title': 'UPDATED: My original title'}
 
     """
 
@@ -86,7 +77,7 @@ class DrupalNode(dict):
         self.storage = DefaultStorage()
         self.static_storage = get_storage_class(settings.STATICFILES_STORAGE)()
         self.simple_fields = {}
-        self.set(files, self.get("files", DrupalNodeVideoFile()))
+        self.set("files", self.get("files", default=DrupalNodeFiles()))
         self.raw = kwargs
         super(DrupalNode, self).__init__(pairs)
         try:
@@ -101,11 +92,16 @@ class DrupalNode(dict):
         self.deserialise_fields()
 
     def get(self, name, default=None):
-        if name not in self.fields:
-            raise AttributeError("Field not defined")
         try:
             return getattr(self, name)
         except AttributeError:
+            if name not in self.fields:
+                if default is not None:
+                    return default
+                else:
+                    raise AttributeError(
+                        "Field %s not defined for drupal wrapper %s " %
+                        (name, self.object_name))
             if "special" in self.fields[name]:
                 try:
                     return self[name]
@@ -116,7 +112,7 @@ class DrupalNode(dict):
                     return self.simple_fields[name]
                 except KeyError:
                     pass
-            if default:
+            if default is not None:
                 return default
             raise AttributeError("Field not initialised")
 
@@ -125,7 +121,7 @@ class DrupalNode(dict):
             setattr(self, name, val)
         else:
             if name not in self.fields:
-                raise AttributeError("Field not defined")
+                self.fields[name] = set()
             if "special" in self.fields[name]:
                 self[name] = val
             else:
@@ -198,6 +194,10 @@ class DrupalQuestion(DrupalNode):
               'intro': set(['special', ]),
               'lesson': set(['special', ]),
               'type': set()}
+
+    def __init__(self, *args, **kwargs):
+        super(DrupalQuestion, self).__init__(self, *args, **kwargs)
+        self.set("files", self.get("files", DrupalNodeFiles()))
 
     @property
     def byline(self):

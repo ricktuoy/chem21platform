@@ -2,7 +2,10 @@ boto==2.38.0
 dj-database-url==0.3.0
 dj-static==0.0.6
 Django==1.8.3
-django-filebrowser==3.6.1
+-e hg+ssh://hg@bitbucket.org/ricktaylord/django-cached-s3-storage@4ee49f5bac53a3e9371933783b801f52d077524c#egg=django_cachedS3_storage-dev
+django-debug-panel==0.8.2
+django-debug-toolbar==1.4
+-e git+git@bitbucket.org:ricktaylord/django-filebrowser.git@56f9f2ebf089a3d16f2dff77ea237fc2325fad8f#egg=django_filebrowser-master
 django-grappelli==2.7.1
 django-herokuapp==0.9.20
 django-require==1.0.8

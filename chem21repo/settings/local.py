@@ -2,18 +2,20 @@ from common import *
 import os
 DEBUG = True
 TEMPLATE_DEBUG = True
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = True
 
 STATIC_ROOT = BASE_DIR + '/../static/'
 STATIC_URL = "/static/"
 STATICFILES_STORAGE = 'require.storage.OptimizedStaticFilesStorage'
 
-ALLOWED_HOSTS = ['localhost', 'localhost:8080', '127.0.0.1', '127.0.0.1:8080']
+ALLOWED_HOSTS = ['localhost', "10.0.2.2", "10.0.2.2:8080",
+                 'localhost:8080', '127.0.0.1', '127.0.0.1:8080']
 
 
 REQUIRE_BUILD_PROFILE = 'chem21repo.dev.build.js'
 
-INTERNAL_IPS = ("localhost", "127.0.0.1", "localhost:8080", "127.0.0.1:8080")
+INTERNAL_IPS = ("localhost", "10.0.2.2", "10.0.2.2:8080",
+                "127.0.0.1", "localhost:8080", "127.0.0.1:8080")
 
 DATABASES = {
     "default":  {
@@ -23,10 +25,12 @@ DATABASES = {
 }
 
 if DEBUG_TOOLBAR:
-    INSTALLED_APPS += ('debug_toolbar', 'debug_panel')
+    INSTALLED_APPS += ('debug_toolbar',
+                       # 'debug_panel'
+                       )
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
     MIDDLEWARE_CLASSES = (
-        'debug_panel.middleware.DebugPanelMiddleware',
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
     ) + MIDDLEWARE_CLASSES
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': 'chem21repo.middleware.show_toolbar',

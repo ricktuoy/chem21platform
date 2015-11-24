@@ -1,4 +1,4 @@
-define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie"], function($) {
+define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie", "jquery.ui-contextmenu"], function($) {
     $(function() {
         var csrftoken = $.cookie('csrftoken');
 
@@ -19,26 +19,21 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
 
         var onRelocate = function(e) {
             function getAjaxUrlFromEl(el, dest) {
-                console.debug(el);
-                console.debug(el.attr("class"));
+
                 var sparts = el.attr("class").match(/\brepo-object-(.+)-(\d+)\b/);
-                console.debug(sparts);
+
                 if ($.type(dest) == "string" && dest == "top") {
                     var to = "0";
                 } else {
-                    console.debug(dest);
                     var dparts = dest.attr("class").match(/\brepo-object-(.+)-(\d+)\b/);
-                    console.debug(dparts);
                     var to = dparts[2];
                 }
                 var url = "/" + sparts[1] + "/move/" + sparts[2] + "/" + to;
                 return url;
             }
-            console.debug("relocate; el");
-            console.debug(e);
+
             var movedEl = $(e.toElement).closest("li");
-            console.debug("toElement");
-            console.debug($(e.toElement));  
+  
             var allEls = movedEl.closest("ol").children("li");
             var newPos = allEls.index(movedEl) + 1;
             if (newPos > 1) {
@@ -82,6 +77,18 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
         $('.disclose').on('click', function() {
             $(this).closest('li').toggleClass('mjs-nestedSortable-collapsed').toggleClass('mjs-nestedSortable-expanded');
             $(this).toggleClass('ui-icon-plusthick').toggleClass('ui-icon-minusthick');
+        });
+
+
+        $(".sortable").contextmenu({
+            delegate: "li",
+            menu: [
+                {title: "Edit", cmd: "edit", uiIcon: "ui-icon-edit"},
+                {title: "Create new ...", cmd: "new", uiIcon: "ui-icon-new"}
+            ],
+            select: function(event, ui) {
+                alert("select " + ui.cmd + " on " + ui.target.text());
+            }
         });
     });
 });

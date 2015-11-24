@@ -19,7 +19,7 @@
 			</div>
 			<ol>
 			{% for module in topic.modules.all %}
-				<li class="repo-object-module-{{ module.id }}">
+				<li data-url-edit="" data-url-new="" class="repo-object-module-{{ module.id }}">
 					<div>
 						{% if module.ordered_videos %}
 					    <span title="Click to show/hide children" class="disclose">
@@ -49,7 +49,7 @@
 			</div>
 			<ol>
 			{% for module in topic.modules.all %}
-				<li class="repo-object-module-{{ module.id }}">
+				<li data-url-edit="" data-url-new="" class="repo-object-module-{{ module.id }}">
 					<div>
 					    <span title="Click to show/hide children" class="disclose">
             			<span></span>

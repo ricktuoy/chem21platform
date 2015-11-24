@@ -9,7 +9,6 @@ requirejs.config({
     },
     "shim": {
         'jquery.colorbox': ['jquery'],
-        'jquery.ui-contextmenu': ['jquery-ui/widget', 'jquery-ui/menu']
     }
 });
 // Load the main app module to start the app
