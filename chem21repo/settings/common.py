@@ -20,6 +20,7 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'chem21repo.middleware.C21AdminMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -101,7 +102,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", get_random_string(
 # Use Amazon S3 for storage for uploaded media files.
 DEFAULT_FILE_STORAGE = "chem21repo.storage.MediaRootS3BotoStorage"
 
-CHEM21_PLATFORM_BASE_URL = 'http://127.0.0.1'
+CHEM21_PLATFORM_BASE_URL = 'http://test-chem21-elearning.pantheon.io'
 CHEM21_PLATFORM_REST_API_URL = '/rest'
 CHEM21_PLATFORM_API_USER = 'admin'
 CHEM21_PLATFORM_API_PWD = '9chard87'

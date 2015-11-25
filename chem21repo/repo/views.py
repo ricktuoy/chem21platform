@@ -1,20 +1,21 @@
 import logging
 
+from .models import Question
 from .models import Lesson
 from .models import LessonsInModule
 from .models import Module
+from .models import QuestionsInLesson
 from .models import Topic
 from .models import UniqueFile
 from .models import UniqueFilesofModule
-from .models import QuestionsInLesson
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Prefetch
 from django.http import Http404
 from django.views.generic import DetailView
 from django.views.generic import TemplateView
-
 # Create your views here.
 
 from django.http import JsonResponse
@@ -64,16 +65,29 @@ class HomePageView(TemplateView):
             Prefetch("modules__ordered_videos__file__cuts",
                      queryset=UniqueFile.objects.filter(
                          type="video").order_by('cut_order')),
-            Prefetch("modules__lessonsinmodule_set",
-                     queryset=LessonsInModule.objects.all().order_by('order'),
+            Prefetch("modules__lesson_set",
+                     queryset=Lesson.objects.all().order_by('order'),
                      to_attr="ordered_lessons"),
-            Prefetch("modules__ordered_lessons__lesson__questionsinlesson_set",
-                     queryset=QuestionsInLesson.objects.all().order_by(
+            Prefetch("modules__ordered_lessons__question",
+                     queryset=Question.objects.all().order_by(
                          'order'),
                      to_attr="ordered_questions")
         )
 
+        class Opt(object):
+
+            def __init__(self, label, name):
+                self.app_label = label
+                self.model_name = name
+
         context['topics'] = topics
+        context['opts'] = dict([(v.model.replace(" ", ""),
+                                 Opt(v.app_label, v.model))
+                                for k, v in
+                                ContentType.objects.get_for_models(
+            Module, Topic, UniqueFile, Lesson, Question,
+            for_concrete_models=False).iteritems()])
+        logging.debug(context['opts'])
         return context
 
 

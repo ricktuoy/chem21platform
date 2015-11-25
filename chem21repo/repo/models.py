@@ -105,9 +105,7 @@ class OrderedManagerBase:
     def _reset_order(self):
         i = 1
         for o in self.order_queryset().order_by(self.order_field):
-            logging.debug("Changing order %s " % self.get_order_value(o))
             self.set_order_value(o, i)
-            logging.debug("Order is now %s" % self.get_order_value(o))
             i += 1
             o.save()
 
@@ -346,10 +344,7 @@ class DrupalConnector(object):
 
         if obj:
             def connection(value):
-                logging.debug(value)
-
                 def inner(obj):
-                    logging.debug(type(obj))
                     return obj.__getattribute__(value)
                 return inner
             self.connector = dict([(k, connection(v))
@@ -627,7 +622,7 @@ class SlidesInPresentationVersion(OrderedModel):
 
 
 class Lesson(OrderedModel, DrupalModel):
-    modules = models.ManyToManyField(Module, through="LessonsInModule")
+    modules = models.ManyToManyField(Module, related_name="lessons")
     title = models.CharField(max_length=100, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
 
@@ -635,7 +630,7 @@ class Lesson(OrderedModel, DrupalModel):
     def main_module_remote_id(self):
         try:
             return self.modules.all()[0].remote_id
-        except KeyError:
+        except (IndexError, ValueError):
             return None
 
     drupal = DrupalConnector(
@@ -653,14 +648,13 @@ class Question(OrderedModel, DrupalModel):
     text = models.TextField(blank=True, default="")
     pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
     remote_id = models.IntegerField(null=True, db_index=True)
-    lessons = models.ManyToManyField(
-        Lesson, through='QuestionsInLesson')
+    lessons = models.ManyToManyField(Lesson, related_name="questions")
 
     @property
     def main_lesson_remote_id(self):
         try:
             return self.lessons.all()[0].remote_id
-        except KeyError:
+        except (IndexError, ValueError):
             return None
 
     drupal = DrupalConnector(
@@ -687,6 +681,7 @@ class FilesInQuestion(OrderedModel):
 
     @property
     def question_remote_id(self):
+
         return self.question.remote_id
 
     drupal = DrupalConnector(

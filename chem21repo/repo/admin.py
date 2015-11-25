@@ -22,7 +22,7 @@ def create_modeladmin(fn):
             newmodel = model
 
         admin.site.register(newmodel, modeladmin)
-        return modeladmin
+        return (newmodel, modeladmin)
     return wrapper
 
 
@@ -55,24 +55,36 @@ def create_admin(model, fields, name="", hidden_fields=[], ):
             'name': str(model._meta.verbose_name + "-" + name) if name else ""}
 
 
+@create_modeladmin
+def create_power_admin(model):
+    themodel = model
+
+    class NewAdmin(admin.ModelAdmin):
+        model = themodel
+    return {'modeladmin': NewAdmin,
+            'model': themodel,
+            'name': str(themodel._meta.verbose_name + "-power")}
+
+
 create_admin(
     model=Module,
     fields=['name', 'code'],
     hidden_fields=['topic', ],
 )
 create_admin(model=Topic, fields=['name', ])
+
+
 create_admin(
     model=Question,
-    #hidden_fields={'lesson': forms.ModelChoiceField},
-    fields=["title", ])
+    # hidden_fields=['lessons', ],
+    fields=["title", 'lessons'])
+
 create_admin(
     model=Lesson,
-    #hidden_fields={'module': forms.ModelChoiceField},
-    fields=["title", ])
+    # hidden_fields=['modules', ],
+    fields=["title", 'modules'])
 
-# Register your models here.
-admin.site.register(UniqueFile)
-admin.site.register(Author)
-admin.site.register(Event)
-admin.site.register(FileLink)
-admin.site.register(UniqueFilesofModule)
+for md in [Question, UniqueFile, Author,
+           Event, Lesson, FileLink,
+           UniqueFilesofModule]:
+    create_power_admin(md)

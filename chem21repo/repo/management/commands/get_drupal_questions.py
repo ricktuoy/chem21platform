@@ -1,9 +1,8 @@
-from chem21repo.api_clients import C21RESTRequests, DrupalQuestion
+from chem21repo.api_clients import C21RESTRequests
+from chem21repo.drupal import DrupalQuestion
 from chem21repo.repo.models import Lesson
-from chem21repo.repo.models import LessonsInModule
 from chem21repo.repo.models import Module
 from chem21repo.repo.models import Question
-from chem21repo.repo.models import QuestionsInLesson
 
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
@@ -29,17 +28,15 @@ class Command(BaseCommand):
 
     def save_question(self, question, lesson):
         q_obj, created = \
-            Question.objects.get_or_create(remote_id=question['nid'],
-                                           defaults={'title':
-                                                     question['title']})
+            Question.objects.get_or_create(
+                remote_id=question['nid'],
+                defaults={'order': question['number'],
+                          'title': question['title']})
         if not created:
             q_obj.title = question['title']
             q_obj.save()
         try:
-            QuestionsInLesson.objects.create(
-                question=q_obj,
-                lesson=lesson,
-                order=question['number'])
+            q_obj.lessons.add(lesson)
         except IntegrityError:
             pass
         return (q_obj, created)
@@ -52,8 +49,7 @@ class Command(BaseCommand):
             l_obj.title = lesson['title']
             l_obj.save()
         try:
-            LessonsInModule.objects.create(
-                lesson=l_obj, module=module)
+            l_obj.modules.add(module)
         except IntegrityError:
             pass
         return (l_obj, created)

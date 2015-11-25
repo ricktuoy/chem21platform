@@ -80,14 +80,24 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
         });
 
 
-        $(".sortable").contextmenu({
+        $("#lessons_tree").contextmenu({
             delegate: "li",
             menu: [
-                {title: "Edit", cmd: "edit", uiIcon: "ui-icon-edit"},
-                {title: "Create new ...", cmd: "new", uiIcon: "ui-icon-new"}
+                {title: "Edit", cmd: "Edit", uiIcon: "ui-icon-edit"},
+                {title: "Create new ...", cmd: "New", uiIcon: "ui-icon-new"}
             ],
             select: function(event, ui) {
-                alert("select " + ui.cmd + " on " + ui.target.text());
+                switch(ui.cmd) {
+                    case "Edit":
+                    case "New":
+                        var url = ui.target.closest("li").data("url"+ui.cmd);
+                        var from_url = ui.target.closest("li").data("fromUrl"+ui.cmd);
+                        var return_on_save = {url: window.location.pathname, fromUrl:from_url}
+                        $.cookie("admin_save_redirect", JSON.stringify(return_on_save));
+                        console.log(return_on_save)
+                        window.location = url;
+                    break;
+                }
             }
         });
     });

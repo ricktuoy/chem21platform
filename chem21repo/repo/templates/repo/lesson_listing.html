@@ -1,7 +1,11 @@
+{% load admin_urls %}
 <ol>
     {% for v in lesson_list %}
     {% with l=v.lesson %}
-    <li class="repo-object-lesson-{{ v.id }}">
+    <li data-url-edit="{% url opts.lesson|admin_urlname:'change' l.pk %}"
+    data-from-url-edit="{% url opts.lesson|admin_urlname:'changelist' %}"
+        data-url-new="{% url opts.question|admin_urlname:'add' %}?lesson={{ l.pk }}" class="repo-object-lesson-{{ l.id }}"
+        data-from-url-new="{% url opts.question|admin_urlname:'changelist' %}">
         <div>
             {% if l.ordered_questions %}
             <span title="Click to show/hide children" class="disclose">
@@ -13,7 +17,10 @@
         {% if l.ordered_questions %}
         <ol class="questions">
             {% for q in l.ordered_questions %}
-            <li id="repo-object-question-{{ q.question.id }}">
+            <li data-url-edit="{% url opts.question|admin_urlname:'change' q.question.pk %}"
+             data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}"
+                data-url-new="{% url opts.uniquefile|admin_urlname:'add' %}?question={{ q.question.pk }}" class="repo-object-question-{{ q.question.id }}"
+                data-from-url-new="{% url opts.uniquefile|admin_urlname:'changelist' %}">
                 <div>
                    {{ q.question.title }} 
                 </div>

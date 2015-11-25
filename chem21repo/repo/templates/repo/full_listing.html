@@ -1,5 +1,6 @@
 {% extends 'repo/base.html' %}
 {% load require %}
+{% load admin_urls %}
 {% block scripts %}
 {% require_module '../file_listing' %}
 {% endblock %}
@@ -16,22 +17,22 @@
         	</span>
         	{% endif %}
 			{{ topic }}
-			</div>
-			<ol>
-			{% for module in topic.modules.all %}
-				<li data-url-edit="" data-url-new="" class="repo-object-module-{{ module.id }}">
-					<div>
-						{% if module.ordered_videos %}
-					    <span title="Click to show/hide children" class="disclose">
-            			<span></span>
-        				</span>
-        				{% endif %}
-						{{ module }}
-					</div>
-					{% include 'repo/file_listing.html' with file_list=module.ordered_videos with_list=1 module=module %}
-				</li>
-			{% endfor %}
-			</ol>
+		</div>
+		<ol>
+		{% for module in topic.modules.all %}
+			<li class="repo-object-module-{{ module.id }}">
+				<div>
+					{% if module.ordered_videos %}
+				    <span title="Click to show/hide children" class="disclose">
+        			<span></span>
+    				</span>
+    				{% endif %}
+					{{ module }}
+				</div>
+				{% include 'repo/file_listing.html' with file_list=module.ordered_videos with_list=1 module=module %}
+			</li>
+		{% endfor %}
+		</ol>
 	</li>
 	{% endfor %}
 </ol>
@@ -40,26 +41,33 @@
 <h2>Lesson structure</h2>
 <ol class="sortable">
 {% for topic in topics %}
-	<li class="repo-object-topic-{{ topic.id }}">
+	<li data-url-edit="{% url opts.topic|admin_urlname:'change' topic.pk %}"
+		data-from-url-edit="{% url opts.topic|admin_urlname:'changelist' %}"  
+		data-url-new="{% url opts.module|admin_urlname:'add' %}?topic={{ topic.pk }}" 
+		data-from-url-new="{% url opts.module|admin_urlname:'changelist' %}"
+		class="repo-object-topic-{{ topic.id }}">
 		<div>
 		    <span title="Click to show/hide children" class="disclose">
             <span></span>
         	</span>
 			{{ topic }}
-			</div>
-			<ol>
-			{% for module in topic.modules.all %}
-				<li data-url-edit="" data-url-new="" class="repo-object-module-{{ module.id }}">
-					<div>
-					    <span title="Click to show/hide children" class="disclose">
-            			<span></span>
-        				</span>
-						{{ module }}
-					</div>
-					{% include 'repo/lesson_listing.html' with lesson_list=module.ordered_lessons with_list=1 module=module %}
-				</li>
-			{% endfor %}
-			</ol>
+		</div>
+		<ol>
+		{% for module in topic.modules.all %}
+			<li data-url-edit="{% url opts.module|admin_urlname:'change' module.pk %}" 
+				data-from-url-edit="{% url opts.module|admin_urlname:'changelist' %}" 
+				data-url-new="{% url opts.lesson|admin_urlname:'add' %}?module={{ module.pk }}" class="repo-object-module-{{ module.id }}"
+				data-from-url-new="{% url opts.lesson|admin_urlname:'changelist' %}">
+				<div>
+				    <span title="Click to show/hide children" class="disclose">
+        			<span></span>
+    				</span>
+					{{ module }}
+				</div>
+				{% include 'repo/lesson_listing.html' with lesson_list=module.ordered_lessons with_list=1 module=module %}
+			</li>
+		{% endfor %}
+		</ol>
 	</li>
 	{% endfor %}
 	</ol>

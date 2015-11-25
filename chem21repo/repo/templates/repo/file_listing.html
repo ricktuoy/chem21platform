@@ -3,28 +3,24 @@
     {% with f=v.file %}
     <li class="repo-object-source_file-{{ v.id }}">
         <div>
-        {% if f.cuts.count %}
-        <span title="Click to show/hide children" class="disclose">
-            <span></span>
-        </span>
-        {% endif %}
-            <a class="file_type_{{ f.type }}" href="{{ f.get_absolute_url }}">{{ f.title }}</a>
-
-
-            </div>
-            {% if f.cuts %}
-            <ol class="cuts">
-                {% for cut in f.cuts.all %}
-                <li id="repo-object-cut_file-{{ cut.id }}">
-                    <div>
-                        <a class="file_type_{{ cut.type }}" href="{{ cut.get_absolute_url }}">{{ cut.title }}</a>
-
-                    </div>
-                </li>
-                {% endfor %}
-            </ol>
+            {% if f.cuts.count %}
+            <span title="Click to show/hide children" class="disclose">
+                <span></span>
+            </span>
             {% endif %}
-        
+            <a class="file_type_{{ f.type }}" href="{{ f.get_absolute_url }}">{{ f.title }}</a>
+        </div>
+        {% if f.cuts %}
+        <ol class="cuts">
+            {% for cut in f.cuts.all %}
+            <li class="repo-object-cut_file-{{ cut.id }}">
+                <div>
+                    <a class="file_type_{{ cut.type }}" href="{{ cut.get_absolute_url }}">{{ cut.title }}</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+        {% endif %}
     </li>
     {% endwith %}
     {% endfor %}
