@@ -65,10 +65,10 @@ class HomePageView(TemplateView):
             Prefetch("modules__ordered_videos__file__cuts",
                      queryset=UniqueFile.objects.filter(
                          type="video").order_by('cut_order')),
-            Prefetch("modules__lesson_set",
+            Prefetch("modules__lessons",
                      queryset=Lesson.objects.all().order_by('order'),
                      to_attr="ordered_lessons"),
-            Prefetch("modules__ordered_lessons__question",
+            Prefetch("modules__ordered_lessons__questions",
                      queryset=Question.objects.all().order_by(
                          'order'),
                      to_attr="ordered_questions")

@@ -17,22 +17,46 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
             return true;
         }
 
-        var onRelocate = function(e) {
+
+
+        function getObjectRef(el) {
+            var sparts = el.attr("class").match(/\brepo-object-(.+)-(\d+)\b/);
+            return {'obj'=>sparts[1], 'pk'=>sparts[2]}
+        }
+
+        function getElFromObjectRef(ref) {
+            return $(".sortable .li.repo-object-"+ref['obj']+"-"+ref['pk']);
+        }
+
+        function getElsFromObjectRefs(refs) {
+            $($.map(refs, getElFromObjectRef)).map (function() { return this.get(0) };
+        }
+
+        function getObjectRefs(els) {
+            return els.map(getObjectRef).get();
+        }
+
+        function clearDirtyFlags() {
+            $(".sortable li").removeClass("dirty");
+        }
+
+
+
+
+        var onRelocate = function(e, ui) {
             function getAjaxUrlFromEl(el, dest) {
-
-                var sparts = el.attr("class").match(/\brepo-object-(.+)-(\d+)\b/);
-
+                var sref = getObjectRef(el);
                 if ($.type(dest) == "string" && dest == "top") {
                     var to = "0";
                 } else {
-                    var dparts = dest.attr("class").match(/\brepo-object-(.+)-(\d+)\b/);
-                    var to = dparts[2];
+                    var dref = getObjectRefFromEl(dest);
+                    var to = dref['pk'];
                 }
-                var url = "/" + sparts[1] + "/move/" + sparts[2] + "/" + to;
+                var url = "/" + sref['obj'] + "/move/" + sref['pk'] + "/" + to;
                 return url;
             }
 
-            var movedEl = $(e.toElement).closest("li");
+            var movedEl = $(ui.item);
   
             var allEls = movedEl.closest("ol").children("li");
             var newPos = allEls.index(movedEl) + 1;
@@ -43,8 +67,6 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 var url = getAjaxUrlFromEl(movedEl, "top")
             }
             $.get(url).done(function(data) {
-                console.log("Success");
-                console.log(data);
             }).fail(function(jqXHR, textStatus, errorThrown) {});
         };
         $(".file_type_video").colorbox({
@@ -72,13 +94,28 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
 
         });
         $( ".sortable" ).addClass( "ui-sortable mjs-nestedSortable-branch mjs-nestedSortable-expanded" );
-        $(".sortable li").addClass( "mjs-nestedSortable-branch mjs-nestedSortable-collapsed" ); 
+        $(".sortable li").addClass( "mjs-nestedSortable-brURLanch mjs-nestedSortable-collapsed" ); 
         $( ".sortable li .disclose" ).addClass( "ui-icon ui-icon-plusthick" );
         $('.disclose').on('click', function() {
             $(this).closest('li').toggleClass('mjs-nestedSortable-collapsed').toggleClass('mjs-nestedSortable-expanded');
             $(this).toggleClass('ui-icon-plusthick').toggleClass('ui-icon-minusthick');
         });
 
+        $("#push_changes").on('click', function() {
+            var dirty = $(".sortable li.dirty");
+            var data = getObjectRefs(dirty);
+            $.post(push_url, data).done(function(data) {
+                clearDirtyFlags();
+            }).fail(function(jqXHR, textStatus, errorThrown) {})
+        });
+
+        function setExpandCookie() {
+            $.cookie('c21repo-expanded',JSON.stringify());
+        }
+
+        function loadExpandCookie() {
+            JSON.parse();
+        }
 
         $("#lessons_tree").contextmenu({
             delegate: "li",
@@ -94,7 +131,6 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                         var from_url = ui.target.closest("li").data("fromUrl"+ui.cmd);
                         var return_on_save = {url: window.location.pathname, fromUrl:from_url}
                         $.cookie("admin_save_redirect", JSON.stringify(return_on_save));
-                        console.log(return_on_save)
                         window.location = url;
                     break;
                 }

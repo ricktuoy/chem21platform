@@ -4,7 +4,7 @@ from django import forms
 import logging
 
 
-def create_modeladmin(fn):
+def register_modeladmin(fn):
     def wrapper(*args, **kwargs):
         iargs = fn(*args, **kwargs)
         (model, modeladmin, name) = [iargs[name]
@@ -20,13 +20,13 @@ def create_modeladmin(fn):
             newmodel = type(name, (model,), attrs)
         else:
             newmodel = model
-
+        logging.debug("Registering model %s" % name)
         admin.site.register(newmodel, modeladmin)
         return (newmodel, modeladmin)
     return wrapper
 
 
-@create_modeladmin
+@register_modeladmin
 def create_admin(model, fields, name="", hidden_fields=[], ):
     themodel = model
     thefields = fields
@@ -35,8 +35,6 @@ def create_admin(model, fields, name="", hidden_fields=[], ):
         model = themodel
         fields = thefields + hidden_fields
     attrs = {}
-    # attrs = dict([(k, v(widget=forms.HiddenInput()))
-    #              for k, v in hidden_fields.iteritems()])
     attrs['__module__'] = ''
     attrs['Meta'] = Meta
 
@@ -45,17 +43,27 @@ def create_admin(model, fields, name="", hidden_fields=[], ):
     for k in hidden_fields:
         newform.declared_fields[k] = newform.base_fields[k]
         del newform.base_fields[k]
-        newform.declared_fields[k].widget = forms.HiddenInput()
+        logging.debug(type(newform.declared_fields[k]))
+        if isinstance(newform.declared_fields[k],
+                      (forms.MultipleChoiceField, 
+                      	forms.models.ModelMultipleChoiceField)):
+            newform.declared_fields[k].widget = forms.MultipleHiddenInput()
+        else:
+            pass
+            #newform.declared_fields[k].widget = forms.HiddenInput()
+        newform.declared_fields[k].label = str(
+            type(newform.declared_fields[k]))
 
     class NewAdmin(admin.ModelAdmin):
         form = newform
-
     return {'modeladmin': NewAdmin,
-            'model': model,
-            'name': str(model._meta.verbose_name + "-" + name) if name else ""}
+            'model': themodel,
+            'name': str(themodel._meta.verbose_name +
+                        "-" + name)
+            if name else ""}
 
 
-@create_modeladmin
+@register_modeladmin
 def create_power_admin(model):
     themodel = model
 
@@ -76,15 +84,19 @@ create_admin(model=Topic, fields=['name', ])
 
 create_admin(
     model=Question,
-    # hidden_fields=['lessons', ],
-    fields=["title", 'lessons'])
+    hidden_fields=['lessons', ],
+    fields=["title", ])
 
 create_admin(
     model=Lesson,
-    # hidden_fields=['modules', ],
-    fields=["title", 'modules'])
+    hidden_fields=['modules', ],
+    fields=["title", ])
+
+create_admin(
+    model=UniqueFile,
+    fields=["title", "type", "remote_path"])
 
 for md in [Question, UniqueFile, Author,
-           Event, Lesson, FileLink,
+           Event, Lesson, FileLink, Module,
            UniqueFilesofModule]:
     create_power_admin(md)

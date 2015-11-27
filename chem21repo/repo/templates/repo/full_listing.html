@@ -45,7 +45,7 @@
 		data-from-url-edit="{% url opts.topic|admin_urlname:'changelist' %}"  
 		data-url-new="{% url opts.module|admin_urlname:'add' %}?topic={{ topic.pk }}" 
 		data-from-url-new="{% url opts.module|admin_urlname:'changelist' %}"
-		class="repo-object-topic-{{ topic.id }}">
+		class="repo-object-topic-{{ topic.id }}{% if topic.is_dirty %} dirty{% endif %}">
 		<div>
 		    <span title="Click to show/hide children" class="disclose">
             <span></span>
@@ -56,8 +56,9 @@
 		{% for module in topic.modules.all %}
 			<li data-url-edit="{% url opts.module|admin_urlname:'change' module.pk %}" 
 				data-from-url-edit="{% url opts.module|admin_urlname:'changelist' %}" 
-				data-url-new="{% url opts.lesson|admin_urlname:'add' %}?module={{ module.pk }}" class="repo-object-module-{{ module.id }}"
-				data-from-url-new="{% url opts.lesson|admin_urlname:'changelist' %}">
+				data-url-new="{% url opts.lesson|admin_urlname:'add' %}?module={{ module.pk }}"
+				data-from-url-new="{% url opts.lesson|admin_urlname:'changelist' %}"
+				class="repo-object-module-{{ module.pk }}{% if module.is_dirty %} dirty{% endif %}">
 				<div>
 				    <span title="Click to show/hide children" class="disclose">
         			<span></span>

@@ -73,6 +73,10 @@ class DrupalNode(dict):
     def id(self):
         return self[self.id_field]
 
+    @id.setter
+    def id(self, v):
+        self[self.id_field] = v
+
     def __init__(self, pairs=[], **kwargs):
         self.storage = DefaultStorage()
         self.static_storage = get_storage_class(settings.STATICFILES_STORAGE)()

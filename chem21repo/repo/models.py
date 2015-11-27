@@ -326,6 +326,10 @@ class QuestionsInLessonManager(models.Manager,
 class DrupalModel(models.Model):
     dirty = models.TextField(default="[]")
 
+    @property
+    def is_dirty(self):
+        return self.dirty != "[]"
+
     def __init__(self, *args, **kwargs):
         super(DrupalModel, self).__init__(*args, **kwargs)
         self.drupal.instantiate(self)
@@ -377,6 +381,10 @@ class DrupalConnector(object):
     def node_class(self):
         return drupal_node_factory(self.tpe)
 
+    @property
+    def fields(self):
+        return set(self.original.keys())
+
     def generate_node_from_parent(self):
         self.node = self.node_class(**dict([(k, v(self.parent))
                                             for k, v in
@@ -390,40 +398,47 @@ class DrupalConnector(object):
 
     def get_field_diff(self, changed):
         diff = set([])
-        for k, v in self.connector:
-            if v != changed.connector[k]:
+        for k, f1 in self.connector.iteritems():
+            f2 = changed.connector[k]
+            if f1(self.parent) != f2(changed.parent):
+                logging.debug("Field changed from %s to %s" %
+                              (f1(self.parent), f2(changed.parent)))
                 diff.add(k)
         return diff
 
     def mark_fields_changed(self, fields):
+        logging.debug("Mark fields changed (connector)")
         fields = self.fields.intersection(fields)
+        logging.debug(fields)
         if fields:
             self.parent.dirty = json.dumps(
-                set(json.loads(self.parent.dirty)) + fields)
-        self.node.mark_changed(fields)
+                list(set(json.loads(self.parent.dirty)).union(fields)))
+        # self.node.mark_changed(fields)
 
     def mark_all_clean(self):
         self.parent.dirty = "[]"
         self.node.mark_all_fields_unchanged()
 
 
-@receiver(models.signals.pre_save, sender=DrupalModel)
+@receiver(models.signals.pre_save)
 def generate_dirty_record(sender,
                           instance, raw,
                           using, update_fields,
                           **kwargs):
-    if update_fields:
-        instance.drupal.mark_fields_changed(update_fields)
-        return
-    if not raw:
-        try:
-            original = sender.get(instance.pk)
-            instance.drupal.mark_fields_changed(
-                original.drupal.get_field_diff(instance.drupal))
+    if isinstance(instance, DrupalModel):
+        logging.debug("Pre save - drupal node")
+        if update_fields:
+            instance.drupal.mark_fields_changed(update_fields)
             return
-        except sender.DoesNotExist:
-            pass
-    instance.mark_fields_changed(instance.drupal.fields)
+        if not raw:
+            try:
+                original = sender.objects.get(pk=instance.pk)
+                instance.drupal.mark_fields_changed(
+                    original.drupal.get_field_diff(instance.drupal))
+                return
+            except sender.DoesNotExist:
+                pass
+        instance.drupal.mark_fields_changed(instance.drupal.fields)
 
 
 class Event(BaseModel, EventUnicodeMixin):
@@ -545,12 +560,12 @@ class File(OrderedModel, PathUnicodeMixin):
         if self.event is not None:
             return slugify(self.event.name + " " +
                            datetime.strftime(
-                               self.event.date, "%m %Y")
-                           + " " + self.title) + ext
+                               self.event.date, "%m %Y") +
+                           " " + self.title) + ext
         else:
             return slugify(" ".join(
-                [a.author.full_name for a in self.authors])
-                + " " + self.title) + ext
+                [a.author.full_name for a in self.authors]) +
+                " " + self.title) + ext
 
     class Meta:
         ordering = ['containing_path__topic', 'containing_path__module']
@@ -621,7 +636,7 @@ class SlidesInPresentationVersion(OrderedModel):
         index_together = ('presentation', 'slide')
 
 
-class Lesson(OrderedModel, DrupalModel):
+class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     modules = models.ManyToManyField(Module, related_name="lessons")
     title = models.CharField(max_length=100, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
@@ -639,7 +654,7 @@ class Lesson(OrderedModel, DrupalModel):
         course='main_module_remote_id')
 
 
-class Question(OrderedModel, DrupalModel):
+class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     title = models.CharField(max_length=100, blank=True, default="")
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
@@ -681,7 +696,6 @@ class FilesInQuestion(OrderedModel):
 
     @property
     def question_remote_id(self):
-
         return self.question.remote_id
 
     drupal = DrupalConnector(

@@ -91,3 +91,7 @@ li.mjs-nestedSortable-collapsed.mjs-nestedSortable-hovering div {
     margin: 0;
     padding: 0;
 }
+
+.sortable li.dirty>div {
+    background-color: #cca;
+}
