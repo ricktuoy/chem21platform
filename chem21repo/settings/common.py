@@ -14,7 +14,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'chem21repo.repo',
     'require',
-    'cachedS3'
+    'cachedS3',
+    'querystring_parser'
 )
 
 

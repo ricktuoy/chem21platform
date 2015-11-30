@@ -45,8 +45,8 @@ def create_admin(model, fields, name="", hidden_fields=[], ):
         del newform.base_fields[k]
         logging.debug(type(newform.declared_fields[k]))
         if isinstance(newform.declared_fields[k],
-                      (forms.MultipleChoiceField, 
-                      	forms.models.ModelMultipleChoiceField)):
+                      (forms.MultipleChoiceField,
+                       forms.models.ModelMultipleChoiceField)):
             newform.declared_fields[k].widget = forms.MultipleHiddenInput()
         else:
             pass

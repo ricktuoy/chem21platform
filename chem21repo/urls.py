@@ -37,6 +37,7 @@ urlpatterns = [
         TopicMoveView.as_view(), name="topic_move"),
     url(r'^module/move/(?P<from_id>[0-9]+)/(?P<to_id>[0-9]+)[/]?$',
         ModuleMoveView.as_view(), name="module_move"),
+    url(r'^push/', PushView.as_view(), name="push_json")
 ]
 if settings.DEBUG:
     import debug_toolbar

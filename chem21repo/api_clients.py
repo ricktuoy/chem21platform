@@ -21,17 +21,19 @@ class DrupalRESTRequests(object):
         self.password = password
         self.auth_data = None
 
-    def authenticate(self):
-        self.response = self._post("/user/login",
-                                   data={'username': self.username,
-                                         'password': self.password})
-        if self.response.status_code != 200:
-            raise RESTAuthError(self.response.text)
-        try:
-            self.auth_data = self.response.json()
-        except ValueError:
-            raise RESTAuthError(
-                "Authentication did not return JSON at %s" % self.base_url)
+    def authenticate(self, force=False):
+        if not self.auth_data or force:
+            self.response = self._post("/user/login",
+                                       data={'username': self.username,
+                                             'password': self.password})
+            if self.response.status_code != 200:
+                raise RESTAuthError(self.response.text)
+            try:
+                self.auth_data = self.response.json()
+            except ValueError:
+                raise RESTAuthError(
+                    "Authentication did not return JSON at %s" % self.base_url)
+        return self.auth_data
 
     def pull(self, node):
         self.get(node.object_name, node.id)
@@ -39,9 +41,11 @@ class DrupalRESTRequests(object):
 
     def push(self, node):
         try:
-            self.update(node.id, node)
+            return (self.update(node.id, node), False)
         except AttributeError:
-            self.create(node)
+            response = self.create(node)
+            node.id = response['id']
+            return (response, True)
 
     def get(self, object_name, id):
         self.method_name = "get_" + object_name
@@ -51,15 +55,15 @@ class DrupalRESTRequests(object):
 
     def create(self, node):
         self.method_name = "create_%s" % node.object_name
-        node.serialise_extra_fields()
-        self.response = self.post_auth("/%s/" % node.object_name, data=node)
+        node.serialise_fields()
+        self.response = self._post_auth("/%s/" % node.object_name, data=node)
         return self.get_json_response()
 
     def update(self, id, node):
         self.method_name = "update_%s" % node.object_name
         node.remove_empty_optional_fields()
-        node.serialise_extra_fields()
-        self.response = self.post_auth(
+        node.serialise_fields()
+        self.response = self._post_auth(
             "/%s/" % (node.object_name, id), data=node.filter_changed_fields())
         return self.get_json_response()
 
@@ -67,9 +71,7 @@ class DrupalRESTRequests(object):
 
     def _auth(fn):
         def inner(obj, method, **kwargs):
-            if not obj.auth_data:
-                raise RESTAuthError(
-                    "Method %s requires authentication" % method)
+            obj.authenticate()
             kwargs['cookies'] = obj._merge_auth_cookies(kwargs)
             return fn(obj, method, **kwargs)
         return inner

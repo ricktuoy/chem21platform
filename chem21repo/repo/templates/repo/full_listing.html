@@ -39,6 +39,9 @@
 </div>
 <div id="lessons_tree">
 <h2>Lesson structure</h2>
+<form id="remote-sync">
+<input type="submit" value="Publish changes"></input>
+</form>
 <ol class="sortable">
 {% for topic in topics %}
 	<li data-url-edit="{% url opts.topic|admin_urlname:'change' topic.pk %}"

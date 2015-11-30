@@ -17,31 +17,30 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
             return true;
         }
 
-
-
         function getObjectRef(el) {
             var sparts = el.attr("class").match(/\brepo-object-(.+)-(\d+)\b/);
-            return {'obj'=>sparts[1], 'pk'=>sparts[2]}
+            return {'obj':sparts[1], 'pk':sparts[2]}
         }
 
-        function getElFromObjectRef(ref) {
-            return $(".sortable .li.repo-object-"+ref['obj']+"-"+ref['pk']);
+        function getElFromObjectRef(dest,ref) {
+            return dest.find("li.repo-object-"+ref['obj']+"-"+ref['pk']);
         }
 
-        function getElsFromObjectRefs(refs) {
-            $($.map(refs, getElFromObjectRef)).map (function() { return this.get(0) };
+        function getElsFromObjectRefs(dest, refs) {
+
+            out =  $($.map(refs, function(el) { return getElFromObjectRef(dest, el); })).map (function() { return this.get(0) });
+
+            return out;
+
         }
 
         function getObjectRefs(els) {
-            return els.map(getObjectRef).get();
+            return els.map(function(){ return getObjectRef($(this))}).get();
         }
 
         function clearDirtyFlags() {
             $(".sortable li").removeClass("dirty");
         }
-
-
-
 
         var onRelocate = function(e, ui) {
             function getAjaxUrlFromEl(el, dest) {
@@ -96,26 +95,38 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
         $( ".sortable" ).addClass( "ui-sortable mjs-nestedSortable-branch mjs-nestedSortable-expanded" );
         $(".sortable li").addClass( "mjs-nestedSortable-brURLanch mjs-nestedSortable-collapsed" ); 
         $( ".sortable li .disclose" ).addClass( "ui-icon ui-icon-plusthick" );
+        function toggleLiEl(el) {
+            el.toggleClass('mjs-nestedSortable-collapsed').toggleClass('mjs-nestedSortable-expanded');
+            el.children("div").first().children(".disclose").toggleClass('ui-icon-plusthick').toggleClass('ui-icon-minusthick');
+        }
         $('.disclose').on('click', function() {
-            $(this).closest('li').toggleClass('mjs-nestedSortable-collapsed').toggleClass('mjs-nestedSortable-expanded');
-            $(this).toggleClass('ui-icon-plusthick').toggleClass('ui-icon-minusthick');
+            toggleLiEl($(this).closest('li'));
+                setExpandCookie("c21repo-lessons-expanded", $("#lessons_tree"));
+         
+                setExpandCookie("c21repo-sources-expanded", $("#sources_tree"));
+   
         });
 
-        $("#push_changes").on('click', function() {
-            var dirty = $(".sortable li.dirty");
-            var data = getObjectRefs(dirty);
-            $.post(push_url, data).done(function(data) {
-                clearDirtyFlags();
-            }).fail(function(jqXHR, textStatus, errorThrown) {})
-        });
-
-        function setExpandCookie() {
-            $.cookie('c21repo-expanded',JSON.stringify());
+        function setExpandCookie(cookie_name, dest ) {
+            var dest=dest;
+            $.cookie(cookie_name,JSON.stringify(
+                dest.find("li.mjs-nestedSortable-expanded").map(
+                    function() { 
+                        return getObjectRef($(this)) 
+                    }).get()));
         }
 
-        function loadExpandCookie() {
-            JSON.parse();
+        function loadExpandCookie(cookie_name, dest) {
+            var cookiedough = $.cookie(cookie_name);
+            if(cookiedough) {
+                var els=getElsFromObjectRefs(dest,
+                    JSON.parse($.cookie(cookie_name))
+                );
+                els.each(function() {toggleLiEl($(this))});
+            }
         }
+        loadExpandCookie('c21repo-lessons-expanded', $("#lessons_tree"));
+        loadExpandCookie('c21repo-sources-expanded', $("#sources_tree"));
 
         $("#lessons_tree").contextmenu({
             delegate: "li",
@@ -135,6 +146,15 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                     break;
                 }
             }
+        });
+
+        $("#remote-sync").on("submit", function() {
+            var push_url = "/push/"
+            var data = getObjectRefs($("#lessons_tree .dirty"));
+            $.post(push_url, {'refs':data}).done(function(data) {
+                clearDirtyFlags();
+            }).fail(function(jqXHR, textStatus, errorThrown) {})
+            return false;
         });
     });
 });

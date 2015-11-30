@@ -21,7 +21,7 @@
              data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}"
                 data-url-new="{% url opts.uniquefile|admin_urlname:'add' %}?questions={{ q.pk }}" 
                 data-from-url-new="{% url opts.uniquefile|admin_urlname:'changelist' %}"
-                class="repo-object-question-{{ q.pk }}{% if q.is_dirty %} dirty{% endif %}">>
+                class="repo-object-question-{{ q.pk }}{% if q.is_dirty %} dirty{% endif %}">
                 <div>
                    {{ q.title }} 
                 </div>

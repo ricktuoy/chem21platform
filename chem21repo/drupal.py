@@ -71,7 +71,10 @@ class DrupalNode(dict):
 
     @property
     def id(self):
-        return self[self.id_field]
+        try:
+            return self[self.id_field]
+        except KeyError:
+            raise AttributeError("No id set.")
 
     @id.setter
     def id(self, v):
