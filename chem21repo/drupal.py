@@ -140,7 +140,7 @@ class DrupalNode(dict):
                      if 'changed' in self.fields[k]])
 
     def mark_all_fields_unchanged(self):
-        for v in self.fields.iteritems():
+        for k, v in self.fields.iteritems():
             v.discard("changed")
 
     def mark_fields_changed(self, fields):

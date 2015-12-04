@@ -196,7 +196,6 @@ class PushView(View):
                 types[model_class] = []
             types[model_class].append(int(pk))
 
-        
         for model_class, pks in types.iteritems():
             objs = model_class.objects.filter(pk__in=pks)
             success.append(str(model_class))
@@ -214,7 +213,7 @@ class PushView(View):
 
             for obj in objs:
                 try:
-                    success.append(obj.drupal.node)
+                    success.append(obj.drupal.node.id)
                     success.append(obj.drupal.push())
                 except (RESTError, RESTAuthError), e:
                     error.append(str(e))

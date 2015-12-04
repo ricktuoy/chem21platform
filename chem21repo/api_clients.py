@@ -44,7 +44,7 @@ class DrupalRESTRequests(object):
             return (self.update(node.id, node), False)
         except AttributeError:
             response = self.create(node)
-            node.id = response['id']
+            node.id = response
             return (response, True)
 
     def get(self, object_name, id):
