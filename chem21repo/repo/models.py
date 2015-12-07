@@ -407,13 +407,10 @@ class DrupalConnector(object):
         return diff
 
     def mark_fields_changed(self, fields):
-        logging.debug("Mark fields changed (connector)")
         fields = self.fields.intersection(fields)
-        logging.debug(fields)
         if fields:
             self.parent.dirty = json.dumps(
                 list(set(json.loads(self.parent.dirty)).union(fields)))
-        # self.node.mark_changed(fields)
 
     def mark_all_clean(self):
         self.parent.dirty = "[]"

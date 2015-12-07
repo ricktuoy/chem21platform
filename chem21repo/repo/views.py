@@ -160,36 +160,44 @@ class TopicMoveView(MoveViewBase, JSONView):
     orderable_model = Topic
 
 
-class PushView(View):
+class AJAXError(Exception):
+
+    def __init__(self, *args, **kwargs):
+        self.http_response = JsonResponse(*args, **kwargs)
+        super(AJAXError, self).__init__()
+
+
+class BatchProcessView(View):
+    __metaclass__ = ABCMeta
 
     def get(self, request, *args, **kwargs):
         return JsonResponse(
             {'error': "Only callable by POST method", }, status=405
         )
 
-    def post(self, request, *args, **kwargs):
+    def get_querysets_from_request(self, request):
         try:
             post_dict = parser.parse(request.POST.urlencode())
             refs = post_dict['refs']
+            self.refs = refs
         except KeyError:
-            return JsonResponse(
+            raise AJAXError(
                 {'error': "No refs found", 'post': request.POST}, status=400
             )
         types = {}
-        success = []
-        error = []
+
         for i, ref in refs.iteritems():
             try:
                 tp = ref['obj']
                 pk = ref['pk']
             except KeyError:
-                return JsonResponse(
+                raise AJAXError(
                     {'error': "Badly formed ref: %s" % ref, }, status=400)
             try:
                 model_class = ContentType.objects.get(
                     app_label="repo", model=tp).model_class()
             except ContentType.DoesNotExist:
-                return JsonResponse(
+                raise AJAXError(
                     {'error': "Unknown object type: %s" % tp, }, status=400)
 
             if model_class not in types:
@@ -197,29 +205,48 @@ class PushView(View):
             types[model_class].append(int(pk))
 
         for model_class, pks in types.iteritems():
-            objs = model_class.objects.filter(pk__in=pks)
-            success.append(str(model_class))
-            """
-            try:
-                success.append(model_class.objects.push(objs))
-                continue
-            except AttributeError:
-                pass
-            except (RESTError, RESTAuthError), e:
-                error.append(str(e))
-                continue
-            """
-            success.append([obj.drupal.node for obj in objs])
+            yield model_class.objects.filter(pk__in=pks)
 
-            for obj in objs:
-                try:
-                    success.append(obj.drupal.node.id)
-                    success.append(obj.drupal.push())
-                except (RESTError, RESTAuthError), e:
-                    error.append(str(e))
-        if error:
+    @abstractmethod
+    def process_queryset(self, qs):
+        pass
+
+    def post(self, request, *args, **kwargs):
+        successes = []
+        errors = []
+        try:
+            for qs in self.get_querysets_from_request(request):
+                this_success, this_error = self.process_queryset(qs)
+                successes += this_success
+                errors += this_error
+
+        except AJAXError, e:
+            return e.http_response
+
+        if errors:
             code = 400
         else:
             code = 200
         return JsonResponse(
-            {'source': refs, 'result': success, 'error': error}, status=code)
+            {'source': self.refs, 'result': successes,
+             'error': errors}, status=code)
+
+
+class PushView(BatchProcessView):
+
+    def process_queryset(self, qs):
+        error = []
+        success = []
+        for obj in qs:
+            try:
+                success.append(obj.drupal.push())
+            except (RESTError, RESTAuthError), e:
+                error.append(e)
+        return (success, error)
+
+
+class MarkAsCleanView(BatchProcessView):
+
+    def process_queryset(self, qs):
+        qs.update(dirty="[]")
+        return [[True, ], []]

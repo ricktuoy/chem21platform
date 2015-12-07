@@ -12,7 +12,7 @@
                 <span></span>
             </span>
             {% endif %}  
-            {{ l.title }}
+            {{ l.title }} {{ l.remote_id }}
         </div>
         {% if l.ordered_questions %}
         <ol class="questions">
@@ -23,7 +23,7 @@
                 data-from-url-new="{% url opts.uniquefile|admin_urlname:'changelist' %}"
                 class="repo-object-question-{{ q.pk }}{% if q.is_dirty %} dirty{% endif %}">
                 <div>
-                   {{ q.title }} 
+                   {{ q.title }} {{ q.remote_id }} {{ q.drupal.node.title }}
                 </div>
             </li>
             {% endfor %}

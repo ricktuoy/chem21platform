@@ -148,13 +148,34 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
             }
         });
 
-        $("#remote-sync").on("submit", function() {
+        $("#lessons_tree li").on("click", function(event) {
+            if(!event.ctrlKey) {
+                $("#lessons_tree li").removeClass("selected");
+            }
+            $(this).toggleClass("selected");
+            event.preventDefault();
+        });
+
+        $("#remote-sync").on("submit", function(event) {
             var push_url = "/push/"
             var data = getObjectRefs($("#lessons_tree .dirty"));
             $.post(push_url, {'refs':data}).done(function(data) {
                 clearDirtyFlags();
-            }).fail(function(jqXHR, textStatus, errorThrown) {})
-            return false;
+            }).fail(function(jqXHR, textStatus, errorThrown) {});
+            event.preventDefault();
         });
+
+        $("#local-ops").on("submit", function(event) {
+            var action = $(this).find("select[name=action]option:selected").val();
+            if (action=="null") {
+                // select all
+                $("#lessons_tree li").addClass("selected");
+            } else {
+                var url = "/local/"+action+"/";
+                var data = getObjectRefs($("#lessons_tree li.selected"));
+                $.post(url, {'refs':data}).done(action_succeed).fail(action_fail);
+            }
+            event.preventDefault();
+        }); 
     });
 });

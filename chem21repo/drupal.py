@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 
 from abc import ABCMeta
 from abc import abstractproperty
@@ -87,10 +88,10 @@ class DrupalNode(dict):
         self.set("files", self.get("files", default=DrupalNodeFiles()))
         self.raw = kwargs
         super(DrupalNode, self).__init__(pairs)
-        try:
-            self.id = kwargs[self.id_field]
-        except KeyError:
-            pass
+        #try:
+        #    self.id = kwargs[self.id_field]
+        #except KeyError:
+        #    pass
         for k, v in kwargs.iteritems():
             try:
                 self.set(k, v)
@@ -124,17 +125,14 @@ class DrupalNode(dict):
             raise AttributeError("Field not initialised")
 
     def set(self, name, val):
-        if hasattr(self, name):
+        if name not in self.fields:
             setattr(self, name, val)
+            return
+        if "special" in self.fields[name]:
+            self[name] = val
         else:
-            if name not in self.fields:
-                self.fields[name] = set()
-            if "special" in self.fields[name]:
-                self[name] = val
-            else:
-                self.simple_fields[name] = val
-        self.fields[name].add("changed")
-
+            self.simple_fields[name] = val
+        
     def filter_changed_fields(self):
         return dict([(k, v) for k, v in self.iteritems()
                      if 'changed' in self.fields[k]])
