@@ -354,24 +354,33 @@ class DrupalConnector(object):
             self.connector = dict([(k, connection(v))
                                    for k, v in self.original.iteritems()])
             self.parent = obj
-            self.generate_node_from_parent()
+            self.node = self.generate_node_from_parent()
 
             def push():
                 # if self.node.file_changed():
                 #   self.
-                api.push(self.node)
+                response, created = api.push(self.node)
+                if created:
+                    self.node.set('id', response['id'])
+                    setattr(
+                        self.parent, self.original['id'], self.node.get('id'))
+                    self.parent.save(update_fields=[self.original['id']])
                 self.mark_all_clean()
                 self.parent.save(update_fields=['dirty', ])
+                return response
 
             def pull():
                 old_node = self.generate_node_from_parent()
                 api.pull(self.node)
                 diff = self.node_class.get_field_diff(old_node, self.node)
-                for f in diff:
-                    setattr(self.parent, f, self.node.get(f))
-                self.parent.save(update_fields=diff)
+                updates = dict(
+                    [(self.original[f], self.node.get(f)) for f in diff])
+                for k, v in updates.iteritems():
+                    setattr(self.parent, k, v)
+                self.parent.save(update_fields=updates.keys())
                 self.mark_all_clean()
                 self.parent.save(update_fields=['dirty', ])
+                return updates
 
             self.push = push
             self.pull = pull
@@ -386,11 +395,12 @@ class DrupalConnector(object):
         return set(self.original.keys())
 
     def generate_node_from_parent(self):
-        self.node = self.node_class(**dict([(k, v(self.parent))
-                                            for k, v in
-                                            self.connector.iteritems()]))
+        node = self.node_class(**dict([(k, v(self.parent))
+                                       for k, v in
+                                       self.connector.iteritems()]))
         if self.file:
-            self.node.add_file_data(getattr(self.parent, self.file))
+            node.add_file_data(getattr(self.parent, self.file))
+        return node
 
     def instantiate(self, obj):
         obj.drupal = DrupalConnector(
@@ -496,11 +506,18 @@ class UniqueFile(OrderedModel):
         return self.type + "/" + self._stripped_ext
 
 
-class Topic(OrderedModel, NameUnicodeMixin):
+class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     objects = OrderedManager()
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=10, unique=True)
     remote_id = models.IntegerField(null=True, db_index=True)
+
+    drupal = DrupalConnector(
+        'class', C21RESTRequests(),
+        title='name', id='remote_id')
+
+    def __unicode__(self):
+        return "%s" % self.name
 
 
 class Module(OrderedModel, DrupalModel, NameUnicodeMixin):

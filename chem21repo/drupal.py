@@ -77,6 +77,28 @@ class DrupalNode(dict):
         except KeyError:
             raise AttributeError("No id set.")
 
+    @classmethod
+    def get_field_diff(cls, node1, node2):
+        return [f for f in cls.fields
+                if not cls.compare_fields(f, node1, node2)]
+
+    @classmethod
+    def compare_fields(cls, field, node1, node2):
+        try:
+            f1 = node1.get(field)
+        except AttributeError:
+            f1undefined = True
+        else:
+            f1undefined = False
+        try:
+            f2 = node2.get(field)
+        except AttributeError:
+            f2undefined = True
+        else:
+            f2undefined = False
+        return (f1undefined and f2undefined) or \
+            (not f1undefined and not f2undefined and f1 == f2)
+
     @id.setter
     def id(self, v):
         self[self.id_field] = v
@@ -88,10 +110,13 @@ class DrupalNode(dict):
         self.set("files", self.get("files", default=DrupalNodeFiles()))
         self.raw = kwargs
         super(DrupalNode, self).__init__(pairs)
-        #try:
+        # try:
         #    self.id = kwargs[self.id_field]
-        #except KeyError:
+        # except KeyError:
         #    pass
+        self.populate(**kwargs)
+
+    def populate(self, **kwargs):
         for k, v in kwargs.iteritems():
             try:
                 self.set(k, v)
@@ -122,7 +147,9 @@ class DrupalNode(dict):
                     pass
             if default is not None:
                 return default
-            raise AttributeError("Field not initialised")
+            raise AttributeError(
+                "Field %s not initialised for drupal wrapper %s" %
+                (name, self.object_name))
 
     def set(self, name, val):
         if name not in self.fields:
@@ -132,10 +159,10 @@ class DrupalNode(dict):
             self[name] = val
         else:
             self.simple_fields[name] = val
-        
+
     def filter_changed_fields(self):
-        return dict([(k, v) for k, v in self.iteritems()
-                     if 'changed' in self.fields[k]])
+        return dict([(k, v) for k, v in self.fields.iteritems()
+                     if 'changed' in v])
 
     def mark_all_fields_unchanged(self):
         for k, v in self.fields.iteritems():
@@ -146,7 +173,7 @@ class DrupalNode(dict):
             self.fields[f].add("changed")
 
     def remove_empty_optional_fields(self):
-        for field in self.basic_fields:
+        for field in self.simple_fields:
             try:
                 if hasattr(self, field):
                     if not getattr(self, field):
@@ -270,8 +297,16 @@ class DrupalCourse(DrupalNode):
               'intro': set(['special', ])}
 
 
+class DrupalTopic(DrupalNode):
+    object_name = "class"
+    id_field = "nid"
+    fields = {'title': set(['special', 'required']),
+              'intro': set(['special', ])}
+
+
 def drupal_node_factory(type):
     type_map = {'course': DrupalCourse,
                 'lesson': DrupalLesson,
-                'question': DrupalQuestion}
+                'question': DrupalQuestion,
+                'class': DrupalTopic}
     return type_map[type]

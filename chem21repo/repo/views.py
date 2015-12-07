@@ -207,6 +207,11 @@ class BatchProcessView(View):
         for model_class, pks in types.iteritems():
             yield model_class.objects.filter(pk__in=pks)
 
+    def get_refs_from_queryset(self, qs):
+        tp = qs.model.__name__.lower()
+        for obj in qs:
+            yield {'pk': obj.pk, 'obj': tp}
+
     @abstractmethod
     def process_queryset(self, qs):
         pass
@@ -241,12 +246,29 @@ class PushView(BatchProcessView):
             try:
                 success.append(obj.drupal.push())
             except (RESTError, RESTAuthError), e:
-                error.append(e)
+                error.append(str(e))
         return (success, error)
 
 
 class MarkAsCleanView(BatchProcessView):
 
     def process_queryset(self, qs):
-        qs.update(dirty="[]")
-        return [[True, ], []]
+        refs = self.get_refs_from_queryset(qs)
+        try:
+            qs.update(dirty="[]")
+            return (refs, [])
+        except Exception, e:
+            return ([], [str(e), ])
+
+
+class PullView(BatchProcessView):
+
+    def process_queryset(self, qs):
+        error = []
+        success = []
+        for obj in qs:
+            try:
+                success.append({'pk':obj.pk, 'updated':obj.drupal.pull()})
+            except (RESTError, RESTAuthError), e:
+                error.append(str(e))
+        return (success, error)

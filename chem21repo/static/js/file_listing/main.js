@@ -149,11 +149,15 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
         });
 
         $("#lessons_tree li").on("click", function(event) {
-            if(!event.ctrlKey) {
-                $("#lessons_tree li").removeClass("selected");
+            if($(event.target).closest("li")[0]==this && !$(event.target).hasClass("disclose")) {
+                if(!event.ctrlKey) {
+                    $("#lessons_tree li").removeClass("selected");
+                    $(this).addClass("selected");
+                } else {
+                    $(this).toggleClass("selected");
+                }
+                event.preventDefault();
             }
-            $(this).toggleClass("selected");
-            event.preventDefault();
         });
 
         $("#remote-sync").on("submit", function(event) {
@@ -166,16 +170,37 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
         });
 
         $("#local-ops").on("submit", function(event) {
-            var action = $(this).find("select[name=action]option:selected").val();
-            if (action=="null") {
-                // select all
+            event.preventDefault();
+            var action = $(this).find("select[name=action] option:selected").val();
+            var callbacks = {
+                clear: {
+                    succeed: function(data) {
+                        els = getElsFromObjectRefs($("#lessons_tree"),data['result']);
+                        els.removeClass("dirty");
+                    },
+                    fail: function(jqXHR, textStatus, errorThrown) {
+                        els = getElsFromObjectRefs($("#lessons_tree"),data['result']);
+                        els.removeClass("dirty");
+                    } 
+                },
+                sync: {
+                    succeed: function(data) {
+                        console.log(data);
+                    },
+                    fail: function(data) {
+                        return;
+                    }
+                }
+            }
+            if (!action || action=="_") {
                 $("#lessons_tree li").addClass("selected");
             } else {
                 var url = "/local/"+action+"/";
                 var data = getObjectRefs($("#lessons_tree li.selected"));
-                $.post(url, {'refs':data}).done(action_succeed).fail(action_fail);
+                var action_succeed = callbacks[action]['succeed'];
+                var action_fail = callbacks[action]['error'];
+                $.post(url, {'refs':data}, action_succeed).fail(action_fail);
             }
-            event.preventDefault();
         }); 
     });
 });

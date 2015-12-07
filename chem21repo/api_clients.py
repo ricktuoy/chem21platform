@@ -1,5 +1,5 @@
 import requests
-
+import logging
 from django.conf import settings
 
 
@@ -36,15 +36,16 @@ class DrupalRESTRequests(object):
         return self.auth_data
 
     def pull(self, node):
-        self.get(node.object_name, node.id)
-        node.populate(**self.get_json_response())
+        response = self.get(node.object_name, node.id)
+        node.populate(**response)
+        return response
 
     def push(self, node):
         try:
             return (self.update(node.id, node), False)
-        except AttributeError:
+        except AttributeError, e:
+            return (str(e), False)
             response = self.create(node)
-            node.id = response
             return (response, True)
 
     def get(self, object_name, id):
@@ -64,7 +65,8 @@ class DrupalRESTRequests(object):
         node.remove_empty_optional_fields()
         node.serialise_fields()
         self.response = self._post_auth(
-            "/%s/" % (node.object_name, id), data=node.filter_changed_fields())
+            "/%s/%s/" % (node.object_name, id),
+            data=node.filter_changed_fields())
         return self.get_json_response()
 
     # ------------------------------- helpers

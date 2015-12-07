@@ -60,6 +60,7 @@ ol.sortable li li li li div {
     padding: 0.5em;
 }
 
+
 li.mjs-nestedSortable-collapsed.mjs-nestedSortable-hovering div {
     border-color: #666;
 }
@@ -94,4 +95,8 @@ li.mjs-nestedSortable-collapsed.mjs-nestedSortable-hovering div {
 
 .sortable li.dirty>div {
     background-color: #cca;
+}
+
+.sortable li.selected>div {
+    background-color: #ccf;
 }
