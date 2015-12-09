@@ -70,7 +70,7 @@
 		{% for module in topic.modules.all %}
 			<li data-url-edit="{% url opts.module|admin_urlname:'change' module.pk %}" 
 				data-from-url-edit="{% url opts.module|admin_urlname:'changelist' %}" 
-				data-url-new="{% url opts.lesson|admin_urlname:'add' %}?module={{ module.pk }}"
+				data-url-new="{% url opts.lesson|admin_urlname:'add' %}?modules={{ module.pk }}"
 				data-from-url-new="{% url opts.lesson|admin_urlname:'changelist' %}"
 				class="repo-object-module-{{ module.pk }}{% if module.is_dirty %} dirty{% endif %}">
 				<div>

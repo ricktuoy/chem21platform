@@ -85,19 +85,14 @@ class DrupalNode(dict):
     @classmethod
     def compare_fields(cls, field, node1, node2):
         try:
-            f1 = node1.get(field)
-        except AttributeError:
-            f1undefined = True
-        else:
-            f1undefined = False
-        try:
             f2 = node2.get(field)
         except AttributeError:
-            f2undefined = True
-        else:
-            f2undefined = False
-        return (f1undefined and f2undefined) or \
-            (not f1undefined and not f2undefined and f1 == f2)
+            return True
+        try:
+            f1 = node1.get(field)
+        except AttributeError:
+            return False
+        return f1 == f2
 
     @id.setter
     def id(self, v):
@@ -110,10 +105,6 @@ class DrupalNode(dict):
         self.set("files", self.get("files", default=DrupalNodeFiles()))
         self.raw = kwargs
         super(DrupalNode, self).__init__(pairs)
-        # try:
-        #    self.id = kwargs[self.id_field]
-        # except KeyError:
-        #    pass
         self.populate(**kwargs)
 
     def populate(self, **kwargs):
@@ -161,7 +152,7 @@ class DrupalNode(dict):
             self.simple_fields[name] = val
 
     def filter_changed_fields(self):
-        return dict([(k, v) for k, v in self.fields.iteritems()
+        return dict([(k, self[k]) for k, v in self.fields.iteritems()
                      if 'changed' in v])
 
     def mark_all_fields_unchanged(self):

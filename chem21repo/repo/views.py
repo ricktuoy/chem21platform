@@ -160,6 +160,14 @@ class TopicMoveView(MoveViewBase, JSONView):
     orderable_model = Topic
 
 
+class LessonMoveView(MoveViewBase, JSONView):
+    orderable_model = Lesson
+
+
+class QuestionMoveView(MoveViewBase, JSONView):
+    orderable_model = Question
+
+
 class AJAXError(Exception):
 
     def __init__(self, *args, **kwargs):
@@ -268,7 +276,7 @@ class PullView(BatchProcessView):
         success = []
         for obj in qs:
             try:
-                success.append({'pk':obj.pk, 'updated':obj.drupal.pull()})
+                success.append({'pk': obj.pk, 'updated': obj.drupal.pull()})
             except (RESTError, RESTAuthError), e:
                 error.append(str(e))
         return (success, error)

@@ -357,8 +357,6 @@ class DrupalConnector(object):
             self.node = self.generate_node_from_parent()
 
             def push():
-                # if self.node.file_changed():
-                #   self.
                 response, created = api.push(self.node)
                 if created:
                     self.node.set('id', response['id'])
@@ -374,17 +372,19 @@ class DrupalConnector(object):
                 api.pull(self.node)
                 diff = self.node_class.get_field_diff(old_node, self.node)
                 updates = dict(
-                    [(self.original[f], self.node.get(f)) for f in diff])
+                    [(self.original[f], self.node.get(f))
+                     for f in diff if f in self.original])
+                old = dict([(self.original[f], old_node.get(f))
+                            for f in diff if f in self.original])
                 for k, v in updates.iteritems():
                     setattr(self.parent, k, v)
                 self.parent.save(update_fields=updates.keys())
                 self.mark_all_clean()
                 self.parent.save(update_fields=['dirty', ])
-                return updates
+                return (old, updates)
 
             self.push = push
             self.pull = pull
-        # return self
 
     @property
     def node_class(self):
@@ -400,6 +400,8 @@ class DrupalConnector(object):
                                        self.connector.iteritems()]))
         if self.file:
             node.add_file_data(getattr(self.parent, self.file))
+        logging.debug(json.loads(self.parent.dirty))
+        node.mark_fields_changed(json.loads(self.parent.dirty))
         return node
 
     def instantiate(self, obj):
@@ -421,6 +423,7 @@ class DrupalConnector(object):
         if fields:
             self.parent.dirty = json.dumps(
                 list(set(json.loads(self.parent.dirty)).union(fields)))
+            self.node.mark_fields_changed(fields)
 
     def mark_all_clean(self):
         self.parent.dirty = "[]"
@@ -651,6 +654,7 @@ class SlidesInPresentationVersion(OrderedModel):
 
 
 class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
+    objects = OrderedManager()
     modules = models.ManyToManyField(Module, related_name="lessons")
     title = models.CharField(max_length=100, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
@@ -669,12 +673,13 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
 
 
 class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
+    objects = OrderedManager()
     title = models.CharField(max_length=100, blank=True, default="")
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
     files = models.ManyToManyField(
         UniqueFile, through='FilesInQuestion')
-    text = models.TextField(blank=True, default="")
+    text = models.TextField(null=True, blank=True, default="")
     pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")

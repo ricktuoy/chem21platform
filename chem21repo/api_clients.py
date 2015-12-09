@@ -15,25 +15,44 @@ class DrupalRESTRequests(object):
 
     """wrapper to requests lib for Drupal REST server """
 
-    def __init__(self, base_url, username, password):
+    def __init__(self, base_url, rest_url, username, password):
         self.base_url = base_url
+        self.rest_url = rest_url
         self.username = username
         self.password = password
         self.auth_data = None
+        self.csrf_token = None
 
     def authenticate(self, force=False):
         if not self.auth_data or force:
-            self.response = self._post("/user/login",
-                                       data={'username': self.username,
-                                             'password': self.password})
-            if self.response.status_code != 200:
-                raise RESTAuthError(self.response.text)
+            response = self._post("/user/login",
+                                  data={'username': self.username,
+                                        'password': self.password})
+            if response.status_code != 200:
+                raise RESTAuthError(response.text)
             try:
-                self.auth_data = self.response.json()
+                self.auth_data = response.json()
             except ValueError:
                 raise RESTAuthError(
                     "Authentication did not return JSON at %s" % self.base_url)
         return self.auth_data
+
+    def get_csrf_headers(self, force=False):
+        # if not self.csrf_token or force:
+        response = requests.get(
+            self.base_url + "/services/session/token",
+            cookies=self.get_auth_cookies())
+        if response.status_code != 200:
+            raise RESTAuthError("CSRF returned %d %s (%s)" %
+                                (response.status_code,
+                                    response.text,
+                                    self.base_url + "/services/session/token"))
+        try:
+            self.csrf_token = response.text
+        except ValueError:
+            raise RESTAuthError(
+                "CSRF token returned odd value at %s" % self.base_url)
+        return {'X-CSRF-Token': self.csrf_token}
 
     def pull(self, node):
         response = self.get(node.object_name, node.id)
@@ -44,7 +63,6 @@ class DrupalRESTRequests(object):
         try:
             return (self.update(node.id, node), False)
         except AttributeError, e:
-            return (str(e), False)
             response = self.create(node)
             return (response, True)
 
@@ -57,24 +75,25 @@ class DrupalRESTRequests(object):
     def create(self, node):
         self.method_name = "create_%s" % node.object_name
         node.serialise_fields()
-        self.response = self._post_auth("/%s/" % node.object_name, data=node)
+        self.response = self._post_auth("/%s/" % node.object_name, json=node)
         return self.get_json_response()
 
     def update(self, id, node):
         self.method_name = "update_%s" % node.object_name
+        logging.debug("Payload=%s" % node.filter_changed_fields())
         node.remove_empty_optional_fields()
         node.serialise_fields()
-        self.response = self._post_auth(
+        logging.debug("Payload=%s" % node.filter_changed_fields())
+        self.response = self._put_auth(
             "/%s/%s/" % (node.object_name, id),
-            data=node.filter_changed_fields())
+            json=node.filter_changed_fields())
         return self.get_json_response()
-
-    # ------------------------------- helpers
 
     def _auth(fn):
         def inner(obj, method, **kwargs):
             obj.authenticate()
-            kwargs['cookies'] = obj._merge_auth_cookies(kwargs)
+            obj._update_auth_cookies(**kwargs)
+            obj._update_csrf_headers(**kwargs)
             return fn(obj, method, **kwargs)
         return inner
 
@@ -86,19 +105,34 @@ class DrupalRESTRequests(object):
     _get = _extend_method(requests.get)
     _post = _extend_method(requests.post)
     _put = _extend_method(requests.put)
+    _delete = _extend_method(requests.delete)
     _get_auth = _auth(_get)
     _post_auth = _auth(_post)
     _put_auth = _auth(_put)
+    _delete_auth = _auth(_delete)
 
     def _abs_url(self, rel_url):
-        return self.base_url + rel_url
+        url = self.base_url + self.rest_url
+        return url + rel_url
 
-    def _merge_auth_cookies(self, args):
-        cookies = getattr(args, 'cookies', {})
-        cookies[self.auth_data['session_name']] = self.auth_data['sessid']
-        return cookies
+    def get_auth_cookies(self):
+        return {self.auth_data['session_name']: self.auth_data['sessid']}
+
+    def _update_csrf_headers(self, **kwargs):
+        kwargs['headers'] = kwargs.get('headers', {})
+        kwargs['headers'].update(self.get_csrf_headers())
+
+    def _update_auth_cookies(self, **kwargs):
+        kwargs['cookies'] = kwargs.get('cookies', {})
+        kwargs['cookies'].update(self.get_auth_cookies())
 
     def get_json_response(self):
+        if self.response.status_code != 200:
+            raise RESTError(
+                "Method %s (%s) returned status code %s: %s. Headers %s" % (
+                    self.method_name, self.response.url,
+                    self.response.status_code, self.response.text,
+                    self.response.headers))
         try:
             return self.response.json()
         except ValueError:
@@ -115,7 +149,9 @@ class C21RESTRequests(DrupalRESTRequests):
     def __init__(self, *args, **kwargs):
         kwargs['base_url'] = getattr(kwargs,
                                      'base_url',
-                                     settings.CHEM21_PLATFORM_BASE_URL +
+                                     settings.CHEM21_PLATFORM_BASE_URL)
+        kwargs['rest_url'] = getattr(kwargs,
+                                     'rest_url',
                                      settings.CHEM21_PLATFORM_REST_API_URL)
         kwargs['username'] = getattr(kwargs,
                                      'username',
