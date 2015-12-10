@@ -35,6 +35,7 @@ class DrupalRESTRequests(object):
             except ValueError:
                 raise RESTAuthError(
                     "Authentication did not return JSON at %s" % self.base_url)
+        print self.auth_data
         return self.auth_data
 
     def get_csrf_headers(self, force=False):
@@ -61,10 +62,16 @@ class DrupalRESTRequests(object):
 
     def push(self, node):
         try:
-            return (self.update(node.id, node), False)
-        except AttributeError, e:
-            response = self.create(node)
-            return (response, True)
+            if node.id:
+                try:
+                    return (self.update(node.id, node), False)
+                except RESTError, e:
+                    if not self.response.status_code == 410:
+                        raise e
+        except AttributeError:
+            pass
+        response = self.create(node)
+        return (response, True)
 
     def get(self, object_name, id):
         self.method_name = "get_" + object_name
@@ -80,10 +87,8 @@ class DrupalRESTRequests(object):
 
     def update(self, id, node):
         self.method_name = "update_%s" % node.object_name
-        logging.debug("Payload=%s" % node.filter_changed_fields())
         node.remove_empty_optional_fields()
         node.serialise_fields()
-        logging.debug("Payload=%s" % node.filter_changed_fields())
         self.response = self._put_auth(
             "/%s/%s/" % (node.object_name, id),
             json=node.filter_changed_fields())
@@ -92,8 +97,8 @@ class DrupalRESTRequests(object):
     def _auth(fn):
         def inner(obj, method, **kwargs):
             obj.authenticate()
-            obj._update_auth_cookies(**kwargs)
-            obj._update_csrf_headers(**kwargs)
+            kwargs['cookies'] = obj._update_auth_cookies(**kwargs)
+            kwargs['headers'] = obj._update_csrf_headers(**kwargs)
             return fn(obj, method, **kwargs)
         return inner
 
@@ -121,10 +126,12 @@ class DrupalRESTRequests(object):
     def _update_csrf_headers(self, **kwargs):
         kwargs['headers'] = kwargs.get('headers', {})
         kwargs['headers'].update(self.get_csrf_headers())
+        return kwargs['headers']
 
     def _update_auth_cookies(self, **kwargs):
         kwargs['cookies'] = kwargs.get('cookies', {})
         kwargs['cookies'].update(self.get_auth_cookies())
+        return kwargs['cookies']
 
     def get_json_response(self):
         if self.response.status_code != 200:

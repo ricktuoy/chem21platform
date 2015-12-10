@@ -358,6 +358,7 @@ class DrupalConnector(object):
 
             def push():
                 response, created = api.push(self.node)
+                logging.debug(response)
                 if created:
                     self.node.set('id', response['id'])
                     setattr(
@@ -400,7 +401,6 @@ class DrupalConnector(object):
                                        self.connector.iteritems()]))
         if self.file:
             node.add_file_data(getattr(self.parent, self.file))
-        logging.debug(json.loads(self.parent.dirty))
         node.mark_fields_changed(json.loads(self.parent.dirty))
         return node
 
@@ -436,7 +436,6 @@ def generate_dirty_record(sender,
                           using, update_fields,
                           **kwargs):
     if isinstance(instance, DrupalModel):
-        logging.debug("Pre save - drupal node")
         if update_fields:
             instance.drupal.mark_fields_changed(update_fields)
             return

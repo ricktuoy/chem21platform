@@ -161,7 +161,8 @@ class DrupalNode(dict):
 
     def mark_fields_changed(self, fields):
         for f in fields:
-            self.fields[f].add("changed")
+            if not f == "id":
+                self.fields[f].add("changed")
 
     def remove_empty_optional_fields(self):
         for field in self.simple_fields:
