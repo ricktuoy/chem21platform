@@ -217,6 +217,7 @@ class DrupalQuestion(DrupalNode):
               'json_content': set(['serialisable', ]),
               'intro': set(['special', ]),
               'lesson': set(['special', ]),
+              'order': set(['special',]),
               'type': set()}
 
     def __init__(self, *args, **kwargs):
@@ -279,7 +280,8 @@ class DrupalLesson(DrupalNode):
     id_field = "nid"
     fields = {'title': set(['special', 'required']),
               'intro': set(['special', ]),
-              'course': set(['special', ])}
+              'course': set(['special', ]),
+              'order': set(['special',])}
 
 
 class DrupalCourse(DrupalNode):

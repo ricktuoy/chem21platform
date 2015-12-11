@@ -48,7 +48,7 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 if ($.type(dest) == "string" && dest == "top") {
                     var to = "0";
                 } else {
-                    var dref = getObjectRefFromEl(dest);
+                    var dref = getObjectRef(dest);
                     var to = dref['pk'];
                 }
                 var url = "/" + sref['obj'] + "/move/" + sref['pk'] + "/" + to;

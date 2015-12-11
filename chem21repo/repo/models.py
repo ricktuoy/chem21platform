@@ -50,9 +50,13 @@ EventUnicodeMixin.__name__ = "EventUnicodeMixin"
 
 class OrderedModel(BaseModel):
     order = models.IntegerField(default=0)
+    order_dirty = models.BooleanField(default=True)
 
     def move_to(self, el):
         type(self).move(self, el)
+
+    def order_is_dirty(self):
+        return self.order_dirty
 
     class Meta:
         abstract = True
@@ -67,6 +71,10 @@ class OrderedManagerBase:
         return None
 
     @property
+    def order_dirty_field(self):
+        return self.order_field + "_dirty"
+
+    @property
     def force_reset_order(self):
         return True
 
@@ -75,10 +83,12 @@ class OrderedManagerBase:
         return None
 
     def order_incr_dict(self):
-        return {self.order_field: models.F(self.order_field) + 1}
+        return {self.order_field: models.F(self.order_field) + 1,
+                self.order_dirty_field: True}
 
     def order_decr_dict(self):
-        return {self.order_field: models.F(self.order_field) - 1}
+        return {self.order_field: models.F(self.order_field) - 1,
+                self.order_dirty_field: True}
 
     def order_slice_dict(self, val1, val2):
         return {self.order_field + "__gt": val1,
@@ -88,6 +98,7 @@ class OrderedManagerBase:
         return getattr(el, self.order_field)
 
     def set_order_value(self, el, val):
+        setattr(el, self.order_dirty_field, True)
         return setattr(el, self.order_field, val)
 
     def order_sum(self):
@@ -117,8 +128,6 @@ class OrderedManagerBase:
             self._have_reset_order = True
         else:
             self._have_reset_order = False
-        logging.debug("Order checksum: %s" % self.order_sum())
-        logging.debug("Order calculated checksum: %s" % self.order_triangle())
         return self._have_reset_order
 
     def _load_obj_from_arg(self, arg):
@@ -328,7 +337,15 @@ class DrupalModel(models.Model):
 
     @property
     def is_dirty(self):
-        return self.dirty != "[]"
+        dirty = self.dirty != "[]"
+        try:	
+
+            dirty = dirty or (self.__class__.objects.order_field
+                              in self.drupal.original.values(
+                              ) and self.order_is_dirty())
+        except AttributeError:
+            pass
+        return dirty
 
     def __init__(self, *args, **kwargs):
         super(DrupalModel, self).__init__(*args, **kwargs)
@@ -365,7 +382,7 @@ class DrupalConnector(object):
                         self.parent, self.original['id'], self.node.get('id'))
                     self.parent.save(update_fields=[self.original['id']])
                 self.mark_all_clean()
-                self.parent.save(update_fields=['dirty', ])
+                self.parent.save(update_fields=self.parent_dirty_meta_fields)
                 return response
 
             def pull():
@@ -381,11 +398,27 @@ class DrupalConnector(object):
                     setattr(self.parent, k, v)
                 self.parent.save(update_fields=updates.keys())
                 self.mark_all_clean()
-                self.parent.save(update_fields=['dirty', ])
+                self.parent.save(update_fields=self.parent_dirty_meta_fields)
                 return (old, updates)
 
             self.push = push
             self.pull = pull
+
+    @property
+    def parent_dirty_meta_fields(self):
+        try:
+            return ['dirty', self.parent.order_dirty_field]
+        except AttributeError:
+            return ['dirty', ]
+
+    def parent_dirty_fields(self):
+        fields = json.loads(self.parent.dirty)
+        try:
+            if self.parent.order_is_dirty():
+                fields.append(self.order_dirty_field)
+        except AttributeError:
+            pass
+        return fields
 
     @property
     def node_class(self):
@@ -401,7 +434,7 @@ class DrupalConnector(object):
                                        self.connector.iteritems()]))
         if self.file:
             node.add_file_data(getattr(self.parent, self.file))
-        node.mark_fields_changed(json.loads(self.parent.dirty))
+        node.mark_fields_changed(self.parent_dirty_fields())
         return node
 
     def instantiate(self, obj):
@@ -427,6 +460,10 @@ class DrupalConnector(object):
 
     def mark_all_clean(self):
         self.parent.dirty = "[]"
+        try:
+            setattr(self.parent, self.parent.order_dirty_field, False)
+        except AttributeError:
+            pass
         self.node.mark_all_fields_unchanged()
 
 
@@ -668,7 +705,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     drupal = DrupalConnector(
         'lesson', C21RESTRequests(),
         title='title', id='remote_id',
-        course='main_module_remote_id')
+        course='main_module_remote_id', order='order')
 
 
 class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
@@ -693,7 +730,7 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     drupal = DrupalConnector(
         'question', C21RESTRequests(),
         title='title', intro='text', id='remote_id',
-        lesson='main_lesson_remote_id')
+        lesson='main_lesson_remote_id', order='order')
 
 
 class QuestionsInLesson(OrderedModel):
