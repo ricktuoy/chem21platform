@@ -13,4 +13,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         ct = ContentType.objects.get(app_label="repo", model=options['type'])
         obj = ct.get_object_for_this_type(pk=options['id'])
-        obj.drupal.push()
+        print obj.drupal.push()

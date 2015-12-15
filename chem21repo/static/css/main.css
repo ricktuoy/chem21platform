@@ -97,6 +97,10 @@ li.mjs-nestedSortable-collapsed.mjs-nestedSortable-hovering div {
     background-color: #cca;
 }
 
+.sortable li.new>div {
+    background-color: #aac;
+}
+
 .sortable li.selected>div {
     background-color: #ccf;
 }

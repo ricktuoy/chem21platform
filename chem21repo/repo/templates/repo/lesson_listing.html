@@ -5,14 +5,14 @@
         data-from-url-edit="{% url opts.lesson|admin_urlname:'changelist' %}"
         data-url-new="{% url opts.question|admin_urlname:'add' %}?lessons={{ l.pk }}" 
         data-from-url-new="{% url opts.question|admin_urlname:'changelist' %}"
-        class="repo-object-lesson-{{ l.pk }}{% if l.is_dirty %} dirty{% endif %}">
+        class="repo-object-lesson-{{ l.pk }}{% if l.is_dirty and l.remote_id %} dirty{% endif %}{% if not l.remote_id %} new{% endif %}">
         <div>
             {% if l.ordered_questions %}
             <span title="Click to show/hide children" class="disclose">
                 <span></span>
             </span>
             {% endif %}  
-            {{ l.title }} {{ l.remote_id }}
+            {{ l.title }} {{ l.remote_id }} {{ l.order }} {{ l.pk }} {{ l.dirty }}
         </div>
         {% if l.ordered_questions %}
         <ol class="questions">
@@ -21,9 +21,9 @@
              data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}"
                 data-url-new="{% url opts.uniquefile|admin_urlname:'add' %}?questions={{ q.pk }}" 
                 data-from-url-new="{% url opts.uniquefile|admin_urlname:'changelist' %}"
-                class="repo-object-question-{{ q.pk }}{% if q.is_dirty %} dirty{% endif %}">
+                class="repo-object-question-{{ q.pk }}{% if q.is_dirty and q.remote_id %} dirty{% endif %}{% if not q.remote_id %} new{% endif %}">
                 <div>
-                   {{ q.title }} {{ q.remote_id }} {{ q.drupal.node.title }}
+                   {{ q.title }} {{ q.remote_id }} {{ q.order }} {{ q.pk }}  {{ q.dirty }}
                 </div>
             </li>
             {% endfor %}

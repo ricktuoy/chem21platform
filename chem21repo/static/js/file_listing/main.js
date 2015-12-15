@@ -52,6 +52,10 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                     var to = dref['pk'];
                 }
                 var url = "/" + sref['obj'] + "/move/" + sref['pk'] + "/" + to;
+                if (sref['obj'] == "lesson" || sref['obj'] == "question") {
+                    pref = getObjectRef(el.parent().closest("li"));
+                    url += "/" +pref['pk']
+                }
                 return url;
             }
 
@@ -162,10 +166,15 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
 
         $("#remote-sync").on("submit", function(event) {
             var push_url = "/push/"
-            var data = getObjectRefs($("#lessons_tree .dirty"));
-            $.post(push_url, {'refs':data}).done(function(data) {
+            var new_data = getObjectRefs($("#lessons_tree .new"));
+            var update_data = getObjectRefs($("#lessons_tree .dirty"));
+            $.post(push_url, {'refs':new_data}).done(function(data) {
+                clearDirtyFlags();
+                 $.post(push_url, {'refs':update_data}).done(function(data) {
                 clearDirtyFlags();
             }).fail(function(jqXHR, textStatus, errorThrown) {});
+            }).fail(function(jqXHR, textStatus, errorThrown) {});
+           
             event.preventDefault();
         });
 

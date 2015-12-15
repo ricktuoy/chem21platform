@@ -82,6 +82,9 @@ class OrderedManagerBase:
     def order_queryset(self):
         return None
 
+    def flag_dirty(self):
+        return None
+
     def order_incr_dict(self):
         return {self.order_field: models.F(self.order_field) + 1,
                 self.order_dirty_field: True}
@@ -142,20 +145,33 @@ class OrderedManagerBase:
         return arg
 
     @transaction.atomic
-    def move_to_top(self, source):
+    def move_to_top(self, source, parent=None):
+        if parent:
+            try:
+                self.set_m2m_key_value(parent)
+            except AttributeError:
+                pass
         self._current_element = source
         self._ensure_order_consistent()
         source = self._load_obj_from_arg(source)
         self._current_element = source
+
         sval = self.get_order_value(source)
         self.order_queryset().filter(
             **self.order_slice_dict(0, sval)).update(**self.order_incr_dict())
         self.set_order_value(source, 1)
         source.save()
+        self.flag_dirty()
         return (True, "Success")
 
     @transaction.atomic
-    def move(self, source, dest):
+    def move(self, source, dest, parent=None):
+        if parent:
+            try:
+                self.set_m2m_key_value(parent)
+            except AttributeError:
+                pass
+
         self._current_element = source
         self._current_target_element = dest
         self._ensure_order_consistent()
@@ -185,6 +201,7 @@ class OrderedManagerBase:
 
         self.set_order_value(source, dval + 1)
         source.save()
+        self.flag_dirty()
 
         return (True, "Success")
 
@@ -195,13 +212,37 @@ class OrderedRelationalManagerBase(OrderedManagerBase):
     def order_key(self):
         return None
 
-    def get_order_key_value(self, el):
-        return getattr(el, self.order_key)
+    def flag_dirty(self):
+        parent = self._get_order_key_value()
+
+        parent.drupal.mark_fields_changed([parent.drupal.child_order_field, ])
+        parent.save(update_fields=["dirty", ])
+
+    def _get_order_key_value(self):
+        return getattr(self._current_element, self.order_key)
 
     def order_queryset(self):
         return self.get_queryset().filter(
-            **{self.order_key: self.get_order_key_value(
-                self._current_element)})
+            **{self.order_key: self._get_order_key_value(self)})
+
+
+class OrderedManyToManyManagerBase(OrderedRelationalManagerBase):
+
+    def set_m2m_key_value(self, val):
+        self._current_m2m_key_value = val
+
+    def get_m2m_key_value(self):
+        return self._current_m2m_key_value
+
+    def order_queryset(self):
+        return self.get_queryset().filter(
+            **{self.order_key + "__pk": self.get_m2m_key_value()})
+
+    def flag_dirty(self):
+        parent = self._get_order_key_value().get(pk=self.get_m2m_key_value())
+        #raise Exception(parent.drupal.child_order_field)
+        parent.drupal.mark_fields_changed([parent.drupal.child_order_field, ])
+        parent.save(update_fields=["dirty", ])
 
 
 class OrderedManager(models.Manager, OrderedManagerBase):
@@ -273,7 +314,7 @@ class PresentationsInQuestionManager(models.Manager,
 
 
 class LessonsInModuleManager(models.Manager,
-                             OrderedRelationalManagerBase):
+                             OrderedManyToManyManagerBase):
 
     @property
     def order_field(self):
@@ -281,7 +322,7 @@ class LessonsInModuleManager(models.Manager,
 
     @property
     def order_key(self):
-        return "module"
+        return "modules"
 
 
 class SourceFilesInPresentationManager(models.Manager,
@@ -321,7 +362,7 @@ class FilesInQuestionManager(models.Manager,
 
 
 class QuestionsInLessonManager(models.Manager,
-                               OrderedRelationalManagerBase):
+                               OrderedManyToManyManagerBase):
 
     @property
     def order_field(self):
@@ -329,7 +370,7 @@ class QuestionsInLessonManager(models.Manager,
 
     @property
     def order_key(self):
-        return "lesson"
+        return "lessons"
 
 
 class DrupalModel(models.Model):
@@ -338,8 +379,7 @@ class DrupalModel(models.Model):
     @property
     def is_dirty(self):
         dirty = self.dirty != "[]"
-        try:	
-
+        try:
             dirty = dirty or (self.__class__.objects.order_field
                               in self.drupal.original.values(
                               ) and self.order_is_dirty())
@@ -348,8 +388,9 @@ class DrupalModel(models.Model):
         return dirty
 
     def __init__(self, *args, **kwargs):
-        super(DrupalModel, self).__init__(*args, **kwargs)
+        r = super(DrupalModel, self).__init__(*args, **kwargs)
         self.drupal.instantiate(self)
+        return r
 
     class Meta:
         abstract = True
@@ -371,53 +412,60 @@ class DrupalConnector(object):
             self.connector = dict([(k, connection(v))
                                    for k, v in self.original.iteritems()])
             self.parent = obj
-            self.node = self.generate_node_from_parent()
 
-            def push():
-                response, created = api.push(self.node)
-                logging.debug(response)
-                if created:
-                    self.node.set('id', response['id'])
-                    setattr(
-                        self.parent, self.original['id'], self.node.get('id'))
-                    self.parent.save(update_fields=[self.original['id']])
-                self.mark_all_clean()
-                self.parent.save(update_fields=self.parent_dirty_meta_fields)
-                return response
+    def needs_node(fn):
+        def inner(self, *args, **kwargs):
+            try:
+                _ = self.node
+            except AttributeError:
+                self.node = self.generate_node_from_parent()
+            return fn(self, *args, **kwargs)
+        return inner
 
-            def pull():
-                old_node = self.generate_node_from_parent()
-                api.pull(self.node)
-                diff = self.node_class.get_field_diff(old_node, self.node)
-                updates = dict(
-                    [(self.original[f], self.node.get(f))
-                     for f in diff if f in self.original])
-                old = dict([(self.original[f], old_node.get(f))
-                            for f in diff if f in self.original])
-                for k, v in updates.iteritems():
-                    setattr(self.parent, k, v)
-                self.parent.save(update_fields=updates.keys())
-                self.mark_all_clean()
-                self.parent.save(update_fields=self.parent_dirty_meta_fields)
-                return (old, updates)
+    @needs_node
+    def push(self):
 
-            self.push = push
-            self.pull = pull
+        response, created = self.api.push(self.node)
+        if created:
+            self.node.set('id', response['id'])
+            setattr(
+                self.parent, self.original['id'], self.node.get('id'))
+            self.parent.save(update_fields=[self.original['id']])
+        self.mark_all_clean()
+        self.parent.save(update_fields=self.parent_dirty_meta_fields)
+        return response
+
+    @needs_node
+    def pull(self):
+
+        old_node = self.generate_node_from_parent()
+        self.api.pull(self.node)
+        diff = self.node_class.get_field_diff(old_node, self.node)
+        updates = dict(
+            [(self.original[f], self.node.get(f))
+             for f in diff if f in self.original])
+        old = dict([(self.original[f], old_node.get(f))
+                    for f in diff if f in self.original])
+        for k, v in updates.iteritems():
+            setattr(self.parent, k, v)
+        self.parent.save(update_fields=updates.keys())
+        self.mark_all_clean()
+        self.parent.save(update_fields=self.parent_dirty_meta_fields)
+        return (old, updates)
 
     @property
     def parent_dirty_meta_fields(self):
-        try:
-            return ['dirty', self.parent.order_dirty_field]
-        except AttributeError:
-            return ['dirty', ]
+        # try:
+        #    return ['dirty', self.parent.__class__.objects.order_dirty_field]
+        # except AttributeError:
+        #   pass
+        return ['dirty', ]
 
     def parent_dirty_fields(self):
         fields = json.loads(self.parent.dirty)
-        try:
-            if self.parent.order_is_dirty():
-                fields.append(self.order_dirty_field)
-        except AttributeError:
-            pass
+        # if self.parent.order_is_dirty():
+        #    fields.append(self.parent.__class__.objects.order_field)
+
         return fields
 
     @property
@@ -434,6 +482,7 @@ class DrupalConnector(object):
                                        self.connector.iteritems()]))
         if self.file:
             node.add_file_data(getattr(self.parent, self.file))
+
         node.mark_fields_changed(self.parent_dirty_fields())
         return node
 
@@ -441,30 +490,43 @@ class DrupalConnector(object):
         obj.drupal = DrupalConnector(
             self.tpe, obj=obj, api=self.api, **self.original)
 
+    @needs_node
     def get_field_diff(self, changed):
         diff = set([])
         for k, f1 in self.connector.iteritems():
             f2 = changed.connector[k]
-            if f1(self.parent) != f2(changed.parent):
+            newval = f2(changed.parent)
+            if self.node.get(k) != newval:
                 logging.debug("Field changed from %s to %s" %
-                              (f1(self.parent), f2(changed.parent)))
+                              (self.node.get(k), newval))
                 diff.add(k)
         return diff
 
+    @needs_node
     def mark_fields_changed(self, fields):
+        logging.debug("Changing fields %s" % fields)
         fields = self.fields.intersection(fields)
+        logging.debug(fields)
         if fields:
             self.parent.dirty = json.dumps(
                 list(set(json.loads(self.parent.dirty)).union(fields)))
             self.node.mark_fields_changed(fields)
 
+    @needs_node
     def mark_all_clean(self):
         self.parent.dirty = "[]"
-        try:
-            setattr(self.parent, self.parent.order_dirty_field, False)
-        except AttributeError:
-            pass
+        setattr(
+            self.parent,
+            self.parent.__class__.objects.order_dirty_field,
+            False)
         self.node.mark_all_fields_unchanged()
+
+    @property
+    def child_order_field(self):
+        for k, v in self.original.iteritems():
+            if v == "child_orders":
+                return k
+        return None
 
 
 @receiver(models.signals.pre_save)
@@ -482,9 +544,36 @@ def generate_dirty_record(sender,
                 instance.drupal.mark_fields_changed(
                     original.drupal.get_field_diff(instance.drupal))
                 return
+
             except sender.DoesNotExist:
                 pass
         instance.drupal.mark_fields_changed(instance.drupal.fields)
+
+
+@receiver(models.signals.m2m_changed)
+def generate_dirty_m2m_record(sender, instance, action,
+                              reverse, model, pk_set, **kwargs):
+    if not(issubclass(model, DrupalModel) and isinstance(instance, DrupalModel)):
+        return
+    if action != "post_add":
+        return
+    if reverse:
+        #children = [instance, ]
+        parents = list(model.objects.filter(pk__in=pk_set))
+        parent_model = model
+    else:
+        #children = list(model.objects.filter(pk__in=pk_set))
+        parents = [instance, ]
+        parent_model = instance.__class__
+    parent_fields = [parent_model.drupal.child_order_field, ]
+
+    if parent_fields:
+        for p in parents:
+            #raise Exception("Found a parent")
+            p.drupal.mark_fields_changed(parent_fields)
+            p.save(update_fields=["dirty", ])
+
+
 
 
 class Event(BaseModel, EventUnicodeMixin):
@@ -567,6 +656,7 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     working = models.BooleanField(default=False)
     files = models.ManyToManyField(UniqueFile, through='UniqueFilesofModule')
     remote_id = models.IntegerField(null=True, db_index=True)
+    _child_orders = {}
 
     @property
     def topic_remote_id(self):
@@ -575,9 +665,17 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
         except Topic.DoesNotExist:
             return None
 
+    @property
+    def child_orders(self):
+        try:
+            return dict(
+                (q.remote_id, q.order) for q in self.lessons.all())
+        except ValueError:
+            return None
+
     drupal = DrupalConnector(
         'course', C21RESTRequests(),
-        title='name', id='remote_id', klass='topic_remote_id')
+        title='name', id='remote_id', klass='topic_remote_id', lesson_orders='child_orders')
 
     def __unicode__(self):
         return "%s: %s" % (unicode(self.topic), self.name)
@@ -690,26 +788,34 @@ class SlidesInPresentationVersion(OrderedModel):
 
 
 class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
-    objects = OrderedManager()
+    objects = LessonsInModuleManager()
     modules = models.ManyToManyField(Module, related_name="lessons")
     title = models.CharField(max_length=100, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
+    _child_orders = {}
 
     @property
-    def main_module_remote_id(self):
+    def child_orders(self):
         try:
-            return self.modules.all()[0].remote_id
-        except (IndexError, ValueError):
+            return dict(
+                (q.remote_id, q.order) for q in self.questions.all())
+        except ValueError:
             return None
+
+    #@property
+    # def parent_remote_ids(self):
+    #    return [m.remote_id for m in self.modules.all()]
 
     drupal = DrupalConnector(
         'lesson', C21RESTRequests(),
         title='title', id='remote_id',
-        course='main_module_remote_id', order='order')
+        question_orders='child_orders',
+        # courses='parent_remote_ids'
+    )
 
 
 class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
-    objects = OrderedManager()
+    objects = QuestionsInLessonManager()
     title = models.CharField(max_length=100, blank=True, default="")
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
@@ -720,17 +826,16 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")
 
-    @property
-    def main_lesson_remote_id(self):
-        try:
-            return self.lessons.all()[0].remote_id
-        except (IndexError, ValueError):
-            return None
+    #@property
+    # def parent_remote_ids(self):
+    #    return [l.remote_id for l in self.lessons.all()]
 
     drupal = DrupalConnector(
         'question', C21RESTRequests(),
         title='title', intro='text', id='remote_id',
-        lesson='main_lesson_remote_id', order='order')
+        #order='order',
+        # lessons='parent_remote_ids'
+    )
 
 
 class QuestionsInLesson(OrderedModel):

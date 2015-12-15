@@ -122,11 +122,13 @@ class MoveViewBase:
                           self.orderable_model._meta.verbose_name.title())
         context['original_order'] = self.orderable_manager.get_order_value(
             from_el)
+
+        parent_id = kwargs.get('parent_id', None)
         if "to_id" not in kwargs or kwargs['to_id'] == "0":
             # no dest id or dest id==0 then move element to top
             context['new_order'] = 1
             context['success'], context[
-                'message'] = self.orderable_manager.move_to_top(from_el)
+                'message'] = self.orderable_manager.move_to_top(from_el, parent_id)
             return context
         try:
             # get dest element
@@ -139,7 +141,7 @@ class MoveViewBase:
             return context
         context['new_order'] = self.orderable_manager.get_order_value(to_el)
         context['success'], context[
-            'message'] = self.orderable_manager.move(from_el, to_el)
+            'message'] = self.orderable_manager.move(from_el, to_el, parent_id)
         return context
 
 
@@ -251,10 +253,12 @@ class PushView(BatchProcessView):
         error = []
         success = []
         for obj in qs:
-            try:
-                success.append(obj.drupal.push())
-            except (RESTError, RESTAuthError), e:
-                error.append(str(e))
+            if obj.remote_id or isinstance(obj, Question) \
+                    or isinstance(obj, Lesson):
+                try:
+                    success.append(obj.drupal.push())
+                except (RESTError, RESTAuthError), e:
+                    error.append(str(e))
         return (success, error)
 
 

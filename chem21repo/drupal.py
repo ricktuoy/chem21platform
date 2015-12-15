@@ -160,8 +160,9 @@ class DrupalNode(dict):
             v.discard("changed")
 
     def mark_fields_changed(self, fields):
+
         for f in fields:
-            if not f == "id":
+            if not f == "id" and f in self.fields:
                 self.fields[f].add("changed")
 
     def remove_empty_optional_fields(self):
@@ -217,7 +218,6 @@ class DrupalQuestion(DrupalNode):
               'json_content': set(['serialisable', ]),
               'intro': set(['special', ]),
               'lesson': set(['special', ]),
-              'order': set(['special',]),
               'type': set()}
 
     def __init__(self, *args, **kwargs):
@@ -280,22 +280,22 @@ class DrupalLesson(DrupalNode):
     id_field = "nid"
     fields = {'title': set(['special', 'required']),
               'intro': set(['special', ]),
-              'course': set(['special', ]),
-              'order': set(['special',])}
+              'question_orders': set(['special', ]),}
 
 
 class DrupalCourse(DrupalNode):
     object_name = "course"
     id_field = "nid"
     fields = {'title': set(['special', 'required']),
-              'intro': set(['special', ])}
+              'intro': set(['special', ]),
+              'lesson_orders': set(['special', ]),}
 
 
 class DrupalTopic(DrupalNode):
     object_name = "class"
     id_field = "nid"
     fields = {'title': set(['special', 'required']),
-              'intro': set(['special', ])}
+              'intro': set(['special', ]),}
 
 
 def drupal_node_factory(type):

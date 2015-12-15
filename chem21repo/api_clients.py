@@ -82,16 +82,20 @@ class DrupalRESTRequests(object):
     def create(self, node):
         self.method_name = "create_%s" % node.object_name
         node.serialise_fields()
+        logging.debug("Create node: %s" % node)
         self.response = self._post_auth("/%s/" % node.object_name, json=node)
+        logging.debug("Create result: %s" % self.response.text)
         return self.get_json_response()
 
     def update(self, id, node):
         self.method_name = "update_%s" % node.object_name
         node.remove_empty_optional_fields()
         node.serialise_fields()
+        logging.debug("Update node: %s" % node.filter_changed_fields())
         self.response = self._put_auth(
             "/%s/%s/" % (node.object_name, id),
             json=node.filter_changed_fields())
+        logging.debug("Update result: %s" % self.response.text)
         return self.get_json_response()
 
     def _auth(fn):
