@@ -1,4 +1,4 @@
-define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie", "jquery.ui-contextmenu"], function($) {
+define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie", "jquery.ui-contextmenu", "jquery.fileupload", "jquery-ui/autocomplete"], function($) {
     $(function() {
         var csrftoken = $.cookie('csrftoken');
 
@@ -136,7 +136,8 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
             delegate: "li",
             menu: [
                 {title: "Edit", cmd: "Edit", uiIcon: "ui-icon-edit"},
-                {title: "Create new ...", cmd: "New", uiIcon: "ui-icon-new"}
+                {title: "Create new ...", cmd: "New", uiIcon: "ui-icon-new"},
+                {title: "Add selected sources", cmd: "Add files", uiIcon: "ui-icon-new"}
             ],
             select: function(event, ui) {
                 switch(ui.cmd) {
@@ -147,7 +148,13 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                         var return_on_save = {url: window.location.pathname, fromUrl:from_url}
                         $.cookie("admin_save_redirect", JSON.stringify(return_on_save));
                         window.location = url;
-                    break;
+                        break;
+                    case "Add files":
+                        var el = ui.target.closest("li");
+                        var url = el.data("urlAddFiles");
+                        $.post(url, getObjectRefs($("#sources_tree li.selected")));
+                        location.reload();
+                        break;
                 }
             }
         });
@@ -161,6 +168,20 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                     $(this).toggleClass("selected");
                 }
                 event.preventDefault();
+            }
+        });
+        $("#sources_tree li").on("click", function(event) {
+            if($(event.target).closest("li")[0]==this && !$(event.target).hasClass("disclose")) {
+                var ref = getObjectRef($(this));
+                if(ref.obj=="source_file" || ref.obj=="cut_file") {
+                    if(!event.ctrlKey) {
+                        $("#sources_tree li").removeClass("selected");
+                        $(this).addClass("selected");
+                    } else {
+                        $(this).toggleClass("selected");
+                    }
+                    event.preventDefault();
+                }
             }
         });
 
@@ -194,10 +215,10 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 },
                 sync: {
                     succeed: function(data) {
-                        console.log(data);
+                        location.reload();
                     },
                     fail: function(data) {
-                        return;
+                        location.reload();
                     }
                 }
             }
@@ -209,7 +230,33 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 var action_succeed = callbacks[action]['succeed'];
                 var action_fail = callbacks[action]['error'];
                 $.post(url, {'refs':data}, action_succeed).fail(action_fail);
+
             }
         }); 
+        $('#fileupload').fileupload({
+            dataType: 'json',
+            done: function (e, data) {
+                $.each(data.result.files, function (index, file) {
+                    $('<p/>').text(file.name).appendTo(document.body);
+                });
+            }
+        });
+
+        var cache = {};
+        $( "#biblio" ).autocomplete({
+            minLength: 2,
+            source: function( request, response ) {
+                var term = request.term;
+                if ( term in cache ) {
+                    response( cache[ term ] );
+                    return;
+                }
+         
+                $.getJSON( "endnote/search/"+request.term+"/", function( data, status, xhr ) {
+                    cache[ term ] = data;
+                    response( data );
+                });
+            }
+        });
     });
 });

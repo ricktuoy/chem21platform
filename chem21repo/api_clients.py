@@ -177,3 +177,16 @@ class C21RESTRequests(DrupalRESTRequests):
         self.response = self._get_auth(
             "/node", params={'parameters[type]': 'course'})
         return self.get_json_response()
+
+    def import_endnote(self, fl):
+        self.method_name = "import_endnote"
+        self.response = self._post_auth(
+            "/biblio/import", data={'data': fl})
+        return self.get_json_response()
+
+    def search_endnote(self, term):
+        self.method_name = "search_endnote"
+        #raise Exception(term)
+        self.response = self._get_auth(
+            "/biblio", params={'term': term})
+        return self.get_json_response()

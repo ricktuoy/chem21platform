@@ -8,14 +8,15 @@
  *   - 'dir' will be overidden by django-require during the build process. 
  */
 ({
+    
     /*
      * List the modules that will be optimized. All their immediate and deep
      * dependencies will be included in the module's file when the build is
      * done. A minimum module entry is {name: "module_name"}.
      */
-    modules: [{
+        modules: [{
         name: 'file_listing'
-    }],
+    },{name: 'select_bibliotag'}],
     /*
      * Allow CSS optimizations. Allowed values:
      * - "standard": @import inlining, comment removal and line returns.
@@ -55,5 +56,9 @@
      * files.
      */
     skipDirOptimize: true,
-    mainConfigFile: "../file_listing.js",
+    paths: {
+        "file_listing": "../file_listing",
+        "select_bibliotag": "../../tiny_mce/plugins/bibliotag/js/select_bibliotag"
+    },
+    
 })

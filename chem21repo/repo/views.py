@@ -12,13 +12,14 @@ from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Prefetch
 from django.http import Http404
 from django.views.generic import View
 from django.views.generic import DetailView
 from django.views.generic import TemplateView
 from querystring_parser import parser
-from chem21repo.api_clients import RESTError, RESTAuthError
+from chem21repo.api_clients import RESTError, RESTAuthError, C21RESTRequests
 
 # Create your views here.
 
@@ -75,7 +76,10 @@ class HomePageView(TemplateView):
             Prefetch("modules__ordered_lessons__questions",
                      queryset=Question.objects.all().order_by(
                          'order'),
-                     to_attr="ordered_questions")
+                     to_attr="ordered_questions"),
+            Prefetch("modules__ordered_lessons__ordered_questions__files",
+                     queryset=UniqueFile.objects.all().order_by('type')),
+                     to_attr="ordered_files")
         )
 
         class Opt(object):
@@ -185,18 +189,10 @@ class BatchProcessView(View):
             {'error': "Only callable by POST method", }, status=405
         )
 
-    def get_querysets_from_request(self, request):
-        try:
-            post_dict = parser.parse(request.POST.urlencode())
-            refs = post_dict['refs']
-            self.refs = refs
-        except KeyError:
-            raise AJAXError(
-                {'error': "No refs found", 'post': request.POST}, status=400
-            )
-        types = {}
-
-        for i, ref in refs.iteritems():
+    def get_querysets_from_refs(self, refs):
+    	types = {}
+        
+        for ref in refs:
             try:
                 tp = ref['obj']
                 pk = ref['pk']
@@ -217,13 +213,27 @@ class BatchProcessView(View):
         for model_class, pks in types.iteritems():
             yield model_class.objects.filter(pk__in=pks)
 
+
+    def get_querysets_from_request(self, request):
+        try:
+            post_dict = parser.parse(request.POST.urlencode())
+            refs = post_dict['refs']
+            self.refs = [ref for i, ref in refs.iteritems()]
+        except KeyError:
+            raise AJAXError(
+                {'error': "No refs found", 'post': request.POST}, status=400
+            )
+
+        return self.get_querysets_from_refs(self.refs)
+
+
     def get_refs_from_queryset(self, qs):
         tp = qs.model.__name__.lower()
         for obj in qs:
             yield {'pk': obj.pk, 'obj': tp}
 
     @abstractmethod
-    def process_queryset(self, qs):
+    def process_queryset(self, qs, *args, **kwargs):
         pass
 
     def post(self, request, *args, **kwargs):
@@ -231,7 +241,7 @@ class BatchProcessView(View):
         errors = []
         try:
             for qs in self.get_querysets_from_request(request):
-                this_success, this_error = self.process_queryset(qs)
+                this_success, this_error = self.process_queryset(qs, *args, **kwargs)
                 successes += this_success
                 errors += this_error
 
@@ -245,6 +255,90 @@ class BatchProcessView(View):
         return JsonResponse(
             {'source': self.refs, 'result': successes,
              'error': errors}, status=code)
+
+
+class JQueryFileHandleView(View):
+    __metaclass__ = ABCMeta
+
+    errors = {}
+
+    def get(self, request, *args, **kwargs):
+        return JsonResponse(
+            {'error': "Only callable by POST method", }, status=405
+        )
+
+    @property
+    def filename(self):
+        return self._wrapped_file.name
+
+    @property
+    def filesize(self):
+        return self._wrapped_file.size
+
+    @abstractproperty
+    def fileurl(self):
+        return None
+
+    @abstractproperty
+    def deleteurl(self):
+        return None
+
+    @property
+    def deletetype(self):
+        return "DELETE"
+
+    def get_return_values(self):
+        return {'name': self.filename,
+                'size': self.filesize,
+                'url': self.fileurl,
+                'delete_url': self.deleteurl,
+                'delete_type': self.deletetype}
+
+    @abstractmethod
+    def process_file(self):
+        return None
+
+    def post(self, request, *args, **kwargs):
+        if request.FILES is None:
+            return JsonResponse(
+                {'error': "No files uploaded.", }, status=405
+            )
+
+        # getting file data for farther manipulations
+        self._file = request.FILES[u'files[]']
+        self._wrapped_file = UploadedFile(self._file)
+        self.process_file()
+        if self.errors:
+            return JsonResponse({'error': self.errors}, status=400)
+        else:
+            return JsonResponse(
+                self.get_return_values(), status=200)
+
+
+class EndnoteUploadView(JQueryFileHandleView):
+
+    def process_file(self):
+        self.errors = []
+        reqs = C21RESTRequests()
+        self._result = reqs.import_endnote(self._file.read())
+
+    @property
+    def fileurl(self):
+        return self._result
+
+    @property
+    def deleteurl(self):
+        return ""
+
+
+class EndnoteSearchView(JSONView):
+
+    def get_context_data(self, **kwargs):
+        return C21RESTRequests().search_endnote(kwargs['term'])
+
+    def render_to_response(self, *args, **kwargs):
+        kwargs['safe'] = False
+        return super(EndnoteSearchView, self).render_to_response(*args, **kwargs)
 
 
 class PushView(BatchProcessView):
@@ -284,3 +378,39 @@ class PullView(BatchProcessView):
             except (RESTError, RESTAuthError), e:
                 error.append(str(e))
         return (success, error)
+
+class AddFileView(BatchProcessView):
+	def post(self, request, *args, **kwargs):
+		if kwargs['target_type'] != "question":
+			return JsonResponse(
+                {'error': "Target should be a question.", }, status=405
+            )
+		refs = [{'pk': kwargs['target_id'], 'obj': kwargs['target_type']},]
+		target_qs = self.get_querysets_from_refs(refs)[:1]
+		target = list(target_qs[:1])
+		if not target:
+			return JsonResponse(
+                {'error': "Target not found.", }, status=405
+            )
+        self.add_file_target = target
+        return super(AddFileView, self).post(request, *args, **kwargs)
+
+
+	def process_queryset(self, qs):
+		
+		success = []
+		error = []
+		for obj in qs:
+			try:
+				self.add_file_target.files.add(obj)
+				success.append({'pk': obj.pk})
+			except Exception, e:
+				error.append(str(e))
+		return (success, error)
+
+
+
+		
+
+
+

@@ -6,6 +6,7 @@ Django==1.8.3
 django-debug-panel==0.8.2
 django-debug-toolbar==1.4
 -e git+git@bitbucket.org:ricktaylord/django-filebrowser.git@56f9f2ebf089a3d16f2dff77ea237fc2325fad8f#egg=django_filebrowser-master
+django-tinymce
 -e git+https://github.com/bernii/querystring-parser.git#egg=querystring_parser
 django-grappelli==2.7.1
 django-herokuapp==0.9.20

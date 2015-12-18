@@ -24,6 +24,7 @@ from repo.views import *
 
 urlpatterns = [
     url(r'^filebrowser/', include(fbsite.urls)),
+    url(r'^tinymce/', include('tinymce.urls')),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^[/]?$', HomePageView.as_view()),
@@ -41,6 +42,12 @@ urlpatterns = [
         LessonMoveView.as_view(), name="module_move"),
     url(r'^question/move/(?P<from_id>[0-9]+)/(?P<to_id>[0-9]+)/(?P<parent_id>[0-9]+)[/]?$',
         QuestionMoveView.as_view(), name="module_move"),
+    url(r'^endnote/upload/$', EndnoteUploadView.as_view(),
+        name="endnote_upload"),
+    url(r'^endnote/search/(?P<term>.+)/$', EndnoteSearchView.as_view(),
+        name="endnote_search"),
+    url(r'^files/add/(?P<target_type>.+)/(?P<target_id>[0-9]+)/$', AddFileView.as_view(),
+        name="add_files"),
     url(r'^push/', PushView.as_view(), name="push_ajax"),
     url(r'^local/clear/', MarkAsCleanView.as_view(), name="clear_ajax"),
     url(r'^local/sync/', PullView.as_view(), name="pull_ajax")

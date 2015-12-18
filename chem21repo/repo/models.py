@@ -15,6 +15,7 @@ from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from filebrowser.fields import FileBrowseField
 from chem21repo.api_clients import C21RESTRequests
+import tinymce.models as mceModels
 
 
 class BaseModel(models.Model):
@@ -819,22 +820,15 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     title = models.CharField(max_length=100, blank=True, default="")
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
-    files = models.ManyToManyField(
-        UniqueFile, through='FilesInQuestion')
-    text = models.TextField(null=True, blank=True, default="")
+    files = models.ManyToManyField(UniqueFile)
+    text = mceModels.HTMLField(null=True, blank=True, default="")
     pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")
 
-    #@property
-    # def parent_remote_ids(self):
-    #    return [l.remote_id for l in self.lessons.all()]
-
     drupal = DrupalConnector(
         'question', C21RESTRequests(),
         title='title', intro='text', id='remote_id',
-        #order='order',
-        # lessons='parent_remote_ids'
     )
 
 
