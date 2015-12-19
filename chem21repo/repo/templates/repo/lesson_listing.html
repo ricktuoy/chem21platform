@@ -21,10 +21,26 @@
              data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}"
                 data-url-new="{% url opts.uniquefile|admin_urlname:'add' %}?questions={{ q.pk }}" 
                 data-from-url-new="{% url opts.uniquefile|admin_urlname:'changelist' %}"
+                data-url-add-files="{% url 'add_files' 'question' q.pk %}"
                 class="repo-object-question-{{ q.pk }}{% if q.is_dirty and q.remote_id %} dirty{% endif %}{% if not q.remote_id %} new{% endif %}">
                 <div>
+                            {% if q.ordered_files %}
+            <span title="Click to show/hide children" class="disclose">
+                <span></span>
+            </span>
+            {% endif %}  
                    {{ q.title }} {{ q.remote_id }} {{ q.order }} {{ q.pk }}  {{ q.dirty }}
                 </div>
+                {% if q.ordered_files %}
+                <ol class="files">
+                {% for f in q.ordered_files %}
+                <li class="repo-object-uniquefile-{{f.pk}}">
+                <div>
+                   [ {{ f.type }} ] {{ f.title }} {{ f.type }}  {{ f.pk }}
+                </div>
+                {% endfor %}
+                </ol>
+                {% endif %}
             </li>
             {% endfor %}
         </ol>

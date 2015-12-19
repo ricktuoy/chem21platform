@@ -231,7 +231,7 @@ class BatchProcessView(View):
             yield {'pk': obj.pk, 'obj': tp}
 
     @abstractmethod
-    def process_queryset(self, qs, *args, **kwargs):
+    def process_queryset(self, qs):
         pass
 
     def post(self, request, *args, **kwargs):
@@ -240,7 +240,7 @@ class BatchProcessView(View):
         try:
             for qs in self.get_querysets_from_request(request):
                 this_success, this_error = self.process_queryset(
-                    qs, *args, **kwargs)
+                    qs)
                 successes += this_success
                 errors += this_error
 
@@ -387,13 +387,14 @@ class AddFileView(BatchProcessView):
                 {'error': "Target should be a question.", }, status=405
             )
         refs = [{'pk': kwargs['target_id'], 'obj': kwargs['target_type']}, ]
-        target_qs = self.get_querysets_from_refs(refs)[:1]
+        target_qs = list(self.get_querysets_from_refs(refs))
+        target_qs = target_qs[0]
         target = list(target_qs[:1])
-        if not target:
+        if not target[0]:
             return JsonResponse(
                 {'error': "Target not found.", }, status=405
             )
-        self.add_file_target = target
+        self.add_file_target = target[0]
         return super(AddFileView, self).post(request, *args, **kwargs)
 
     def process_queryset(self, qs):
@@ -407,3 +408,14 @@ class AddFileView(BatchProcessView):
             except Exception, e:
                 error.append(str(e))
         return (success, error)
+
+    def get_querysets_from_refs(self, refs):
+        def convert_ref(ref):
+            if ref['obj'] == 'cut_file' or ref['obj'] == 'source_file':
+                obj = 'uniquefile'
+            else:
+                obj = ref['obj']
+            return {'obj': obj, 'pk': ref['pk']}
+
+        return super(AddFileView, self).get_querysets_from_refs(
+            map(convert_ref, refs))

@@ -249,7 +249,7 @@ class DrupalQuestion(DrupalNode):
         except KeyError:
             raise AttributeError("No video data")
 
-    def _add_video_data(self, ufile):
+    def _add_h5p_video_data(self, ufile):
         if not hasattr(self, 'h5p_video'):
             with self.static_storage.open(settings.STATIC_ROOT +
                                           "video_fields.json") as v_file:

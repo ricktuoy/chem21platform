@@ -575,8 +575,6 @@ def generate_dirty_m2m_record(sender, instance, action,
             p.save(update_fields=["dirty", ])
 
 
-
-
 class Event(BaseModel, EventUnicodeMixin):
     name = models.CharField(max_length=100)
     date = models.DateField(null=True)
@@ -825,6 +823,9 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")
+
+    def video(self):
+        self.files.filter(type="video")
 
     drupal = DrupalConnector(
         'question', C21RESTRequests(),

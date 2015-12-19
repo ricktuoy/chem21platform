@@ -152,8 +152,9 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                     case "Add files":
                         var el = ui.target.closest("li");
                         var url = el.data("urlAddFiles");
-                        $.post(url, getObjectRefs($("#sources_tree li.selected")));
-                        location.reload();
+                        var res = $.post(url, {'refs':getObjectRefs($("#sources_tree li.selected"))});
+                        console.debug(res);
+                        //location.reload();
                         break;
                 }
             }
