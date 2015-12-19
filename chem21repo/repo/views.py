@@ -78,7 +78,7 @@ class HomePageView(TemplateView):
                          'order'),
                      to_attr="ordered_questions"),
             Prefetch("modules__ordered_lessons__ordered_questions__files",
-                     queryset=UniqueFile.objects.all().order_by('type')),
+                     queryset=UniqueFile.objects.all().order_by('type'),
                      to_attr="ordered_files")
         )
 
@@ -190,8 +190,8 @@ class BatchProcessView(View):
         )
 
     def get_querysets_from_refs(self, refs):
-    	types = {}
-        
+        types = {}
+
         for ref in refs:
             try:
                 tp = ref['obj']
@@ -213,7 +213,6 @@ class BatchProcessView(View):
         for model_class, pks in types.iteritems():
             yield model_class.objects.filter(pk__in=pks)
 
-
     def get_querysets_from_request(self, request):
         try:
             post_dict = parser.parse(request.POST.urlencode())
@@ -225,7 +224,6 @@ class BatchProcessView(View):
             )
 
         return self.get_querysets_from_refs(self.refs)
-
 
     def get_refs_from_queryset(self, qs):
         tp = qs.model.__name__.lower()
@@ -241,7 +239,8 @@ class BatchProcessView(View):
         errors = []
         try:
             for qs in self.get_querysets_from_request(request):
-                this_success, this_error = self.process_queryset(qs, *args, **kwargs)
+                this_success, this_error = self.process_queryset(
+                    qs, *args, **kwargs)
                 successes += this_success
                 errors += this_error
 
@@ -379,38 +378,32 @@ class PullView(BatchProcessView):
                 error.append(str(e))
         return (success, error)
 
+
 class AddFileView(BatchProcessView):
-	def post(self, request, *args, **kwargs):
-		if kwargs['target_type'] != "question":
-			return JsonResponse(
+
+    def post(self, request, *args, **kwargs):
+        if kwargs['target_type'] != "question":
+            return JsonResponse(
                 {'error': "Target should be a question.", }, status=405
             )
-		refs = [{'pk': kwargs['target_id'], 'obj': kwargs['target_type']},]
-		target_qs = self.get_querysets_from_refs(refs)[:1]
-		target = list(target_qs[:1])
-		if not target:
-			return JsonResponse(
+        refs = [{'pk': kwargs['target_id'], 'obj': kwargs['target_type']}, ]
+        target_qs = self.get_querysets_from_refs(refs)[:1]
+        target = list(target_qs[:1])
+        if not target:
+            return JsonResponse(
                 {'error': "Target not found.", }, status=405
             )
         self.add_file_target = target
         return super(AddFileView, self).post(request, *args, **kwargs)
 
+    def process_queryset(self, qs):
 
-	def process_queryset(self, qs):
-		
-		success = []
-		error = []
-		for obj in qs:
-			try:
-				self.add_file_target.files.add(obj)
-				success.append({'pk': obj.pk})
-			except Exception, e:
-				error.append(str(e))
-		return (success, error)
-
-
-
-		
-
-
-
+        success = []
+        error = []
+        for obj in qs:
+            try:
+                self.add_file_target.files.add(obj)
+                success.append({'pk': obj.pk})
+            except Exception, e:
+                error.append(str(e))
+        return (success, error)
