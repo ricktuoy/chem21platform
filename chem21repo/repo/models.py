@@ -16,6 +16,7 @@ from django.template.defaultfilters import slugify
 from filebrowser.fields import FileBrowseField
 from chem21repo.api_clients import C21RESTRequests
 import tinymce.models as mceModels
+from django.core.files.storage import DefaultStorage
 
 
 class BaseModel(models.Model):
@@ -597,8 +598,9 @@ class Author(BaseModel, AuthorUnicodeMixin):
     full_name = models.CharField(max_length=200, unique=True)
 
 
-class UniqueFile(OrderedModel):
+class UniqueFile(OrderedModel, DrupalModel):
     objects = ActiveManager()
+    storage = DefaultStorage()
     cut_objects = CutManager()
     checksum = models.CharField(max_length=100, null=True, unique=True)
     path = models.CharField(max_length=255, null=True)
@@ -615,6 +617,7 @@ class UniqueFile(OrderedModel):
     active = models.BooleanField(default=True)
     s3d = models.BooleanField(default=False)
     remote_path = models.CharField(max_length=255, null=True)
+    remote_id = models.IntegerField(null=True, db_index=True)
 
     def __unicode__(self):
         return self.checksum
@@ -631,6 +634,21 @@ class UniqueFile(OrderedModel):
 
     def get_mime_type(self):
         return self.type + "/" + self._stripped_ext
+
+    @property
+    def filename(self):
+        return self.checksum + self.ext
+    
+
+    @property
+    def base64_file(self):
+        with UniqueFile.storage.open(self.path, "rb") as v_file:
+            return base64.b64encode(v_file.read())
+
+    drupal = DrupalConnector(
+        'file', C21RESTRequests(),
+        filesize='size', id='remote_id',
+        filename='filename', file='base64_file')
 
 
 class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
@@ -824,12 +842,44 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")
 
-    def video(self):
-        self.files.filter(type="video")
+    def video(self, reset=False):
+        if not reset:
+            try:
+                return self._cached_video
+            except AttributeError:
+                pass
+        try:
+            self._cached_video = list(self.files.filter(type="video")[:1])[0]
+        except KeyError:
+            self._cached_video = None
+        return self._cached_video
+
+    @property
+    def type(self):
+        if self.video:
+            self.type = "h5p_question"
+        else:
+            self.type = "slide"
+
+    @property
+    def h5p_library(self):
+        if self.video:
+            return "H5P.InteractiveVideo"
+        else:
+            return AttributeError
+
+    @property
+    def h5p_resources(self):
+        if self.video:
+            return [self.video.remote_id,]
+        else:
+            return AttributeError
 
     drupal = DrupalConnector(
         'question', C21RESTRequests(),
         title='title', intro='text', id='remote_id',
+        type='type', h5p_library='h5p_library',
+        h5p_resources='h5p_resources'
     )
 
 

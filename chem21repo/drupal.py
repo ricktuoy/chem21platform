@@ -280,7 +280,7 @@ class DrupalLesson(DrupalNode):
     id_field = "nid"
     fields = {'title': set(['special', 'required']),
               'intro': set(['special', ]),
-              'question_orders': set(['special', ]),}
+              'question_orders': set(['special', ]), }
 
 
 class DrupalCourse(DrupalNode):
@@ -288,19 +288,28 @@ class DrupalCourse(DrupalNode):
     id_field = "nid"
     fields = {'title': set(['special', 'required']),
               'intro': set(['special', ]),
-              'lesson_orders': set(['special', ]),}
+              'lesson_orders': set(['special', ]), }
 
 
 class DrupalTopic(DrupalNode):
     object_name = "class"
     id_field = "nid"
     fields = {'title': set(['special', 'required']),
-              'intro': set(['special', ]),}
+              'intro': set(['special', ]), }
+
+
+class DrupalFile(DrupalNode):
+    object_name = "file"
+    id_field = "fid"
+    fields = {'filename': set(['special', ]),
+              'filesize': set(['special', ]),
+              'file': set(['special', ])}
 
 
 def drupal_node_factory(type):
     type_map = {'course': DrupalCourse,
                 'lesson': DrupalLesson,
                 'question': DrupalQuestion,
-                'class': DrupalTopic}
+                'class': DrupalTopic,
+                'file':DrupalFile}
     return type_map[type]
