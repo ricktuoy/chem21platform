@@ -137,7 +137,9 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
             menu: [
                 {title: "Edit", cmd: "Edit", uiIcon: "ui-icon-edit"},
                 {title: "Create new ...", cmd: "New", uiIcon: "ui-icon-new"},
-                {title: "Add selected sources", cmd: "Add files", uiIcon: "ui-icon-new"}
+                {title: "Add selected sources", cmd: "Add files", uiIcon: "ui-icon-new"},
+                {title: "Remove", cmd: "Remove", uiIcon: "ui-icon-delete"},
+                {title: "Show dirty data", cmd: "Dirty", uiIcon: "ui-icon-delete"}
             ],
             select: function(event, ui) {
                 switch(ui.cmd) {
@@ -152,10 +154,24 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                     case "Add files":
                         var el = ui.target.closest("li");
                         var url = el.data("urlAddFiles");
-                        var res = $.post(url, {'refs':getObjectRefs($("#sources_tree li.selected"))});
-                        console.debug(res);
-                        //location.reload();
+                        $.post(url, {'refs':getObjectRefs($("#sources_tree li.selected"))}, function(data) {
+                            location.reload();
+                        });
                         break;
+                    case "Remove":
+                        var url = ui.target.closest("li").data("urlRemove");
+                        $.get(url, function(data) { 
+                            el = getElFromObjectRef($("#lessons_tree"),data['success']); 
+                            el.remove();
+                        }).fail(function() 
+                            {alert("FAIUL");
+                        });
+                    case "Dirty":
+                        var el = ui.target.closest("li");
+                        var ref = getObjectRef(el);
+                        $.get("/dirty/"+ref.obj+"/"+ref.pk+"/", function(data) {
+                            alert(JSON.stringify(data));
+                        })
                 }
             }
         });
@@ -222,6 +238,7 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                         location.reload();
                     }
                 }
+
             }
             if (!action || action=="_") {
                 $("#lessons_tree li").addClass("selected");

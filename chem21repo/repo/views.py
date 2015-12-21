@@ -1,4 +1,5 @@
 import logging
+import traceback
 
 from .models import Lesson
 from .models import LessonsInModule
@@ -14,7 +15,7 @@ from abc import abstractproperty
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Prefetch
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest, HttpResponseServerError
 from django.views.generic import View
 from django.views.generic import DetailView
 from django.views.generic import TemplateView
@@ -32,10 +33,32 @@ class JSONResponseMixin(object):
     A mixin that can be used to render a JSON response.
     """
 
+    @property
+    def error(self):
+        return self._error
+
+    @error.setter
+    def error(self, ev):
+        tr = traceback.format_exc()
+        try:
+            e, status = ev
+        except ValueError:
+            e = ev
+            status = 400
+        self._error = {'message': str(e), 'stacktrace': tr}
+        self._error_status = status
+
+    @property
+    def status_code(self):
+        return self._error_status
+
     def render_to_json_response(self, context, **response_kwargs):
         """
         Returns a JSON response, transforming 'context' to make the payload.
         """
+        if hasattr(self, "error") and self.error:
+            context['error'] = self.error
+            response_kwargs['status'] = self.status_code
         return JsonResponse(
             self.get_data(context),
             **response_kwargs
@@ -106,6 +129,19 @@ class VideoView(DetailView):
     slug_url_kwarg = "checksum"
 
 
+class DirtyView(JSONView):
+
+    def get_context_data(self, **kwargs):
+        if(kwargs['object_name'] == "file"):
+            model = UniqueFile
+        else:
+            model = ContentType.objects.get(
+                app_label="repo",
+                model=kwargs['object_name']).model_class()
+        obj = model.objects.get(pk=kwargs['id'])
+        return obj.drupal.generate_node_from_parent(debug=True)
+
+
 class MoveViewBase:
     __metaclass__ = ABCMeta
 
@@ -132,7 +168,8 @@ class MoveViewBase:
             # no dest id or dest id==0 then move element to top
             context['new_order'] = 1
             context['success'], context[
-                'message'] = self.orderable_manager.move_to_top(from_el, parent_id)
+                'message'] = self.orderable_manager.move_to_top(
+                    from_el, parent_id)
             return context
         try:
             # get dest element
@@ -172,6 +209,77 @@ class LessonMoveView(MoveViewBase, JSONView):
 
 class QuestionMoveView(MoveViewBase, JSONView):
     orderable_model = Question
+
+
+class RemoveViewBase:
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
+    def m2m_field(self):
+        return None
+
+    @abstractproperty
+    def model(self):
+        return None
+
+    @abstractproperty
+    def parent_model(self):
+        return None
+
+    @property
+    def manager(self):
+        return self.model.objects
+
+    @property
+    def parent_manager(self):
+        return self.parent_model.objects
+
+    @property
+    def model_name(self):
+        return self.model._meta.verbose_name.title().lower()
+
+    def get_context_data(self, *args, **kwargs):
+        try:
+            child = self.manager.get(pk=kwargs['id'])
+        except self.model.DoesNotExist, e:
+            self.error = (e, 404)
+            return {}
+        try:
+            parent = self.parent_manager.get(pk=kwargs['parent_id'])
+        except self.parent_model.DoesNotExist, e:
+            self.error = (e, 404)
+            return {}
+        try:
+            m2m_manager = getattr(parent, self.m2m_field)
+        except AttributeError, e:
+            self.error = e
+            return {}
+        try:
+            m2m_manager.remove(child)
+        except Exception, e:
+            self.error = e
+        return {'success':
+                {'obj': self.model_name,
+                 'pk': child.pk}}
+
+
+class QuestionRemoveView(RemoveViewBase, JSONView):
+    m2m_field = "questions"
+    model = Question
+    parent_model = Lesson
+
+
+class FileRemoveView(RemoveViewBase, JSONView):
+    m2m_field = "files"
+    model = UniqueFile
+    model_name = "file"
+    parent_model = Question
+
+
+class LessonRemoveView(RemoveViewBase, JSONView):
+    m2m_field = "lessons"
+    model = Lesson
+    parent_model = Module
 
 
 class AJAXError(Exception):
@@ -407,6 +515,7 @@ class AddFileView(BatchProcessView):
                 success.append({'pk': obj.pk})
             except Exception, e:
                 error.append(str(e))
+                error.append(traceback.format_exc())
         return (success, error)
 
     def get_querysets_from_refs(self, refs):

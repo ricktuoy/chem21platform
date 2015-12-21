@@ -1,22 +1,26 @@
 import json
 import logging
 import os
+import base64
+
+import tinymce.models as mceModels
 
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
+from chem21repo.api_clients import C21RESTRequests
 from chem21repo.drupal import drupal_node_factory
 from datetime import datetime
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.files.storage import DefaultStorage
+from django.core.files.storage import get_storage_class
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db import transaction
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from filebrowser.fields import FileBrowseField
-from chem21repo.api_clients import C21RESTRequests
-import tinymce.models as mceModels
-from django.core.files.storage import DefaultStorage
 
 
 class BaseModel(models.Model):
@@ -242,7 +246,6 @@ class OrderedManyToManyManagerBase(OrderedRelationalManagerBase):
 
     def flag_dirty(self):
         parent = self._get_order_key_value().get(pk=self.get_m2m_key_value())
-        #raise Exception(parent.drupal.child_order_field)
         parent.drupal.mark_fields_changed([parent.drupal.child_order_field, ])
         parent.save(update_fields=["dirty", ])
 
@@ -407,9 +410,16 @@ class DrupalConnector(object):
         self.file = fle
 
         if obj:
+            connection_cache = {}
+
             def connection(value):
                 def inner(obj):
-                    return obj.__getattribute__(value)
+                    try:
+                        return connection_cache[(obj, value)]
+                    except KeyError:
+                        connection_cache[
+                            (obj, value)] = obj.__getattribute__(value)
+                    return connection_cache[(obj, value)]
                 return inner
             self.connector = dict([(k, connection(v))
                                    for k, v in self.original.iteritems()])
@@ -478,19 +488,19 @@ class DrupalConnector(object):
     def fields(self):
         return set(self.original.keys())
 
-    def generate_node_from_parent(self):
+    def generate_node_from_parent(self, debug=False):
         node = self.node_class(**dict([(k, v(self.parent))
                                        for k, v in
-                                       self.connector.iteritems()]))
-        if self.file:
-            node.add_file_data(getattr(self.parent, self.file))
-
+                                       self.connector.iteritems()
+                                       if v(self.parent) is not None and
+                                       (not debug or k != "file")]))
         node.mark_fields_changed(self.parent_dirty_fields())
+
         return node
 
     def instantiate(self, obj):
         obj.drupal = DrupalConnector(
-            self.tpe, obj=obj, api=self.api, **self.original)
+            self.tpe, api=self.api, obj=obj, **self.original)
 
     @needs_node
     def get_field_diff(self, changed):
@@ -506,9 +516,7 @@ class DrupalConnector(object):
 
     @needs_node
     def mark_fields_changed(self, fields):
-        logging.debug("Changing fields %s" % fields)
         fields = self.fields.intersection(fields)
-        logging.debug(fields)
         if fields:
             self.parent.dirty = json.dumps(
                 list(set(json.loads(self.parent.dirty)).union(fields)))
@@ -523,12 +531,15 @@ class DrupalConnector(object):
             False)
         self.node.mark_all_fields_unchanged()
 
+    def child_fields(self):
+        return self.node_class.get_child_affected_fields()
+
     @property
     def child_order_field(self):
         for k, v in self.original.iteritems():
             if v == "child_orders":
                 return k
-        return None
+        raise AttributeError
 
 
 @receiver(models.signals.pre_save)
@@ -555,9 +566,10 @@ def generate_dirty_record(sender,
 @receiver(models.signals.m2m_changed)
 def generate_dirty_m2m_record(sender, instance, action,
                               reverse, model, pk_set, **kwargs):
-    if not(issubclass(model, DrupalModel) and isinstance(instance, DrupalModel)):
+    if not(issubclass(model, DrupalModel) and
+            isinstance(instance, DrupalModel)):
         return
-    if action != "post_add":
+    if action != "post_add" and action != "post_remove":
         return
     if reverse:
         #children = [instance, ]
@@ -567,7 +579,7 @@ def generate_dirty_m2m_record(sender, instance, action,
         #children = list(model.objects.filter(pk__in=pk_set))
         parents = [instance, ]
         parent_model = instance.__class__
-    parent_fields = [parent_model.drupal.child_order_field, ]
+    parent_fields = parent_model.drupal.child_fields()
 
     if parent_fields:
         for p in parents:
@@ -600,7 +612,6 @@ class Author(BaseModel, AuthorUnicodeMixin):
 
 class UniqueFile(OrderedModel, DrupalModel):
     objects = ActiveManager()
-    storage = DefaultStorage()
     cut_objects = CutManager()
     checksum = models.CharField(max_length=100, null=True, unique=True)
     path = models.CharField(max_length=255, null=True)
@@ -612,12 +623,17 @@ class UniqueFile(OrderedModel, DrupalModel):
     status = models.ForeignKey(Status, null=True)
     file = FileBrowseField(max_length=500, null=True)
     cut_of = models.ForeignKey('self', related_name='cuts', null=True)
+    version_of = models.ForeignKey('self', related_name='versions', null=True)
     cut_order = models.IntegerField(default=0)
     ready = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
     s3d = models.BooleanField(default=False)
     remote_path = models.CharField(max_length=255, null=True)
     remote_id = models.IntegerField(null=True, db_index=True)
+
+    # def __init__(self, *args, **kwargs):
+
+    #    return super(UniqueFile, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
         return self.checksum
@@ -638,17 +654,29 @@ class UniqueFile(OrderedModel, DrupalModel):
     @property
     def filename(self):
         return self.checksum + self.ext
-    
 
     @property
     def base64_file(self):
         with UniqueFile.storage.open(self.path, "rb") as v_file:
             return base64.b64encode(v_file.read())
 
+    def get_h5p_path(self):
+        return "videos/" + self.filename
+
+    @property
+    def h5p_json_content(self):
+        return {'copyright': {'license': 'U'},
+                'mime': self.get_mime_type(),
+                'path': self.get_h5p_path()}
+
     drupal = DrupalConnector(
         'file', C21RESTRequests(),
         filesize='size', id='remote_id',
         filename='filename', file='base64_file')
+try:
+    UniqueFile.storage = get_storage_class(settings.SHARED_DRIVE_STORAGE)()
+except AttributeError:
+    UniqueFile.storage = DefaultStorage()
 
 
 class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
@@ -836,12 +864,14 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     title = models.CharField(max_length=100, blank=True, default="")
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
-    files = models.ManyToManyField(UniqueFile)
+    files = models.ManyToManyField(UniqueFile, related_name="questions")
     text = mceModels.HTMLField(null=True, blank=True, default="")
+    byline = mceModels.HTMLField(null=True, blank=True, default="")
     pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")
 
+    @property
     def video(self, reset=False):
         if not reset:
             try:
@@ -850,36 +880,64 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
                 pass
         try:
             self._cached_video = list(self.files.filter(type="video")[:1])[0]
-        except KeyError:
+        except (IndexError, ValueError):
             self._cached_video = None
         return self._cached_video
 
     @property
     def type(self):
         if self.video:
-            self.type = "h5p_question"
+            return "h5p_content"
         else:
-            self.type = "slide"
+            return "slide"
 
     @property
     def h5p_library(self):
         if self.video:
             return "H5P.InteractiveVideo"
         else:
-            return AttributeError
+            return None
 
     @property
     def h5p_resources(self):
         if self.video:
-            return [self.video.remote_id,]
+            out = list(self.video.versions.all())
+            out.append(self.video)
+            return out
         else:
-            return AttributeError
+            raise AttributeError
+
+    @property
+    def h5p_resource_dict(self):
+        try:
+            return dict([(r.remote_id, r.get_h5p_path())
+                         for r in self.h5p_resources])
+        except AttributeError:
+            return None
+
+    @property
+    def json_content(self):
+        try:
+            h5p_res = self.h5p_resources
+        except AttributeError:
+            return None
+        storage = get_storage_class(settings.STATICFILES_STORAGE)()
+        with storage.open(settings.STATIC_ROOT +
+                          "h5p_video_template.json") as v_file:
+            out = json.loads(v_file.read())
+        out['interactiveVideo']['video']['title'] = self.title
+        out['interactiveVideo']['video']['startScreenOptions'][
+            'shortStartDescription'] = self.byline
+        out['interactiveVideo']['video']['files'] = [
+            f.h5p_json_content for f in h5p_res]
+        return out
 
     drupal = DrupalConnector(
         'question', C21RESTRequests(),
         title='title', intro='text', id='remote_id',
         type='type', h5p_library='h5p_library',
-        h5p_resources='h5p_resources'
+        h5p_resources='h5p_resource_dict',
+        json_content='json_content'
     )
 
 

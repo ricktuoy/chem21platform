@@ -1,7 +1,7 @@
 <ol>
     {% for v in file_list %}
     {% with f=v.file %}
-    <li class="repo-object-source_file-{{ v.id }}">
+    <li class="repo-object-source_file-{{ f.id }}">
         <div>
             {% if f.cuts.count %}
             <span title="Click to show/hide children" class="disclose">

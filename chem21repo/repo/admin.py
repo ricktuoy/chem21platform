@@ -85,7 +85,7 @@ create_admin(model=Topic, fields=['name', ])
 create_admin(
     model=Question,
     hidden_fields=['lessons', ],
-    fields=["title", 'text'])
+    fields=["title", 'text', 'byline'])
 
 create_admin(
     model=Lesson,

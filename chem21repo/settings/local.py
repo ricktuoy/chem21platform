@@ -7,7 +7,9 @@ DEBUG_TOOLBAR = False
 STATIC_ROOT = BASE_DIR + '/../static/'
 STATIC_URL = "/static/"
 STATICFILES_STORAGE = 'require.storage.OptimizedStaticFilesStorage'
-
+SHARED_DRIVE_STORAGE = 'chem21repo.storage.SharedMediaStorage'
+SHARED_DRIVE_ROOT = "/home/rick/shared_drive"
+SHARED_DRIVE_URL = "/shared"
 
 ALLOWED_HOSTS = ['localhost', "10.0.2.2", "10.0.2.2:8080",
                  'localhost:8080', '127.0.0.1', '127.0.0.1:8080']

@@ -4,9 +4,7 @@ import logging
 
 from abc import ABCMeta
 from abc import abstractproperty
-from django.conf import settings
-from django.core.files.storage import DefaultStorage
-from django.core.files.storage import get_storage_class
+
 
 
 class DrupalNodeFiles(list):
@@ -99,10 +97,8 @@ class DrupalNode(dict):
         self[self.id_field] = v
 
     def __init__(self, pairs=[], **kwargs):
-        self.storage = DefaultStorage()
-        self.static_storage = get_storage_class(settings.STATICFILES_STORAGE)()
         self.simple_fields = {}
-        self.set("files", self.get("files", default=DrupalNodeFiles()))
+        #self.set("files", self.get("files", default=DrupalNodeFiles()))
         self.raw = kwargs
         super(DrupalNode, self).__init__(pairs)
         self.populate(**kwargs)
@@ -151,9 +147,16 @@ class DrupalNode(dict):
         else:
             self.simple_fields[name] = val
 
-    def filter_changed_fields(self):
+    def _filter_fields(self, arg):
         return dict([(k, self[k]) for k, v in self.fields.iteritems()
-                     if 'changed' in v])
+                     if arg in v])
+
+    def filter_changed_fields(self):
+        return self._filter_fields('changed')
+
+    @classmethod
+    def get_child_affected_fields(cls):
+        return [k for k, v in cls.fields.iteritems() if "child_affected" in v]
 
     def mark_all_fields_unchanged(self):
         for k, v in self.fields.iteritems():
@@ -215,14 +218,15 @@ class DrupalQuestion(DrupalNode):
     object_name = "question"
     id_field = "nid"
     fields = {'title': set(['special', 'required']),
-              'json_content': set(['serialisable', ]),
+              'json_content': set(['serialisable', 'child_affected']),
+              'h5p_resources': set(['special', 'child_affected']),
+              'h5p_library': set(['special', 'child_affected']),
               'intro': set(['special', ]),
               'lesson': set(['special', ]),
-              'type': set()}
+              'type': set(['child_affected', ])}
 
     def __init__(self, *args, **kwargs):
         super(DrupalQuestion, self).__init__(self, *args, **kwargs)
-        self.set("files", self.get("files", DrupalNodeFiles()))
 
     @property
     def byline(self):
@@ -250,10 +254,7 @@ class DrupalQuestion(DrupalNode):
             raise AttributeError("No video data")
 
     def _add_h5p_video_data(self, ufile):
-        if not hasattr(self, 'h5p_video'):
-            with self.static_storage.open(settings.STATIC_ROOT +
-                                          "video_fields.json") as v_file:
-                self += json.loads(v_file.read())
+
         self['type'] = "h5p_content"
         self.h5p_video['title'] = self['title']
         for rfile in ufile.version_set:
@@ -261,18 +262,7 @@ class DrupalQuestion(DrupalNode):
                    'mimetype': rfile.mimetype, 'copyright': ''}
             self.h5p_video['files'].append(dat)
 
-    def add_file_data(self, ufile):
-        if ufile.type == "video":
-            self._add_video_data(ufile)
-            added_files = []
-            self.files = []
-            for rfile in ufile.unpushed_versions(self.id):
-                added_file = super(DrupalQuestion, self).add_file_data(rfile)
-                added_file['filename'] = "videos/" + rfile.checksum + rfile.ext
-                added_files.append(added_file)
-            return added_files
-        else:
-            return super(DrupalQuestion, self).add_file_data(ufile)
+
 
 
 class DrupalLesson(DrupalNode):
@@ -280,7 +270,7 @@ class DrupalLesson(DrupalNode):
     id_field = "nid"
     fields = {'title': set(['special', 'required']),
               'intro': set(['special', ]),
-              'question_orders': set(['special', ]), }
+              'question_orders': set(['special', 'child_affected']), }
 
 
 class DrupalCourse(DrupalNode):
@@ -288,7 +278,7 @@ class DrupalCourse(DrupalNode):
     id_field = "nid"
     fields = {'title': set(['special', 'required']),
               'intro': set(['special', ]),
-              'lesson_orders': set(['special', ]), }
+              'lesson_orders': set(['special', 'child_affected']), }
 
 
 class DrupalTopic(DrupalNode):
@@ -311,5 +301,5 @@ def drupal_node_factory(type):
                 'lesson': DrupalLesson,
                 'question': DrupalQuestion,
                 'class': DrupalTopic,
-                'file':DrupalFile}
+                'file': DrupalFile}
     return type_map[type]

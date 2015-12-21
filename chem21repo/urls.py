@@ -39,9 +39,15 @@ urlpatterns = [
     url(r'^module/move/(?P<from_id>[0-9]+)/(?P<to_id>[0-9]+)[/]?$',
         ModuleMoveView.as_view(), name="module_move"),
     url(r'^lesson/move/(?P<from_id>[0-9]+)/(?P<to_id>[0-9]+)/(?P<parent_id>[0-9]+)[/]?$',
-        LessonMoveView.as_view(), name="module_move"),
+        LessonMoveView.as_view(), name="lesson_move"),
     url(r'^question/move/(?P<from_id>[0-9]+)/(?P<to_id>[0-9]+)/(?P<parent_id>[0-9]+)[/]?$',
-        QuestionMoveView.as_view(), name="module_move"),
+        QuestionMoveView.as_view(), name="question_move"),
+    url(r'^lesson/remove/(?P<id>[0-9]+)/(?P<parent_id>[0-9]+)[/]?$',
+        LessonRemoveView.as_view(), name="lesson_remove"),
+    url(r'^question/remove/(?P<id>[0-9]+)/(?P<parent_id>[0-9]+)[/]?$',
+        QuestionRemoveView.as_view(), name="question_remove"),
+    url(r'^file/remove/(?P<id>[0-9]+)/(?P<parent_id>[0-9]+)[/]?$',
+        FileRemoveView.as_view(), name="file_remove"),
     url(r'^endnote/upload/$', EndnoteUploadView.as_view(),
         name="endnote_upload"),
     url(r'^endnote/search/(?P<term>.+)/$', EndnoteSearchView.as_view(),
@@ -51,7 +57,9 @@ urlpatterns = [
         name="add_files"),
     url(r'^push/', PushView.as_view(), name="push_ajax"),
     url(r'^local/clear/', MarkAsCleanView.as_view(), name="clear_ajax"),
-    url(r'^local/sync/', PullView.as_view(), name="pull_ajax")
+    url(r'^local/sync/', PullView.as_view(), name="pull_ajax"),
+    url(r'^dirty/(?P<object_name>.+)/(?P<id>[0-9]+)/$',
+        DirtyView.as_view(), name="dirty")
 ]
 if settings.DEBUG:
     import debug_toolbar
