@@ -29,6 +29,6 @@ class C21AdminMiddleware(object):
                 response = HttpResponseRedirect(url)
                 response.delete_cookie('admin_save_redirect')
         except KeyError:
-            raise KeyError("Can't find %s in %s" % ("fromUrl", data))
+            #raise KeyError("Can't find %s in %s" % ("fromUrl", data))
             pass
         return response

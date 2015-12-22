@@ -6,7 +6,6 @@ from abc import ABCMeta
 from abc import abstractproperty
 
 
-
 class DrupalNodeFiles(list):
 
     def append(self, ufile, *args, **kwargs):
@@ -94,7 +93,7 @@ class DrupalNode(dict):
 
     @id.setter
     def id(self, v):
-        self[self.id_field] = v
+        self[self.id_field] = int(v)
 
     def __init__(self, pairs=[], **kwargs):
         self.simple_fields = {}
@@ -153,6 +152,12 @@ class DrupalNode(dict):
 
     def filter_changed_fields(self):
         return self._filter_fields('changed')
+
+    def dirty(self):
+        if self.get('id', False):
+            return self.filter_changed_fields()
+        else:
+            return self
 
     @classmethod
     def get_child_affected_fields(cls):
@@ -261,8 +266,6 @@ class DrupalQuestion(DrupalNode):
             dat = {'path': "videos/" + rfile.checksum + rfile.ext,
                    'mimetype': rfile.mimetype, 'copyright': ''}
             self.h5p_video['files'].append(dat)
-
-
 
 
 class DrupalLesson(DrupalNode):

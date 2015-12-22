@@ -138,7 +138,9 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 {title: "Edit", cmd: "Edit", uiIcon: "ui-icon-edit"},
                 {title: "Create new ...", cmd: "New", uiIcon: "ui-icon-new"},
                 {title: "Add selected sources", cmd: "Add files", uiIcon: "ui-icon-new"},
+                {title: "Push", cmd: "Push", uiIcon: "ui-icon-save"},
                 {title: "Remove", cmd: "Remove", uiIcon: "ui-icon-delete"},
+                {title: "Delete", cmd: "Delete", uiIcon: "ui-icon-delete"},
                 {title: "Show dirty data", cmd: "Dirty", uiIcon: "ui-icon-delete"}
             ],
             select: function(event, ui) {
@@ -166,12 +168,29 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                         }).fail(function() 
                             {alert("FAIUL");
                         });
+                        break;
+                    case "Delete":
+                        var url = ui.target.closest("li").data("urlDelete");
+                        $.get(url, function(data) { 
+                            el = getElFromObjectRef($("#lessons_tree"),data['success']); 
+                            el.remove();
+                        }).fail(function() 
+                            {alert("FAIUL");
+                        });
+                        break;
                     case "Dirty":
                         var el = ui.target.closest("li");
                         var ref = getObjectRef(el);
                         $.get("/dirty/"+ref.obj+"/"+ref.pk+"/", function(data) {
                             alert(JSON.stringify(data));
                         })
+                        break;
+                    case 'Push':
+                        $.post('/push/', {'refs':[getObjectRef(ui.target.closest("li")),]}, function(data) {
+                            console.debug(data);
+                        });
+
+                        break;
                 }
             }
         });

@@ -48,6 +48,8 @@ urlpatterns = [
         QuestionRemoveView.as_view(), name="question_remove"),
     url(r'^file/remove/(?P<id>[0-9]+)/(?P<parent_id>[0-9]+)[/]?$',
         FileRemoveView.as_view(), name="file_remove"),
+    url(r'^file/delete/(?P<id>[0-9]+)/(?P<parent_id>[0-9]+)[/]?$',
+        FileDeleteView.as_view(), name="file_delete"),
     url(r'^endnote/upload/$', EndnoteUploadView.as_view(),
         name="endnote_upload"),
     url(r'^endnote/search/(?P<term>.+)/$', EndnoteSearchView.as_view(),

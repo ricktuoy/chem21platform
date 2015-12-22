@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import base64
+import mimetypes
 
 import tinymce.models as mceModels
 
@@ -52,6 +53,53 @@ AuthorUnicodeMixin = UnicodeMixinFactory("full_name")
 AuthorUnicodeMixin.__name__ = "AuthorUnicodeMixin"
 EventUnicodeMixin = UnicodeMixinFactory(("name", "date"))
 EventUnicodeMixin.__name__ = "EventUnicodeMixin"
+
+
+class DrupalManager(models.Manager):
+
+    def get_or_pull(self, *args, **kwargs):
+        try:
+            return self.get(*args, **kwargs)
+        except self.model.DoesNotExist:
+            instance = self.model(*args, **kwargs)
+            instance.drupal.pull()
+            instance.save()
+            return instance
+
+
+class DrupalModel(models.Model):
+    dirty = models.TextField(default="[]")
+
+    @property
+    def is_dirty(self):
+        dirty = self.dirty != "[]"
+        try:
+            dirty = dirty or (self.__class__.objects.order_field
+                              in self.drupal.original.values(
+                              ) and self.order_is_dirty())
+        except AttributeError:
+            pass
+        return dirty
+
+    @property
+    def children(self):
+        return getattr(self, self.child_attr_name)
+
+    @property
+    def child_attr_name(self):
+        raise AttributeError
+
+    @property
+    def new_children(self):
+        return self.children.filter(remote_id__isnull=False)
+
+    def __init__(self, *args, **kwargs):
+        r = super(DrupalModel, self).__init__(*args, **kwargs)
+        self.drupal.instantiate(self)
+        return r
+
+    class Meta:
+        abstract = True
 
 
 class OrderedModel(BaseModel):
@@ -263,7 +311,11 @@ class OrderedManager(models.Manager, OrderedManagerBase):
         return super(OrderedManager, self).get_queryset()
 
 
-class ActiveManager(models.Manager):
+class OrderedDrupalManager(OrderedManager, DrupalManager):
+    pass
+
+
+class ActiveManager(DrupalManager):
 
     def get_queryset(self):
         return super(ActiveManager, self).get_queryset().filter(active=True)
@@ -318,7 +370,7 @@ class PresentationsInQuestionManager(models.Manager,
         return "question"
 
 
-class LessonsInModuleManager(models.Manager,
+class LessonsInModuleManager(DrupalManager,
                              OrderedManyToManyManagerBase):
 
     @property
@@ -354,7 +406,7 @@ class SlidesInPresentationVersionManager(models.Manager,
         return "presentation"
 
 
-class FilesInQuestionManager(models.Manager,
+class FilesInQuestionManager(DrupalManager,
                              OrderedRelationalManagerBase):
 
     @property
@@ -366,7 +418,7 @@ class FilesInQuestionManager(models.Manager,
         return "question"
 
 
-class QuestionsInLessonManager(models.Manager,
+class QuestionsInLessonManager(DrupalManager,
                                OrderedManyToManyManagerBase):
 
     @property
@@ -378,29 +430,6 @@ class QuestionsInLessonManager(models.Manager,
         return "lessons"
 
 
-class DrupalModel(models.Model):
-    dirty = models.TextField(default="[]")
-
-    @property
-    def is_dirty(self):
-        dirty = self.dirty != "[]"
-        try:
-            dirty = dirty or (self.__class__.objects.order_field
-                              in self.drupal.original.values(
-                              ) and self.order_is_dirty())
-        except AttributeError:
-            pass
-        return dirty
-
-    def __init__(self, *args, **kwargs):
-        r = super(DrupalModel, self).__init__(*args, **kwargs)
-        self.drupal.instantiate(self)
-        return r
-
-    class Meta:
-        abstract = True
-
-
 class DrupalConnector(object):
 
     def __init__(self, tpe, api, obj=None, fle=None, **kwargs):
@@ -410,16 +439,10 @@ class DrupalConnector(object):
         self.file = fle
 
         if obj:
-            connection_cache = {}
 
             def connection(value):
                 def inner(obj):
-                    try:
-                        return connection_cache[(obj, value)]
-                    except KeyError:
-                        connection_cache[
-                            (obj, value)] = obj.__getattribute__(value)
-                    return connection_cache[(obj, value)]
+                    return obj.__getattribute__(value)
                 return inner
             self.connector = dict([(k, connection(v))
                                    for k, v in self.original.iteritems()])
@@ -436,10 +459,17 @@ class DrupalConnector(object):
 
     @needs_node
     def push(self):
+        try:
+            new_children = self.parent.new_children()
+        except AttributeError:
+            new_children = []
 
-        response, created = self.api.push(self.node)
+        for child in new_children:
+            child.drupal.push()
+
+        response, created = self.api.push(self.node.dirty())
         if created:
-            self.node.set('id', response['id'])
+            self.node.set('id', int(response['id']))
             setattr(
                 self.parent, self.original['id'], self.node.get('id'))
             self.parent.save(update_fields=[self.original['id']])
@@ -451,16 +481,22 @@ class DrupalConnector(object):
     def pull(self):
 
         old_node = self.generate_node_from_parent()
+
         self.api.pull(self.node)
+        # if isinstance(self.parent, UniqueFile):
+        #    raise Exception(str(self.node))
         diff = self.node_class.get_field_diff(old_node, self.node)
         updates = dict(
             [(self.original[f], self.node.get(f))
              for f in diff if f in self.original])
-        old = dict([(self.original[f], old_node.get(f))
+        old = dict([(self.original[f], old_node.get(f, default=""))
                     for f in diff if f in self.original])
         for k, v in updates.iteritems():
-            setattr(self.parent, k, v)
-        self.parent.save(update_fields=updates.keys())
+            try:
+                setattr(self.parent, k, v)
+            except AttributeError:
+                raise Exception("Failed to set attribute %s, %s" % (k, str(v)))
+        self.parent.save()
         self.mark_all_clean()
         self.parent.save(update_fields=self.parent_dirty_meta_fields)
         return (old, updates)
@@ -508,9 +544,12 @@ class DrupalConnector(object):
         for k, f1 in self.connector.iteritems():
             f2 = changed.connector[k]
             newval = f2(changed.parent)
-            if self.node.get(k) != newval:
-                logging.debug("Field changed from %s to %s" %
-                              (self.node.get(k), newval))
+            try:
+                if self.node.get(k) != newval:
+                    logging.debug("Field changed from %s to %s" %
+                                  (self.node.get(k), newval))
+                    diff.add(k)
+            except AttributeError:
                 diff.add(k)
         return diff
 
@@ -525,10 +564,13 @@ class DrupalConnector(object):
     @needs_node
     def mark_all_clean(self):
         self.parent.dirty = "[]"
-        setattr(
-            self.parent,
-            self.parent.__class__.objects.order_dirty_field,
-            False)
+        try:
+            setattr(
+                self.parent,
+                self.parent.__class__.objects.order_dirty_field,
+                False)
+        except AttributeError:
+            pass
         self.node.mark_all_fields_unchanged()
 
     def child_fields(self):
@@ -653,12 +695,41 @@ class UniqueFile(OrderedModel, DrupalModel):
 
     @property
     def filename(self):
+        if self.checksum is None or self.ext is None:
+            return None
         return self.checksum + self.ext
+
+    @filename.setter
+    def filename(self, val):
+        self.checksum, self.ext = os.path.splitext(val)
+        if not self.title:
+            self.title = self.checksum
+        if not self.path:
+            # TODO: generate a proper local path
+            # (give a Module to the Path
+            # model ... write a .module attribute for Question and a .question
+            # attribute for this)
+            pass
+        mime = mimetypes.guess_type(val)
+        self.type = mime[0].split("/")[0]
 
     @property
     def base64_file(self):
+        if self.path is None:
+            return None
         with UniqueFile.storage.open(self.path, "rb") as v_file:
-            return base64.b64encode(v_file.read())
+            f = base64.b64encode(v_file.read())
+        if not f:
+            return None
+        else:
+            return f
+
+    @base64_file.setter
+    def base64_file(self, val):
+        if not val or self.path is None:
+            return
+        with UniqueFile.storage.open(self.path, "wb") as v_file:
+            v_file.write(base64.b64decode(val))
 
     def get_h5p_path(self):
         return "videos/" + self.filename
@@ -680,21 +751,38 @@ except AttributeError:
 
 
 class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
-    objects = OrderedManager()
+    objects = OrderedDrupalManager()
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=10, unique=True)
     remote_id = models.IntegerField(null=True, db_index=True)
 
+    @property
+    def child_orders(self):
+        try:
+            return dict(
+                (m.remote_id, m.order) for m in self.modules.all())
+        except ValueError:
+            return None
+
+    @child_orders.setter
+    def child_orders(self, val):
+        for rid, order in val:
+            m = Module.objects.get_or_pull(remote_id=rid)
+            m.topic = self
+            m.order = order
+            m.save(update_fields=["topic", "order"])
+
     drupal = DrupalConnector(
         'class', C21RESTRequests(),
-        title='name', id='remote_id')
+        title='name', id='remote_id',
+        course_orders='child_orders')
 
     def __unicode__(self):
         return "%s" % self.name
 
 
 class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
-    objects = OrderedManager()
+    objects = OrderedDrupalManager()
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=10, unique=True)
     topic = models.ForeignKey(Topic, related_name='modules')
@@ -710,6 +798,10 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
         except Topic.DoesNotExist:
             return None
 
+    @topic_remote_id.setter
+    def topic_remote_id(self, val):
+        self.topic = Topic.objects.get_or_pull(remote_id=val)
+
     @property
     def child_orders(self):
         try:
@@ -718,9 +810,18 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
         except ValueError:
             return None
 
+    @child_orders.setter
+    def child_orders(self, val):
+        for rid, order in val:
+            lesson = Lesson.objects.get_or_pull(remote_id=rid)
+            lesson.modules.add(self)
+            lesson.order = order
+            lesson.save(update_fields=["order", "modules"])
+
     drupal = DrupalConnector(
         'course', C21RESTRequests(),
-        title='name', id='remote_id', klass='topic_remote_id', lesson_orders='child_orders')
+        title='name', id='remote_id',
+        klass='topic_remote_id', lesson_orders='child_orders')
 
     def __unicode__(self):
         return "%s: %s" % (unicode(self.topic), self.name)
@@ -839,6 +940,13 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     remote_id = models.IntegerField(null=True, db_index=True)
     _child_orders = {}
 
+    # define the interface with Drupal
+    drupal = DrupalConnector(
+        'lesson', C21RESTRequests(),
+        title='title', id='remote_id',
+        question_orders='child_orders',
+    )
+
     @property
     def child_orders(self):
         try:
@@ -847,16 +955,13 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
         except ValueError:
             return None
 
-    #@property
-    # def parent_remote_ids(self):
-    #    return [m.remote_id for m in self.modules.all()]
-
-    drupal = DrupalConnector(
-        'lesson', C21RESTRequests(),
-        title='title', id='remote_id',
-        question_orders='child_orders',
-        # courses='parent_remote_ids'
-    )
+    @child_orders.setter
+    def child_orders(self, val):
+        for rid, order in val:
+            q = Question.get(remote_id=rid)
+            q.lessons.add(self)
+            q.order = order
+            q.save(update_fields=["order", "lessons"])
 
 
 class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
@@ -871,6 +976,84 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")
 
+    # define the interface with Drupal
+    drupal = DrupalConnector(
+        'question', C21RESTRequests(),
+        title='title', intro='text', id='remote_id',
+        type='type', h5p_library='h5p_library',
+        h5p_resources='h5p_resource_dict',
+        json_content='json_content'
+    )
+
+    # ##################### Drupal interface attributes ##################
+
+    @property
+    def type(self):
+        if self.is_h5p():
+            return "h5p_content"
+        else:
+            return "quiz_directions"
+
+    @type.setter
+    def type(self, val):
+        pass
+
+    @property
+    def h5p_library(self):
+        if self.video:
+            return "H5P.InteractiveVideo"
+        if self.is_h5p():
+            raise Exception("Unknown H5P type")
+        else:
+            return None
+
+    @property
+    def h5p_resource_dict(self):
+        if self.is_h5p():
+            return dict([(r.remote_id, r.get_h5p_path())
+                         for r in self.h5p_resources])
+        else:
+            return None
+
+    @h5p_resource_dict.setter
+    def h5p_resource_dict(self, val):
+        if not val:
+            return
+        for rid, path in val.iteritems():
+            f = UniqueFile.objects.get_or_pull(remote_id=rid)
+            self.files.add(f)
+
+    @property
+    def json_content(self):
+        if not self.is_h5p():
+            return None
+        if self.video:
+            storage = get_storage_class(settings.STATICFILES_STORAGE)()
+            with storage.open(settings.STATIC_ROOT +
+                              "h5p_video_template.json") as v_file:
+                out = json.loads(v_file.read())
+            out['interactiveVideo']['video']['title'] = self.title
+            out['interactiveVideo']['video']['startScreenOptions'][
+                'shortStartDescription'] = self.byline
+            out['interactiveVideo']['video']['files'] = [
+                f.h5p_json_content for f in self.h5p_resources]
+        else:
+            raise Exception("Unknown H5P type")
+        return out
+
+    @json_content.setter
+    def json_content(self, val):
+        if 'interactiveVideo' in val:
+            try:
+                self.byline = val['interactiveVideo']['video'][
+                    'startScreenOptions']['shortStartDescription']
+            except KeyError:
+                pass
+        else:
+            raise Exception("Unknown H5P json content")
+
+    # ################ Helper attributes ########################
+
     @property
     def video(self, reset=False):
         if not reset:
@@ -884,61 +1067,20 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
             self._cached_video = None
         return self._cached_video
 
-    @property
-    def type(self):
-        if self.video:
-            return "h5p_content"
-        else:
-            return "slide"
-
-    @property
-    def h5p_library(self):
-        if self.video:
-            return "H5P.InteractiveVideo"
-        else:
-            return None
+    def is_h5p(self):
+        return not not self.video
 
     @property
     def h5p_resources(self):
-        if self.video:
-            out = list(self.video.versions.all())
-            out.append(self.video)
-            return out
+        if self.is_h5p():
+            if self.video:
+                out = list(self.video.versions.all())
+                out.append(self.video)
+                return out
+            else:
+                return []
         else:
             raise AttributeError
-
-    @property
-    def h5p_resource_dict(self):
-        try:
-            return dict([(r.remote_id, r.get_h5p_path())
-                         for r in self.h5p_resources])
-        except AttributeError:
-            return None
-
-    @property
-    def json_content(self):
-        try:
-            h5p_res = self.h5p_resources
-        except AttributeError:
-            return None
-        storage = get_storage_class(settings.STATICFILES_STORAGE)()
-        with storage.open(settings.STATIC_ROOT +
-                          "h5p_video_template.json") as v_file:
-            out = json.loads(v_file.read())
-        out['interactiveVideo']['video']['title'] = self.title
-        out['interactiveVideo']['video']['startScreenOptions'][
-            'shortStartDescription'] = self.byline
-        out['interactiveVideo']['video']['files'] = [
-            f.h5p_json_content for f in h5p_res]
-        return out
-
-    drupal = DrupalConnector(
-        'question', C21RESTRequests(),
-        title='title', intro='text', id='remote_id',
-        type='type', h5p_library='h5p_library',
-        h5p_resources='h5p_resource_dict',
-        json_content='json_content'
-    )
 
 
 class QuestionsInLesson(OrderedModel):

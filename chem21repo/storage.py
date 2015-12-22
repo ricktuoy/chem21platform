@@ -7,4 +7,4 @@ try:
     SharedMediaStorage = lambda: FileSystemStorage(
         location=settings.SHARED_DRIVE_ROOT, base_url=settings.SHARED_DRIVE_URL)
 except AttributeError:
-	pass
+    pass

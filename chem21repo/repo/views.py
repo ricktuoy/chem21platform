@@ -258,9 +258,23 @@ class RemoveViewBase:
             m2m_manager.remove(child)
         except Exception, e:
             self.error = e
+        self._child = child
         return {'success':
                 {'obj': self.model_name,
                  'pk': child.pk}}
+
+
+class DeleteViewBase(RemoveViewBase):
+    __metaclass__ = ABCMeta
+
+    def get_context_data(self, *args, **kwargs):
+        ret = super(DeleteViewBase, self).get_context_data(*args, **kwargs)
+        try:
+            self._child.delete()
+        except Exception, e:
+            self.error = e
+            return {}
+        return ret
 
 
 class QuestionRemoveView(RemoveViewBase, JSONView):
@@ -270,6 +284,13 @@ class QuestionRemoveView(RemoveViewBase, JSONView):
 
 
 class FileRemoveView(RemoveViewBase, JSONView):
+    m2m_field = "files"
+    model = UniqueFile
+    model_name = "file"
+    parent_model = Question
+
+
+class FileDeleteView(DeleteViewBase, JSONView):
     m2m_field = "files"
     model = UniqueFile
     model_name = "file"
@@ -454,12 +475,10 @@ class PushView(BatchProcessView):
         error = []
         success = []
         for obj in qs:
-            if obj.remote_id or isinstance(obj, Question) \
-                    or isinstance(obj, Lesson):
-                try:
-                    success.append(obj.drupal.push())
-                except (RESTError, RESTAuthError), e:
-                    error.append(str(e))
+            try:
+                success.append(obj.drupal.push())
+            except (RESTError, RESTAuthError), e:
+                error.append(str(e))
         return (success, error)
 
 

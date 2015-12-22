@@ -39,6 +39,7 @@
                 <li 
                     class="repo-object-file-{{f.pk}}{% if f.is_dirty and f.remote_id %} dirty{% endif %}{% if not f.remote_id %} new{% endif %}"
                     data-url-remove="{% url 'file_remove' f.pk q.pk %}"
+                    data-url-delete="{% url 'file_delete' f.pk q.pk %}"
                 >
                 <div>
                    [ {{ f.type }} ] {{ f.title }} {{ f.type }}  {{ f.pk }} {{ f.dirty }}
