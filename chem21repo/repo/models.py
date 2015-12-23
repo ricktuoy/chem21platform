@@ -91,7 +91,7 @@ class DrupalModel(models.Model):
 
     @property
     def new_children(self):
-        return self.children.filter(remote_id__isnull=False)
+        return self.children.filter(remote_id__isnull=True)
 
     def __init__(self, *args, **kwargs):
         r = super(DrupalModel, self).__init__(*args, **kwargs)
@@ -460,7 +460,7 @@ class DrupalConnector(object):
     @needs_node
     def push(self):
         try:
-            new_children = self.parent.new_children()
+            new_children = self.parent.new_children
         except AttributeError:
             new_children = []
 
@@ -469,7 +469,10 @@ class DrupalConnector(object):
 
         response, created = self.api.push(self.node.dirty())
         if created:
-            self.node.set('id', int(response['id']))
+            try:
+                self.node.set('id', int(response['id']))
+            except KeyError:
+                self.node.set('id', int(response[self.node.id_field]))
             setattr(
                 self.parent, self.original['id'], self.node.get('id'))
             self.parent.save(update_fields=[self.original['id']])
@@ -602,7 +605,7 @@ def generate_dirty_record(sender,
 
             except sender.DoesNotExist:
                 pass
-        instance.drupal.mark_fields_changed(instance.drupal.fields)
+        # instance.drupal.mark_fields_changed(instance.drupal.fields)
 
 
 @receiver(models.signals.m2m_changed)
@@ -740,6 +743,14 @@ class UniqueFile(OrderedModel, DrupalModel):
                 'mime': self.get_mime_type(),
                 'path': self.get_h5p_path()}
 
+    def get_title(self):
+        if not self.title:
+            if self.path:
+                return os.path.basename(os.path.basename(self.path))
+            else:
+                return self.filename
+        return self.title
+
     drupal = DrupalConnector(
         'file', C21RESTRequests(),
         filesize='size', id='remote_id',
@@ -755,6 +766,7 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=10, unique=True)
     remote_id = models.IntegerField(null=True, db_index=True)
+    child_attr_name = "modules"
 
     @property
     def child_orders(self):
@@ -790,6 +802,7 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     files = models.ManyToManyField(UniqueFile, through='UniqueFilesofModule')
     remote_id = models.IntegerField(null=True, db_index=True)
     _child_orders = {}
+    child_attr_name = "lessons"
 
     @property
     def topic_remote_id(self):
@@ -938,7 +951,9 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     modules = models.ManyToManyField(Module, related_name="lessons")
     title = models.CharField(max_length=100, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
+    text = mceModels.HTMLField(null=True, blank=True, default="")
     _child_orders = {}
+    child_attr_name = "questions"
 
     # define the interface with Drupal
     drupal = DrupalConnector(
@@ -975,6 +990,7 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")
+    child_attr_name = "files"
 
     # define the interface with Drupal
     drupal = DrupalConnector(

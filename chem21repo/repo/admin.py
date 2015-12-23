@@ -90,7 +90,7 @@ create_admin(
 create_admin(
     model=Lesson,
     hidden_fields=['modules', ],
-    fields=["title", ])
+    fields=["title", "text" ])
 
 create_admin(
     model=UniqueFile,
