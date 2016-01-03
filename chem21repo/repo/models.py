@@ -472,9 +472,7 @@ class DrupalConnector(object):
             try:
                 self.node.set('id', int(response['id']))
             except KeyError:
-                self.node.set('id', int(response[self.node.id_field]))
-            setattr(
-                self.parent, self.original['id'], self.node.get('id'))
+                self.parent, self.original['id'], self.node.get('id')
             self.parent.save(update_fields=[self.original['id']])
         self.mark_all_clean()
         self.parent.save(update_fields=self.parent_dirty_meta_fields)
@@ -1017,7 +1015,7 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     @property
     def h5p_library(self):
         if self.video:
-            return "H5P.InteractiveVideo"
+            return "H5P.InteractiveVideo 1.6"
         if self.is_h5p():
             raise Exception("Unknown H5P type")
         else:

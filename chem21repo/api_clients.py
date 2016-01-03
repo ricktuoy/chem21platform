@@ -82,9 +82,9 @@ class DrupalRESTRequests(object):
     def create(self, node):
         self.method_name = "create_%s" % node.object_name
         node.serialise_fields()
-        logging.debug("Create node: %s" % node)
+        #logging.debug("Create node: %s" % node)
         self.response = self._post_auth("/%s/" % node.object_name, json=node)
-        logging.debug("Create result: %s" % self.response.text)
+        #logging.debug("Create result: %s" % self.response.text)
         return self.get_json_response()
 
     def update(self, id, node):
