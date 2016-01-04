@@ -64,10 +64,15 @@ class DrupalRESTRequests(object):
         try:
             if node.id:
                 try:
-                    return (self.update(node.id, node), False)
+                    out = (self.update(node.id,
+                                       node.__class__(node.dirty())),
+                           False)
+                    return out
                 except RESTError, e:
                     if not self.response.status_code == 410:
                         raise e
+                except Exception, e:
+                    raise e
         except AttributeError:
             pass
         response = self.create(node)
@@ -82,13 +87,14 @@ class DrupalRESTRequests(object):
     def create(self, node):
         self.method_name = "create_%s" % node.object_name
         node.serialise_fields()
-        #logging.debug("Create node: %s" % node)
+        # logging.debug("Create node: %s" % node)
         self.response = self._post_auth("/%s/" % node.object_name, json=node)
-        #logging.debug("Create result: %s" % self.response.text)
+        # logging.debug("Create result: %s" % self.response.text)
         return self.get_json_response()
 
     def update(self, id, node):
         self.method_name = "update_%s" % node.object_name
+        print self.method_name
         node.remove_empty_optional_fields()
         node.serialise_fields()
         logging.debug("Update node: %s" % node.filter_changed_fields())
@@ -186,7 +192,7 @@ class C21RESTRequests(DrupalRESTRequests):
 
     def search_endnote(self, term):
         self.method_name = "search_endnote"
-        #raise Exception(term)
+        # raise Exception(term)
         self.response = self._get_auth(
             "/biblio", params={'term': term})
         return self.get_json_response()

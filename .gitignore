@@ -8,3 +8,4 @@ static/*
 logs/*
 node_modules/*
 *.dmp
+repo.db*

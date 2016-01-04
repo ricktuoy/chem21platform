@@ -156,6 +156,8 @@ class DrupalNode(dict):
     def dirty(self):
         if self.get('id', False):
             return self.filter_changed_fields()
+            #node.id = self.get('id')
+            #return node
         else:
             return self
 

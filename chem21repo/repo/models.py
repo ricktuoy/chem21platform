@@ -458,24 +458,57 @@ class DrupalConnector(object):
         return inner
 
     @needs_node
+    def strip_remote_id(self):
+        try:
+            new_children = self.parent.children.all()
+        except AttributeError:
+            new_children = []
+        for child in new_children:
+            child.drupal.strip_remote_id()
+        if isinstance(self.parent, UniqueFile):
+            print "**FILE**"
+            return
+        self.parent.remote_id = None
+        self.parent.save(update_fields=["remote_id",])
+
+
+
     def push(self):
+        try:
+            name = self.parent.title
+        except AttributeError:
+            name = self.parent.name
+        print name
+
         try:
             new_children = self.parent.new_children
         except AttributeError:
             new_children = []
 
         for child in new_children:
+            print "descending to child"
             child.drupal.push()
 
-        response, created = self.api.push(self.node.dirty())
+        if isinstance(self.parent, UniqueFile):
+            print "***FILE***"
+            return {}
+
+        self.node = self.generate_node_from_parent()
+
+        print "Doing push for ID %s %s" % (self.node.id, name)
+        response, created = self.api.push(self.node)
         if created:
+            print "Was created"
             try:
                 self.node.set('id', int(response['id']))
+                print self.node.get('id')
+                setattr(self.parent, self.original['id'], self.node.get('id'))
+                self.parent.save(update_fields=[self.original['id'],])
             except KeyError:
-                self.parent, self.original['id'], self.node.get('id')
-            self.parent.save(update_fields=[self.original['id']])
+                raise Exception("No id returned")
         self.mark_all_clean()
         self.parent.save(update_fields=self.parent_dirty_meta_fields)
+        print "Done push for %s" % name
         return response
 
     @needs_node
@@ -770,7 +803,7 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     def child_orders(self):
         try:
             return dict(
-                (m.remote_id, m.order) for m in self.modules.all())
+                (m.remote_id, m.order) for m in self.modules.all() if m.remote_id)
         except ValueError:
             return None
 
@@ -817,7 +850,7 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     def child_orders(self):
         try:
             return dict(
-                (q.remote_id, q.order) for q in self.lessons.all())
+                (q.remote_id, q.order) for q in self.lessons.all() if q.remote_id)
         except ValueError:
             return None
 
@@ -964,7 +997,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     def child_orders(self):
         try:
             return dict(
-                (q.remote_id, q.order) for q in self.questions.all())
+                (q.remote_id, q.order) for q in self.questions.all() if q.remote_id)
         except ValueError:
             return None
 
