@@ -132,6 +132,26 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
         loadExpandCookie('c21repo-lessons-expanded', $("#lessons_tree"));
         loadExpandCookie('c21repo-sources-expanded', $("#sources_tree"));
 
+
+        $("#sources_tree").contextmenu({
+            delegate: "li",
+            menu: [
+                {title: "Edit", cmd: "Edit", uiIcon: "ui-icon-edit"},
+            ],
+            select: function(event, ui) {
+                switch(ui.cmd) {
+                    case "Edit":
+                    case "New":
+                        var url = ui.target.closest("li").data("url"+ui.cmd);
+                        var from_url = ui.target.closest("li").data("fromUrl"+ui.cmd);
+                        var return_on_save = {url: window.location.pathname, fromUrl:from_url}
+                        $.cookie("admin_save_redirect", JSON.stringify(return_on_save));
+                        window.location = url;
+                        break;
+                }
+            }
+        })
+
         $("#lessons_tree").contextmenu({
             delegate: "li",
             menu: [

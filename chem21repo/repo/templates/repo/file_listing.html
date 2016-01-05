@@ -1,7 +1,10 @@
+{% load admin_urls %}
 <ol>
     {% for v in file_list %}
     {% with f=v.file %}
-    <li class="repo-object-source_file-{{ f.id }}">
+    <li class="repo-object-source_file-{{ f.id }}"
+        data-url-edit="{% url opts.uniquefile|admin_urlname:'change' f.pk %}"
+        data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">
         <div>
             {% if f.cuts.count %}
             <span title="Click to show/hide children" class="disclose">

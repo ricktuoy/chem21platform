@@ -42,7 +42,7 @@
                     data-url-delete="{% url 'file_delete' f.pk q.pk %}"
                 >
                 <div>
-                   [ {{ f.type }} ] {{ f.title }} {{ f.type }}  {{ f.pk }} {{ f.dirty }}
+                   [ {{ f.type }} ] {{ f.remote_id }} {{ f.title }} {{ f.type }}  {{ f.pk }} {{ f.dirty }}
                 </div>
                 {% endfor %}
                 </ol>

@@ -9,3 +9,5 @@ logs/*
 node_modules/*
 *.dmp
 repo.db*
+files_test/*
+files_test

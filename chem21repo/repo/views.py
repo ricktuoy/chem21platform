@@ -88,7 +88,7 @@ class HomePageView(TemplateView):
             Prefetch("modules__uniquefilesofmodule_set",
                      queryset=UniqueFilesofModule.objects.filter(
                          file__active=True,
-                         file__type="video", file__cut_of__isnull=True),
+                         file__type__in=["video","image"], file__cut_of__isnull=True),
                      to_attr="ordered_videos"),
             Prefetch("modules__ordered_videos__file__cuts",
                      queryset=UniqueFile.objects.filter(

@@ -465,13 +465,13 @@ class DrupalConnector(object):
             new_children = []
         for child in new_children:
             child.drupal.strip_remote_id()
+
         if isinstance(self.parent, UniqueFile):
-            print "**FILE**"
-            return
+            print "***FILE***"
+            return {}
+        
         self.parent.remote_id = None
         self.parent.save(update_fields=["remote_id",])
-
-
 
     def push(self):
         try:
@@ -488,24 +488,28 @@ class DrupalConnector(object):
         for child in new_children:
             print "descending to child"
             child.drupal.push()
-
+        """    
         if isinstance(self.parent, UniqueFile):
             print "***FILE***"
             return {}
-
+        """
         self.node = self.generate_node_from_parent()
 
-        print "Doing push for ID %s %s" % (self.node.id, name)
+        #print "Doing push for ID %s %s" % (self.node.id, name)
         response, created = self.api.push(self.node)
         if created:
             print "Was created"
             try:
                 self.node.set('id', int(response['id']))
-                print self.node.get('id')
                 setattr(self.parent, self.original['id'], self.node.get('id'))
                 self.parent.save(update_fields=[self.original['id'],])
             except KeyError:
-                raise Exception("No id returned")
+                try:
+                    self.node.set('id', int(response['fid']))
+                    setattr(self.parent, self.original['id'], self.node.get('id'))
+                    self.parent.save(update_fields=[self.original['id'],])
+                except KeyError:
+                    raise Exception("No id returned")
         self.mark_all_clean()
         self.parent.save(update_fields=self.parent_dirty_meta_fields)
         print "Done push for %s" % name
@@ -684,6 +688,9 @@ class Status(BaseModel, NameUnicodeMixin):
 
 class Author(BaseModel, AuthorUnicodeMixin):
     full_name = models.CharField(max_length=200, unique=True)
+    role = models.CharField(max_length=200, null=True, blank=True)
+    def __unicode__(self):
+        return "%s, %s" % (self.full_name, self.role)
 
 
 class UniqueFile(OrderedModel, DrupalModel):
@@ -704,8 +711,9 @@ class UniqueFile(OrderedModel, DrupalModel):
     ready = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
     s3d = models.BooleanField(default=False)
-    remote_path = models.CharField(max_length=255, null=True)
+    remote_path = models.CharField(max_length=255, null=True, blank=True)
     remote_id = models.IntegerField(null=True, db_index=True)
+    authors = models.ManyToManyField(Author, blank=True)
 
     # def __init__(self, *args, **kwargs):
 
@@ -726,6 +734,17 @@ class UniqueFile(OrderedModel, DrupalModel):
 
     def get_mime_type(self):
         return self.type + "/" + self._stripped_ext
+
+    def author_string(self):
+        if self.cut_of:
+            return self.cut_of.author_string
+        authors = list(self.authors)
+        out = "; ".join(map(unicode, authors[:-1]))
+        try:
+            return "%s; and %s" % (out, unicode(author[-1]))
+        except IndexError:
+            return out
+
 
     @property
     def filename(self):
@@ -832,6 +851,7 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     working = models.BooleanField(default=False)
     files = models.ManyToManyField(UniqueFile, through='UniqueFilesofModule')
     remote_id = models.IntegerField(null=True, db_index=True)
+    text = mceModels.HTMLField(null=True, blank=True, default="")
     _child_orders = {}
     child_attr_name = "lessons"
 
@@ -865,6 +885,7 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     drupal = DrupalConnector(
         'course', C21RESTRequests(),
         title='name', id='remote_id',
+        intro='text',
         klass='topic_remote_id', lesson_orders='child_orders')
 
     def __unicode__(self):
@@ -923,8 +944,8 @@ class FileLink(BaseModel):
 
 class AuthorsOfFile(OrderedModel):
     objects = AuthorInFileManager()
-    author = models.ForeignKey(Author, related_name='files')
-    file = models.ForeignKey(UniqueFile, related_name='authors')
+    author = models.ForeignKey(Author)
+    file = models.ForeignKey(UniqueFile)
 
     class Meta:
         unique_together = ('author', 'file')
@@ -1070,6 +1091,10 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
             f = UniqueFile.objects.get_or_pull(remote_id=rid)
             self.files.add(f)
 
+    def get_byline(self):
+        if not self.byline and self.video:
+            return "Author: %s" % self.video.author_string
+
     @property
     def json_content(self):
         if not self.is_h5p():
@@ -1079,9 +1104,9 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
             with storage.open(settings.STATIC_ROOT +
                               "h5p_video_template.json") as v_file:
                 out = json.loads(v_file.read())
-            out['interactiveVideo']['video']['title'] = self.title
+            # out['interactiveVideo']['video']['title'] = self.title
             out['interactiveVideo']['video']['startScreenOptions'][
-                'shortStartDescription'] = self.byline
+                'shortStartDescription'] = self.get_byline()
             out['interactiveVideo']['video']['files'] = [
                 f.h5p_json_content for f in self.h5p_resources]
         else:

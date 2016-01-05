@@ -43,7 +43,6 @@ def create_admin(model, fields, name="", hidden_fields=[], ):
     for k in hidden_fields:
         newform.declared_fields[k] = newform.base_fields[k]
         del newform.base_fields[k]
-        logging.debug(type(newform.declared_fields[k]))
         if isinstance(newform.declared_fields[k],
                       (forms.MultipleChoiceField,
                        forms.models.ModelMultipleChoiceField)):
@@ -90,11 +89,11 @@ create_admin(
 create_admin(
     model=Lesson,
     hidden_fields=['modules', ],
-    fields=["title", "text" ])
+    fields=["title", "text"])
 
 create_admin(
     model=UniqueFile,
-    fields=["title", "type", "remote_path"])
+    fields=["title", "type", "remote_path", 'authors'])
 
 for md in [Question, UniqueFile, Author,
            Event, Lesson, FileLink, Module,
