@@ -93,7 +93,7 @@ class DrupalRESTRequests(object):
         return self.get_json_response()
 
     def update(self, id, node):
-        node.set('id',id)
+        node.set('id', id)
         self.method_name = "update_%s" % node.object_name
         print self.method_name
         node.remove_empty_optional_fields()

@@ -75,7 +75,7 @@ def create_power_admin(model):
 
 create_admin(
     model=Module,
-    fields=['name', 'code'],
+    fields=['name', 'code','text'],
     hidden_fields=['topic', ],
 )
 create_admin(model=Topic, fields=['name', ])

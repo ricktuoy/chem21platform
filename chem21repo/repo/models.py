@@ -488,11 +488,8 @@ class DrupalConnector(object):
         for child in new_children:
             print "descending to child"
             child.drupal.push()
-        """    
-        if isinstance(self.parent, UniqueFile):
-            print "***FILE***"
-            return {}
-        """
+ 
+        
         self.node = self.generate_node_from_parent()
 
         #print "Doing push for ID %s %s" % (self.node.id, name)
@@ -627,7 +624,7 @@ def generate_dirty_record(sender,
                           instance, raw,
                           using, update_fields,
                           **kwargs):
-    if isinstance(instance, DrupalModel):
+    if isinstance(instance, DrupalModel) and not isinstance(instance, UniqueFile):
         if update_fields:
             instance.drupal.mark_fields_changed(update_fields)
             return
@@ -690,7 +687,11 @@ class Author(BaseModel, AuthorUnicodeMixin):
     full_name = models.CharField(max_length=200, unique=True)
     role = models.CharField(max_length=200, null=True, blank=True)
     def __unicode__(self):
-        return "%s, %s" % (self.full_name, self.role)
+        if self.role:
+            return "%s, %s" % (self.full_name, self.role)
+        else:
+            return self.full_name
+
 
 
 class UniqueFile(OrderedModel, DrupalModel):
@@ -735,13 +736,16 @@ class UniqueFile(OrderedModel, DrupalModel):
     def get_mime_type(self):
         return self.type + "/" + self._stripped_ext
 
+    @property
     def author_string(self):
-        if self.cut_of:
+        if self.cut_of and self.cut_of.pk != self.pk:
             return self.cut_of.author_string
-        authors = list(self.authors)
+        authors = list(self.authors.all())
+        if len(authors) == 1:
+            return unicode(authors[0])
         out = "; ".join(map(unicode, authors[:-1]))
         try:
-            return "%s; and %s" % (out, unicode(author[-1]))
+            return "%s; and %s" % (out, unicode(authors[-1]))
         except IndexError:
             return out
 
@@ -1104,7 +1108,7 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
             with storage.open(settings.STATIC_ROOT +
                               "h5p_video_template.json") as v_file:
                 out = json.loads(v_file.read())
-            # out['interactiveVideo']['video']['title'] = self.title
+            out['interactiveVideo']['video']['title'] = self.title
             out['interactiveVideo']['video']['startScreenOptions'][
                 'shortStartDescription'] = self.get_byline()
             out['interactiveVideo']['video']['files'] = [
