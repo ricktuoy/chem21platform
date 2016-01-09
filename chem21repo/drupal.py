@@ -148,13 +148,14 @@ class DrupalNode(dict):
 
     def _filter_fields(self, arg):
         return dict([(k, self[k]) for k, v in self.fields.iteritems()
-                     if arg in v])
+                     if arg in v and k in self])
 
     def filter_changed_fields(self):
         return self._filter_fields('changed')
 
     def dirty(self):
         if self.get('id', False):
+            print self.filter_changed_fields()
             return self.filter_changed_fields()
             #node.id = self.get('id')
             #return node

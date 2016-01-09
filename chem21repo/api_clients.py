@@ -65,14 +65,12 @@ class DrupalRESTRequests(object):
             if node.id:
                 try:
                     out = (self.update(node.id,
-                                       node.__class__(node.dirty())),
+                                       node.__class__(**node.dirty())),
                            False)
                     return out
                 except RESTError, e:
                     if not self.response.status_code == 410:
                         raise e
-                except Exception, e:
-                    raise e
         except AttributeError:
             pass
         response = self.create(node)
