@@ -11,3 +11,4 @@ node_modules/*
 repo.db*
 files_test/*
 files_test
+*json

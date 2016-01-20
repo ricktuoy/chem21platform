@@ -104,3 +104,10 @@ li.mjs-nestedSortable-collapsed.mjs-nestedSortable-hovering div {
 .sortable li.selected>div {
     background-color: #ccf;
 }
+
+@media screen and (min-width: 700px) and (max-width: 1199px) {
+    .has-group-progress .quiz-progress {
+        width: 70%;
+        float: right;
+    }
+}

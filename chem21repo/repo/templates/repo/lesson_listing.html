@@ -26,12 +26,12 @@
                 data-url-remove="{% url 'question_remove' q.pk l.pk %}"
                 class="repo-object-question-{{ q.pk }}{% if q.is_dirty and q.remote_id %} dirty{% endif %}{% if not q.remote_id %} new{% endif %}">
                 <div>
-                            {% if q.ordered_files %}
-            <span title="Click to show/hide children" class="disclose">
-                <span></span>
-            </span>
-            {% endif %}  
-                   {{ q.title }} {{ q.remote_id }} {{ q.order }} {{ q.pk }}  {{ q.dirty }}
+                {% if q.ordered_files %}
+                    <span title="Click to show/hide children" class="disclose">
+                        <span></span>
+                    </span>
+                {% endif %}  
+                    {{ q.title }} {{ q.remote_id }} {{ q.order }} {{ q.pk }}  {{ q.dirty }}
                 </div>
                 {% if q.ordered_files %}
                 <ol class="files">
