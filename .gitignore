@@ -13,3 +13,4 @@ files_test/*
 files_test
 *json
 *.bk*
+chem21repo/local.wsgi

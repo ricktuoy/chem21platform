@@ -21,13 +21,19 @@ from django.views.generic import DetailView
 from django.views.generic import TemplateView
 from querystring_parser import parser
 from chem21repo.api_clients import RESTError, RESTAuthError, C21RESTRequests
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
 from django.http import JsonResponse
 
+class LoginRequiredMixin(object):
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
+        return login_required(view)
 
-class JSONResponseMixin(object):
+class JSONResponseMixin(LoginRequiredMixin):
 
     """
     A mixin that can be used to render a JSON response.
@@ -77,7 +83,7 @@ class JSONView(JSONResponseMixin, TemplateView):
         return self.render_to_json_response(context, **response_kwargs)
 
 
-class HomePageView(TemplateView):
+class HomePageView(LoginRequiredMixin, TemplateView):
     template_name = "repo/full_listing.html"
 
     def get_context_data(self, **kwargs):
@@ -122,7 +128,7 @@ class HomePageView(TemplateView):
         return context
 
 
-class VideoView(DetailView):
+class VideoView(LoginRequiredMixin, DetailView):
     model = UniqueFile
     template_name = "repo/video_detail.html"
     slug_field = "checksum"
@@ -387,7 +393,7 @@ class BatchProcessView(View):
              'error': errors}, status=code)
 
 
-class JQueryFileHandleView(View):
+class JQueryFileHandleView(LoginRequiredMixin, View):
     __metaclass__ = ABCMeta
 
     errors = {}

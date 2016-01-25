@@ -23,6 +23,7 @@ from repo.views import *
 
 
 urlpatterns = [
+	url('^', include('django.contrib.auth.urls')),
     url(r'^filebrowser/', include(fbsite.urls)),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^grappelli/', include('grappelli.urls')),
@@ -57,6 +58,7 @@ urlpatterns = [
     url(r'^files/add/(?P<target_type>.+)/(?P<target_id>[0-9]+)/$',
         AddFileView.as_view(),
         name="add_files"),
+    url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^local/strip_remote/', StripRemoteIdView.as_view(), name="strip_id"),#
     url(r'^push/', PushView.as_view(), name="push_ajax"),
     url(r'^local/clear/', MarkAsCleanView.as_view(), name="clear_ajax"),

@@ -17,7 +17,8 @@ INSTALLED_APPS = (
     'cachedS3',
     'querystring_parser',
     'tinymce',
-    'bibliotag'
+    'bibliotag',
+    'social.apps.django_app.default',
 )
 
 
@@ -31,6 +32,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    #'social_auth.middleware.SocialAuthExceptionMiddleware'
 )
 
 ROOT_URLCONF = 'chem21repo.urls'
@@ -50,6 +52,11 @@ TEMPLATES = [
         },
     },
 ]
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'social.apps.django_app.context_processors.backends',
+    'social.apps.django_app.context_processors.login_redirect',
+)
 
 WSGI_APPLICATION = 'chem21repo.wsgi.application'
 
@@ -120,3 +127,21 @@ TINYMCE_DEFAULT_CONFIG = {
     'theme_advanced_buttons3' : "" 
 }
 TINYMCE_SPELLCHECKER = True
+
+AUTHENTICATION_BACKENDS = (
+    'social.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend'
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY      = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", "")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET  = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", "")
+
+LOGIN_URL          = '/login/google-oauth2/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_ERROR_URL    = '/login-error/'
+
+SOCIAL_AUTH_COMPLETE_URL_NAME  = 'socialauth_complete'
+SOCIAL_AUTH_ASSOCIATE_URL_NAME = 'socialauth_associate_complete'
+SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = ['rick.taylor@york.ac.uk', 'katie.privett@york.ac.uk']
