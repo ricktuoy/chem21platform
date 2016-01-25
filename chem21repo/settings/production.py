@@ -6,7 +6,7 @@ DATABASES = {
 
 REQUIRE_BUILD_PROFILE = 'chem21repo.build.js'
 # Use Amazon S3 for static files storage.
-STATIC_URL = S3_URL
+STATIC_URL = S3_URL +"/"
 STATICFILES_STORAGE = "require_s3.storage.OptimizedCachedStaticFilesStorage"
 
 
