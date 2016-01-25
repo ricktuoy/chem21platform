@@ -7,10 +7,6 @@
 {% block content %}
 <div id="sources_tree">
 <input id="fileupload" type="file" name="files[]" data-url="/endnote/upload/" multiple>
-<div class="ui-widget">
-  <label for="biblio">Birds: </label>
-  <input id="biblio">
-</div>
 <h2>Source files</h2>
 <ol class="sortable">
 	{% for topic in topics %}
@@ -54,6 +50,7 @@
 		<option value="_">------</option>
 		<option value="clear">Mark as clean</option>
 		<option value="sync">Sync to Drupal</option>
+		<option value="strip_remote">Strip remote IDs</option>
 	</select>
 </label>
 <input type="submit" value="Go"></input>

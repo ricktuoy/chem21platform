@@ -35,7 +35,10 @@
 			"path": "repo"
 		},
 		{
-			"path": "repo/migrations"
+			"path": "repo\\migrations"
+		},
+		{
+			"path": "fixtures"
 		}
 	]
 }

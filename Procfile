@@ -1,1 +1,1 @@
-web: waitress-serve --port=$PORT chem21repo.wsgi:application
+web: waitress-serve --port=$PORT chem21repo/wsgi.py:application

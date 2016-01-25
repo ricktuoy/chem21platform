@@ -466,9 +466,9 @@ class DrupalConnector(object):
         for child in new_children:
             child.drupal.strip_remote_id()
 
-        if isinstance(self.parent, UniqueFile):
-            print "***FILE***"
-            return {}
+        #if isinstance(self.parent, UniqueFile):
+        #    print "***FILE***"
+        #    return {}
         
         self.parent.remote_id = None
         self.parent.save(update_fields=["remote_id",])

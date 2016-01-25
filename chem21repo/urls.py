@@ -57,6 +57,7 @@ urlpatterns = [
     url(r'^files/add/(?P<target_type>.+)/(?P<target_id>[0-9]+)/$',
         AddFileView.as_view(),
         name="add_files"),
+    url(r'^local/strip_remote/', StripRemoteIdView.as_view(), name="strip_id"),#
     url(r'^push/', PushView.as_view(), name="push_ajax"),
     url(r'^local/clear/', MarkAsCleanView.as_view(), name="clear_ajax"),
     url(r'^local/sync/', PullView.as_view(), name="pull_ajax"),

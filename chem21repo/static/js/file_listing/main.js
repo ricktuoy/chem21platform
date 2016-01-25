@@ -161,7 +161,8 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 {title: "Push", cmd: "Push", uiIcon: "ui-icon-save"},
                 {title: "Remove", cmd: "Remove", uiIcon: "ui-icon-delete"},
                 {title: "Delete", cmd: "Delete", uiIcon: "ui-icon-delete"},
-                {title: "Show dirty data", cmd: "Dirty", uiIcon: "ui-icon-delete"}
+                {title: "Show dirty data", cmd: "Dirty", uiIcon: "ui-icon-delete"},
+                {title: "Detach", cmd: "Detach", uiIcon: "ui-icon-detach"},
             ],
             select: function(event, ui) {
                 switch(ui.cmd) {
@@ -209,7 +210,11 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                         $.post('/push/', {'refs':[getObjectRef(ui.target.closest("li")),]}, function(data) {
                             console.debug(data);
                         });
-
+                        break;
+                    case "Detach":
+                        $.post('/local/strip_remote/', {'refs':[getObjectRef(ui.target.closest("li")),]}, function(data) {
+                            console.debug(data);
+                        });
                         break;
                 }
             }
@@ -276,12 +281,20 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                     fail: function(data) {
                         location.reload();
                     }
+                },
+                strip_remote: {
+                    succeed: function(data) {
+                        location.reload();
+                    },
+                    fail: function(data) {
+                        location.reload();
+                    }
                 }
-
             }
             if (!action || action=="_") {
                 $("#lessons_tree li").addClass("selected");
             } else {
+                logging.debug(action);
                 var url = "/local/"+action+"/";
                 var data = getObjectRefs($("#lessons_tree li.selected"));
                 var action_succeed = callbacks[action]['succeed'];

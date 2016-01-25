@@ -88,7 +88,7 @@ class HomePageView(TemplateView):
             Prefetch("modules__uniquefilesofmodule_set",
                      queryset=UniqueFilesofModule.objects.filter(
                          file__active=True,
-                         file__type__in=["video","image"], file__cut_of__isnull=True),
+                         file__type__in=["video", "image"], file__cut_of__isnull=True),
                      to_attr="ordered_videos"),
             Prefetch("modules__ordered_videos__file__cuts",
                      queryset=UniqueFile.objects.filter(
@@ -328,6 +328,8 @@ class BatchProcessView(View):
             except KeyError:
                 raise AJAXError(
                     {'error': "Badly formed ref: %s" % ref, }, status=400)
+            if tp == "file":
+                tp = "uniquefile"
             try:
                 model_class = ContentType.objects.get(
                     app_label="repo", model=tp).model_class()
@@ -501,6 +503,19 @@ class PullView(BatchProcessView):
         for obj in qs:
             try:
                 success.append({'pk': obj.pk, 'updated': obj.drupal.pull()})
+            except (RESTError, RESTAuthError), e:
+                error.append(str(e))
+        return (success, error)
+
+
+class StripRemoteIdView(BatchProcessView):
+    def process_queryset(self, qs):
+        error = []
+        success = []
+        for obj in qs:
+            try:
+                success.append(
+                    {'pk': obj.pk, 'updated': obj.title+str(obj.drupal.strip_remote_id())})
             except (RESTError, RESTAuthError), e:
                 error.append(str(e))
         return (success, error)
