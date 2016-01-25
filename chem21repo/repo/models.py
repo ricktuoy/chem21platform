@@ -699,7 +699,7 @@ class UniqueFile(OrderedModel, DrupalModel):
     cut_objects = CutManager()
     checksum = models.CharField(max_length=100, null=True, unique=True)
     path = models.CharField(max_length=255, null=True)
-    ext = models.CharField(max_length=8, null=True)
+    ext = models.CharField(max_length=25, null=True)
     type = models.CharField(max_length=15, default="text", null=True)
     title = models.CharField(max_length=200, null=True)
     size = models.BigIntegerField(default=0)
