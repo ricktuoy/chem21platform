@@ -1,12 +1,14 @@
 from common import *
 import dj_database_url
-
-DEBUG = True
-TEMPLATE_DEBUG = True
-
 DATABASES = {
     "default": dj_database_url.config(default='postgres://localhost'),
 }
+
+REQUIRE_BUILD_PROFILE = 'chem21repo.build.js'
+# Use Amazon S3 for static files storage.
+STATIC_URL = S3_URL
+STATICFILES_STORAGE = "require_s3.storage.OptimizedCachedStaticFilesStorage"
+
 
 # Cache settings.
 CACHES = {
@@ -39,3 +41,6 @@ LOGGING = {
         }
     }
 }
+
+DEBUG = True
+TEMPLATE_DEBUG = True
