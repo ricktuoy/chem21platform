@@ -96,6 +96,7 @@ class DrupalModel(models.Model):
     def __init__(self, *args, **kwargs):
         r = super(DrupalModel, self).__init__(*args, **kwargs)
         self.drupal.instantiate(self)
+        self.fixture_mode = False
         return r
 
     class Meta:
@@ -643,8 +644,9 @@ def generate_dirty_record(sender,
 @receiver(models.signals.m2m_changed)
 def generate_dirty_m2m_record(sender, instance, action,
                               reverse, model, pk_set, **kwargs):
+
     if not(issubclass(model, DrupalModel) and
-            isinstance(instance, DrupalModel)):
+            isinstance(instance, DrupalModel)) or instance.fixture_mode:
         return
     if action != "post_add" and action != "post_remove":
         return

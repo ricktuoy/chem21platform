@@ -140,6 +140,10 @@ LOGIN_URL          = '/login/google-oauth2/'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_ERROR_URL    = '/login-error/'
 
+SERIALIZATION_MODULES = {
+    'json': 'chem21repo.serializers.json',
+}
+
 SOCIAL_AUTH_COMPLETE_URL_NAME  = 'socialauth_complete'
 SOCIAL_AUTH_ASSOCIATE_URL_NAME = 'socialauth_associate_complete'
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True

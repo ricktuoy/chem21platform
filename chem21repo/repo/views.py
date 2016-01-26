@@ -1,5 +1,6 @@
 import logging
 import traceback
+import os
 
 from .models import Lesson
 from .models import LessonsInModule
@@ -31,6 +32,8 @@ class LoginRequiredMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
+        if os.environ.get("DJANGO_DEVELOPMENT", False):
+            return view
         return login_required(view)
 
 class JSONResponseMixin(LoginRequiredMixin):
