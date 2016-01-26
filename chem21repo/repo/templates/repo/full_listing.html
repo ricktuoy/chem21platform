@@ -5,8 +5,12 @@
 {% require_module '../file_listing' %}
 {% endblock %}
 {% block content %}
+{% if perms.repo.add_uniquefile %}
 <div id="sources_tree">
+<!--
 <input id="fileupload" type="file" name="files[]" data-url="/endnote/upload/" multiple>
+-->
+
 <h2>Source files</h2>
 <ol class="sortable">
 	{% for topic in topics %}
@@ -38,8 +42,16 @@
 	{% endfor %}
 </ol>
 </div>
-<div id="lessons_tree">
+{% endif %}
+<div id="lessons_tree" 
+	{% if perms.repo.change_structure %}
+	data-perm-structure="yes"
+	{% endif %}
+	{% if perms.repo.can_publish %}
+	data-perm-publish="yes"
+	{% endif %}>
 <h2>Lesson structure</h2>
+{% if perms.repo.can_publish %}
 <form id="remote-sync">
 <input type="submit" value="Publish changes"></input>
 </form>
@@ -55,6 +67,7 @@
 </label>
 <input type="submit" value="Go"></input>
 </form>
+{% endif %}
 <ol class="sortable">
 {% for topic in topics %}
 	<li data-url-edit="{% url opts.topic|admin_urlname:'change' topic.pk %}"

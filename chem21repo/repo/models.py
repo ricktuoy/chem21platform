@@ -897,6 +897,12 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     def __unicode__(self):
         return "%s: %s" % (unicode(self.topic), self.name)
 
+    class Meta:
+        permissions = (
+            ("can_publish", "Can publish modules"),
+            ("change structure", "Can change module structures"),
+        )
+
 
 class Path(BaseModel, NameUnicodeMixin):
     name = models.CharField(max_length=800, unique=True)

@@ -1,11 +1,17 @@
 {% load admin_urls %}
 <ol>
     {% for l in lesson_list %}
-    <li data-url-edit="{% url opts.lesson|admin_urlname:'change' l.pk %}"
+    <li {% if perms.repo.change_lesson %}
+        data-url-edit="{% url opts.lesson|admin_urlname:'change' l.pk %}"
         data-from-url-edit="{% url opts.lesson|admin_urlname:'changelist' %}"
+        {% endif %}
+        {% if perms.repo.add_question %}
         data-url-new="{% url opts.question|admin_urlname:'add' %}?lessons={{ l.pk }}" 
         data-from-url-new="{% url opts.question|admin_urlname:'changelist' %}"
+        {% endif %}
+        {% if perms.repo.change_structure %}
         data-url-remove="{% url 'lesson_remove' l.pk module.pk %}"
+        {% endif %}
         class="repo-object-lesson-{{ l.pk }}{% if l.is_dirty and l.remote_id %} dirty{% endif %}{% if not l.remote_id %} new{% endif %}">
         <div>
             {% if l.ordered_questions %}
@@ -18,12 +24,19 @@
         {% if l.ordered_questions %}
         <ol class="questions">
             {% for q in l.ordered_questions %}
-            <li data-url-edit="{% url opts.question|admin_urlname:'change' q.pk %}"
-             data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}"
+            <li 
+                {% if perms.repo.change_question %}
+                data-url-edit="{% url opts.question|admin_urlname:'change' q.pk %}"
+                data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}"
+                {% endif %}
+                {% if perms.repo.add_question %}
                 data-url-new="{% url opts.uniquefile|admin_urlname:'add' %}?questions={{ q.pk }}" 
                 data-from-url-new="{% url opts.uniquefile|admin_urlname:'changelist' %}"
+                {% endif %}
+                {% if perms.repo.change_structure %}
                 data-url-add-files="{% url 'add_files' 'question' q.pk %}"
                 data-url-remove="{% url 'question_remove' q.pk l.pk %}"
+                {% endif %}
                 class="repo-object-question-{{ q.pk }}{% if q.is_dirty and q.remote_id %} dirty{% endif %}{% if not q.remote_id %} new{% endif %}">
                 <div>
                 {% if q.ordered_files %}
@@ -33,7 +46,7 @@
                 {% endif %}  
                     {{ q.title }} {{ q.remote_id }} {{ q.order }} {{ q.pk }}  {{ q.dirty }}
                 </div>
-                {% if q.ordered_files %}
+                {% if q.ordered_files and perms.repo.change_structure %}
                 <ol class="files">
                 {% for f in q.ordered_files %}
                 <li 

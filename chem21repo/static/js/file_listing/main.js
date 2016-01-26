@@ -151,19 +151,25 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 }
             }
         })
-
-        $("#lessons_tree").contextmenu({
-            delegate: "li",
-            menu: [
-                {title: "Edit", cmd: "Edit", uiIcon: "ui-icon-edit"},
+        var commands = [{title: "Edit", cmd: "Edit", uiIcon: "ui-icon-edit"}];
+        if($("#lessons_tree").data("permStructure")) {
+            commands = commands.concat( [
                 {title: "Create new ...", cmd: "New", uiIcon: "ui-icon-new"},
                 {title: "Add selected sources", cmd: "Add files", uiIcon: "ui-icon-new"},
-                {title: "Push", cmd: "Push", uiIcon: "ui-icon-save"},
                 {title: "Remove", cmd: "Remove", uiIcon: "ui-icon-delete"},
-                {title: "Delete", cmd: "Delete", uiIcon: "ui-icon-delete"},
+                {title: "Delete", cmd: "Delete", uiIcon: "ui-icon-delete"}
+            ] );
+        }
+        if($("#lessons_tree").data("permPublish")) {
+            commands = commands.concat( [
                 {title: "Show dirty data", cmd: "Dirty", uiIcon: "ui-icon-delete"},
                 {title: "Detach", cmd: "Detach", uiIcon: "ui-icon-detach"},
-            ],
+                {title: "Push", cmd: "Push", uiIcon: "ui-icon-save"}
+            ] );
+        }
+        $("#lessons_tree").contextmenu({
+            delegate: "li",
+            menu: commands,               
             select: function(event, ui) {
                 switch(ui.cmd) {
                     case "Edit":
