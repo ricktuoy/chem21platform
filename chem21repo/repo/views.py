@@ -3,10 +3,8 @@ import traceback
 import os
 
 from .models import Lesson
-from .models import LessonsInModule
 from .models import Module
 from .models import Question
-from .models import QuestionsInLesson
 from .models import Topic
 from .models import UniqueFile
 from .models import UniqueFilesofModule
@@ -28,6 +26,7 @@ from django.contrib.auth.decorators import login_required
 
 from django.http import JsonResponse
 
+
 class LoginRequiredMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
@@ -35,6 +34,7 @@ class LoginRequiredMixin(object):
         if os.environ.get("DJANGO_DEVELOPMENT", False):
             return view
         return login_required(view)
+
 
 class JSONResponseMixin(LoginRequiredMixin):
 
@@ -524,7 +524,7 @@ class StripRemoteIdView(BatchProcessView):
         for obj in qs:
             try:
                 success.append(
-                    {'pk': obj.pk, 'updated': obj.title+str(obj.drupal.strip_remote_id())})
+                    {'pk': obj.pk, 'updated': obj.title + str(obj.drupal.strip_remote_id())})
             except (RESTError, RESTAuthError), e:
                 error.append(str(e))
         return (success, error)
