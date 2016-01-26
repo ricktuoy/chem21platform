@@ -697,7 +697,7 @@ class Author(BaseModel, AuthorUnicodeMixin):
 
 
 class UniqueFile(OrderedModel, DrupalModel):
-    objects = ActiveManager()
+    objects = DrupalManager()
     cut_objects = CutManager()
     checksum = models.CharField(max_length=100, null=True, unique=True)
     path = models.CharField(max_length=255, null=True)
@@ -947,17 +947,6 @@ class FileLink(BaseModel):
         unique_together = ('origin', 'destination')
         index_together = ('origin', 'destination')
 
-
-class AuthorsOfFile(OrderedModel):
-    objects = AuthorInFileManager()
-    author = models.ForeignKey(Author)
-    file = models.ForeignKey(UniqueFile)
-
-    class Meta:
-        unique_together = ('author', 'file')
-        index_together = ('author', 'file')
-
-
 class FileStatus(BaseModel):
     file = models.ForeignKey(UniqueFile)
     status = models.ForeignKey(Status)
@@ -1159,44 +1148,6 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
                 return []
         else:
             raise AttributeError
-
-
-class QuestionsInLesson(OrderedModel):
-    objects = QuestionsInLessonManager()
-    question = models.ForeignKey(Question)
-    lesson = models.ForeignKey(Lesson)
-
-    class Meta(OrderedModel.Meta):
-        unique_together = ('question', 'lesson')
-        index_together = ('question', 'lesson')
-
-
-class FilesInQuestion(OrderedModel):
-    objects = FilesInQuestionManager()
-    file = models.ForeignKey(UniqueFile)
-    question = models.ForeignKey(Question)
-    product = models.BooleanField(default=False)
-
-    @property
-    def question_remote_id(self):
-        return self.question.remote_id
-
-    drupal = DrupalConnector(
-        "question", C21RESTRequests(), file="file", id="question_remote_id")
-
-    class Meta(OrderedModel.Meta):
-        unique_together = ('file', 'question')
-        index_together = ('file', 'question')
-
-
-class LessonsInModule(OrderedModel):
-    objects = LessonsInModuleManager()
-    lesson = models.ForeignKey(Lesson)
-    module = models.ForeignKey(Module)
-
-    class Meta(OrderedModel.Meta):
-        unique_together = ('lesson', 'module')
-        index_together = ('lesson', 'module')
 
 
 class PresentationsInQuestion(OrderedModel):
