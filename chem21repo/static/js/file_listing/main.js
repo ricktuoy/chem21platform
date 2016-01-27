@@ -77,6 +77,7 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 $(this).colorbox.resize()
             }
         });
+        if($("#lessons_tree").data("permStructure")) {
         var ns = $('ol.sortable').nestedSortable({
             forcePlaceholderSize: true,
             handle: 'div',
@@ -96,6 +97,8 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
             protectRoot: true,
 
         });
+        }
+
         $( ".sortable" ).addClass( "ui-sortable mjs-nestedSortable-branch mjs-nestedSortable-expanded" );
         $(".sortable li").addClass( "mjs-nestedSortable-brURLanch mjs-nestedSortable-collapsed" ); 
         $( ".sortable li .disclose" ).addClass( "ui-icon ui-icon-plusthick" );

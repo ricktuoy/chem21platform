@@ -115,11 +115,9 @@ class HomePageView(LoginRequiredMixin, TemplateView):
         )
 
         class Opt(object):
-
             def __init__(self, label, name):
                 self.app_label = label
                 self.model_name = name
-
         context['topics'] = topics
         context['opts'] = dict([(v.model.replace(" ", ""),
                                  Opt(v.app_label, v.model))
@@ -127,7 +125,6 @@ class HomePageView(LoginRequiredMixin, TemplateView):
                                 ContentType.objects.get_for_models(
             Module, Topic, UniqueFile, Lesson, Question,
             for_concrete_models=False).iteritems()])
-        logging.debug(context['opts'])
         return context
 
 
