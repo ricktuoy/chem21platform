@@ -303,13 +303,11 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
             if (!action || action=="_") {
                 $("#lessons_tree li").addClass("selected");
             } else {
-                logging.debug(action);
                 var url = "/local/"+action+"/";
                 var data = getObjectRefs($("#lessons_tree li.selected"));
                 var action_succeed = callbacks[action]['succeed'];
                 var action_fail = callbacks[action]['error'];
                 $.post(url, {'refs':data}, action_succeed).fail(action_fail);
-
             }
         }); 
         $('#fileupload').fileupload({
