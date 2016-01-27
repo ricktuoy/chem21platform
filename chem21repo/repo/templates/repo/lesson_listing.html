@@ -1,6 +1,6 @@
 {% load admin_urls %}
 <ol>
-    {% for l in lesson_list %}
+    {% for l in lesson_list|dictsort:"order" %}
     <li {% if perms.repo.change_lesson %}
         data-url-edit="{% url opts.lesson|admin_urlname:'change' l.pk %}"
         data-from-url-edit="{% url opts.lesson|admin_urlname:'changelist' %}"
@@ -23,7 +23,7 @@
         </div>
         {% if l.ordered_questions %}
         <ol class="questions">
-            {% for q in l.ordered_questions %}
+            {% for q in l.ordered_questions|dictsort:"order" %}
             <li 
                 {% if perms.repo.change_question %}
                 data-url-edit="{% url opts.question|admin_urlname:'change' q.pk %}"

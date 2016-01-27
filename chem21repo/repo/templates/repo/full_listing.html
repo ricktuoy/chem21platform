@@ -82,7 +82,7 @@
 			{{ topic }} 
 		</div>
 		<ol>
-		{% for module in topic.modules.all %}
+		{% for module in topic.modules.all|dictsort:"order" %}
 			<li data-url-edit="{% url opts.module|admin_urlname:'change' module.pk %}" 
 				data-from-url-edit="{% url opts.module|admin_urlname:'changelist' %}" 
 				data-url-new="{% url opts.lesson|admin_urlname:'add' %}?modules={{ module.pk }}"
