@@ -101,5 +101,5 @@ create_admin(
 
 for md in [Question, UniqueFile, Author,
            Event, Lesson, FileLink, Module,
-           UniqueFilesofModule, TextVersion]:
+           UniqueFilesofModule]:
     create_power_admin(md)

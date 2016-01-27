@@ -50,8 +50,7 @@ class OrderedModel(BaseModel):
 
 class TextVersion(OrderedModel):
     text = models.TextField()
-    user = models.ForeignKey(User)
-    modified_time = models.DateTimeField(null=True, blank=True)
+    user = models.ForeignKey(User, editable=False)
     limit = models.Q(app_label='repo', model='Topic') | \
         models.Q(app_label='repo', model='Module') | \
         models.Q(app_label='repo', model='Lesson') | \
@@ -646,7 +645,7 @@ class DrupalConnector(object):
         raise AttributeError
 
 
-@receiver(models.signals.pre_save, dispatch_uid="generate_dirty_record")
+@receiver(models.signals.pre_save)
 def generate_dirty_record(sender,
                           instance, raw,
                           using, update_fields,
@@ -668,10 +667,8 @@ def generate_dirty_record(sender,
         # instance.drupal.mark_fields_changed(instance.drupal.fields)
 
 
-@receiver(models.signals.post_save, dispatch_uid="save_text_version")
+@receiver(models.signals.post_save)
 def save_text_version(sender, instance, raw, **kwargs):
-    if kwargs.get('created', False):
-        return
     if isinstance(instance, DrupalModel) \
             and not isinstance(instance, UniqueFile):
         if not raw and hasattr(instance, "user"):
@@ -683,12 +680,12 @@ def save_text_version(sender, instance, raw, **kwargs):
                 'text': text,
                 'original': instance,
                 'user': instance.user,
-                'modified_time': datetime.now()
+                #'changed': datetime.now()
             }
             TextVersion.objects.create(**v_args)
 
 
-@receiver(models.signals.m2m_changed, dispatch_uid="generate_dirty_m2m_record")
+@receiver(models.signals.m2m_changed)
 def generate_dirty_m2m_record(sender, instance, action,
                               reverse, model, pk_set, **kwargs):
 
