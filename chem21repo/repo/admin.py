@@ -55,7 +55,7 @@ def create_admin(model, fields, name="", hidden_fields=[], ):
 
     class NewAdmin(admin.ModelAdmin):
         form = newform
-        def save_model(request, obj, form, change):
+        def save_model(self, request, obj, form, change):
             obj.user = request.user
             obj.save()
 
