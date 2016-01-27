@@ -683,6 +683,7 @@ def save_text_version(sender, instance, raw, **kwargs):
                 'text': text,
                 'original': instance,
                 'user': instance.user,
+                'modified_time': datetime.now()
             }
             TextVersion.objects.create(**v_args)
 
