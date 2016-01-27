@@ -47,7 +47,7 @@ class OrderedModel(BaseModel):
         abstract = True
         ordering = ('order',)
 
-"""
+
 class TextVersion(OrderedModel):
     text = models.TextField()
     user = models.ForeignKey(User, editable=False)
@@ -67,7 +67,7 @@ class TextVersion(OrderedModel):
         null=True,
     )
     original = generic.GenericForeignKey()
-"""
+
 
 def UnicodeMixinFactory(name_field):
     class _NameMixin(object):
@@ -108,7 +108,7 @@ class DrupalManager(models.Manager):
 
 class DrupalModel(models.Model):
     dirty = models.TextField(default="[]")
-    #text_versions = models.GenericRelation(TextVersion)
+    text_versions = GenericRelation(TextVersion)
 
     @property
     def is_dirty(self):
@@ -662,24 +662,28 @@ def generate_dirty_record(sender,
                     original.drupal.get_field_diff(instance.drupal))
                 return
 
-            except sender.DoesNotExist:
+            except:
                 pass
         # instance.drupal.mark_fields_changed(instance.drupal.fields)
 
-"""
+
 @receiver(models.signals.post_save)
 def save_text_version(sender, instance, raw, **kwargs):
     if isinstance(instance, DrupalModel) \
             and not isinstance(instance, UniqueFile):
-        if not raw:
+        if not raw and hasattr(instance, "user"):
+            try:
+                text = instance.text
+            except AttributeError:
+                text = instance.intro
             v_args = {
                 'text': text,
                 'original': instance,
-                'user': 
+                'user': instance.user,
+                'changed': datetime.now()
             }
-
             TextVersion.create(**v_args)
-"""
+
 
 @receiver(models.signals.m2m_changed)
 def generate_dirty_m2m_record(sender, instance, action,
@@ -701,10 +705,13 @@ def generate_dirty_m2m_record(sender, instance, action,
     parent_fields = parent_model.drupal.child_fields()
 
     if parent_fields:
-        for p in parents:
-            #raise Exception("Found a parent")
-            p.drupal.mark_fields_changed(parent_fields)
-            p.save(update_fields=["dirty", ])
+        try:
+            for p in parents:
+                #raise Exception("Found a parent")
+                p.drupal.mark_fields_changed(parent_fields)
+                p.save(update_fields=["dirty", ])
+        except:
+            pass
 
 
 class Event(BaseModel, EventUnicodeMixin):

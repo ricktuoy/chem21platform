@@ -34,6 +34,7 @@ class Command(BaseCommand):
                           'title': question['title']})
         if not created:
             q_obj.title = question['title']
+            q_obj.text = question['intro']
             q_obj.save()
         try:
             q_obj.lessons.add(lesson)
@@ -47,6 +48,7 @@ class Command(BaseCommand):
                                          defaults={'title': lesson['title']})
         if not created:
             l_obj.title = lesson['title']
+            l_obj.text = lesson['intro']
             l_obj.save()
         try:
             l_obj.modules.add(module)
@@ -70,14 +72,18 @@ class Command(BaseCommand):
                     continue
                 m_obj.remote_id = module['nid']
                 m_obj.save()
+            m_obj.intro = tree_data['intro']
 
             for lesson in tree_data['lessons']:
                 l_obj, l_created = self.save_lesson(lesson, m_obj)
                 for question in lesson['questions']:
-                    q_obj, q_created = self.save_question(question, l_obj)
-                    node = DrupalQuestion(
-                        **c21_requests.get("question", int(question['nid'])))
+                    qnode = c21_requests.get("question", int(question['nid']))
+                    qnode['number'] = question['number']
+                    q_obj, q_created = self.save_question(qnode, l_obj)
+                    """
+                    node = DrupalQuestion(qnode)
                     print json.dumps(node, sort_keys=True,
                                      indent=4,
                                      separators=(',', ': '))
-        print json.dumps(DrupalQuestion(**c21_requests.get("question", 62)))
+                    """
+        #print json.dumps(DrupalQuestion(**c21_requests.get("question", 62)))

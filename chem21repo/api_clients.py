@@ -180,7 +180,8 @@ class C21RESTRequests(DrupalRESTRequests):
     def index_courses(self):
         self.method_name = "index_courses"
         self.response = self._get_auth(
-            "/node", params={'parameters[type]': 'course'})
+            "/node", params={'parameters[type]': 'course','pagesize': 500})
+        print self.get_json_response()
         return self.get_json_response()
 
     def import_endnote(self, fl):
