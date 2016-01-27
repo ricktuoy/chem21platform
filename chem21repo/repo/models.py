@@ -682,7 +682,7 @@ def save_text_version(sender, instance, raw, **kwargs):
                 'user': instance.user,
                 'changed': datetime.now()
             }
-            TextVersion.create(**v_args)
+            TextVersion.objects.create(**v_args)
 
 
 @receiver(models.signals.m2m_changed)
