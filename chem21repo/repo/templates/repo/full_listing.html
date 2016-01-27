@@ -79,7 +79,7 @@
 		    <span title="Click to show/hide children" class="disclose">
             <span></span>
         	</span>
-			{{ topic }} {{ topic.remote_id }}
+			{{ topic }} 
 		</div>
 		<ol>
 		{% for module in topic.modules.all %}
@@ -92,7 +92,7 @@
 				    <span title="Click to show/hide children" class="disclose">
         			<span></span>
     				</span>
-					{{ module }} {{ module.remote_id }}
+					{{ module }} {% if request.user.is_superuser %} {{ module.remote_id }} {% endif %}
 				</div>
 				{% include 'repo/lesson_listing.html' with lesson_list=module.ordered_lessons with_list=1 module=module %}
 			</li>

@@ -22,6 +22,9 @@ from django.db import transaction
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from filebrowser.fields import FileBrowseField
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes import generic
 
 
 class BaseModel(models.Model):
@@ -29,6 +32,42 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+
+class OrderedModel(BaseModel):
+    order = models.IntegerField(default=0)
+    order_dirty = models.BooleanField(default=True)
+
+    def move_to(self, el):
+        type(self).move(self, el)
+
+    def order_is_dirty(self):
+        return self.order_dirty
+
+    class Meta:
+        abstract = True
+        ordering = ('order',)
+
+"""
+class TextVersion(OrderedModel):
+    text = models.TextField()
+    user = models.ForeignKey(User, editable=False)
+    limit = models.Q(app_label='repo', model='Topic') | \
+        models.Q(app_label='repo', model='Module') | \
+        models.Q(app_label='repo', model='Lesson') | \
+        models.Q(app_label='repo', model='Question')
+    content_type = models.ForeignKey(
+        ContentType,
+        verbose_name='content page',
+        limit_choices_to=limit,
+        null=True,
+        blank=True,
+    )
+    object_id = models.PositiveIntegerField(
+        verbose_name='related object',
+        null=True,
+    )
+    original = generic.GenericForeignKey()
+"""
 
 def UnicodeMixinFactory(name_field):
     class _NameMixin(object):
@@ -69,6 +108,7 @@ class DrupalManager(models.Manager):
 
 class DrupalModel(models.Model):
     dirty = models.TextField(default="[]")
+    #text_versions = models.GenericRelation(TextVersion)
 
     @property
     def is_dirty(self):
@@ -101,21 +141,6 @@ class DrupalModel(models.Model):
 
     class Meta:
         abstract = True
-
-
-class OrderedModel(BaseModel):
-    order = models.IntegerField(default=0)
-    order_dirty = models.BooleanField(default=True)
-
-    def move_to(self, el):
-        type(self).move(self, el)
-
-    def order_is_dirty(self):
-        return self.order_dirty
-
-    class Meta:
-        abstract = True
-        ordering = ('order',)
 
 
 class OrderedManagerBase:
@@ -467,12 +492,12 @@ class DrupalConnector(object):
         for child in new_children:
             child.drupal.strip_remote_id()
 
-        #if isinstance(self.parent, UniqueFile):
+        # if isinstance(self.parent, UniqueFile):
         #    print "***FILE***"
         #    return {}
-        
+
         self.parent.remote_id = None
-        self.parent.save(update_fields=["remote_id",])
+        self.parent.save(update_fields=["remote_id", ])
 
     def push(self):
         try:
@@ -489,23 +514,23 @@ class DrupalConnector(object):
         for child in new_children:
             print "descending to child"
             child.drupal.push()
- 
-        
+
         self.node = self.generate_node_from_parent()
 
-        #print "Doing push for ID %s %s" % (self.node.id, name)
+        # print "Doing push for ID %s %s" % (self.node.id, name)
         response, created = self.api.push(self.node)
         if created:
             print "Was created"
             try:
                 self.node.set('id', int(response['id']))
                 setattr(self.parent, self.original['id'], self.node.get('id'))
-                self.parent.save(update_fields=[self.original['id'],])
+                self.parent.save(update_fields=[self.original['id'], ])
             except KeyError:
                 try:
                     self.node.set('id', int(response['fid']))
-                    setattr(self.parent, self.original['id'], self.node.get('id'))
-                    self.parent.save(update_fields=[self.original['id'],])
+                    setattr(
+                        self.parent, self.original['id'], self.node.get('id'))
+                    self.parent.save(update_fields=[self.original['id'], ])
                 except KeyError:
                     raise Exception("No id returned")
         self.mark_all_clean()
@@ -625,7 +650,8 @@ def generate_dirty_record(sender,
                           instance, raw,
                           using, update_fields,
                           **kwargs):
-    if isinstance(instance, DrupalModel) and not isinstance(instance, UniqueFile):
+    if isinstance(instance, DrupalModel) \
+            and not isinstance(instance, UniqueFile):
         if update_fields:
             instance.drupal.mark_fields_changed(update_fields)
             return
@@ -640,6 +666,20 @@ def generate_dirty_record(sender,
                 pass
         # instance.drupal.mark_fields_changed(instance.drupal.fields)
 
+"""
+@receiver(models.signals.post_save)
+def save_text_version(sender, instance, raw, **kwargs):
+    if isinstance(instance, DrupalModel) \
+            and not isinstance(instance, UniqueFile):
+        if not raw:
+            v_args = {
+                'text': text,
+                'original': instance,
+                'user': 
+            }
+
+            TextVersion.create(**v_args)
+"""
 
 @receiver(models.signals.m2m_changed)
 def generate_dirty_m2m_record(sender, instance, action,
@@ -688,12 +728,12 @@ class Status(BaseModel, NameUnicodeMixin):
 class Author(BaseModel, AuthorUnicodeMixin):
     full_name = models.CharField(max_length=200, unique=True)
     role = models.CharField(max_length=200, null=True, blank=True)
+
     def __unicode__(self):
         if self.role:
             return "%s, %s" % (self.full_name, self.role)
         else:
             return self.full_name
-
 
 
 class UniqueFile(OrderedModel, DrupalModel):
@@ -750,7 +790,6 @@ class UniqueFile(OrderedModel, DrupalModel):
             return "%s; and %s" % (out, unicode(authors[-1]))
         except IndexError:
             return out
-
 
     @property
     def filename(self):
@@ -952,6 +991,7 @@ class FileLink(BaseModel):
     class Meta:
         unique_together = ('origin', 'destination')
         index_together = ('origin', 'destination')
+
 
 class FileStatus(BaseModel):
     file = models.ForeignKey(UniqueFile)

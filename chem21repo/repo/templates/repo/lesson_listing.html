@@ -19,7 +19,7 @@
                 <span></span>
             </span>
             {% endif %}  
-            {{ l.title }} {{ l.remote_id }} {{ l.order }} {{ l.pk }} {{ l.dirty }}
+            {{ l.title }}{% if request.user.is_superuser %} {{ l.remote_id }} {{ l.order }} {{ l.pk }} {{ l.dirty }} {% endif %}
         </div>
         {% if l.ordered_questions %}
         <ol class="questions">
@@ -44,7 +44,7 @@
                         <span></span>
                     </span>
                 {% endif %}  
-                    {{ q.title }} {{ q.remote_id }} {{ q.order }} {{ q.pk }}  {{ q.dirty }}
+                    {{ q.title }} {% if request.user.is_superuser %} {{ q.remote_id }} {{ q.order }} {{ q.pk }}  {{ q.dirty }} {% endif %}
                 </div>
                 {% if q.ordered_files and perms.repo.change_structure %}
                 <ol class="files">
@@ -55,7 +55,7 @@
                     data-url-delete="{% url 'file_delete' f.pk q.pk %}"
                 >
                 <div>
-                   [ {{ f.type }} ] {{ f.remote_id }} {{ f.title }} {{ f.type }}  {{ f.pk }} {{ f.dirty }}
+                   {{ f.title }} [ {{ f.type }} ] {% if request.user.is_superuser %} {{ f.remote_id }}  {{ f.pk }} {{ f.dirty }} {% endif %}
                 </div>
                 {% endfor %}
                 </ol>

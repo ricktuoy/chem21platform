@@ -55,6 +55,10 @@ def create_admin(model, fields, name="", hidden_fields=[], ):
 
     class NewAdmin(admin.ModelAdmin):
         form = newform
+        #def save_model(request, obj, form, change):
+        #    obj.user = request.user
+        #    obj.save()
+
     return {'modeladmin': NewAdmin,
             'model': themodel,
             'name': str(themodel._meta.verbose_name +
@@ -75,7 +79,7 @@ def create_power_admin(model):
 
 create_admin(
     model=Module,
-    fields=['name', 'code','text'],
+    fields=['name', 'code', 'text'],
     hidden_fields=['topic', ],
 )
 create_admin(model=Topic, fields=['name', ])
