@@ -35,7 +35,6 @@ class DrupalRESTRequests(object):
             except ValueError:
                 raise RESTAuthError(
                     "Authentication did not return JSON at %s" % self.base_url)
-        print self.auth_data
         return self.auth_data
 
     def get_csrf_headers(self, force=False):
@@ -93,7 +92,7 @@ class DrupalRESTRequests(object):
     def update(self, id, node):
         node.set('id', id)
         self.method_name = "update_%s" % node.object_name
-        print self.method_name
+        
         node.remove_empty_optional_fields()
         node.serialise_fields()
         logging.debug("Update node: %s" % node.filter_changed_fields())
@@ -181,7 +180,7 @@ class C21RESTRequests(DrupalRESTRequests):
         self.method_name = "index_courses"
         self.response = self._get_auth(
             "/node", params={'parameters[type]': 'course','pagesize': 500})
-        print self.get_json_response()
+
         return self.get_json_response()
 
     def import_endnote(self, fl):

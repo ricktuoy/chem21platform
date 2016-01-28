@@ -13,6 +13,13 @@ import json
 class Command(BaseCommand):
     help = 'Import questions from the platform'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--dry',
+                            action="store_true",
+                            dest="dry",
+                            default=False,
+                            help="Dry run: don't save anything")
+
     def get_module_from_input(self):
         m_obj = None
         while True:
@@ -26,65 +33,103 @@ class Command(BaseCommand):
             break
         return m_obj
 
-    def save_question(self, question, lesson):
-        q_obj, created = \
-            Question.objects.get_or_create(
-                remote_id=question['nid'],
-                defaults={'order': question['number'],
-                          'title': question['title']})
-        if not created:
+    def save_question(self, question, lesson, dry=False):
+
+        try:
+            q_obj = Question.objects.get(remote_id=question['nid'])
+            if q_obj.has_text_changes():
+                self.print_obj(
+                    "Question %s has text changes: ignoring", question)
+                return
             q_obj.title = question['title']
             q_obj.text = question['intro']
-            q_obj.save()
+            if not dry:
+                q_obj.save()
+        except Question.DoesNotExist:
+            if not dry:
+                q_obj = Question.objects.create(
+                    remote_id=question['nid'],
+                    order=question['number'],
+                    title=question['title'], text=question['intro'])
+        if dry:
+            self.print_obj("Dry run: question %s", question)
+            return
         try:
             q_obj.lessons.add(lesson)
         except IntegrityError:
             pass
-        return (q_obj, created)
+        return q_obj
 
-    def save_lesson(self, lesson, module):
-        l_obj, created = \
-            Lesson.objects.get_or_create(remote_id=lesson['nid'],
-                                         defaults={'title': lesson['title']})
-        if not created:
+    def save_lesson(self, lesson, module, dry=False):
+        try:
+            l_obj = Lesson.objects.get(remote_id=lesson['nid'])
+            if l_obj.has_text_changes():
+                self.print_obj("Lesson %s has text changes: ignoring", lesson)
+                return
             l_obj.title = lesson['title']
             l_obj.text = lesson['intro']
-            l_obj.save()
+            if not dry:
+                l_obj.save()
+        except Lesson.DoesNotExist:
+            if not dry:
+                l_obj = Lesson.objects.create(
+                    remote_id=lesson['nid'],
+                    title=lesson['title'], text=lesson['intro'])
+        if dry:
+            self.print_obj("Dry run: ignoring lesson %s", lesson)
+            return
         try:
             l_obj.modules.add(module)
         except IntegrityError:
             pass
-        return (l_obj, created)
+        return l_obj
+
+    def print_obj(self, text, obj):
+        try:
+            print text % obj['title']
+        except UnicodeError:
+            print text % obj['nid']
+
+    def save_module(self, module, dry=False):
+        try:
+            m_obj = Module.objects.get(remote_id=module['nid'])
+            if m_obj.has_text_changes():
+                self.print_obj("Module %s has text changes: ignoring", module)
+                return
+        except Module.DoesNotExist:
+            m_obj = self.get_module_from_input()
+            if not m_obj:
+                return
+            m_obj.remote_id = module['nid']
+        m_obj.intro = module['intro']
+        if not dry:
+            m_obj.save()
+            return m_obj
+        else:
+            self.print_obj("Dry run: ignoring module %s", module)
 
     def handle(self, *args, **options):
         c21_requests = C21RESTRequests()
         c21_requests.authenticate()
         courses_data = c21_requests.index_courses()
+        dry = options['dry']
         for module in courses_data:
-            print "Getting tree for %s" % module['title']
-
             tree_data = c21_requests.get("course", int(module['nid']))
-            try:
-                m_obj = Module.objects.get(remote_id=module['nid'])
-            except Module.DoesNotExist:
-                m_obj = self.get_module_from_input()
-                if not m_obj:
-                    continue
-                m_obj.remote_id = module['nid']
-                m_obj.save()
-            m_obj.intro = tree_data['intro']
-            m_obj.save()
+            tree_data['nid'] = module['nid']
+            m_obj = self.save_module(tree_data, dry)
 
             for lesson in tree_data['lessons']:
-                l_obj, l_created = self.save_lesson(lesson, m_obj)
+                l_obj = self.save_lesson(lesson, m_obj, dry=dry)
+
                 for question in lesson['questions']:
                     qnode = c21_requests.get("question", int(question['nid']))
                     qnode['number'] = question['number']
-                    q_obj, q_created = self.save_question(qnode, l_obj)
+                    self.save_question(
+                        qnode, l_obj, dry=dry)
                     """
                     node = DrupalQuestion(qnode)
                     print json.dumps(node, sort_keys=True,
                                      indent=4,
                                      separators=(',', ': '))
                     """
-        #print json.dumps(DrupalQuestion(**c21_requests.get("question", 62)))
+        # print json.dumps(DrupalQuestion(**c21_requests.get("question", 62)))
