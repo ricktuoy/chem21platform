@@ -73,6 +73,7 @@ class Command(BaseCommand):
                 m_obj.remote_id = module['nid']
                 m_obj.save()
             m_obj.intro = tree_data['intro']
+            m_obj.save()
 
             for lesson in tree_data['lessons']:
                 l_obj, l_created = self.save_lesson(lesson, m_obj)

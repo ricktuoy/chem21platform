@@ -55,6 +55,7 @@ class TextVersion(OrderedModel):
         models.Q(app_label='repo', model='Module') | \
         models.Q(app_label='repo', model='Lesson') | \
         models.Q(app_label='repo', model='Question')
+    modified_time = models.DateTimeField(null=True, blank=True)
     content_type = models.ForeignKey(
         ContentType,
         verbose_name='content page',
@@ -109,6 +110,11 @@ class DrupalManager(models.Manager):
 class DrupalModel(models.Model):
     dirty = models.TextField(default="[]")
     text_versions = GenericRelation(TextVersion)
+
+    def has_text_changes(self, since=None):
+    	print self.text_versions.all()
+        return self.text_versions.exclude(
+            user__pk=1).exclude(user__pk=2).count() or False
 
     @property
     def is_dirty(self):
