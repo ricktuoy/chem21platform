@@ -55,7 +55,7 @@ class TextVersion(OrderedModel):
         models.Q(app_label='repo', model='Module') | \
         models.Q(app_label='repo', model='Lesson') | \
         models.Q(app_label='repo', model='Question')
-    modified_time = models.DateTimeField(null=True, blank=True)
+    #modified_time = models.DateTimeField(null=True, blank=True)
     content_type = models.ForeignKey(
         ContentType,
         verbose_name='content page',
