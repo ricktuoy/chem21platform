@@ -112,7 +112,6 @@ class DrupalModel(models.Model):
     text_versions = GenericRelation(TextVersion)
 
     def has_text_changes(self, since=None):
-    	print self.text_versions.all()
         return self.text_versions.exclude(
             user__pk=1).exclude(user__pk=2).count() or False
 
