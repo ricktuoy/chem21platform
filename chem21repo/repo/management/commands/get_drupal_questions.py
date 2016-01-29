@@ -107,7 +107,7 @@ class Command(BaseCommand):
             if not m_obj:
                 return
             m_obj.remote_id = module['nid']
-        m_obj.intro = module['intro']
+        m_obj.text = module['intro']
         if not dry:
             m_obj.save()
             return m_obj
