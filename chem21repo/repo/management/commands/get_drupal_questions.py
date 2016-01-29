@@ -11,7 +11,7 @@ import json
 
 
 class Command(BaseCommand):
-    help = 'Import questions from the platform'
+    help = 'Import objects from the platform'
 
     def add_arguments(self, parser):
         parser.add_argument('--dry',
@@ -19,6 +19,12 @@ class Command(BaseCommand):
                             dest="dry",
                             default=False,
                             help="Dry run: don't save anything")
+
+        parser.add_argument('--ignore-lessons',
+                    action="store_true",
+                    dest="ignore_lessons",
+                    default=False,
+                    help="Only download courses")
 
     def get_module_from_input(self):
         m_obj = None
@@ -113,11 +119,13 @@ class Command(BaseCommand):
         c21_requests.authenticate()
         courses_data = c21_requests.index_courses()
         dry = options['dry']
+        ignore_lessons = options['ignore_lessons']
         for module in courses_data:
             tree_data = c21_requests.get("course", int(module['nid']))
             tree_data['nid'] = module['nid']
             m_obj = self.save_module(tree_data, dry)
-
+            if ignore_lessons:
+            	continue
             for lesson in tree_data['lessons']:
                 l_obj = self.save_lesson(lesson, m_obj, dry=dry)
 

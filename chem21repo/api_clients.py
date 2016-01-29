@@ -92,7 +92,6 @@ class DrupalRESTRequests(object):
     def update(self, id, node):
         node.set('id', id)
         self.method_name = "update_%s" % node.object_name
-        
         node.remove_empty_optional_fields()
         node.serialise_fields()
         logging.debug("Update node: %s" % node.filter_changed_fields())
@@ -179,7 +178,7 @@ class C21RESTRequests(DrupalRESTRequests):
     def index_courses(self):
         self.method_name = "index_courses"
         self.response = self._get_auth(
-            "/node", params={'parameters[type]': 'course','pagesize': 500})
+            "/node", params={'parameters[type]': 'course', 'pagesize': 500})
 
         return self.get_json_response()
 
