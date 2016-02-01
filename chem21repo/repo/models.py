@@ -98,7 +98,7 @@ class TextVersion(OrderedModel):
 
     def get_older_version(self):
         if not self._older_qs:
-            self._older_qs = TextVersion.objects.filter(
+            self._older_qs = self.original.text_versions.filter(
                     modified_time__lt=self.modified_time).order_by(
                     "-modified_time")
         try:
@@ -108,7 +108,7 @@ class TextVersion(OrderedModel):
 
     def get_newer_version(self):
         if not self._newer_qs:
-            self._newer_qs = TextVersion.objects.filter(
+            self._newer_qs = self.original.text_versions.filter(
                     modified_time__gt=self.modified_time).order_by(
                     "modified_time")
         try:
