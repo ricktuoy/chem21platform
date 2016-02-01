@@ -51,7 +51,26 @@ class OrderedModel(BaseModel):
         ordering = ('order',)
 
 
+class TextVersionManager(models.Manager):
+    def create_for_object(self, instance, time=None):
+        if time is None:
+            time = datetime.now()
+        try:
+            text = instance.text
+        except AttributeError:
+            text = instance.intro
+        if text is None:
+            text = ""
+        v_args = {
+            'text': text,
+            'original': instance,
+            'user': instance.user,
+            'modified_time': time
+        }
+        TextVersion.objects.create(**v_args)
+
 class TextVersion(OrderedModel):
+    objects = TextVersionManager()
     text = models.TextField()
     user = models.ForeignKey(User, editable=False)
     limit = models.Q(app_label='repo', model='Topic') | \
@@ -740,18 +759,8 @@ def save_text_version(sender, instance, raw, **kwargs):
         if kwargs.get("created", False):
             return
         if not raw and hasattr(instance, "user"):
-            logging.debug("Adding new text version")
-            try:
-                text = instance.text
-            except AttributeError:
-                text = instance.intro
-            v_args = {
-                'text': text,
-                'original': instance,
-                'user': instance.user,
-                'modified_time': datetime.now()
-            }
-            TextVersion.objects.create(**v_args)
+            TextVersion.objects.create_for_object(instance)
+
 
 
 @receiver(models.signals.m2m_changed)
