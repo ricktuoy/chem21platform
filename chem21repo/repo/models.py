@@ -3,6 +3,8 @@ import logging
 import os
 import base64
 import mimetypes
+import difflib
+import html2text
 
 import tinymce.models as mceModels
 
@@ -25,6 +27,7 @@ from filebrowser.fields import FileBrowseField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes import generic
+from StringIO import StringIO
 
 
 class BaseModel(models.Model):
@@ -68,6 +71,64 @@ class TextVersion(OrderedModel):
         null=True,
     )
     original = generic.GenericForeignKey()
+    published = models.BooleanField(default=False)
+
+    def __init__(self, *args, **kwargs):
+        self._older_qs = None
+        self._newer_qs = None
+        return super(TextVersion, self).__init__(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.user.username + " " + \
+            self.original.title + " " + self.strtime()
+
+    def strtime(self):
+        try:
+            return self.modified_time.strftime("%c")
+        except AttributeError:
+            return "----"
+
+    def get_html_link_user(self):
+        return "%s: <a href=\"%s\">%s</a>" % (
+            self.user.username,
+            self.get_absolute_url(), self.strtime())
+
+    def get_markdown(self):
+        return html2text.html2text(self.text)
+
+    def get_older_version(self):
+        if not self._older_qs:
+            self._older_qs = TextVersion.objects.filter(
+                    modified_time__lt=self.modified_time).order_by(
+                    "-modified_time")
+        try:
+            return self._older_qs[0]
+        except IndexError:
+            return None
+
+    def get_newer_version(self):
+        if not self._newer_qs:
+            self._newer_qs = TextVersion.objects.filter(
+                    modified_time__gt=self.modified_time).order_by(
+                    "modified_time")
+        try:
+            return self._newer_qs[0]
+        except IndexError:
+            return None
+
+    def get_diff_table(self, diffcls=None):
+        if not diffcls:
+            diffcls = difflib.HtmlDiff()
+        tolines = StringIO(self.get_markdown()).readlines()
+        try:
+            from_version = self.get_older_version()
+            fromlines = StringIO(from_version.get_markdown()).readlines()
+        except (AttributeError, ValueError):
+            fromlines = []
+        return diffcls.make_table(fromlines, tolines)
+
+    def get_absolute_url(self):
+        return reverse('version', args=[str(self.id), ])
 
 
 def UnicodeMixinFactory(name_field):
@@ -497,10 +558,6 @@ class DrupalConnector(object):
         for child in new_children:
             child.drupal.strip_remote_id()
 
-        # if isinstance(self.parent, UniqueFile):
-        #    print "***FILE***"
-        #    return {}
-
         self.parent.remote_id = None
         self.parent.save(update_fields=["remote_id", ])
 
@@ -672,11 +729,18 @@ def generate_dirty_record(sender,
         # instance.drupal.mark_fields_changed(instance.drupal.fields)
 
 
-@receiver(models.signals.post_save)
+@receiver(models.signals.post_save, dispatch_uid="save_text_version")
 def save_text_version(sender, instance, raw, **kwargs):
     if isinstance(instance, DrupalModel) \
             and not isinstance(instance, UniqueFile):
+        
+        if kwargs.get("update_fields", False):
+            if 'text' not in 'update_fields' and 'intro' not in 'update_fields':
+                return
+        if kwargs.get("created", False):
+            return
         if not raw and hasattr(instance, "user"):
+            logging.debug("Adding new text version")
             try:
                 text = instance.text
             except AttributeError:
@@ -685,7 +749,7 @@ def save_text_version(sender, instance, raw, **kwargs):
                 'text': text,
                 'original': instance,
                 'user': instance.user,
-                #'changed': datetime.now()
+                'modified_time': datetime.now()
             }
             TextVersion.objects.create(**v_args)
 

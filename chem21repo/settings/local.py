@@ -2,7 +2,7 @@ from common import *
 import os
 DEBUG = True
 TEMPLATE_DEBUG = True
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = True
 
 STATIC_ROOT = BASE_DIR + '/../static/'
 STATIC_URL = "/static/"
@@ -31,11 +31,11 @@ SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 if DEBUG_TOOLBAR:
     INSTALLED_APPS += ('debug_toolbar',
-                       'debug_panel'
+                       #'debug_panel'
                        )
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
     MIDDLEWARE_CLASSES = (
-        'debug_panel.middleware.DebugPanelMiddleware',
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
     ) + MIDDLEWARE_CLASSES
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': 'chem21repo.middleware.show_toolbar',

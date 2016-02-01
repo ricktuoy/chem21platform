@@ -2,8 +2,10 @@
 <ol>
     {% for l in lesson_list|dictsort:"order" %}
     <li {% if perms.repo.change_lesson %}
+
         data-url-edit="{% url opts.lesson|admin_urlname:'change' l.pk %}"
         data-from-url-edit="{% url opts.lesson|admin_urlname:'changelist' %}"
+
         {% endif %}
         {% if perms.repo.add_question %}
         data-url-new="{% url opts.question|admin_urlname:'add' %}?lessons={{ l.pk }}" 
@@ -12,6 +14,8 @@
         {% if perms.repo.change_structure %}
         data-url-remove="{% url 'lesson_remove' l.pk module.pk %}"
         {% endif %}
+
+        data-changes-url="{{ l.text_versions.all.0.get_absolute_url }}"
         class="repo-object-lesson-{{ l.pk }}{% if l.is_dirty and l.remote_id %} dirty{% endif %}{% if not l.remote_id %} new{% endif %}">
         <div>
             {% if l.ordered_questions %}
@@ -37,6 +41,8 @@
                 data-url-add-files="{% url 'add_files' 'question' q.pk %}"
                 data-url-remove="{% url 'question_remove' q.pk l.pk %}"
                 {% endif %}
+                
+                data-changes-url="{{ q.text_versions.all.0.get_absolute_url }}"
                 class="repo-object-question-{{ q.pk }}{% if q.is_dirty and q.remote_id %} dirty{% endif %}{% if not q.remote_id %} new{% endif %}">
                 <div>
                 {% if q.ordered_files %}

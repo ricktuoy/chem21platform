@@ -87,6 +87,7 @@
 				data-from-url-edit="{% url opts.module|admin_urlname:'changelist' %}" 
 				data-url-new="{% url opts.lesson|admin_urlname:'add' %}?modules={{ module.pk }}"
 				data-from-url-new="{% url opts.lesson|admin_urlname:'changelist' %}"
+				data-changes-url="{{ module.text_versions.all.0.get_absolute_url }}"
 				class="repo-object-module-{{ module.pk }}{% if module.is_dirty and module.remote_id %} dirty{% endif %}{% if not module.remote_id %} new{% endif %}">
 				<div>
 				    <span title="Click to show/hide children" class="disclose">

@@ -1,0 +1,15 @@
+{% extends 'repo/base.html' %}
+{% block content %}
+<p><a href="/">(((HOME)))</a></p>
+<h1>Changed by: {{ object.user.username }}</h1>
+<h3>{{ object.strtime }}</h3>
+{{ object.get_diff_table|safe}}
+{% if object.get_older_version %}
+<a href="{{ object.get_older_version.get_absolute_url }}">Previous</a>
+{% endif %}
+ | 
+{% if object.get_newer_version %}
+<a href="{{ object.get_newer_version.get_absolute_url }}">Next</a>
+{% endif %}
+
+{% endblock %}

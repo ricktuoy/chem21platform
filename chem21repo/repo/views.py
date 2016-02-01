@@ -8,6 +8,7 @@ from .models import Question
 from .models import Topic
 from .models import UniqueFile
 from .models import UniqueFilesofModule
+from .models import TextVersion
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
@@ -94,10 +95,13 @@ class HomePageView(LoginRequiredMixin, TemplateView):
         context['files'] = UniqueFile.objects.filter(type="video")
         topics = Topic.objects.all().prefetch_related(
             "modules",
+            Prefetch("modules__text_versions",
+                     queryset=TextVersion.objects.all().order_by("-modified_time")),
             Prefetch("modules__uniquefilesofmodule_set",
                      queryset=UniqueFilesofModule.objects.filter(
                          file__active=True,
-                         file__type__in=["video", "image"], file__cut_of__isnull=True),
+                         file__type__in=["video", "image"],
+                         file__cut_of__isnull=True),
                      to_attr="ordered_videos"),
             Prefetch("modules__ordered_videos__file__cuts",
                      queryset=UniqueFile.objects.filter(
@@ -105,13 +109,17 @@ class HomePageView(LoginRequiredMixin, TemplateView):
             Prefetch("modules__lessons",
                      queryset=Lesson.objects.all().order_by('order'),
                      to_attr="ordered_lessons"),
+            Prefetch("modules__ordered_lessons__text_versions",
+                     queryset=TextVersion.objects.all().order_by("-modified_time")),
             Prefetch("modules__ordered_lessons__questions",
                      queryset=Question.objects.all().order_by(
                          'order'),
                      to_attr="ordered_questions"),
             Prefetch("modules__ordered_lessons__ordered_questions__files",
                      queryset=UniqueFile.objects.all().order_by('type'),
-                     to_attr="ordered_files")
+                     to_attr="ordered_files"),
+            Prefetch("modules__ordered_lessons__ordered_questions__text_versions",
+                     queryset=TextVersion.objects.all().order_by("-modified_time")),
         )
 
         class Opt(object):
@@ -133,6 +141,19 @@ class VideoView(LoginRequiredMixin, DetailView):
     template_name = "repo/video_detail.html"
     slug_field = "checksum"
     slug_url_kwarg = "checksum"
+
+
+class TextVersionView(LoginRequiredMixin, DetailView):
+    model = TextVersion
+    template_name = "repo/textversion_detail.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(TextVersionView, self).get_context_data(
+            *args, **kwargs)
+        instance = context['object']
+        context['all_changes'] = instance.original.text_versions.filter(
+            published=False).order_by("-modified_time")
+        return context
 
 
 class DirtyView(JSONView):

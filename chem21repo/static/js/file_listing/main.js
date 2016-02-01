@@ -154,7 +154,8 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 }
             }
         })
-        var commands = [{title: "Edit", cmd: "Edit", uiIcon: "ui-icon-edit"}];
+        var commands = [{title: "Edit", cmd: "Edit", uiIcon: "ui-icon-edit"},
+                {title: "View changes", cmd:"Changes", uiIcon: "ui-icon-save"}];
         if($("#lessons_tree").data("permStructure")) {
             commands = commands.concat( [
                 {title: "Create new ...", cmd: "New", uiIcon: "ui-icon-new"},
@@ -196,7 +197,7 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                             el = getElFromObjectRef($("#lessons_tree"),data['success']); 
                             el.remove();
                         }).fail(function() 
-                            {alert("FAIUL");
+                            {alert("FAIL");
                         });
                         break;
                     case "Delete":
@@ -205,7 +206,7 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                             el = getElFromObjectRef($("#lessons_tree"),data['success']); 
                             el.remove();
                         }).fail(function() 
-                            {alert("FAIUL");
+                            {alert("FAIL");
                         });
                         break;
                     case "Dirty":
@@ -224,6 +225,13 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                         $.post('/local/strip_remote/', {'refs':[getObjectRef(ui.target.closest("li")),]}, function(data) {
                             console.debug(data);
                         });
+                        break;
+                    case "Changes":
+                        console.debug("Changes");
+                        var el = ui.target.closest("li");
+                        var url = el.data("changesUrl");
+                        //console.debug(url);
+                        window.location = url;
                         break;
                 }
             }
