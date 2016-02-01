@@ -74,7 +74,7 @@
 		data-from-url-edit="{% url opts.topic|admin_urlname:'changelist' %}"  
 		data-url-new="{% url opts.module|admin_urlname:'add' %}?topic={{ topic.pk }}" 
 		data-from-url-new="{% url opts.module|admin_urlname:'changelist' %}"
-		class="repo-object-topic-{{ topic.id }}{% if topic.is_dirty and topic.remote_id %} dirty{% endif %}{% if not topic.remote_id %} new{% endif %}{% if not l.remote_id %} new{% endif %}">
+		class="repo-object-topic-{{ topic.id }}{% if topic.editor_text_versions and topic.remote_id %} dirty{% endif %}{% if not topic.remote_id %} new{% endif %}{% if not l.remote_id %} new{% endif %}">
 		<div>
 		    <span title="Click to show/hide children" class="disclose">
             <span></span>
@@ -88,7 +88,7 @@
 				data-url-new="{% url opts.lesson|admin_urlname:'add' %}?modules={{ module.pk }}"
 				data-from-url-new="{% url opts.lesson|admin_urlname:'changelist' %}"
 				data-changes-url="{{ module.text_versions.all.0.get_absolute_url }}"
-				class="repo-object-module-{{ module.pk }}{% if module.is_dirty and module.remote_id %} dirty{% endif %}{% if not module.remote_id %} new{% endif %}">
+				class="repo-object-module-{{ module.pk }}{% if module.user_text_versions and module.remote_id %} dirty{% endif %}{% if not module.remote_id %} new{% endif %}">
 				<div>
 				    <span title="Click to show/hide children" class="disclose">
         			<span></span>

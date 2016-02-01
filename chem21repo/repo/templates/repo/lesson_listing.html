@@ -16,7 +16,7 @@
         {% endif %}
 
         data-changes-url="{{ l.text_versions.all.0.get_absolute_url }}"
-        class="repo-object-lesson-{{ l.pk }}{% if l.is_dirty and l.remote_id %} dirty{% endif %}{% if not l.remote_id %} new{% endif %}">
+        class="repo-object-lesson-{{ l.pk }}{% if l.editor_text_versions and l.remote_id %} dirty{% endif %}{% if not l.remote_id %} new{% endif %}">
         <div>
             {% if l.ordered_questions %}
             <span title="Click to show/hide children" class="disclose">
@@ -43,7 +43,7 @@
                 {% endif %}
                 
                 data-changes-url="{{ q.text_versions.all.0.get_absolute_url }}"
-                class="repo-object-question-{{ q.pk }}{% if q.is_dirty and q.remote_id %} dirty{% endif %}{% if not q.remote_id %} new{% endif %}">
+                class="repo-object-question-{{ q.pk }}{% if q.editor_text_versions and q.remote_id %} dirty{% endif %}{% if not q.remote_id %} new{% endif %}">
                 <div>
                 {% if q.ordered_files %}
                     <span title="Click to show/hide children" class="disclose">

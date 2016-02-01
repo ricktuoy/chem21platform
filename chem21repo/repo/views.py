@@ -96,7 +96,13 @@ class HomePageView(LoginRequiredMixin, TemplateView):
         topics = Topic.objects.all().prefetch_related(
             "modules",
             Prefetch("modules__text_versions",
-                     queryset=TextVersion.objects.all().order_by("-modified_time")),
+                     queryset=TextVersion.objects.all().order_by(
+                         "-modified_time"),
+                     to_attr="text_versions"),
+            Prefetch("modules__text_versions",
+                     queryset=TextVersion.objects.filter(
+                         user__is_superuser=False).order_by("-modified_time"),
+                     to_attr="editor_text_versions"),
             Prefetch("modules__uniquefilesofmodule_set",
                      queryset=UniqueFilesofModule.objects.filter(
                          file__active=True,
@@ -111,6 +117,11 @@ class HomePageView(LoginRequiredMixin, TemplateView):
                      to_attr="ordered_lessons"),
             Prefetch("modules__ordered_lessons__text_versions",
                      queryset=TextVersion.objects.all().order_by("-modified_time")),
+            Prefetch("modules__ordered_lessons__text_versions",
+                     queryset=TextVersion.objects.filter(
+                         user__is_superuser=False).order_by(
+                         "-modified_time"),
+                     to_attr="editor_text_versions"),
             Prefetch("modules__ordered_lessons__questions",
                      queryset=Question.objects.all().order_by(
                          'order'),
@@ -120,6 +131,11 @@ class HomePageView(LoginRequiredMixin, TemplateView):
                      to_attr="ordered_files"),
             Prefetch("modules__ordered_lessons__ordered_questions__text_versions",
                      queryset=TextVersion.objects.all().order_by("-modified_time")),
+            Prefetch("modules__ordered_lessons__ordered_questions__text_versions",
+                     queryset=TextVersion.objects.filter(
+                         user__is_superuser=False).order_by(
+                         "-modified_time"),
+                     to_attr="editor_text_versions"),
         )
 
         class Opt(object):
@@ -151,8 +167,6 @@ class TextVersionView(LoginRequiredMixin, DetailView):
         context = super(TextVersionView, self).get_context_data(
             *args, **kwargs)
         instance = context['object']
-        context['all_changes'] = instance.original.text_versions.filter(
-            published=False).order_by("-modified_time")
         return context
 
 
