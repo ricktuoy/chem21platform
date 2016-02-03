@@ -25,6 +25,7 @@ class Command(BaseCommand):
                 print node.id
                 print node
                 api.push(node)
+                """
                 for lesson in question.lessons.all():
                     node = DrupalLesson(
                         id=lesson.remote_id, question_orders=lesson.child_orders)
@@ -37,12 +38,14 @@ class Command(BaseCommand):
                         print "MOD: " + module.name
                         print node
                         api.push(node)
+                """
 
         print "*** LESSONS"
         for lesson in Lesson.objects.all():
             if lesson.has_text_changes():
                 try:
-                    node = DrupalLesson(id=lesson.remote_id, intro=question.text)
+                    node = DrupalLesson(
+                        id=lesson.remote_id, intro=question.text)
                 except:
                     print "No id"
                     continue
