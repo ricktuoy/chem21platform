@@ -21,18 +21,21 @@ class Command(BaseCommand):
             except:
                 print "No id"
                 continue
-            api.push(node)
+            # api.push(node)
         print "*** MODULES"
         for module in Module.objects.all():
             print module.name
             try:
                 node = DrupalCourse(
                     id=module.remote_id, lesson_orders=module.child_orders)
+                print module.child_orders
+                print node
             except:
                 print "No id"
                 continue
             try:
-                api.push(node)
+                # api.push(node)
+                pass
             except:
                 print "Error"
                 pass

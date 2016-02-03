@@ -64,7 +64,7 @@ class DrupalRESTRequests(object):
             if node.id:
                 try:
                     out = (self.update(node.id,
-                                       node.__class__(**node.dirty())),
+                                       node.__class__(**node))),
                            False)
                     return out
                 except RESTError, e:
