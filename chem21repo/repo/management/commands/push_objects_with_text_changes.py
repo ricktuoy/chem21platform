@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         api = C21RESTRequests()
-        """
+
         print "*** QUESTIONS"
         for question in Question.objects.all():
             if question.has_text_changes():
@@ -37,7 +37,7 @@ class Command(BaseCommand):
                         print "MOD: " + module.name
                         print node
                         api.push(node)
-        """
+
         print "*** LESSONS"
         for lesson in Lesson.objects.all():
             if lesson.has_text_changes():

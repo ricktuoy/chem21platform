@@ -65,7 +65,7 @@ class DrupalRESTRequests(object):
                 try:
                     print node
                     out = (self.update(node.id,
-                                       node.__class__(**node)),False)
+                                       node.__class__(**node)), False)
                     return out
                 except RESTError, e:
                     if not self.response.status_code == 410:
