@@ -21,7 +21,7 @@ class Command(BaseCommand):
             except:
                 print "No id"
                 continue
-                api.push(node)
+                print api.push(node)
         print "*** MODULES"
         for module in Module.objects.all():
             print module.name
@@ -34,7 +34,7 @@ class Command(BaseCommand):
                 print "No id"
                 continue
             try:
-                api.push(node)
+                print api.push(node)
                 pass
             except:
                 print "Error"

@@ -63,9 +63,9 @@ class DrupalRESTRequests(object):
         try:
             if node.id:
                 try:
+                    print node
                     out = (self.update(node.id,
-                                       node.__class__(**node)),
-                           False)
+                                       node.__class__(**node)),False)
                     return out
                 except RESTError, e:
                     if not self.response.status_code == 410:
@@ -97,7 +97,7 @@ class DrupalRESTRequests(object):
         logging.debug("Update node: %s" % node.filter_changed_fields())
         self.response = self._put_auth(
             "/%s/%s/" % (node.object_name, id),
-            json=node.filter_changed_fields())
+            json=node)
         logging.debug("Update result: %s" % self.response.text)
         return self.get_json_response()
 
