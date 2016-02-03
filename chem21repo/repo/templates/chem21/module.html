@@ -1,0 +1,26 @@
+{% extends 'base_learning.html' %}
+ 
+{% block class_nav %}
+<div class="item-list">
+	<ol>
+	{% for module in class_tree %}
+		{% ifequal module object %}
+			<li class="active">
+				{{ module.name }}
+				<div class="item-list"><ol class="active">
+					{% for lesson in module.ordered_lessons %}
+						<li><a href="{{ lesson.get_absolute_url }}">{{ lesson.name }}</a></li>				
+					{% endfor %}
+				</ol></div>
+			</li>
+		{% else }
+			<li>
+				<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
+			</li>
+		{% endifequal %}
+	</ol>
+</div>  
+{% endblock %}
+{% block learning_object %}
+{{ object.text|safe }}
+{% endblock %}

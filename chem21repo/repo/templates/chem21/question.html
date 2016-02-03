@@ -1,0 +1,43 @@
+{% extends 'base_learning.html' %}
+{% load tokens %}
+{% block class_nav %}
+<div class="item-list">
+	<ol>
+	{% for module in class_tree %}
+		{% ifequal module current_module %}
+			<li class="active">
+				{{ module.name }}
+				<div class="item-list"><ol class="active">
+					{% for lesson in module.ordered_lessons %}
+						{% ifequal lesson current_lesson %}
+							<li class="active">
+								{{ lesson.name }}
+								<ol class="active">
+								{% for question in lesson.ordered_questions %}
+									{% ifequal question object %}
+										<li><a href="{{ question.get_absolute_url }}">{{ question.name }}</a></li>
+									{% endifequal %}
+								{% endfor %}
+								</ol>
+							</li>
+						{% else %}
+							<li><a href="{{ lesson.get_absolute_url }}">{{ lesson.name }}</a></li>				
+						{% endifequal %}
+					{% endfor %}
+				</ol></div>
+			</li>
+		{% else }
+			<li>
+				<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
+			</li>
+		{% endifequal %}
+	{% endfor %}
+	</ol>
+</div>  
+{% endblock %}
+{% block learning_object %}
+<div id="quiz_progress"><h2>Choosing a method</h2>(Step {{ object.order }} of {{ object.lesson.num_questions }})</div>
+{% block question %}
+{{ object.text|safe|replace_tokens }}
+{% endblock %}
+{% endblock %}

@@ -190,7 +190,12 @@ class C21RESTRequests(DrupalRESTRequests):
 
     def search_endnote(self, term):
         self.method_name = "search_endnote"
-        # raise Exception(term)
         self.response = self._get_auth(
             "/biblio", params={'term': term})
         return self.get_json_response()
+
+    def get_endnode_html(self, citekey):
+    	self.method_name = "get_endnote_html"
+    	self.response = self._get_auth(
+    		"/biblio/html", params={'citekey': key} )
+

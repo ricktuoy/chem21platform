@@ -1,0 +1,8 @@
+{% extends 'question.html' %}
+ 
+{% block question %}
+{{ object.text|safe }}
+{% if object.pdf %}
+<!-- TODO: display pdf -->
+{% endif %}
+{% endblock %}

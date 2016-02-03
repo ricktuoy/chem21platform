@@ -1,0 +1,11 @@
+{% extends 'question.html' %}
+ 
+{% block question %}
+{{ object.text|safe }}
+{% if object.video %}
+<video width="100%" controls>
+	<source src="{{ object.video.url }}" type="video/mp4" />
+	Your browser does not support the video tag
+</video>
+{% endif %}
+{% endblock %}

@@ -122,7 +122,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 10,
     'theme': "advanced",
-    'theme_advanced_buttons1': "bold,italic,underline,link,unlink,bullist,blockquote,undo,code,#bibliotag",
+    'theme_advanced_buttons1': "bold,italic,underline,link,unlink,bullist,undo,code,bibliotag",
     'theme_advanced_buttons2': "",
     'theme_advanced_buttons3': ""
 }

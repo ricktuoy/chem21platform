@@ -11,7 +11,7 @@ import tinymce.models as mceModels
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
-from chem21repo.api_clients import C21RESTRequests
+from chem21repo.api_clients import C21RESTRequests, RESTError
 from chem21repo.drupal import drupal_node_factory
 from datetime import datetime
 from django.conf import settings
@@ -30,8 +30,47 @@ from django.contrib.contenttypes import generic
 from StringIO import StringIO
 
 
-class BaseModel(models.Model):
+class Biblio(models.Model):
+    citekey = models.CharField(max_length=300)
+    title = models.CharField(max_length=500)
+    display_string = models.CharField(max_length=1000)
+    inline_html = models.TextField(null=True, blank=True)
+    footnote_html = models.TextField(null=True, blank=True)
+    unknown = models.BooleanField(default=True)
 
+    def __init__(self, *args, **kwargs):
+        out = super(Biblio, self).__init__(self, *args, **kwargs)
+        if self.unknown:
+            raise Biblio.DoesNotExist
+        return out
+
+    def _get_html_from_drupal(self):
+        if self.unknown:
+            raise Biblio.DoesNotExist
+        try:
+            api = C21RESTRequests()
+            self.inline_html = api.get_endnode_html()['html']
+            self.footnote_html = self.inline_html
+        except RESTError, e:
+            if api.response.status_code == 404:
+                self.unknown = True
+                self.save()
+                raise Biblio.DoesNotExist
+            else:
+                raise e
+
+    def get_inline_html(self):
+        if self.inline_html is None:
+            self._get_html_from_drupal()
+        return self.inline_html
+
+    def get_footnote_html(self):
+        if self.footnote_html is None:
+            self._get_html_from_drupal()
+        return self.footnote_html
+
+
+class BaseModel(models.Model):
     class Meta:
         abstract = True
 
@@ -68,6 +107,7 @@ class TextVersionManager(models.Manager):
             'modified_time': time
         }
         TextVersion.objects.create(**v_args)
+
 
 class TextVersion(OrderedModel):
     objects = TextVersionManager()
@@ -118,8 +158,8 @@ class TextVersion(OrderedModel):
     def get_older_version(self):
         if not self._older_qs:
             self._older_qs = self.original.text_versions.filter(
-                    modified_time__lt=self.modified_time).order_by(
-                    "-modified_time")
+                modified_time__lt=self.modified_time).order_by(
+                "-modified_time")
         try:
             return self._older_qs[0]
         except IndexError:
@@ -128,8 +168,8 @@ class TextVersion(OrderedModel):
     def get_newer_version(self):
         if not self._newer_qs:
             self._newer_qs = self.original.text_versions.filter(
-                    modified_time__gt=self.modified_time).order_by(
-                    "modified_time")
+                modified_time__gt=self.modified_time).order_by(
+                "modified_time")
         try:
             return self._newer_qs[0]
         except IndexError:
@@ -752,7 +792,7 @@ def generate_dirty_record(sender,
 def save_text_version(sender, instance, raw, **kwargs):
     if isinstance(instance, DrupalModel) \
             and not isinstance(instance, UniqueFile):
-        
+
         if kwargs.get("update_fields", False):
             if 'text' not in 'update_fields' and 'intro' not in 'update_fields':
                 return
@@ -760,7 +800,6 @@ def save_text_version(sender, instance, raw, **kwargs):
             return
         if not raw and hasattr(instance, "user"):
             TextVersion.objects.create_for_object(instance)
-
 
 
 @receiver(models.signals.m2m_changed)
