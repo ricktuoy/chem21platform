@@ -16,7 +16,8 @@ class Command(BaseCommand):
         print "*** LESSONS"
         for lesson in Lesson.objects.all():
             try:
-                node = DrupalLesson(id=lesson.remote_id, question_orders=lesson.child_orders)
+                node = DrupalLesson(
+                    id=lesson.remote_id, question_orders=lesson.child_orders)
             except:
                 print "No id"
                 continue
@@ -30,4 +31,8 @@ class Command(BaseCommand):
             except:
                 print "No id"
                 continue
-            api.push(node)
+            try:
+                api.push(node)
+            except:
+                print "Error"
+                pass
