@@ -15,8 +15,12 @@ class Command(BaseCommand):
         print "*** QUESTIONS"
         for question in Question.objects.all():
             if question.has_text_changes():
-                node = DrupalQuestion(
-                    id=question.remote_id, intro=question.text)
+                try:
+                    node = DrupalQuestion(
+                        id=question.remote_id, intro=question.text)
+                except:
+                    print "No id"
+                    continue
                 print node.id
                 print node
                 api.push(node)
@@ -35,7 +39,11 @@ class Command(BaseCommand):
         print "*** LESSONS"
         for lesson in Lesson.objects.all():
             if lesson.has_text_changes():
-                node = DrupalLesson(nid=lesson.remote_id, intro=question.text)
+                try:
+                    node = DrupalLesson(nid=lesson.remote_id, intro=question.text)
+                except:
+                    print "No id"
+                    continue
                 print lesson.title
                 api.push(node)
                 for module in lesson.modules.all():
@@ -48,4 +56,8 @@ class Command(BaseCommand):
         for module in Module.objects.all():
             if module.has_text_changes():
                 print module.name
-                node = DrupalCourse(id=module.remote_id, intro=module.text)
+                try:
+                    node = DrupalCourse(id=module.remote_id, intro=module.text)
+                except:
+                    print "No id"
+                    continue
