@@ -36,7 +36,8 @@ class Biblio(models.Model):
     display_string = models.CharField(max_length=1000)
     inline_html = models.TextField(null=True, blank=True)
     footnote_html = models.TextField(null=True, blank=True)
-    unknown = models.BooleanField(default=True)
+
+    unknown = models.BooleanField(default=False)
 
     def __init__(self, *args, **kwargs):
         out = super(Biblio, self).__init__(self, *args, **kwargs)
@@ -49,15 +50,13 @@ class Biblio(models.Model):
             raise Biblio.DoesNotExist
         try:
             api = C21RESTRequests()
-            self.inline_html = api.get_endnode_html()['html']
+            ret = api.get_endnode_html()
+            self.inline_html = ret[0]['html']
             self.footnote_html = self.inline_html
-        except RESTError, e:
-            if api.response.status_code == 404:
-                self.unknown = True
-                self.save()
-                raise Biblio.DoesNotExist
-            else:
-                raise e
+        except IndexError:
+            self.unknown = True
+            self.save()
+            raise Biblio.DoesNotExist
 
     def get_inline_html(self):
         if self.inline_html is None:
@@ -788,6 +787,13 @@ def generate_dirty_record(sender,
         # instance.drupal.mark_fields_changed(instance.drupal.fields)
 
 
+@receiver(models.signals.pre_save)
+def save_slug(sender, instance, **kwargs):
+    if isinstance(instance, Question) or isinstance(instance, Lesson) or isinstance(instance, Topic) or isinstance(instance, Module):
+        if not instance.slug:
+            instance.slug = slugify(instance.title)
+
+
 @receiver(models.signals.post_save, dispatch_uid="save_text_version")
 def save_text_version(sender, instance, raw, **kwargs):
     if isinstance(instance, DrupalModel) \
@@ -983,9 +989,14 @@ except AttributeError:
 class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     objects = OrderedDrupalManager()
     name = models.CharField(max_length=200)
+    slug = models.CharField(max_length=200, null=True, blank=True)
     code = models.CharField(max_length=10, unique=True)
     remote_id = models.IntegerField(null=True, db_index=True)
     child_attr_name = "modules"
+
+    @property
+    def title(self):
+        return self.name
 
     @property
     def child_orders(self):
@@ -1015,6 +1026,7 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
 class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     objects = OrderedDrupalManager()
     name = models.CharField(max_length=200)
+    slug = models.CharField(max_length=100, blank=True, default="")
     code = models.CharField(max_length=10, unique=True)
     topic = models.ForeignKey(Topic, related_name='modules')
     working = models.BooleanField(default=False)
@@ -1023,6 +1035,10 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     text = mceModels.HTMLField(null=True, blank=True, default="")
     _child_orders = {}
     child_attr_name = "lessons"
+
+    @property
+    def title(self):
+        return self.name
 
     @property
     def topic_remote_id(self):
@@ -1167,6 +1183,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     objects = LessonsInModuleManager()
     modules = models.ManyToManyField(Module, related_name="lessons")
     title = models.CharField(max_length=100, blank=True, default="")
+    slug = models.CharField(max_length=100, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
     text = mceModels.HTMLField(null=True, blank=True, default="")
     _child_orders = {}
@@ -1199,6 +1216,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
 class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     objects = QuestionsInLessonManager()
     title = models.CharField(max_length=100, blank=True, default="")
+    slug = models.CharField(max_length=100, blank=True, default="")
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
     files = models.ManyToManyField(UniqueFile, related_name="questions")
