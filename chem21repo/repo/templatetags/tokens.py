@@ -3,13 +3,15 @@ import re
 from django import template
 from django.template.defaultfilters import stringfilter
 from abc import ABCMeta, abstractproperty, abstractmethod
-from .models import Biblio, UniqueFile
+from chem21repo.repo.models import Biblio, UniqueFile
 
 register = template.Library()
 
 
 class BaseProcessor:
     __metaclass__ = ABCMeta
+    openchar = "\["
+    closechar = "\]"
 
     @abstractproperty
     def pattern(self):
@@ -24,10 +26,9 @@ class BaseProcessor:
         return re.sub(self.pattern, self.repl_function, st)
 
 
-class TokenProcessor:
+class TokenProcessor(BaseProcessor):
     __metaclass__ = ABCMeta
-    openchar = "["
-    closechar = "]"
+
 
     @abstractproperty
     def token_name(self):
@@ -40,7 +41,7 @@ class TokenProcessor:
     @property
     def pattern(self):
         return r'%s%s(.*?)%s' % (self.openchar,
-                                  self.token_name, self.closechar)
+                                 self.token_name, self.closechar)
 
     def repl_function(self, match):
         return None
@@ -48,10 +49,8 @@ class TokenProcessor:
         return self.token_function(*args[1:])
 
 
-class TagProcessor:
+class TagProcessor(BaseProcessor):
     __metaclass__ = ABCMeta
-    openchar = "["
-    closechar = "]"
 
     @abstractproperty
     def tag_name(self):
@@ -67,7 +66,7 @@ class TagProcessor:
         return None
 
     def repl_function(self, match):
-        return self.token_function(match.group(1))
+        return self.tag_function(match.group(1))
 
 
 class BiblioTagProcessor(TagProcessor):
@@ -79,10 +78,11 @@ class BiblioTagProcessor(TagProcessor):
 
     def tag_function(self, st):
         try:
-            bib = Biblio.get(citekey=st)
-            self.bibs.append(bib)
+            bib = Biblio.objects.get(citekey=st)
         except Biblio.DoesNotExist:
-            self.bibs.append("<span class=\"error\">Citekey not found</span>")
+            bib = Biblio(citekey=st)
+            bib.save()
+        self.bibs.append(bib)
         return "<a href=\"#citekey_%s\">[%d]</a>" % (st, len(self.bibs))
 
     def _get_footnote_html(self, bib):
@@ -103,11 +103,10 @@ class BiblioInlineTagProcessor(TagProcessor):
 
     def tag_function(self, st):
         try:
-            bib = Biblio.get(citekey=st)
-            return bib.get_inline_html()
+            bib = Biblio.objects.get(citekey=st)
         except Biblio.DoesNotExist:
-            return "<p class=\"error\">Citekey not found</p>"
-
+            bib = Biblio(citekey=st)
+        return bib.get_inline_html()
 
 class FigureTokenProcessor(TokenProcessor):
     token_name = "figure"
@@ -128,5 +127,5 @@ def replace_tokens(st):
     _registered_processors = [
         BiblioTagProcessor, BiblioInlineTagProcessor, FigureTokenProcessor]
     for processor in _registered_processors:
-        st = processor.apply(st)
+        st = processor().apply(st)
     return st

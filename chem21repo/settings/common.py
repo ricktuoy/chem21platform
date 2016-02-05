@@ -13,6 +13,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'chem21repo.repo',
+    'chem21repo.chem21',
     'require',
     'cachedS3',
     'querystring_parser',

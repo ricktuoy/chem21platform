@@ -20,7 +20,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from filebrowser.sites import site as fbsite
 from repo.views import *
-
+from chem21.views import *
 
 urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
@@ -67,12 +67,13 @@ urlpatterns = [
     url(r'^local/sync/', PullView.as_view(), name="pull_ajax"),
     url(r'^dirty/(?P<object_name>.+)/(?P<id>[0-9]+)/$',
         DirtyView.as_view(), name="dirty"),
-    url(r'^s/(?P<slug>.*)[/]?$', TopicView.as_view(), name="topic_detail"),
-    url(r'^s/(?P<topic_slug>)/(?P<slug>)[/]?$',
+    url(r'^s[/]?$', FrontView.as_view(), name="front"),
+    url(r'^s/(?P<slug>[^/]*)/$', TopicView.as_view(), name="topic"),
+    url(r'^s/(?P<topic_slug>[^/]*)/(?P<slug>[^/]*)/$',
         ModuleView.as_view(), name="module_detail"),
-    url(r'^s/(?P<topic_slug>)/(?P<module_slug>)/(?P<slug>)[/]?$',
+    url(r'^s/(?P<topic_slug>[^/]*)/(?P<module_slug>[^/]*)/(?P<slug>[^/]*)/$',
         LessonView.as_view(), name="lesson_detail"),
-    url(r'^s/(?P<topic_slug>)/(?P<module_slug>)/(?P<lesson_slug>)/(?P<slug>)?$',
+    url(r'^s/(?P<topic_slug>[^/]*)/(?P<module_slug>[^/]*)/(?P<lesson_slug>[^/]*)/(?P<slug>[^/]*)/$',
         QuestionView.as_view(), name="question_detail"),
 ]
 if settings.DEBUG:

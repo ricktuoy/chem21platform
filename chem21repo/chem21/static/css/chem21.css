@@ -1,0 +1,417 @@
+/************* Main header *********/
+
+
+
+#logo {
+	left: 35px !important;
+	top: -7px !important;
+	bottom: -20px !important;
+	margin: 0 !important;
+	transform: none !important;
+	z-index: 9999 !important;
+}
+
+
+
+body.platon-use-slider #site-header {
+	height: 95px !important;
+}
+
+body:not(.platon-use-slider) #site-header {
+	height: 58px;
+}
+
+body.platon-use-slider #logo {
+	top: -3px !important;
+}
+
+body.platon-use-slider #logo img {
+	height: 115px;
+	width: auto;
+}
+
+
+body:not(.platon-use-slider) #logo img {
+	height: 80px;
+	width: auto;
+
+}
+
+
+
+
+/************* Slide images ****************/
+
+
+
+.content .field.field-name-field-slide-image {
+	float: right;
+	width: auto;
+	height: auto;
+	padding: 0.8em;
+	border: 1px solid #ddd;
+	margin-top: 1em;
+}
+
+
+
+.content .field.field-name-field-slide-image blockquote {
+	margin: 0;
+	max-width: 300px;
+}
+
+
+
+.content .field.field-name-field-slide-image blockquote p {
+	margin: 0;
+	padding: 0;
+	font-size: 0.95em;
+	color: #777;
+	width: auto;
+}
+
+
+
+/************ Biblio  **************/
+
+
+
+.biblio-title {
+	font-family: inherit;
+	color: inherit;
+}
+
+
+
+
+
+/************* Lesson nav ************/
+
+
+
+#quiz_progress h2 {
+	display: inline-block;
+	margin: 0 1em 0 0;
+}
+
+
+
+#front-menu {
+	position: relative;
+	top: 285px;
+	z-index:9999999;
+	background-color: #111;
+	opacity: 0.85;
+}
+
+
+
+body.platon-use-slider #second-sidebar #front-menu {
+	position: relative;
+	
+	border: 1px solid black;
+}
+
+
+
+body.platon-use-slider #second-sidebar {
+	min-height: 750px !important;
+}
+
+
+
+body.platon-use-slider #second-sidebar li {
+	min-height: 750px !important;
+}
+
+
+
+body.platon-use-slider #second-sidebar #front-menu li {
+	width: 12.5% !important;
+	overflow-y: hidden;
+	position: static !important;
+	padding: 2%;
+	float: left !important;
+	list-style-type: none;
+	margin: 0;
+	text-align: center;
+	font-weight: bold;
+	text-transform: uppercase;
+	min-height: 200px !important;
+	line-height: 1.1em;
+}
+
+
+
+body.platon-use-slider #second-sidebar #front-menu li a {
+	text-decoration: none;
+	color: #3ebb42;
+}
+
+
+
+body.platon-use-slider #second-sidebar #front-menu li a:hover {
+	color: #3edd42;
+}
+
+
+
+body.platon-use-slider #second-sidebar #front-menu li img {
+	width: 60%;
+	display: block;
+	margin: 0 auto 0.8em auto;
+	border: 8px solid black;
+}
+
+
+
+#front-menu li img {
+	max-width: 100%;
+}
+
+
+
+#front-menu ul {
+	margin: 0;
+	padding: 0;
+}
+
+
+
+body.front #second-sidebar {
+	background-color: #333;
+}
+
+
+
+.reaction-discovery .flow-chart {
+	margin-top: 1em;
+}
+
+
+
+.reaction-discovery .flow-chart tr th {
+	background-color: #776;
+	font-weight: bold;
+}
+
+
+
+.reaction-discovery .flow-chart tr td {
+	background-color: #bca;
+}
+
+
+
+.reaction-discovery .flow-chart tr td:hover
+
+.reaction-discovery .flow-chart tr td.selected {
+	background-color: #ddb;
+	cursor: pointer;
+}
+
+
+
+.reaction-discovery .flow-chart .outcome {
+	font-color: white;
+}
+
+
+
+.reaction-discovery .flow-chart .outcome .success {
+	background-color: #5a5;
+}
+
+
+
+.reaction-discovery .flow-chart .outcome .amend {
+	background-color: #55b;
+}
+
+
+
+
+
+.reaction-discovery .flow-chart .outcome .fail {
+	background-color: #a55;
+}
+
+
+
+#quiz_progress {
+	padding: 1%;
+}
+
+
+
+@media screen and (min-width: 700px) and (max-width: 1199px) {
+    #quiz_progress {
+        width: 70%;
+        float: right;
+    }
+}
+
+
+
+#class_nav {
+	width: 24%;
+	float: left;
+	background-color: #eee;
+	padding: 1%;
+	margin: 0 1% 1% 0;
+	box-shadow: 2px 2px 15px #aaa;
+	border: 1px solid #ccc;
+	border-top: 4px solid #999;
+}
+
+
+
+#class_nav ol {
+	margin: 0;
+	padding: 0 0 0 1em;
+}
+
+
+
+#class_nav ol li {
+	margin: 0;
+}
+
+
+
+#class_nav li li {
+	font-weight: normal;
+}
+
+
+
+#class_nav li li li {
+	font-weight: normal;
+} 
+
+#class_nav ol ol {
+	list-style-type: lower-alpha;
+}
+
+
+
+#class_nav ol ol ol {
+	list-style-type: lower-roman;
+}
+
+
+
+#class_nav li.active, #class_nav li li.active, #class_nav li li li.active {
+	font-weight: bold;
+	color: #555;
+}
+
+
+
+.reaction-discovery .choice td {
+	cursor:pointer;
+}
+
+
+
+
+
+.reaction-discovery .choice td:hover {
+	background-color: #ffc;
+}
+
+
+
+.reaction-discovery .outcome .success {
+	background-color: #7c7;
+}
+
+
+
+.reaction-discovery .outcome .amend {
+	background-color: #77c;
+}
+
+
+
+.reaction-discovery .outcome .fail {
+	background-color: #c77;
+}
+
+
+
+.reaction-discovery th {
+	cursor:pointer;
+}
+
+#quiz_progress {
+	padding: 1%;
+}
+
+
+
+@media screen and (min-width: 700px) and (max-width: 1199px) {
+    #quiz_progress {
+        width: 70%;
+        float: right;
+    }
+}
+
+#class_nav {
+	width: 24%;
+	float: left;
+	background-color: #eee;
+	padding: 1%;
+	margin: 0 1% 1% 0;
+	box-shadow: 2px 2px 15px #aaa;
+	border: 1px solid #ccc;
+	border-top: 4px solid #999;
+}
+
+#class_nav ol {
+	margin: 0;
+	padding: 0 0 0 1.5em;
+}
+
+#class_nav ol ol, #class_nav ol ol ol {
+	margin: 0;
+	padding: 0 0 0 1em;
+}
+
+
+#class_nav ol li {
+	margin: 0;
+}
+
+#class_nav li li {
+	font-weight: normal;
+}
+
+#class_nav li li li {
+	font-weight: normal;
+} 
+#class_nav ol ol {
+	list-style-type: lower-alpha;
+}
+
+#class_nav ol ol ol {
+	list-style-type: upper-roman;
+}
+
+#class_nav li.active, #class_nav li li.active, #class_nav li li li.active {
+	font-weight: bold;
+	color: #555;
+}
+
+#class_nav h3 {
+	color: #333;
+	margin: 0 0 0.5em 0;
+	text-transform: uppercase;
+	border-bottom: 1px solid #888;
+	padding: 0;
+	line-height: 1.1em;
+	letter-spacing: 1px;
+	font-weight: bold;
+	color: #555;
+}
+

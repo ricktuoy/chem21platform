@@ -1,9 +1,10 @@
-{% extends 'base_learning.html' %}
-{% load 'tokens' %}
+{% extends 'chem21/base_learning.html' %}
+{% load tokens %}
 {% block class_nav %}
 <div class="item-list">
 	<ol>
-	{% for module in class_tree %}
+	{{ current_module }}
+	{% for module in class_tree.modules.all %}
 		{% ifequal module current_module %}
 			<li class="active">
 				{{ module.name }}
@@ -11,19 +12,19 @@
 					{% for lesson in module.ordered_lessons %}
 						{% ifequal lesson object %}
 							<li class="active">
-								{{ lesson.name }}
+								{{ lesson.title }}
 								<ol class="active">
-								{% for question in object.ordered_questions %}
-									<li><a href="{{ question.get_absolute_url }}">{{ question.name }}</a></li>
+								{% for question in lesson.ordered_questions %}
+									<li><a href="{% url 'question_detail' topic_slug=class_tree.slug module_slug=module.slug lesson_slug=lesson.slug slug=question.slug %}">{{ question.title }}</a></li>
 								{% endfor %}
 							</ol></li>
 						{% else %}
-							<li><a href="{{ lesson.get_absolute_url }}">{{ lesson.name }}</a></li>				
+							<li><a href="{% url 'lesson_detail' topic_slug=class_tree.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.title }}</a></li>				
 						{% endifequal %}
 					{% endfor %}
 				</ol></div>
 			</li>
-		{% else }
+		{% else %}
 			<li>
 				<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
 			</li>
@@ -33,5 +34,5 @@
 </div>  
 {% endblock %}
 {% block learning_object %}
-{{ object.text|safe|replace_tokens }}
+{{ object.text|replace_tokens|safe }}
 {% endblock %}

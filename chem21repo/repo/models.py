@@ -31,26 +31,19 @@ from StringIO import StringIO
 
 
 class Biblio(models.Model):
-    citekey = models.CharField(max_length=300)
-    title = models.CharField(max_length=500)
-    display_string = models.CharField(max_length=1000)
+    citekey = models.CharField(max_length=300, unique=True)
+    title = models.CharField(max_length=500, blank=True, default="")
+    display_string = models.CharField(max_length=1000, blank=True, default="")
     inline_html = models.TextField(null=True, blank=True)
     footnote_html = models.TextField(null=True, blank=True)
 
     unknown = models.BooleanField(default=False)
 
-    def __init__(self, *args, **kwargs):
-        out = super(Biblio, self).__init__(self, *args, **kwargs)
-        if self.unknown:
-            raise Biblio.DoesNotExist
-        return out
-
     def _get_html_from_drupal(self):
-        if self.unknown:
-            raise Biblio.DoesNotExist
+
         try:
             api = C21RESTRequests()
-            ret = api.get_endnode_html()
+            ret = api.get_endnode_html(self.citekey)
             self.inline_html = ret[0]['html']
             self.footnote_html = self.inline_html
         except IndexError:
@@ -789,7 +782,8 @@ def generate_dirty_record(sender,
 
 @receiver(models.signals.pre_save)
 def save_slug(sender, instance, **kwargs):
-    if isinstance(instance, Question) or isinstance(instance, Lesson) or isinstance(instance, Topic) or isinstance(instance, Module):
+    if isinstance(instance, Question) or isinstance(instance, Lesson) \
+            or isinstance(instance, Topic) or isinstance(instance, Module):
         if not instance.slug:
             instance.slug = slugify(instance.title)
 
@@ -800,7 +794,8 @@ def save_text_version(sender, instance, raw, **kwargs):
             and not isinstance(instance, UniqueFile):
 
         if kwargs.get("update_fields", False):
-            if 'text' not in 'update_fields' and 'intro' not in 'update_fields':
+            if 'text' not in 'update_fields' \
+                    and 'intro' not in 'update_fields':
                 return
         if kwargs.get("created", False):
             return
@@ -818,11 +813,11 @@ def generate_dirty_m2m_record(sender, instance, action,
     if action != "post_add" and action != "post_remove":
         return
     if reverse:
-        #children = [instance, ]
+        # children = [instance, ]
         parents = list(model.objects.filter(pk__in=pk_set))
         parent_model = model
     else:
-        #children = list(model.objects.filter(pk__in=pk_set))
+        # children = list(model.objects.filter(pk__in=pk_set))
         parents = [instance, ]
         parent_model = instance.__class__
     parent_fields = parent_model.drupal.child_fields()
@@ -830,7 +825,7 @@ def generate_dirty_m2m_record(sender, instance, action,
     if parent_fields:
         try:
             for p in parents:
-                #raise Exception("Found a parent")
+                # raise Exception("Found a parent")
                 p.drupal.mark_fields_changed(parent_fields)
                 p.save(update_fields=["dirty", ])
         except:
@@ -1002,7 +997,8 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     def child_orders(self):
         try:
             return dict(
-                (m.remote_id, m.order) for m in self.modules.all() if m.remote_id)
+                (m.remote_id, m.order)
+                for m in self.modules.all() if m.remote_id)
         except ValueError:
             return None
 
@@ -1021,6 +1017,9 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
 
     def __unicode__(self):
         return "%s" % self.name
+
+    def get_absolute_url(self):
+        return reverse('topic', kwargs={'slug': self.slug, })
 
 
 class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
@@ -1055,7 +1054,8 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     def child_orders(self):
         try:
             return dict(
-                (q.remote_id, q.order) for q in self.lessons.all() if q.remote_id)
+                (q.remote_id, q.order)
+                for q in self.lessons.all() if q.remote_id)
         except ValueError:
             return None
 
@@ -1081,6 +1081,12 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
             ("can_publish", "Can publish modules"),
             ("change structure", "Can change module structures"),
         )
+
+    def get_absolute_url(self):
+        return reverse(
+            'module_detail',
+            kwargs={'topic_slug': self.topic.slug,
+                    'slug': self.slug, })
 
 
 class Path(BaseModel, NameUnicodeMixin):
@@ -1200,7 +1206,8 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     def child_orders(self):
         try:
             return dict(
-                (q.remote_id, q.order) for q in self.questions.all() if q.remote_id)
+                (q.remote_id, q.order)
+                for q in self.questions.all() if q.remote_id)
         except ValueError:
             return None
 
@@ -1211,6 +1218,14 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
             q.lessons.add(self)
             q.order = order
             q.save(update_fields=["order", "lessons"])
+
+    @property
+    def current_module(self):
+        return self._current_module
+
+    @current_module.setter
+    def current_module(self, val):
+        self._current_module = val
 
 
 class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
@@ -1235,6 +1250,14 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
         h5p_resources='h5p_resource_dict',
         json_content='json_content'
     )
+
+    def get_absolute_url(self):
+        return reverse(
+            'question_detail',
+            kwargs={'topic_slug': self.current_module.topic.slug,
+                    'module_slug': self.current_module.slug,
+                    'lesson_slug': self.current_lesson.slug,
+                    'slug': self.slug, })
 
     # ##################### Drupal interface attributes ##################
 

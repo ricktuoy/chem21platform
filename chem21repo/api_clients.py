@@ -195,7 +195,7 @@ class C21RESTRequests(DrupalRESTRequests):
         return self.get_json_response()
 
     def get_endnode_html(self, citekey):
-    	self.method_name = "get_endnote_html"
-    	self.response = self._get_auth(
-    		"/biblio/html", params={'citekey': key} )
-
+        self.method_name = "get_endnote_html"
+        self.response = self._get_auth(
+            "/biblio", params={'citekey': citekey})
+        return self.get_json_response()

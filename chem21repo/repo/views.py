@@ -20,6 +20,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import View
 from django.views.generic import DetailView
 from django.views.generic import TemplateView
+from django.views.generic import ListView
 from querystring_parser import parser
 from chem21repo.api_clients import RESTError, RESTAuthError, C21RESTRequests
 from django.contrib.auth.decorators import login_required
@@ -27,55 +28,6 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 from django.http import JsonResponse
-
-
-class LearningView(DetailView):
-
-    def get_context_data(self, **kwargs):
-        context = super(LearningView, self).get_context_data(**kwargs)
-        try:
-            slug = kwargs['topic_slug']
-        except KeyError:
-            slug = kwargs['slug']
-        context['class_tree'] = Topic.objects.filter(
-            slug=slug).prefetch_related(
-            "modules",
-            Prefetch("modules__lessons",
-                     queryset=Lesson.objects.all().order_by('order'),
-                     to_attr="ordered_lessons"),
-            Prefetch("modules__lessons",
-                     queryset=Lesson.objects.all().order_by('order'),
-                     to_attr="ordered_lessons"),
-            Prefetch("modules__ordered_lessons__questions",
-                     queryset=Question.objects.all().order_by(
-                         'order'),
-                     to_attr="ordered_questions"))
-        return context
-
-class TopicView(LearningView):
-    model = Topic
-
-
-class QuestionView(LearningView):
-    def get_queryset(self):
-        self.module = get_object_or_404(
-            Module, slug=self.kwargs['module_slug'])
-        self.lesson = get_object_or_404(
-            Lesson, slug=self.kwargs['lesson_slug'],
-            module=self.module)
-        return Question.objects.filter(lesson=self.lesson)
-
-
-class LessonView(LearningView):
-    def get_queryset(self):
-        self.module = get_object_or_404(
-            Module, slug=self.kwargs['module_slug'])
-        return Lesson.objects.filter(module=self.module)
-
-
-class ModuleView(LearningView):
-    model = Module
-
 
 class LoginRequiredMixin(object):
     @classmethod
