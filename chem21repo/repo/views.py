@@ -16,9 +16,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Prefetch
 from django.http import Http404, HttpResponseBadRequest, HttpResponseServerError
+from django.shortcuts import get_object_or_404
 from django.views.generic import View
 from django.views.generic import DetailView
 from django.views.generic import TemplateView
+from django.views.generic import ListView
 from querystring_parser import parser
 from chem21repo.api_clients import RESTError, RESTAuthError, C21RESTRequests
 from django.contrib.auth.decorators import login_required
@@ -26,7 +28,6 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 from django.http import JsonResponse
-
 
 class LoginRequiredMixin(object):
     @classmethod
@@ -116,7 +117,8 @@ class HomePageView(LoginRequiredMixin, TemplateView):
                      queryset=Lesson.objects.all().order_by('order'),
                      to_attr="ordered_lessons"),
             Prefetch("modules__ordered_lessons__text_versions",
-                     queryset=TextVersion.objects.all().order_by("-modified_time")),
+                     queryset=TextVersion.objects.all().order_by(
+                         "-modified_time")),
             Prefetch("modules__ordered_lessons__text_versions",
                      queryset=TextVersion.objects.filter(
                          user__is_superuser=False).order_by(
@@ -130,7 +132,8 @@ class HomePageView(LoginRequiredMixin, TemplateView):
                      queryset=UniqueFile.objects.all().order_by('type'),
                      to_attr="ordered_files"),
             Prefetch("modules__ordered_lessons__ordered_questions__text_versions",
-                     queryset=TextVersion.objects.all().order_by("-modified_time")),
+                     queryset=TextVersion.objects.all().order_by(
+                         "-modified_time")),
             Prefetch("modules__ordered_lessons__ordered_questions__text_versions",
                      queryset=TextVersion.objects.filter(
                          user__is_superuser=False).order_by(
@@ -503,13 +506,13 @@ class EndnoteUploadView(JQueryFileHandleView):
 
 
 class EndnoteSearchView(JSONView):
-
     def get_context_data(self, **kwargs):
         return C21RESTRequests().search_endnote(kwargs['term'])
 
     def render_to_response(self, *args, **kwargs):
         kwargs['safe'] = False
-        return super(EndnoteSearchView, self).render_to_response(*args, **kwargs)
+        return super(EndnoteSearchView, self).render_to_response(
+            *args, **kwargs)
 
 
 class PushView(BatchProcessView):
@@ -520,6 +523,7 @@ class PushView(BatchProcessView):
         for obj in qs:
             try:
                 success.append(obj.drupal.push())
+                obj.text_versions.all().update()
             except (RESTError, RESTAuthError), e:
                 error.append(str(e))
         return (success, error)
@@ -556,7 +560,8 @@ class StripRemoteIdView(BatchProcessView):
         for obj in qs:
             try:
                 success.append(
-                    {'pk': obj.pk, 'updated': obj.title + str(obj.drupal.strip_remote_id())})
+                    {'pk': obj.pk, 'updated': obj.title + str(
+                        obj.drupal.strip_remote_id())})
             except (RESTError, RESTAuthError), e:
                 error.append(str(e))
         return (success, error)

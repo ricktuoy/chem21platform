@@ -2,9 +2,11 @@
 from chem21repo.repo.models import Lesson
 from chem21repo.repo.models import Module
 from chem21repo.repo.models import Question
+
 from chem21repo.drupal import DrupalQuestion, DrupalLesson, DrupalCourse
 from django.core.management.base import BaseCommand
 from chem21repo.api_clients import C21RESTRequests
+
 
 
 class Command(BaseCommand):
@@ -66,3 +68,4 @@ class Command(BaseCommand):
                 except:
                     print "No id"
                     continue
+

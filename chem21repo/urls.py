@@ -20,7 +20,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from filebrowser.sites import site as fbsite
 from repo.views import *
-
+from chem21.views import *
 
 urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
@@ -58,14 +58,23 @@ urlpatterns = [
     url(r'^files/add/(?P<target_type>.+)/(?P<target_id>[0-9]+)/$',
         AddFileView.as_view(),
         name="add_files"),
-    url(r'version/(?P<pk>[0-9]+)[/]?$', TextVersionView.as_view(), name="version"),
+    url(r'version/(?P<pk>[0-9]+)[/]?$', TextVersionView.as_view(),
+        name="version"),
     url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^local/strip_remote/', StripRemoteIdView.as_view(), name="strip_id"),
     url(r'^push/', PushView.as_view(), name="push_ajax"),
     url(r'^local/clear/', MarkAsCleanView.as_view(), name="clear_ajax"),
     url(r'^local/sync/', PullView.as_view(), name="pull_ajax"),
     url(r'^dirty/(?P<object_name>.+)/(?P<id>[0-9]+)/$',
-        DirtyView.as_view(), name="dirty")
+        DirtyView.as_view(), name="dirty"),
+    url(r'^s[/]?$', FrontView.as_view(), name="front"),
+    url(r'^s/(?P<slug>[^/]*)/$', TopicView.as_view(), name="topic"),
+    url(r'^s/(?P<topic_slug>[^/]*)/(?P<slug>[^/]*)/$',
+        ModuleView.as_view(), name="module_detail"),
+    url(r'^s/(?P<topic_slug>[^/]*)/(?P<module_slug>[^/]*)/(?P<slug>[^/]*)/$',
+        LessonView.as_view(), name="lesson_detail"),
+    url(r'^s/(?P<topic_slug>[^/]*)/(?P<module_slug>[^/]*)/(?P<lesson_slug>[^/]*)/(?P<slug>[^/]*)/$',
+        QuestionView.as_view(), name="question_detail"),
 ]
 if settings.DEBUG:
     import debug_toolbar

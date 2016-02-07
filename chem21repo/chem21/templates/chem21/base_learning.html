@@ -1,0 +1,37 @@
+{% extends 'chem21/base.html' %}
+{% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
+{% block content %}
+{% block sidebar_1 %}
+<div id="first-sidebar" class="col col-2-out-of-2 col-1-out-of-4 col-1-out-of-6">
+	<div id="main-navigation-wrapper">
+	    <div class="row main-navigation-row">
+			<div  id="main-navigation-item-home" class="col col-1-out-of-2 col-2-out-of-4 col-3-out-of-6 main-navigation-item">
+				<a href="/" class="col col-1-out-of-2 col-2-out-of-4 col-3-out-of-6 main-navigation-item"><span>Home</span></a>
+			</div>
+			<div  id="main-navigation-item-training-catalogue" class="col col-1-out-of-2 col-2-out-of-4 col-3-out-of-6 main-navigation-item">
+				<a href="/course-catalogue" class="col col-1-out-of-2 col-2-out-of-4 col-3-out-of-6 main-navigation-item"><span>Training catalogue</span></a>
+			</div>
+		</div>          
+	</div>
+</div>
+{% endblock %}
+{% block sidebar_2 %}
+<div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
+	<div id="breadcrumb">
+		<div class="breadcrumb"><a href="/">Home</a></div>    
+	</div>
+	<div id="title-wrapper">
+    	<h1>{{ object.title }}</h1>
+    </div>
+	<div id="class_nav">
+		<h3>{{ class_tree.title }}</h3>
+		{% block class_nav %}
+		{% endblock %}
+	</div>
+	<div id="opigno-group-progress"></div>
+	{% block learning_object %}
+	{% endblock %}
+</div>
+{% endblock %}
+
+{% endblock %}

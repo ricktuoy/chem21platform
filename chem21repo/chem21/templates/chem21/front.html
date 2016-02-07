@@ -1,0 +1,34 @@
+{% extends 'chem21/base.html' %}
+{% load static from staticfiles %}
+{% load fb_versions %}
+
+{% block content %}
+<div id="site-content">
+  <div class="row">
+  	<div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
+      <div id="title-wrapper">
+        <h1>CHEM21</h1>
+      </div>
+      <div id="content">
+        <ul class="homepage-slider">
+          <li style="background-image: url({% static "slides/lab_f.jpg" %});">
+            <div class="content">
+              <h2>Welcome to the CHEM21 eLearning Platform</h2>
+            </div>
+          </li>
+          <li style="background-image: url({% static "slides/homepage_background_3.jpg" %});">
+            <div class="content">
+              <h2>Welcome to the CHEM21 eLearning Platform</h2>
+            </div>
+          </li>
+        </ul>
+        <ul id="front-menu">
+          {% for topic in object_list %}
+            <li><a href="{{ topic.get_absolute_url }}"><img src="{% version topic.image 'front_menu' %}" alt="{{ topic.title }}" />{{ topic.title }}</a></li>
+          {% endfor %}
+        </ul>      
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

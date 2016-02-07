@@ -13,6 +13,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'chem21repo.repo',
+    'chem21repo.chem21',
     'require',
     'cachedS3',
     'querystring_parser',
@@ -122,7 +123,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 10,
     'theme': "advanced",
-    'theme_advanced_buttons1': "bold,italic,underline,link,unlink,bullist,blockquote,undo,code,#bibliotag",
+    'theme_advanced_buttons1': "bold,italic,underline,link,unlink,bullist,undo,code,bibliotag",
     'theme_advanced_buttons2': "",
     'theme_advanced_buttons3': ""
 }

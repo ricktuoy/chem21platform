@@ -11,7 +11,7 @@ import tinymce.models as mceModels
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
-from chem21repo.api_clients import C21RESTRequests
+from chem21repo.api_clients import C21RESTRequests, RESTError
 from chem21repo.drupal import drupal_node_factory
 from datetime import datetime
 from django.conf import settings
@@ -30,8 +30,39 @@ from django.contrib.contenttypes import generic
 from StringIO import StringIO
 
 
-class BaseModel(models.Model):
+class Biblio(models.Model):
+    citekey = models.CharField(max_length=300, unique=True)
+    title = models.CharField(max_length=500, blank=True, default="")
+    display_string = models.CharField(max_length=1000, blank=True, default="")
+    inline_html = models.TextField(null=True, blank=True)
+    footnote_html = models.TextField(null=True, blank=True)
 
+    unknown = models.BooleanField(default=False)
+
+    def _get_html_from_drupal(self):
+
+        try:
+            api = C21RESTRequests()
+            ret = api.get_endnode_html(self.citekey)
+            self.inline_html = ret[0]['html']
+            self.footnote_html = self.inline_html
+        except IndexError:
+            self.unknown = True
+            self.save()
+            raise Biblio.DoesNotExist
+
+    def get_inline_html(self):
+        if self.inline_html is None:
+            self._get_html_from_drupal()
+        return self.inline_html
+
+    def get_footnote_html(self):
+        if self.footnote_html is None:
+            self._get_html_from_drupal()
+        return self.footnote_html
+
+
+class BaseModel(models.Model):
     class Meta:
         abstract = True
 
@@ -68,6 +99,7 @@ class TextVersionManager(models.Manager):
             'modified_time': time
         }
         TextVersion.objects.create(**v_args)
+
 
 class TextVersion(OrderedModel):
     objects = TextVersionManager()
@@ -118,8 +150,8 @@ class TextVersion(OrderedModel):
     def get_older_version(self):
         if not self._older_qs:
             self._older_qs = self.original.text_versions.filter(
-                    modified_time__lt=self.modified_time).order_by(
-                    "-modified_time")
+                modified_time__lt=self.modified_time).order_by(
+                "-modified_time")
         try:
             return self._older_qs[0]
         except IndexError:
@@ -128,8 +160,8 @@ class TextVersion(OrderedModel):
     def get_newer_version(self):
         if not self._newer_qs:
             self._newer_qs = self.original.text_versions.filter(
-                    modified_time__gt=self.modified_time).order_by(
-                    "modified_time")
+                modified_time__gt=self.modified_time).order_by(
+                "modified_time")
         try:
             return self._newer_qs[0]
         except IndexError:
@@ -748,19 +780,27 @@ def generate_dirty_record(sender,
         # instance.drupal.mark_fields_changed(instance.drupal.fields)
 
 
+@receiver(models.signals.pre_save)
+def save_slug(sender, instance, **kwargs):
+    if isinstance(instance, Question) or isinstance(instance, Lesson) \
+            or isinstance(instance, Topic) or isinstance(instance, Module):
+        if not instance.slug:
+            instance.slug = slugify(instance.title)
+
+
 @receiver(models.signals.post_save, dispatch_uid="save_text_version")
 def save_text_version(sender, instance, raw, **kwargs):
     if isinstance(instance, DrupalModel) \
             and not isinstance(instance, UniqueFile):
-        
+
         if kwargs.get("update_fields", False):
-            if 'text' not in 'update_fields' and 'intro' not in 'update_fields':
+            if 'text' not in 'update_fields' \
+                    and 'intro' not in 'update_fields':
                 return
         if kwargs.get("created", False):
             return
         if not raw and hasattr(instance, "user"):
             TextVersion.objects.create_for_object(instance)
-
 
 
 @receiver(models.signals.m2m_changed)
@@ -773,11 +813,11 @@ def generate_dirty_m2m_record(sender, instance, action,
     if action != "post_add" and action != "post_remove":
         return
     if reverse:
-        #children = [instance, ]
+        # children = [instance, ]
         parents = list(model.objects.filter(pk__in=pk_set))
         parent_model = model
     else:
-        #children = list(model.objects.filter(pk__in=pk_set))
+        # children = list(model.objects.filter(pk__in=pk_set))
         parents = [instance, ]
         parent_model = instance.__class__
     parent_fields = parent_model.drupal.child_fields()
@@ -785,7 +825,7 @@ def generate_dirty_m2m_record(sender, instance, action,
     if parent_fields:
         try:
             for p in parents:
-                #raise Exception("Found a parent")
+                # raise Exception("Found a parent")
                 p.drupal.mark_fields_changed(parent_fields)
                 p.save(update_fields=["dirty", ])
         except:
@@ -821,6 +861,8 @@ class Author(BaseModel, AuthorUnicodeMixin):
             return self.full_name
 
 
+
+
 class UniqueFile(OrderedModel, DrupalModel):
     objects = DrupalManager()
     cut_objects = CutManager()
@@ -852,16 +894,27 @@ class UniqueFile(OrderedModel, DrupalModel):
 
     @property
     def _stripped_ext(self):
-        return self.ext.replace(".", "")
+        try:
+            return self.ext.replace(".", "")
+        except AttributeError:
+            return None
+
+    @property
+    def url(self):
+        return DefaultStorage().url(self.get_file_relative_url())
 
     def get_absolute_url(self):
         return reverse('video_detail', kwargs={'checksum': self.checksum})
 
     def get_file_relative_url(self):
-        return "sources/" + self.checksum + self.ext
+        return "sources/" + self.filename
 
     def get_mime_type(self):
-        return self.type + "/" + self._stripped_ext
+        ext = self._stripped_ext
+        if ext is None:
+            return None
+        else:
+            return self.type + "/" + self._stripped_ext
 
     @property
     def author_string(self):
@@ -876,10 +929,30 @@ class UniqueFile(OrderedModel, DrupalModel):
         except IndexError:
             return out
 
+    def get_module_pks(self):
+        pks = []
+        for q in self.questions.all():
+            for l in q.lessons.all():
+                for m in l.modules.all():
+                    pks.append(m.pk)
+        return pks
+
+    @property
+    def local_paths(self):
+        if not self.pk:
+            return []
+        pks = self.get_module_pks()
+        return [p.name+"/DL_"+self.filename
+                for p in Path.objects.filter(
+                    module__pk__in=pks)]
+
     @property
     def filename(self):
         if self.checksum is None or self.ext is None:
             return None
+        print self.type
+        print self.ext
+        print self.checksum
         return self.checksum + self.ext
 
     @filename.setter
@@ -887,21 +960,27 @@ class UniqueFile(OrderedModel, DrupalModel):
         self.checksum, self.ext = os.path.splitext(val)
         if not self.title:
             self.title = self.checksum
-        if not self.path:
-            # TODO: generate a proper local path
-            # (give a Module to the Path
-            # model ... write a .module attribute for Question and a .question
-            # attribute for this)
+        try:
+            self.path = self.local_paths[0]
+        except IndexError:
             pass
         mime = mimetypes.guess_type(val)
         self.type = mime[0].split("/")[0]
 
+
     @property
     def base64_file(self):
-        if self.path is None:
+        try:
+            path = self.local_paths[0]
+        except IndexError:
             return None
-        with UniqueFile.storage.open(self.path, "rb") as v_file:
-            f = base64.b64encode(v_file.read())
+        try:
+            print path
+            with UniqueFile.storage.open(path, "rb") as v_file:
+                print "Reading %s" % path
+                f = base64.b64encode(v_file.read())
+        except IOError:
+            return None
         if not f:
             return None
         else:
@@ -909,13 +988,24 @@ class UniqueFile(OrderedModel, DrupalModel):
 
     @base64_file.setter
     def base64_file(self, val):
-        if not val or self.path is None:
+        if not val:
+            print "No value supplied ..."
             return
-        with UniqueFile.storage.open(self.path, "wb") as v_file:
-            v_file.write(base64.b64decode(val))
+        for path in self.local_paths:
+
+            if UniqueFile.storage.exists(path):
+                print "Exists: %s" % path
+                continue
+            with UniqueFile.storage.open(path, "wb") as v_file:
+                print "Writing %s" % path
+                v_file.write(base64.b64decode(val))
 
     def get_h5p_path(self):
-        return "videos/" + self.filename
+        fn = self.filename
+        if not fn:
+            return None
+        else:
+            return "videos/" + self.filename
 
     @property
     def h5p_json_content(self):
@@ -944,15 +1034,21 @@ except AttributeError:
 class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     objects = OrderedDrupalManager()
     name = models.CharField(max_length=200)
+    slug = models.CharField(max_length=200, null=True, blank=True)
     code = models.CharField(max_length=10, unique=True)
     remote_id = models.IntegerField(null=True, db_index=True)
     child_attr_name = "modules"
 
     @property
+    def title(self):
+        return self.name
+
+    @property
     def child_orders(self):
         try:
             return dict(
-                (m.remote_id, m.order) for m in self.modules.all() if m.remote_id)
+                (m.remote_id, m.order)
+                for m in self.modules.all() if m.remote_id)
         except ValueError:
             return None
 
@@ -972,18 +1068,28 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     def __unicode__(self):
         return "%s" % self.name
 
+    def get_absolute_url(self):
+        return reverse('topic', kwargs={'slug': self.slug, })
+
 
 class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     objects = OrderedDrupalManager()
     name = models.CharField(max_length=200)
+    slug = models.CharField(max_length=100, blank=True, default="")
     code = models.CharField(max_length=10, unique=True)
     topic = models.ForeignKey(Topic, related_name='modules')
     working = models.BooleanField(default=False)
-    files = models.ManyToManyField(UniqueFile, through='UniqueFilesofModule')
+    files = models.ManyToManyField(UniqueFile,
+                                   through='UniqueFilesofModule',
+                                   related_name="modules")
     remote_id = models.IntegerField(null=True, db_index=True)
     text = mceModels.HTMLField(null=True, blank=True, default="")
     _child_orders = {}
     child_attr_name = "lessons"
+
+    @property
+    def title(self):
+        return self.name
 
     @property
     def topic_remote_id(self):
@@ -1000,7 +1106,8 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     def child_orders(self):
         try:
             return dict(
-                (q.remote_id, q.order) for q in self.lessons.all() if q.remote_id)
+                (q.remote_id, q.order)
+                for q in self.lessons.all() if q.remote_id)
         except ValueError:
             return None
 
@@ -1027,12 +1134,19 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
             ("change structure", "Can change module structures"),
         )
 
+    def get_absolute_url(self):
+        return reverse(
+            'module_detail',
+            kwargs={'topic_slug': self.topic.slug,
+                    'slug': self.slug, })
+
 
 class Path(BaseModel, NameUnicodeMixin):
     name = models.CharField(max_length=800, unique=True)
     topic = models.ForeignKey(Topic, related_name='paths', null=True)
     module = models.ForeignKey(Module, related_name='paths', null=True)
     active = models.BooleanField(default=True)
+
 
 
 class UniqueFilesofModule(OrderedModel):
@@ -1128,6 +1242,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     objects = LessonsInModuleManager()
     modules = models.ManyToManyField(Module, related_name="lessons")
     title = models.CharField(max_length=100, blank=True, default="")
+    slug = models.CharField(max_length=100, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
     text = mceModels.HTMLField(null=True, blank=True, default="")
     _child_orders = {}
@@ -1144,7 +1259,8 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     def child_orders(self):
         try:
             return dict(
-                (q.remote_id, q.order) for q in self.questions.all() if q.remote_id)
+                (q.remote_id, q.order)
+                for q in self.questions.all() if q.remote_id)
         except ValueError:
             return None
 
@@ -1156,10 +1272,19 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
             q.order = order
             q.save(update_fields=["order", "lessons"])
 
+    @property
+    def current_module(self):
+        return self._current_module
+
+    @current_module.setter
+    def current_module(self, val):
+        self._current_module = val
+
 
 class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     objects = QuestionsInLessonManager()
     title = models.CharField(max_length=100, blank=True, default="")
+    slug = models.CharField(max_length=100, blank=True, default="")
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
     files = models.ManyToManyField(UniqueFile, related_name="questions")
@@ -1178,6 +1303,14 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
         h5p_resources='h5p_resource_dict',
         json_content='json_content'
     )
+
+    def get_absolute_url(self):
+        return reverse(
+            'question_detail',
+            kwargs={'topic_slug': self.current_module.topic.slug,
+                    'module_slug': self.current_module.slug,
+                    'lesson_slug': self.current_lesson.slug,
+                    'slug': self.slug, })
 
     # ##################### Drupal interface attributes ##################
 
@@ -1260,9 +1393,12 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
             except AttributeError:
                 pass
         try:
-            self._cached_video = list(self.files.filter(type="video")[:1])[0]
+            self._cached_video = list(self.files.filter(type="video").exclude(remote_id__isnull=True)[:1])[0]
         except (IndexError, ValueError):
-            self._cached_video = None
+            try:
+                self._cached_video = list(self.files.filter(type="video")[:1])[0]
+            except (IndexError, ValueError):
+                self._cached_video = None
         return self._cached_video
 
     def is_h5p(self):

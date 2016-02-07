@@ -154,6 +154,9 @@ class DrupalRESTRequests(object):
                 "Bad response %s from method %s (%s)\n %s" % (
                     self.response, self.response.url,
                     self.method_name, self.response.text))
+        except MemoryError:
+            raise RESTError(
+                "Memory error trying to get JSON from this response")
 
 
 class C21RESTRequests(DrupalRESTRequests):
@@ -190,7 +193,12 @@ class C21RESTRequests(DrupalRESTRequests):
 
     def search_endnote(self, term):
         self.method_name = "search_endnote"
-        # raise Exception(term)
         self.response = self._get_auth(
             "/biblio", params={'term': term})
+        return self.get_json_response()
+
+    def get_endnode_html(self, citekey):
+        self.method_name = "get_endnote_html"
+        self.response = self._get_auth(
+            "/biblio", params={'citekey': citekey})
         return self.get_json_response()

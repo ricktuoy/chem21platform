@@ -23,7 +23,7 @@ class Command(BaseCommand):
                 print "No id"
                 continue
             print api.push(node)
-            
+
         print "*** MODULES"
         for module in Module.objects.all():
             print module.name

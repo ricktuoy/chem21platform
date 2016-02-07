@@ -1,0 +1,27 @@
+{% extends 'chem21/base_learning.html' %}
+ 
+{% block class_nav %}
+<div class="item-list">
+	<ol>
+	{% for module in class_tree.modules.all %}
+		{% ifequal module object %}
+			<li class="active">
+				{{ module.title }}
+				<div class="item-list"><ol class="active">
+					{% for lesson in module.ordered_lessons %}
+						<li><a href="{% url 'lesson_detail' topic_slug=class_tree.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.title }}</a></li>				
+					{% endfor %}
+				</ol></div>
+			</li>
+		{% else %}
+			<li>
+				<a href="{{ module.get_absolute_url }}">{{ module.title }}</a>
+			</li>
+		{% endifequal %}
+	{% endfor %}
+	</ol>
+</div>  
+{% endblock %}
+{% block learning_object %}
+{{ object.text|safe }}
+{% endblock %}
