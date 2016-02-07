@@ -154,6 +154,9 @@ class DrupalRESTRequests(object):
                 "Bad response %s from method %s (%s)\n %s" % (
                     self.response, self.response.url,
                     self.method_name, self.response.text))
+        except MemoryError:
+            raise RESTError(
+                "Memory error trying to get JSON from this response")
 
 
 class C21RESTRequests(DrupalRESTRequests):

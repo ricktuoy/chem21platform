@@ -43,5 +43,15 @@
 <div id="quiz_progress"><h2>{{ object.title }}</h2>(Step {{ object.order }} of {{ num_questions }})</div>
 {% block question %}
 {{ object.text|replace_tokens|safe }}
+{% if object.video %}
+<video width="100%" controls>
+	<source src="{{ object.video.url }}" type="video/mp4" />
+	Your browser does not support the video tag
+</video>
+{% endif %}
+{% if object.pdf %}
+<!-- TODO: display pdf -->
+{% endif %}
+
 {% endblock %}
 {% endblock %}

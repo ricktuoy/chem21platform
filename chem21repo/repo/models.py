@@ -861,6 +861,8 @@ class Author(BaseModel, AuthorUnicodeMixin):
             return self.full_name
 
 
+
+
 class UniqueFile(OrderedModel, DrupalModel):
     objects = DrupalManager()
     cut_objects = CutManager()
@@ -892,16 +894,27 @@ class UniqueFile(OrderedModel, DrupalModel):
 
     @property
     def _stripped_ext(self):
-        return self.ext.replace(".", "")
+        try:
+            return self.ext.replace(".", "")
+        except AttributeError:
+            return None
+
+    @property
+    def url(self):
+        return DefaultStorage().url(self.get_file_relative_url())
 
     def get_absolute_url(self):
         return reverse('video_detail', kwargs={'checksum': self.checksum})
 
     def get_file_relative_url(self):
-        return "sources/" + self.checksum + self.ext
+        return "sources/" + self.filename
 
     def get_mime_type(self):
-        return self.type + "/" + self._stripped_ext
+        ext = self._stripped_ext
+        if ext is None:
+            return None
+        else:
+            return self.type + "/" + self._stripped_ext
 
     @property
     def author_string(self):
@@ -916,10 +929,30 @@ class UniqueFile(OrderedModel, DrupalModel):
         except IndexError:
             return out
 
+    def get_module_pks(self):
+        pks = []
+        for q in self.questions.all():
+            for l in q.lessons.all():
+                for m in l.modules.all():
+                    pks.append(m.pk)
+        return pks
+
+    @property
+    def local_paths(self):
+        if not self.pk:
+            return []
+        pks = self.get_module_pks()
+        return [p.name+"/DL_"+self.filename
+                for p in Path.objects.filter(
+                    module__pk__in=pks)]
+
     @property
     def filename(self):
         if self.checksum is None or self.ext is None:
             return None
+        print self.type
+        print self.ext
+        print self.checksum
         return self.checksum + self.ext
 
     @filename.setter
@@ -927,21 +960,27 @@ class UniqueFile(OrderedModel, DrupalModel):
         self.checksum, self.ext = os.path.splitext(val)
         if not self.title:
             self.title = self.checksum
-        if not self.path:
-            # TODO: generate a proper local path
-            # (give a Module to the Path
-            # model ... write a .module attribute for Question and a .question
-            # attribute for this)
+        try:
+            self.path = self.local_paths[0]
+        except IndexError:
             pass
         mime = mimetypes.guess_type(val)
         self.type = mime[0].split("/")[0]
 
+
     @property
     def base64_file(self):
-        if self.path is None:
+        try:
+            path = self.local_paths[0]
+        except IndexError:
             return None
-        with UniqueFile.storage.open(self.path, "rb") as v_file:
-            f = base64.b64encode(v_file.read())
+        try:
+            print path
+            with UniqueFile.storage.open(path, "rb") as v_file:
+                print "Reading %s" % path
+                f = base64.b64encode(v_file.read())
+        except IOError:
+            return None
         if not f:
             return None
         else:
@@ -949,13 +988,24 @@ class UniqueFile(OrderedModel, DrupalModel):
 
     @base64_file.setter
     def base64_file(self, val):
-        if not val or self.path is None:
+        if not val:
+            print "No value supplied ..."
             return
-        with UniqueFile.storage.open(self.path, "wb") as v_file:
-            v_file.write(base64.b64decode(val))
+        for path in self.local_paths:
+
+            if UniqueFile.storage.exists(path):
+                print "Exists: %s" % path
+                continue
+            with UniqueFile.storage.open(path, "wb") as v_file:
+                print "Writing %s" % path
+                v_file.write(base64.b64decode(val))
 
     def get_h5p_path(self):
-        return "videos/" + self.filename
+        fn = self.filename
+        if not fn:
+            return None
+        else:
+            return "videos/" + self.filename
 
     @property
     def h5p_json_content(self):
@@ -1029,7 +1079,9 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     code = models.CharField(max_length=10, unique=True)
     topic = models.ForeignKey(Topic, related_name='modules')
     working = models.BooleanField(default=False)
-    files = models.ManyToManyField(UniqueFile, through='UniqueFilesofModule')
+    files = models.ManyToManyField(UniqueFile,
+                                   through='UniqueFilesofModule',
+                                   related_name="modules")
     remote_id = models.IntegerField(null=True, db_index=True)
     text = mceModels.HTMLField(null=True, blank=True, default="")
     _child_orders = {}
@@ -1094,6 +1146,7 @@ class Path(BaseModel, NameUnicodeMixin):
     topic = models.ForeignKey(Topic, related_name='paths', null=True)
     module = models.ForeignKey(Module, related_name='paths', null=True)
     active = models.BooleanField(default=True)
+
 
 
 class UniqueFilesofModule(OrderedModel):
@@ -1340,9 +1393,12 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
             except AttributeError:
                 pass
         try:
-            self._cached_video = list(self.files.filter(type="video")[:1])[0]
+            self._cached_video = list(self.files.filter(type="video").exclude(remote_id__isnull=True)[:1])[0]
         except (IndexError, ValueError):
-            self._cached_video = None
+            try:
+                self._cached_video = list(self.files.filter(type="video")[:1])[0]
+            except (IndexError, ValueError):
+                self._cached_video = None
         return self._cached_video
 
     def is_h5p(self):
