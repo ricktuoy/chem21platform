@@ -145,6 +145,7 @@ LOGIN_ERROR_URL = '/login-error/'
 
 SERIALIZATION_MODULES = {
     'json': 'chem21repo.serializers.json',
+    'json-files': 'chem21repo.serializers.json-files'
 }
 
 SOCIAL_AUTH_COMPLETE_URL_NAME = 'socialauth_complete'

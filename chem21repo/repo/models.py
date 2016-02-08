@@ -758,6 +758,10 @@ class DrupalConnector(object):
         raise AttributeError
 
 
+
+
+
+
 @receiver(models.signals.pre_save)
 def generate_dirty_record(sender,
                           instance, raw,
@@ -774,7 +778,6 @@ def generate_dirty_record(sender,
                 instance.drupal.mark_fields_changed(
                     original.drupal.get_field_diff(instance.drupal))
                 return
-
             except:
                 pass
         # instance.drupal.mark_fields_changed(instance.drupal.fields)
@@ -1303,6 +1306,13 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
         h5p_resources='h5p_resource_dict',
         json_content='json_content'
     )
+
+    def save(self, *args, **kwargs):
+        print "Saving question"
+        if getattr(self, 'fixture_files_only', False):
+            print "Updating save only files"
+            kwargs['update_fields'] = ['files', ]
+        super(Question, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse(
