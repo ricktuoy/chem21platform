@@ -4,17 +4,17 @@
 <div class="item-list">
 	<ol>
 	{{ current_module }}
-	{% for module in class_tree.modules.all %}
+	{% for module in class_tree.modules.all|dictsort:"order" %}
 		{% ifequal module current_module %}
 			<li class="active">
 				{{ module.name }}
 				<div class="item-list"><ol class="active">
-					{% for lesson in module.ordered_lessons %}
+					{% for lesson in module.ordered_lessons|dictsort:"order" %}
 						{% ifequal lesson object %}
 							<li class="active">
 								{{ lesson.title }}
 								<ol class="active">
-								{% for question in lesson.ordered_questions %}
+								{% for question in lesson.ordered_questions|dictsort:"order" %}
 									<li><a href="{% url 'question_detail' topic_slug=class_tree.slug module_slug=module.slug lesson_slug=lesson.slug slug=question.slug %}">{{ question.title }}</a></li>
 								{% endfor %}
 							</ol></li>

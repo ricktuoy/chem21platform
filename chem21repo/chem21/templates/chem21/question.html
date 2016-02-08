@@ -3,18 +3,18 @@
 {% block class_nav %}
 <div class="item-list">
 	<ol>
-	{% for module in class_tree.modules.all %}
+	{% for module in class_tree.modules.all|dictsort:"order" %}
 		{% ifequal module current_module %}
 			<li class="active">
 				{{ module.title }}
 				<div class="item-list"><ol class="active">
-					{% for lesson in module.ordered_lessons %}
+					{% for lesson in module.ordered_lessons|dictsort:"order" %}
 						{% ifequal lesson current_lesson %}
 							<li class="active">
 								{{ lesson.title }}
 								<ol class="active">
 
-								{% for question in lesson.ordered_questions %}
+								{% for question in lesson.ordered_questions|dictsort:"order" %}
 									{% ifequal question object %}
 										<li>{{ question.title }}</li>
 										{% else %}
