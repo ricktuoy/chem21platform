@@ -11,11 +11,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}CHEM21: learn online for free{% endblock %}</title>
   {% block styles %}
+
+    <link type="text/css" rel="stylesheet" href="{% static "css/hacks.css" %}" />
+    <link type="text/css" rel="stylesheet" href="{% static "css/reset.css" %}" />
   <link type="text/css" rel="stylesheet" href="{% static "css/styles.css" %}" />
+    <link type="text/css" rel="stylesheet" href="{% static "css/color.css" %}" />
     <link type="text/css" rel="stylesheet" href="{% static "css/opigno_lms.css" %}" />
     <link type="text/css" rel="stylesheet" href="{% static "css/chem21.css" %}" />
   {% endblock %}
   {% block scripts %}
+  <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+  <script src="{% static "js/jquery.cookie.js" %}"></script>
+  <script src="{% static "js/platon.js" %}"></script>
+  <script src="{% static "js/reaction_flow_chart.js" %}"></script>
   <!--[if lt IE 9]>
   <script src="{% static "chem21/js/vendor/html5shiv/html5shiv.js" %}"></script>
   <![endif]-->
@@ -30,7 +38,7 @@
   <header id="site-header">
     <div class="row">
       <div class="col col-2-out-of-2 col-4-out-of-4 col-6-out-of-6 header-user-tools">
-        <a href="{% url "front" %}" id="logo"><img src="{% static logo.url %}" alt="CHEM21"></a>
+        <a href="{% url "front" %}" id="logo"><img src="{% static 'img/logo.png' %}" alt="CHEM21"></a>
         {% block search %}
         <a href="" class="mobile-link-icon">
           <img src="{% static "chem21/img/search-submit.png" %}" />
@@ -46,9 +54,13 @@
     </div>
   </header>
   {% endblock %}
+    <div id="site-content">
+    <div class="row">
   {% block content %}
     
   {% endblock %}
+  </div>
+  </div>
   {% block footer %}
   <footer id="site-footer">
     <div class="row">
