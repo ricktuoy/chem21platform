@@ -82,7 +82,7 @@ create_admin(
     fields=['name', 'code', 'text'],
     hidden_fields=['topic', ],
 )
-create_admin(model=Topic, fields=['name', ])
+create_admin(model=Topic, fields=['name', 'text' ])
 
 
 create_admin(

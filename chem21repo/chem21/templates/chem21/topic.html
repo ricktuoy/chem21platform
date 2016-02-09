@@ -12,9 +12,10 @@
 </div>  
 {% endblock %}
 {% block learning_object %}
-{% if }
+
 <a class="admin-edit" href="{% url opts.topic|admin_urlname:'change' object.pk %}"
 		data-from-url-edit="{% url opts.topic|admin_urlname:'changelist' %}">
 		Edit</a> 
+
 {{ object.text|safe }}
 {% endblock %}

@@ -34,9 +34,11 @@
 </div>  
 {% endblock %}
 {% block learning_object %}
+{% if perms.repo.change_lesson %}
 <a class="admin-edit" href="{% url opts.lesson|admin_urlname:'change' object.pk %}"
 		data-from-url-edit="{% url opts.lesson|admin_urlname:'changelist' %}">
 		Edit</a>
+{% endif %}
 {% if object.text %}
 {{ object.text|replace_tokens|safe }}
 {% endif %}

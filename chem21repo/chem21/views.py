@@ -12,6 +12,10 @@ from django.contrib.contenttypes.models import ContentType
 class LearningView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
+    	class Opt(object):
+            def __init__(self, label, name):
+                self.app_label = label
+                self.model_name = name
         context = super(LearningView, self).get_context_data(**kwargs)
         try:
             slug = self.kwargs['topic_slug']
@@ -39,7 +43,7 @@ class LearningView(DetailView):
                                  Opt(v.app_label, v.model))
                                 for k, v in
                                 ContentType.objects.get_for_models(
-            Module, Topic, UniqueFile, Lesson, Question,
+            Module, Topic, Lesson, Question,
             for_concrete_models=False).iteritems()])
         return context
 

@@ -42,16 +42,20 @@
 	</ol>
 </div>  
 {% endblock %}
-<a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.pk %}"
-		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
-		Edit</a>
+
 {% block learning_object %}
+
 <div id="quiz_progress"><div class="titles"><h2>{{ object.title }}</h2>(Step {{ question_num }} of {{ num_questions }})</div>
 	<nav class="question_nav">{% if prev_question %}<a href="{% url 'question_detail' topic_slug=class_tree.slug module_slug=current_module.slug lesson_slug=current_lesson.slug slug=prev_question.slug %}">&laquo; Previous</a>{% endif %}
 {% if next_question %}<a href="{% url 'question_detail' topic_slug=class_tree.slug module_slug=current_module.slug lesson_slug=current_lesson.slug slug=next_question.slug %}">Next &raquo;</a>{% endif %}
 	</nav>
 </div>
 {% block question %}
+{% if perms.repo.change_question %}
+<a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.pk %}"
+		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
+		Edit</a>
+{% endif %}
 {% if object.text %}
 {{ object.text|replace_tokens|safe }}
 {% endif %}

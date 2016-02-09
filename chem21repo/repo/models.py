@@ -1041,6 +1041,7 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     code = models.CharField(max_length=10, unique=True)
     remote_id = models.IntegerField(null=True, db_index=True)
     child_attr_name = "modules"
+    text = mceModels.HTMLField(null=True, blank=True, default="")
 
     @property
     def title(self):
