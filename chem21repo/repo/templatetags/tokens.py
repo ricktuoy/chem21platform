@@ -43,7 +43,6 @@ class TokenProcessor(BaseProcessor):
                                  self.token_name, self.closechar)
 
     def repl_function(self, match):
-        return None
         args = match.group(1).split(":")
         return self.token_function(*args[1:])
 
