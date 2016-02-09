@@ -1,5 +1,5 @@
 {% extends 'chem21/base_learning.html' %}
- 
+ {% load admin_urls %}
 {% block class_nav %}
 <div class="item-list">
 	<ol>
@@ -23,5 +23,10 @@
 </div>  
 {% endblock %}
 {% block learning_object %}
+<a class="admin-edit" href="{% url opts.module|admin_urlname:'change' object.pk %}"
+		data-from-url-edit="{% url opts.module|admin_urlname:'changelist' %}">
+		Edit</a>
+{% if object.text %}
 {{ object.text|safe }}
+{% endif %}
 {% endblock %}

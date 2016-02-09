@@ -6,6 +6,7 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
+from django.contrib.contenttypes.models import ContentType
 
 
 class LearningView(DetailView):
@@ -34,6 +35,12 @@ class LearningView(DetailView):
             context['current_lesson'] = self.lesson
         except AttributeError:
             pass
+        context['opts'] = dict([(v.model.replace(" ", ""),
+                                 Opt(v.app_label, v.model))
+                                for k, v in
+                                ContentType.objects.get_for_models(
+            Module, Topic, UniqueFile, Lesson, Question,
+            for_concrete_models=False).iteritems()])
         return context
 
 
@@ -59,8 +66,25 @@ class QuestionView(LearningView):
         return Question.objects.filter(lessons=self.lesson)
 
     def get_context_data(self, *args, **kwargs):
-        context = super(QuestionView, self).get_context_data(self, *args, **kwargs)
-        context['num_questions'] = self.lesson.questions.all().count()
+        context = super(QuestionView, self).get_context_data(
+            self, *args, **kwargs)
+        questions = list(self.lesson.questions.all())
+
+        question_pks = [q.pk for q in questions]
+        question_orders = dict(
+            zip(question_pks, range(1, len(questions) + 1)))
+
+        context['num_questions'] = len(questions)
+        qnum = question_orders[context['object'].pk]
+        try:
+            context['prev_question'] = questions[qnum - 2]
+        except IndexError:
+            pass
+        try:
+            context['next_question'] = questions[qnum]
+        except IndexError:
+            pass
+        context['question_num'] = qnum
         return context
 
 

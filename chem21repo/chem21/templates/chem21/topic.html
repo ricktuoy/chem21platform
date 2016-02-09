@@ -1,9 +1,9 @@
 {% extends 'chem21/base_learning.html' %}
- 
+{% load admin_urls %}
 {% block class_nav %}
 <div class="item-list">
 	<ol>
-	{% for module in class_tree.modules.all %}
+	{% for module in class_tree.modules.all|dictsort:"order" %}
 		<li>
 			<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
 		</li>
@@ -12,5 +12,9 @@
 </div>  
 {% endblock %}
 {% block learning_object %}
+{% if }
+<a class="admin-edit" href="{% url opts.topic|admin_urlname:'change' object.pk %}"
+		data-from-url-edit="{% url opts.topic|admin_urlname:'changelist' %}">
+		Edit</a> 
 {{ object.text|safe }}
 {% endblock %}

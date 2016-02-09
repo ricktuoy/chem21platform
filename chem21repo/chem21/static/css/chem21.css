@@ -420,3 +420,49 @@ body.front #second-sidebar {
 	color: #555;
 }
 
+#quiz_progress .titles {
+	float: left;
+}
+
+#quiz_progress {
+	overflow:hidden;
+}
+
+#quiz_progress nav {
+	float: right;
+}
+
+#quiz_progress nav a {
+	display: inline-block;
+	float: left;
+	background-color: #3e7342;
+	border: 1px solid #386535;
+	color: white;
+	width: 100px;
+	height: 27px;
+	margin-right: 10px;
+	text-decoration: none;
+	text-align: center;
+	padding-top: 8px;
+}
+
+#quiz_progress nav a:hover {
+	background-color: #427949;
+
+}
+
+ol.footnotes {
+	background-color: #eee;
+	padding: 1em 1em 1em 2.5em;
+	border: 1px solid #d0d0d0;
+	border-top: 1px solid #bbb;
+}
+
+ol.footnotes li {
+	line-height: 1.1em;
+	margin-bottom: 0.5em;
+}
+
+
+
+

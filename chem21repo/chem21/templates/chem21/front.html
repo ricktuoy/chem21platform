@@ -24,7 +24,7 @@
         </ul>
         <ul id="front-menu">
           {% for topic in object_list %}
-            <li><a href="{{ topic.get_absolute_url }}"><img src="{% version topic.image 'front_menu' %}" alt="{{ topic.title }}" />{{ topic.title }}</a></li>
+            <li><a href="{{ topic.get_absolute_url }}"><img src="{% if topic.image %}{% version topic.image 'front_menu' %}{% else %}{% static "img/logo_square.jpg" %}{% endif %}" alt="{{ topic.title }}" />{{ topic.title }}</a></li>
           {% endfor %}
         </ul>      
       </div>

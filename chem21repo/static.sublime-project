@@ -21,6 +21,9 @@
 		},
 		{
 			"path": "chem21\\static"
+		},
+		{
+			"path": "chem21\\templates\\chem21"
 		}
 	]
 }

@@ -45,14 +45,15 @@ class Command(BaseCommand):
             try:
                 lpath = f.local_paths[0]
             except IndexError:
-                print "No local file for %s"
+                print "No local path for %s"
                 continue
 
             try:
                 with lstorage.open(lpath, 'rb') as lofl:
                     data = lofl.read()
             except IOError:
-                print "No local file for %s"
+                print "Error reading local file for %s"
+                continue
 
             with s3storage.open("sources/%s" % f.filename, 'wb') as s3fl:
                 s3fl.write(data)

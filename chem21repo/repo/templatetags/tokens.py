@@ -29,7 +29,6 @@ class BaseProcessor:
 class TokenProcessor(BaseProcessor):
     __metaclass__ = ABCMeta
 
-
     @abstractproperty
     def token_name(self):
         return None
@@ -73,7 +72,7 @@ class BiblioTagProcessor(TagProcessor):
     tag_name = "bib"
 
     def __init__(self):
-        self.bibs = []
+        self.bibs = {}
         return super(BiblioTagProcessor, self).__init__()
 
     def tag_function(self, st):
@@ -82,7 +81,7 @@ class BiblioTagProcessor(TagProcessor):
         except Biblio.DoesNotExist:
             bib = Biblio(citekey=st)
             bib.save()
-        self.bibs.append(bib)
+        self.bibs[st] = bib
         return "<a href=\"#citekey_%s\">[%d]</a>" % (st, len(self.bibs))
 
     def _get_footnote_html(self, bib):
@@ -91,11 +90,14 @@ class BiblioTagProcessor(TagProcessor):
 
     def get_footnotes_html(self):
         return "<ol class=\"footnotes\">%s</ol>" % "\n".join(
-            [self._get_footnote_html(bib) for bib in self.bibs])
+            [self._get_footnote_html(bib) for key,bib in self.bibs.iteritems()])
 
     def apply(self, st):
         st = super(BiblioTagProcessor, self).apply(st)
-        return st + "<hr />" + self.get_footnotes_html()
+        if self.bibs:
+            return st + self.get_footnotes_html()
+        else:
+            return st
 
 
 class BiblioInlineTagProcessor(TagProcessor):
@@ -107,6 +109,7 @@ class BiblioInlineTagProcessor(TagProcessor):
         except Biblio.DoesNotExist:
             bib = Biblio(citekey=st)
         return bib.get_inline_html()
+
 
 class FigureTokenProcessor(TokenProcessor):
     token_name = "figure"
