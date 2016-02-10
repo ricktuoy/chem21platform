@@ -2,30 +2,23 @@
 {% load tokens %}
 {% load admin_urls %}
 {% block title %} {{ object.title }} :: {{ current_module.title }} :: CHEM21 learning platform{% endblock %}
-{% block display_title %}{{ current_module.title }}: {{ object.title }}{% endblock %}
+{% block display_title %}{% ifequal current_module.slug "-" %}{{ current_module.topic.title }} {% else %} {{ current_module.title }} {% endifequal %}: {{ object.title }}{% endblock %}
 {% block class_nav %}
 <div class="item-list">
 	<ol>
 	{% for module in class_tree.modules.all|dictsort:"order" %}
 		{% ifequal module current_module %}
-			<li class="active">
+			{% ifequal module.slug "-" %}
+				{% include 'chem21/include/active_module_nav.html' with module=module current_lesson=object %}
+			{% else %}
+			<li>
 				<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
-				<div class="item-list"><ol class="active">
-					{% for lesson in module.ordered_lessons|dictsort:"order" %}
-						{% ifequal lesson object %}
-							<li class="active">
-								{{ lesson.title }}
-								<ol class="active">
-								{% for question in lesson.ordered_questions|dictsort:"order" %}
-									<li><a href="{% url 'question_detail' topic_slug=class_tree.slug module_slug=module.slug lesson_slug=lesson.slug slug=question.slug %}">{{ question.title }}</a></li>
-								{% endfor %}
-							</ol></li>
-						{% else %}
-							<li><a href="{% url 'lesson_detail' topic_slug=class_tree.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.title }}</a></li>				
-						{% endifequal %}
-					{% endfor %}
-				</ol></div>
+				<ol>
+				{% include 'chem21/include/active_module_nav.html' with module=module current_lesson=object %}
+				</ol>
 			</li>
+			{% endifequal %}
+			
 		{% else %}
 			<li>
 				<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>

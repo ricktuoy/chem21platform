@@ -16444,7 +16444,7 @@ define('file_listing/main',["jquery", "jquery.colorbox", "jquery.mjs.nestedSorta
                 dest.find("li.mjs-nestedSortable-expanded").map(
                     function() { 
                         return getObjectRef($(this)) 
-                    }).get()));
+                    }).get()),{ path: '/' });
         }
 
         function loadExpandCookie(cookie_name, dest) {
@@ -16472,7 +16472,7 @@ define('file_listing/main',["jquery", "jquery.colorbox", "jquery.mjs.nestedSorta
                         var url = ui.target.closest("li").data("url"+ui.cmd);
                         var from_url = ui.target.closest("li").data("fromUrl"+ui.cmd);
                         var return_on_save = {url: window.location.pathname, fromUrl:from_url}
-                        $.cookie("admin_save_redirect", JSON.stringify(return_on_save));
+                        $.cookie("admin_save_redirect", JSON.stringify(return_on_save),{ path: '/' });
                         window.location = url;
                         break;
                 }
@@ -16505,7 +16505,7 @@ define('file_listing/main',["jquery", "jquery.colorbox", "jquery.mjs.nestedSorta
                         var url = ui.target.closest("li").data("url"+ui.cmd);
                         var from_url = ui.target.closest("li").data("fromUrl"+ui.cmd);
                         var return_on_save = {url: window.location.pathname, fromUrl:from_url}
-                        $.cookie("admin_save_redirect", JSON.stringify(return_on_save));
+                        $.cookie("admin_save_redirect", JSON.stringify(return_on_save), { path: '/' });
                         window.location = url;
                         break;
                     case "Add files":
