@@ -66,6 +66,7 @@
 </video>
 {% endif %}
 {% if object.pdf %}
+<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
 <!-- TODO: display pdf -->
 {% endif %}
 

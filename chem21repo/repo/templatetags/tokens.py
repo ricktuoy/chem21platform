@@ -89,7 +89,8 @@ class BiblioTagProcessor(TagProcessor):
 
     def get_footnotes_html(self):
         return "<ol class=\"footnotes\">%s</ol>" % "\n".join(
-            [self._get_footnote_html(bib) for key,bib in self.bibs.iteritems()])
+            [self._get_footnote_html(bib)
+             for key, bib in self.bibs.iteritems()])
 
     def apply(self, st):
         st = super(BiblioTagProcessor, self).apply(st)

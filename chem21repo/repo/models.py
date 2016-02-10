@@ -187,7 +187,11 @@ def UnicodeMixinFactory(name_field):
 
         def __unicode__(self):
             try:
-                return getattr(self, name_field)
+                n = getattr(self, name_field)
+                if n:
+                    return n
+                else:
+                    return ""
             except TypeError:
                 return " ".join([unicode(getattr(self, field))
                                  for field in name_field])
@@ -617,7 +621,6 @@ class DrupalConnector(object):
             name = self.parent.title
         except AttributeError:
             name = self.parent.name
-        print name
 
         try:
             new_children = self.parent.new_children
@@ -953,9 +956,6 @@ class UniqueFile(OrderedModel, DrupalModel):
     def filename(self):
         if self.checksum is None or self.ext is None:
             return None
-        print self.type
-        print self.ext
-        print self.checksum
         return self.checksum + self.ext
 
     @filename.setter
@@ -978,9 +978,7 @@ class UniqueFile(OrderedModel, DrupalModel):
         except IndexError:
             return None
         try:
-            print path
             with UniqueFile.storage.open(path, "rb") as v_file:
-                print "Reading %s" % path
                 f = base64.b64encode(v_file.read())
         except IOError:
             return None
@@ -992,12 +990,10 @@ class UniqueFile(OrderedModel, DrupalModel):
     @base64_file.setter
     def base64_file(self, val):
         if not val:
-            print "No value supplied ..."
             return
         for path in self.local_paths:
 
             if UniqueFile.storage.exists(path):
-                print "Exists: %s" % path
                 continue
             with UniqueFile.storage.open(path, "wb") as v_file:
                 print "Writing %s" % path
@@ -1294,7 +1290,7 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     files = models.ManyToManyField(UniqueFile, related_name="questions")
     text = mceModels.HTMLField(null=True, blank=True, default="")
     byline = mceModels.HTMLField(null=True, blank=True, default="")
-    pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
+    #pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")
     child_attr_name = "files"
@@ -1308,10 +1304,10 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
         json_content='json_content'
     )
 
+
+
     def save(self, *args, **kwargs):
-        print "Saving question"
         if getattr(self, 'fixture_files_only', False):
-            print "Updating save only files"
             kwargs['update_fields'] = ['files', ]
         super(Question, self).save(*args, **kwargs)
 
@@ -1395,6 +1391,24 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
             raise Exception("Unknown H5P json content")
 
     # ################ Helper attributes ########################
+
+    @property
+    def pdf(self, reset=False):
+        if not reset:
+            try:
+                return self._cached_pdf
+            except AttributeError:
+                pass
+        try:
+            self._cached_pdf = list(self.files.filter(ext=".pdf").exclude(remote_id__isnull=True)[:1])[0]
+        except (IndexError, ValueError):
+            try:
+                self._cached_pdf = list(self.files.filter(ext=".pdf")[:1])[0]
+            except (IndexError, ValueError):
+                self._cached_pdf = None
+        return self._cached_pdf
+
+    
 
     @property
     def video(self, reset=False):

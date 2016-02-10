@@ -7,4 +7,6 @@ $(document).ready(function() {
     	window.location = url;
     	return false;
 	});
+	$("a.embed").gdocsViewer({width: "100%", height: 500});
+	$("a.embed").hide();
 });
