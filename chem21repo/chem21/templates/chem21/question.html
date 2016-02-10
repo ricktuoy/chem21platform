@@ -13,8 +13,9 @@
 				{% ifequal module.slug "-" %}
 					{% include 'chem21/include/active_module_nav.html' with module=module current_question=object %}
 				{% else %}
-				<a href="{{ module.get_absolute_url }}">{{ module.title }}</a>
 				<li class="active">
+				<a href="{{ module.get_absolute_url }}">{{ module.title }}</a>
+				
 				<div class="item-list"><ol class="active">
 					{% include 'chem21/include/active_module_nav.html' with module=module current_question=object %}
 					
