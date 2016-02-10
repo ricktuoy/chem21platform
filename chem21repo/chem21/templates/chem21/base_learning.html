@@ -1,4 +1,6 @@
 {% extends 'chem21/base.html' %}
+
+{% block title %}{{ object.title }} :: CHEM21 learning platform{% endblock %}
 {% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
 {% block content %}
 {% block sidebar_1 %}
@@ -21,7 +23,7 @@
 		<div class="breadcrumb"><a href="/">Home</a></div>    
 	</div>
 	<div id="title-wrapper">
-    	<h1>{{ object.title }}</h1>
+    	<h1>{% block display_title %}{{ object.title }}{% endblock %}</h1>
     </div>
 	<div id="class_nav">
 		<h3>{{ class_tree.title }}</h3>

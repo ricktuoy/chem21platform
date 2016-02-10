@@ -1,6 +1,9 @@
 {% extends 'chem21/base_learning.html' %}
 {% load tokens %}
 {% load admin_urls %}
+
+{% block title %}{{ object.title }} :: {{ current_lesson.title }} :: {{ current_module.title }} :: CHEM21 learning platform{% endblock %}
+{% block display_title %}{{ current_module.title }}: {{ current_lesson.title }}{% endblock %}
 {% block class_nav %}
 <div class="item-list">
 	<ol>
@@ -42,7 +45,6 @@
 	</ol>
 </div>  
 {% endblock %}
-
 {% block learning_object %}
 
 <div id="quiz_progress"><div class="titles"><h2>{{ object.title }}</h2>(Step {{ question_num }} of {{ num_questions }})</div>

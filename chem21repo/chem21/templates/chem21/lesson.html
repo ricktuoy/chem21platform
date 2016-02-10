@@ -1,6 +1,8 @@
 {% extends 'chem21/base_learning.html' %}
 {% load tokens %}
 {% load admin_urls %}
+{% block title %} {{ object.title }} :: {{ current_module.title }} :: CHEM21 learning platform{% endblock %}
+{% block display_title %}{{ current_module.title }}: {{ object.title }}{% endblock %}
 {% block class_nav %}
 <div class="item-list">
 	<ol>
