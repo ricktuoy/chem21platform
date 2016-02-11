@@ -41,7 +41,9 @@
     <div class="row">
       <div class="col col-2-out-of-2 col-4-out-of-4 col-6-out-of-6 header-user-tools">
         <a href="{% url "front" %}" id="logo"><img src="{% static 'img/logo.png' %}" alt="CHEM21"></a>
+        {% if not staticgenerator %}
         <h2 style="float: left; width: 350px; margin-left: 300px; line-height: 1em; margin-top: 10px; font-size: 3em; color: red;">THIS IS THE DRAFT!</h2>
+        {% endif %}
         {% block search %}
         <a href="" class="mobile-link-icon">
           <img src="{% static "chem21/img/search-submit.png" %}" />
@@ -52,11 +54,13 @@
         <div id="header-search">
           {{ search_form }}
         </div>
+        {% if not staticgenerator %}
         <div id="header-login" class="hidden-mobile">
           <div class="link-block-user-login">
           <a href="{% url 'social:begin' backend='google-oauth2' %}">login</a>
           </div>
         </div>
+        {% endif %}
         {% endblock %}
       </div>
     </div>

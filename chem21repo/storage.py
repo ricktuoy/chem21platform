@@ -32,7 +32,7 @@ class S3StaticFileSystem(object):
         return None
 
     def tempfile(self, directory):
-        filename = "TEMP.tmp"
+        filename = "TEMP.html"
         path = os.path.join(directory, filename)
         print "Path %s" % path
         f = self.storage.open(path, 'w')

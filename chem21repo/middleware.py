@@ -32,3 +32,8 @@ class C21AdminMiddleware(object):
             #raise KeyError("Can't find %s in %s" % ("fromUrl", data))
             pass
         return response
+
+class C21StaticGenMiddleware(object):
+	def process_template_response(self, request, response):
+		response.context_data['staticgenerator'] = getattr(request, 'staticgenerator', False)
+		return response
