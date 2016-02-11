@@ -12,7 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 class LearningView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
-    	class Opt(object):
+        class Opt(object):
             def __init__(self, label, name):
                 self.app_label = label
                 self.model_name = name

@@ -13,7 +13,7 @@ class Command(BaseCommand):
         paths = ['/', ]
         for topic in Topic.objects.all():
             paths.append(reverse('topic', kwargs={'slug': topic.slug}))
-            """
+            
             for module in topic.modules.all():
                 paths.append(
                     reverse('module_detail', kwargs={
@@ -31,6 +31,6 @@ class Command(BaseCommand):
 	                                 'module_slug': module.slug,
 	                                 'lesson_slug': lesson.slug,
 	                                 'slug': question.slug}))
-	        """
+	        
 	    gen = StaticGenerator(*paths, fs=S3StaticFileSystem())
         gen.publish()
