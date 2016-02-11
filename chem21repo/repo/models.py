@@ -226,6 +226,7 @@ class DrupalManager(models.Manager):
 class DrupalModel(models.Model):
     dirty = models.TextField(default="[]")
     text_versions = GenericRelation(TextVersion)
+    changed = models.BooleanField(default=False)
 
     def has_text_changes(self, since=None):
         return self.text_versions.exclude(
@@ -1407,8 +1408,6 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
             except (IndexError, ValueError):
                 self._cached_pdf = None
         return self._cached_pdf
-
-    
 
     @property
     def video(self, reset=False):
