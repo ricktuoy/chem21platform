@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 
 class Command(BaseCommand):
     help = 'Print nodes with text changes'
+    leave_locale_alone=True
 
     def handle(self, *args, **options):
         paths = ['/', ]
