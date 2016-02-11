@@ -158,3 +158,5 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = [
     'louise.summerton@york.ac.uk',
     'tom.dugmore@york.ac.uk',
     'sarah.abou-shehada@york.ac.uk']
+
+WEB_ROOT = ''

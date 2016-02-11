@@ -10,6 +10,7 @@ django-grappelli==2.6.5
 django-herokuapp==0.9.20
 django-require==1.0.8
 django-require-s3==1.0.0
+-e git+https://github.com/ricktaylord/django-static-generator.git@8ac91e1a73456b5927186983051c12fcf2c01539#egg=django_staticgenerator-master
 django-storages==1.1.8
 django-tinymce==2.0.6
 -e git+https://github.com/ricktaylord/django-tinymce-biblio.git@1a11c36c8b87d2f6018fabaff8f74b68a2817fd1#egg=django_tinymce_biblio-master
