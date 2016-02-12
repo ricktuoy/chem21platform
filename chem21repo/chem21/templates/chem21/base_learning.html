@@ -1,6 +1,7 @@
 {% extends 'chem21/base.html' %}
+{% load tokens %}
 {% block head %}
-{% if not object.text|striptags and not perms.repo.change_question %}
+{% if not object.text and not perms.repo.change_question %}
 	<meta http-equiv="refresh" content="0;URL={{ object.get_first_child.get_absolute_url }}" /> 
 {% endif %}
 {% endblock %}
@@ -36,7 +37,18 @@
 	</div>
 	<div id="opigno-group-progress"></div>
 	<div id="content" class="has-group-progress">
+	{% block admin_tools %}
+	{% endblock %}
 	{% block learning_object %}
+	{% if object.text %}
+	{% replace_tokens object.text %}
+	{{ tokens_replaced|safe }}
+	{% endif %}
+	{% if footnotes_html %}
+<ol class="footnotes">
+{{ footnotes_html|safe }}
+</ol>
+{% endif %}
 	{% endblock %}
 	</div>
 </div>

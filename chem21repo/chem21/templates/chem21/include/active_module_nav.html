@@ -2,7 +2,14 @@
 						{% ifequal lesson current_lesson %}
 							<li class="active">
 								{% if current_question %}
-									<a href="{% url 'lesson_detail' topic_slug=class_tree.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.title }}</a>
+									
+									{% if lesson.text or perms.repo.change_lesson %}
+			
+								<a href="{% url 'lesson_detail' topic_slug=class_tree.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.title }}</a>
+			
+								{% else %}
+									{{ lesson.title }}
+								{% endif %}
 								{% else %}
 									{{ lesson.title }}
 								{% endif %}

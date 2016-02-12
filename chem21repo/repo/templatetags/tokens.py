@@ -71,7 +71,8 @@ class BiblioTagProcessor(TagProcessor):
     tag_name = "bib"
 
     def __init__(self):
-        self.bibs = {}
+        self.bibs = []
+        self.bibset = set([])
         return super(BiblioTagProcessor, self).__init__()
 
     def tag_function(self, st):
@@ -80,24 +81,21 @@ class BiblioTagProcessor(TagProcessor):
         except Biblio.DoesNotExist:
             bib = Biblio(citekey=st)
             bib.save()
-        self.bibs[st] = bib
-        return "<a href=\"#citekey_%s\">[%d]</a>" % (st, len(self.bibs))
+        if st not in self.bibset:
+            self.bibs.append(bib)
+            self.bibset.add(st)
+        return "<a href=\"#citekey_%d\">[%d]</a>" % (len(self.bibs), len(self.bibs))
 
-    def _get_footnote_html(self, bib):
-        return "<li id=\"#citekey_%s\">%s</li>" % (
-            bib.citekey, bib.get_footnote_html())
+    def _get_footnote_html(self, bib, id):
+        return "<li id=\"citekey_%d\">%s</li>" % (
+            id, bib.get_footnote_html())
 
     def get_footnotes_html(self):
-        return "<ol class=\"footnotes\">%s</ol>" % "\n".join(
-            [self._get_footnote_html(bib)
-             for key, bib in self.bibs.iteritems()])
-
-    def apply(self, st):
-        st = super(BiblioTagProcessor, self).apply(st)
-        if self.bibs:
-            return st + self.get_footnotes_html()
-        else:
-            return st
+        return "\n".join(
+            [self._get_footnote_html(bib, id)
+             for id, bib in
+             zip(
+                range(1, len(self.bibs)+1), self.bibs)])
 
 
 class BiblioInlineTagProcessor(TagProcessor):
@@ -108,6 +106,7 @@ class BiblioInlineTagProcessor(TagProcessor):
             bib = Biblio.objects.get(citekey=st)
         except Biblio.DoesNotExist:
             bib = Biblio(citekey=st)
+            bib.save()
         return bib.get_inline_html()
 
 
@@ -124,11 +123,30 @@ class FigureTokenProcessor(TokenProcessor):
             return "<img src=\"%s\" alt=\"%s\" />" % (fle.url, alt)
 
 
-@register.filter
-@stringfilter
-def replace_tokens(st):
-    _registered_processors = [
-        BiblioTagProcessor, BiblioInlineTagProcessor, FigureTokenProcessor]
-    for processor in _registered_processors:
-        st = processor().apply(st)
-    return st
+class ReplaceTokensNode(template.Node):
+    def __init__(self, text_field):
+        self.text = template.Variable(text_field)
+
+    def render(self, context):
+        txt = self.text.resolve(context)
+        simple_processors = [
+            FigureTokenProcessor(), BiblioInlineTagProcessor(), ]
+        for proc in simple_processors:
+            txt = proc.apply(txt)
+        btag_proc = BiblioTagProcessor()
+        txt = btag_proc.apply(txt)
+        context['footnotes_html'] = btag_proc.get_footnotes_html()
+        context['tokens_replaced'] = txt
+        return ""
+
+
+@register.tag(name="replace_tokens")
+def do_replace_tokens(parser, token):
+    try:
+        tag_name, text_field = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires exactly one argument" % token.contents.split()[
+                0]
+        )
+    return ReplaceTokensNode(text_field)

@@ -57,7 +57,8 @@
 		Edit</a>
 {% endif %}
 {% if object.text %}
-{{ object.text|replace_tokens|safe }}
+{% replace_tokens object.text %}
+{{ tokens_replaced|safe }}
 {% endif %}
 {% if object.video %}
 <video width="100%" controls>
@@ -69,6 +70,10 @@
 <a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
 <!-- TODO: display pdf -->
 {% endif %}
-
+{% if footnotes_html %}
+<ol class="footnotes">
+{{ footnotes_html|safe }}
+</ol>
+{% endif %}
 {% endblock %}
 {% endblock %}
