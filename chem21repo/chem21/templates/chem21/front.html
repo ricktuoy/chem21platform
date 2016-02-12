@@ -10,17 +10,30 @@
         <h1>CHEM21</h1>
       </div>
       <div id="content">
-        <ul class="homepage-slider">
-          <li style="background-image: url({% static "slides/lab_f.jpg" %});">
+        <ul class="slides">
+          <li class="slide" style="background-image: url({% static "slides/homepage_background_3.jpg" %});">
             <div class="content">
-              <h2>Welcome to the CHEM21 eLearning Platform</h2>
+              <h2>Welcome to the CHEM21 online&nbsp;learning&nbsp;platform</h2>
+              <div class="intro">
+              <p> A short introduction (of about a paragraph) will go here.  It will explain who the site is for and what they can hope to get from it.</p>
+              <a href="/about">&raquo; read more about the site</a>
+              </div>
             </div>
           </li>
-          <li style="background-image: url({% static "slides/homepage_background_3.jpg" %});">
+          {% for topic in object_list %}
+          <li class="topic">
             <div class="content">
-              <h2>Welcome to the CHEM21 eLearning Platform</h2>
+            <h2>{{ topic.title }}</h2>
+            <nav class="topic_nav">
+            <ul>
+            {% for module in topic.modules.all %}
+              <li><a href="{{ module.get_absolute_url }}">{{ module.title }}</a></li>
+            {% endfor %}
+            </ul>
+            </nav>
             </div>
           </li>
+          {% endfor %}
         </ul>
         <ul id="front-menu">
           {% for topic in object_list %}

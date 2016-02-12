@@ -32,13 +32,16 @@ class LearningView(DetailView):
                          'order'),
                      to_attr="ordered_questions")).first()
 
-        context['current_topic'] = context['object'].current_topic = context['class_tree']
+        context['current_topic'] = context[
+            'object'].current_topic = context['class_tree']
         try:
-            context['current_module'] = context['object'].current_module = self.module
+            context['current_module'] = context[
+                'object'].current_module = self.module
         except AttributeError:
             pass
         try:
-            context['current_lesson'] = context['object'].current_lesson = self.lesson
+            context['current_lesson'] = context[
+                'object'].current_lesson = self.lesson
         except AttributeError:
             pass
         context['opts'] = dict([(v.model.replace(" ", ""),
@@ -53,6 +56,10 @@ class LearningView(DetailView):
 class FrontView(ListView):
     template_name = "chem21/front.html"
     model = Topic
+
+    def get_queryset(self):
+        return Topic.objects.all().order_by('order').prefetch_related(
+            "modules")
 
 
 class TopicView(LearningView):

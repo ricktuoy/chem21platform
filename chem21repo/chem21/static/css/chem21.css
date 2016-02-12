@@ -102,19 +102,26 @@ body:not(.platon-use-slider) #logo img {
 
 
 #front-menu {
-	position: relative;
-	top: 285px;
 	z-index:9999999;
 	background-color: #111;
 	opacity: 0.85;
 }
 
+body.front {
+	background-color: #333;
+}
 
+body.front #site-footer {
+	background-color: #333;
+}
 
 body.platon-use-slider #second-sidebar #front-menu {
-	position: relative;
-	
-	border: 1px solid black;
+	position: fixed;
+	margin: 0;
+	bottom: 0;
+	width: 100%;
+	padding: 0;
+	border-top: 1px solid black;
 }
 
 
@@ -125,7 +132,7 @@ body.platon-use-slider #second-sidebar {
 
 
 
-body.platon-use-slider #second-sidebar li {
+body.platon-use-slider #second-sidebar>ul li {
 	min-height: 750px !important;
 }
 
@@ -463,6 +470,30 @@ ol.footnotes li {
 	margin-bottom: 0.5em;
 }
 
+body.front ul.slides li.topic {
+	display: none;
+}
 
+body.front ul.slides li.slide .content {
+	top: 22%;
+	
+}
 
+body.front ul.slides li.slide .content h2 {
+	font-size: 2.4em;
+	color: #ffc;
+	line-height: 1.1em;
+	
+}
 
+body.front #second-sidebar ul.slides > li .content {
+	text-align: center;
+	width: 40%;
+}
+
+body.front li .content .intro {
+	background-color: #2f2f2f;
+	padding: 1.7em;
+	font-size: 1.3em;
+
+}
