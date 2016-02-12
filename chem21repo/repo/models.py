@@ -30,6 +30,9 @@ from django.contrib.contenttypes import generic
 from StringIO import StringIO
 
 
+
+
+
 class Biblio(models.Model):
     citekey = models.CharField(max_length=300, unique=True)
     title = models.CharField(max_length=500, blank=True, default="")
@@ -247,9 +250,17 @@ class DrupalModel(models.Model):
     def children(self):
         return getattr(self, self.child_attr_name)
 
+    def get_first_child(self):
+        child = self.children.all().order_by('order').first()
+        child.set_parent(self)
+        return child
+
     @property
     def child_attr_name(self):
         raise AttributeError
+
+    def set_parent(self, parent):
+        return None
 
     @property
     def new_children(self):
@@ -786,7 +797,6 @@ def generate_dirty_record(sender,
                 pass
         # instance.drupal.mark_fields_changed(instance.drupal.fields)
 
-
 @receiver(models.signals.pre_save)
 def save_slug(sender, instance, **kwargs):
     if isinstance(instance, Question) or isinstance(instance, Lesson) \
@@ -971,7 +981,6 @@ class UniqueFile(OrderedModel, DrupalModel):
         mime = mimetypes.guess_type(val)
         self.type = mime[0].split("/")[0]
 
-
     @property
     def base64_file(self):
         try:
@@ -1087,6 +1096,9 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     text = mceModels.HTMLField(null=True, blank=True, default="")
     _child_orders = {}
     child_attr_name = "lessons"
+
+    def set_parent(self, parent):
+        self.current_topic = parent
 
     @property
     def title(self):
@@ -1256,6 +1268,11 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
         question_orders='child_orders',
     )
 
+    def set_parent(self, parent):
+        self.current_topic = parent.topic
+        self.current_module = parent
+
+
     @property
     def child_orders(self):
         try:
@@ -1273,14 +1290,11 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
             q.order = order
             q.save(update_fields=["order", "lessons"])
 
-    @property
-    def current_module(self):
-        return self._current_module
-
-    @current_module.setter
-    def current_module(self, val):
-        self._current_module = val
-
+    def get_absolute_url(self):
+        return reverse('lesson_detail', kwargs={
+                        'topic_slug': self.current_topic.slug,
+                        'module_slug': self.current_module.slug,
+                        'slug': self.slug})
 
 class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     objects = QuestionsInLessonManager()
@@ -1305,7 +1319,10 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
         json_content='json_content'
     )
 
-
+    def set_parent(self, parent):
+        self.current_topic = parent.current_module.topic
+        self.current_module = parent.current_module
+        self.current_lesson = parent
 
     def save(self, *args, **kwargs):
         if getattr(self, 'fixture_files_only', False):
@@ -1315,7 +1332,7 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     def get_absolute_url(self):
         return reverse(
             'question_detail',
-            kwargs={'topic_slug': self.current_module.topic.slug,
+            kwargs={'topic_slug': self.current_topic.slug,
                     'module_slug': self.current_module.slug,
                     'lesson_slug': self.current_lesson.slug,
                     'slug': self.slug, })

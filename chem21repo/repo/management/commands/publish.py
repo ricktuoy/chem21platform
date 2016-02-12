@@ -7,20 +7,18 @@ from django.core.urlresolvers import reverse
 
 
 class Command(BaseCommand):
-    help = 'Print nodes with text changes'
-    leave_locale_alone=True
+    help = 'Publish the site'
+    leave_locale_alone = True
 
     def handle(self, *args, **options):
         paths = ['/', ]
         for topic in Topic.objects.all():
             paths.append(reverse('topic', kwargs={'slug': topic.slug}))
-            
             for module in topic.modules.all():
                 paths.append(
                     reverse('module_detail', kwargs={
                         'topic_slug': topic.slug,
                         'slug': module.slug}))
-                
                 for lesson in module.lessons.all():
                     paths.append(reverse('lesson_detail', kwargs={
                                  'topic_slug': topic.slug,
@@ -32,6 +30,5 @@ class Command(BaseCommand):
                                      'module_slug': module.slug,
                                      'lesson_slug': lesson.slug,
                                      'slug': question.slug}))
-            
         gen = StaticGenerator(*paths, fs=S3StaticFileSystem())
         gen.publish()

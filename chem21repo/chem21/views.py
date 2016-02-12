@@ -31,12 +31,14 @@ class LearningView(DetailView):
                      queryset=Question.objects.all().order_by(
                          'order'),
                      to_attr="ordered_questions")).first()
+
+        context['current_topic'] = context['object'].current_topic = context['class_tree']
         try:
-            context['current_module'] = self.module
+            context['current_module'] = context['object'].current_module = self.module
         except AttributeError:
             pass
         try:
-            context['current_lesson'] = self.lesson
+            context['current_lesson'] = context['object'].current_lesson = self.lesson
         except AttributeError:
             pass
         context['opts'] = dict([(v.model.replace(" ", ""),

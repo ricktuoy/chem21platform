@@ -1,7 +1,11 @@
 					{% for lesson in module.ordered_lessons|dictsort:"order" %}
 						{% ifequal lesson current_lesson %}
 							<li class="active">
-								{{ lesson.title }}
+								{% if current_question %}
+									<a href="{% url 'lesson_detail' topic_slug=class_tree.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.title }}</a>
+								{% else %}
+									{{ lesson.title }}
+								{% endif %}
 								<ol class="active">
 								{% for question in lesson.ordered_questions|dictsort:"order" %}
 									{% ifequal question current_question %}

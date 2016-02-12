@@ -1,5 +1,9 @@
 {% extends 'chem21/base.html' %}
-
+{% block head %}
+{% if not object.text|striptags and not perms.repo.change_question %}
+	<meta http-equiv="refresh" content="0;URL={{ object.get_first_child.get_absolute_url }}" /> 
+{% endif %}
+{% endblock %}
 {% block title %}{{ object.title }} :: CHEM21 learning platform{% endblock %}
 {% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
 {% block content %}
