@@ -34,24 +34,7 @@ $(document).ready(function() {
     }
   });
 
-  // Homepage slider
- 
-  if ($('body.platon-use-slider').length) {
 
-    $('.homepage-slider').slick({
-      fade: true,
-      autoplay: true,
-      autoplaySpeed: 5000,
-      speed: 1000,
-      arrows: false,
-      responsive: true,
-      pauseOnHover: false,
-    });
-
-    $('.homepage-slider').bind('beforeChange', function(event, slick, currentSlide, nextSlide){
-      $('body.platon-use-slider #second-sidebar .slider-footer .slider-counter .top').text(nextSlide + 1);
-    });
-  }
   
 
   // Manage login block display

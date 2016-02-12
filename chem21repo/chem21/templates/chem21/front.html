@@ -21,13 +21,20 @@
             </div>
           </li>
           {% for topic in object_list %}
-          <li class="topic">
+          <li class="topic" data-topic="{{ topic.slug }}">
             <div class="content">
             <h2>{{ topic.title }}</h2>
             <nav class="topic_nav">
             <ul>
             {% for module in topic.modules.all %}
+              {% ifnotequal module.slug "-" %}
               <li><a href="{{ module.get_absolute_url }}">{{ module.title }}</a></li>
+              {% else %}
+              {% for lesson in module.lessons.all %}
+              <li><a href="{% url 'lesson_detail' topic_slug=module.topic.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.title }}</a></li>
+              {% endfor %}
+              {% endifnotequal %}
+              
             {% endfor %}
             </ul>
             </nav>
@@ -37,7 +44,7 @@
         </ul>
         <ul id="front-menu">
           {% for topic in object_list %}
-            <li><a href="{{ topic.get_absolute_url }}"><img src="{% if topic.image %}{% version topic.image 'front_menu' %}{% else %}{% static "img/logo_square.jpg" %}{% endif %}" alt="{{ topic.title }}" />{{ topic.title }}</a></li>
+            <li data-topic="{{ topic.slug }}"><a href="{{ topic.get_absolute_url }}"><img src="{% if topic.image %}{% version topic.image 'front_menu' %}{% else %}{% static "img/logo_square.jpg" %}{% endif %}" alt="{{ topic.title }}" />{{ topic.title }}</a></li>
           {% endfor %}
         </ul>      
       </div>
