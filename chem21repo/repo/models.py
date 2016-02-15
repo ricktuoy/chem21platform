@@ -255,6 +255,12 @@ class DrupalModel(models.Model):
         child.set_parent(self)
         return child
 
+    def get_first_child_url(self):
+        try:
+            return self.get_first_child().get_absolute_url()
+        except:
+            return None
+
     @property
     def child_attr_name(self):
         raise AttributeError
@@ -878,8 +884,6 @@ class Author(BaseModel, AuthorUnicodeMixin):
             return self.full_name
 
 
-
-
 class UniqueFile(OrderedModel, DrupalModel):
     objects = DrupalManager()
     cut_objects = CutManager()
@@ -1159,7 +1163,6 @@ class Path(BaseModel, NameUnicodeMixin):
     topic = models.ForeignKey(Topic, related_name='paths', null=True)
     module = models.ForeignKey(Module, related_name='paths', null=True)
     active = models.BooleanField(default=True)
-
 
 
 class UniqueFilesofModule(OrderedModel):

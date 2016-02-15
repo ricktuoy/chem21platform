@@ -1,7 +1,7 @@
 {% extends 'chem21/base.html' %}
 {% load tokens %}
 {% block head %}
-{% if not object.text and not perms.repo.change_question %}
+{% if not object.text and not object.video and perms.repo.change_question and object.get_first_child %}
 	<meta http-equiv="refresh" content="0;URL={{ object.get_first_child.get_absolute_url }}" /> 
 {% endif %}
 {% endblock %}
