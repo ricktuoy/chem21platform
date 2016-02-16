@@ -288,19 +288,20 @@ class DrupalModel(models.Model):
         return self.get_parent().children
 
     def get_earlier_siblings(self):
-        return self.get_siblings().filter(order__lt=self.order).order_by('order')
+        return self.get_siblings().filter(order__lt=self.order).order_by('-order')
 
     def get_later_siblings(self):
         return self.get_siblings().filter(order__gt=self.order).order_by('order')
 
-    def get_next_object(self):
-        try:
-            ch = self.children.all()[0]
-            if not isinstance(ch,UniqueFile): 
-                ch.set_parent(self)
-                return ch
-        except IndexError:
-            pass
+    def get_next_object(self, check_children=True):
+        if check_children:
+            try:
+                ch = self.children.all()[0]
+                if not isinstance(ch,UniqueFile): 
+                    ch.set_parent(self)
+                    return ch
+            except IndexError:
+                pass
         try:
             sibs = self.get_later_siblings()
         except AttributeError:
@@ -314,7 +315,8 @@ class DrupalModel(models.Model):
         try:
             o = sibs[0]
         except IndexError:
-            return p.get_next_object()
+            return p.get_next_object(check_children=False)
+
         o.set_parent(p)
         return o
 
