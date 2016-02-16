@@ -7,8 +7,16 @@
 }
 
 
+#logo img {
+	max-height: 115px;
+}
+#draft_message {
+    float: left; width: 350px; margin-left: 300px; line-height: 1em; margin-top: 10px; font-size: 3em; color: red; display:none;
+}
+
 #logo {
-	left: 35px !important;
+	
+	left: 0px !important; 
 	top: -7px !important;
 	bottom: -20px !important;
 	margin: 0 !important;
@@ -42,8 +50,32 @@ body:not(.platon-use-slider) #logo img {
 
 }
 
+h1 {
+	font-size: 1.4em;
+	font-weight: bold;
+	color: #666;
+	line-height: 1.1em;
+}
 
 
+
+#title-wrapper {
+	margin: 0;
+}
+
+#site-header .mobile-link-icon  {
+	height: 17px;
+	width: 17px;
+	margin: 0;
+	padding: 15px;
+	background-color: #aaa;
+	background-image: none;
+	border: 1px solid #999;
+}
+
+#site-header .mobile-link-icon:hover {
+	background-color: #777;
+}
 
 /************* Slide images ****************/
 
@@ -75,36 +107,16 @@ body:not(.platon-use-slider) #logo img {
 	width: auto;
 }
 
-
-
-/************ Biblio  **************/
-
-
-
-.biblio-title {
-	font-family: inherit;
-	color: inherit;
-}
-
-
-
-
-
-/************* Lesson nav ************/
-
-
-
-#quiz_progress h2 {
-	display: inline-block;
-	margin: 0 1em 0 0;
-}
-
-
+/****************** Front page ****************/
 
 #front-menu {
 	z-index:9999999;
 	background-color: #111;
 	opacity: 0.85;
+}
+
+body.front #second-sidebar {
+	background-color: #333;
 }
 
 body.front {
@@ -115,6 +127,8 @@ body.front #site-footer {
 	background-color: #333;
 }
 
+
+
 body.platon-use-slider #second-sidebar #front-menu {
 	position: fixed;
 	margin: 0;
@@ -124,146 +138,135 @@ body.platon-use-slider #second-sidebar #front-menu {
 	border-top: 1px solid black;
 }
 
-
-
 body.platon-use-slider #second-sidebar {
 	min-height: 750px !important;
 }
-
-
 
 body.platon-use-slider #second-sidebar>ul li {
 	min-height: 750px !important;
 }
 
-
-
 body.platon-use-slider #second-sidebar #front-menu li {
-	width: 12.5% !important;
+	width: 33.33333% !important;
 	overflow-y: hidden;
 	position: static !important;
-	padding: 2%;
+	padding: 1em 0%;
 	float: left !important;
 	list-style-type: none;
 	margin: 0;
+	font-size: 0.8em;
 	text-align: center;
 	font-weight: bold;
 	text-transform: uppercase;
-	min-height: 200px !important;
+	min-height: 50px !important;
 	line-height: 1.1em;
 }
 
-
+body.platon-use-slider #second-sidebar #front-menu li.row3-start {
+	clear: both;
+}
 
 body.platon-use-slider #second-sidebar #front-menu li a {
 	text-decoration: none;
 	color: #3ebb42;
 }
 
-
-
 body.platon-use-slider #second-sidebar #front-menu li a:hover {
 	color: #3edd42;
 }
 
-
-
 body.platon-use-slider #second-sidebar #front-menu li img {
-	width: 60%;
+	width: 45%;
 	display: block;
 	margin: 0 auto 0.8em auto;
 	border: 8px solid black;
 }
 
-
-
 #front-menu li img {
 	max-width: 100%;
 }
-
-
 
 #front-menu ul {
 	margin: 0;
 	padding: 0;
 }
 
+body.front #front-menu li.hover {
+	background-color: #111;
+}
 
+body.front #second-sidebar ul.slides > li .content {
+	text-align: center;
+	width: 90%;
+	padding: 0 5%;
+}
 
-body.front #second-sidebar {
-	background-color: #333;
+body.front li .content .intro  {
+	background-color: #2f2f2f;
+	padding: 1.7em;
+	font-size: 0.9em;
+}
+
+body.front #front-menu li.hover {
+	background-color: black;
+}
+
+body.front nav {
+	padding: 1.7em 0;
 }
 
 
-
-.reaction-discovery .flow-chart {
-	margin-top: 1em;
+body.front ul.slides li.topic {
+	display: none;
 }
 
-
-
-.reaction-discovery .flow-chart tr th {
-	background-color: #776;
-	font-weight: bold;
+body.front ul.slides li.slide .content {
+	top: 22%;
+	
 }
 
-
-
-.reaction-discovery .flow-chart tr td {
-	background-color: #bca;
+body.front ul.slides li .content h2 {
+	font-size: 1.4em;
+	color: #ffc;
+	line-height: 1.1em;
 }
 
-
-
-.reaction-discovery .flow-chart tr td:hover
-
-.reaction-discovery .flow-chart tr td.selected {
-	background-color: #ddb;
-	cursor: pointer;
+body.front .topic h2 {
+	margin-bottom: 0.1em;
 }
 
-
-
-.reaction-discovery .flow-chart .outcome {
-	font-color: white;
+body.front nav ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
 }
 
-
-
-.reaction-discovery .flow-chart .outcome .success {
-	background-color: #5a5;
+body.front nav li {
+	list-style-type: none;
+	margin: 0.2em 0;
+	background-color: #2f2f2f;
+	
+	padding: 0.5em 0;
+	border: 0;
+	line-height: 1.1em;
 }
 
-
-
-.reaction-discovery .flow-chart .outcome .amend {
-	background-color: #55b;
+body.front nav li:hover {
+	background-color: #222;
 }
 
-
-
-
-
-.reaction-discovery .flow-chart .outcome .fail {
-	background-color: #a55;
+body.front #site-content {
+	margin-top: 95px;
 }
 
+/************ Biblio  **************/
 
-
-#quiz_progress {
-	padding: 1%;
+.biblio-title {
+	font-family: inherit;
+	color: inherit;
 }
 
-
-
-@media screen and (min-width: 700px) and (max-width: 1199px) {
-    #quiz_progress {
-        width: 70%;
-        float: right;
-    }
-}
-
-
+/************* Lesson nav ************/
 
 #class_nav {
 	width: 24%;
@@ -276,26 +279,18 @@ body.front #second-sidebar {
 	border-top: 4px solid #999;
 }
 
-
-
 #class_nav ol {
 	margin: 0;
 	padding: 0 0 0 1em;
 }
 
-
-
 #class_nav ol li {
 	margin: 0;
 }
 
-
-
 #class_nav li li {
 	font-weight: normal;
 }
-
-
 
 #class_nav li li li {
 	font-weight: normal;
@@ -304,110 +299,9 @@ body.front #second-sidebar {
 #class_nav ol ol {
 	list-style-type: lower-alpha;
 }
-
-
 
 #class_nav ol ol ol {
 	list-style-type: lower-roman;
-}
-
-
-
-#class_nav li.active, #class_nav li li.active, #class_nav li li li.active {
-	font-weight: bold;
-	color: #555;
-}
-
-
-
-.reaction-discovery .choice td {
-	cursor:pointer;
-}
-
-
-
-
-
-.reaction-discovery .choice td:hover {
-	background-color: #ffc;
-}
-
-
-
-.reaction-discovery .outcome .success {
-	background-color: #7c7;
-}
-
-
-
-.reaction-discovery .outcome .amend {
-	background-color: #77c;
-}
-
-
-
-.reaction-discovery .outcome .fail {
-	background-color: #c77;
-}
-
-
-
-.reaction-discovery th {
-	cursor:pointer;
-}
-
-#quiz_progress {
-	padding: 1%;
-}
-
-
-
-@media screen and (min-width: 700px) and (max-width: 1199px) {
-    #quiz_progress {
-        width: 70%;
-        float: right;
-    }
-}
-
-#class_nav {
-	width: 24%;
-	float: left;
-	background-color: #eee;
-	padding: 1%;
-	margin: 0 1% 1% 0;
-	box-shadow: 2px 2px 15px #aaa;
-	border: 1px solid #ccc;
-	border-top: 4px solid #999;
-}
-
-#class_nav ol {
-	margin: 0;
-	padding: 0 0 0 1.5em;
-}
-
-#class_nav ol ol, #class_nav ol ol ol {
-	margin: 0;
-	padding: 0 0 0 1em;
-}
-
-
-#class_nav ol li {
-	margin: 0;
-}
-
-#class_nav li li {
-	font-weight: normal;
-}
-
-#class_nav li li li {
-	font-weight: normal;
-} 
-#class_nav ol ol {
-	list-style-type: lower-alpha;
-}
-
-#class_nav ol ol ol {
-	list-style-type: upper-roman;
 }
 
 #class_nav li.active, #class_nav li li.active, #class_nav li li li.active {
@@ -427,8 +321,23 @@ body.front #second-sidebar {
 	color: #555;
 }
 
+
+#quiz_progress h2 {
+	display: inline-block;
+	margin: 0 1em 0 0;
+}
+
+#quiz_progress {
+	font-size: 0.8em;
+	font-weight: normal;
+	padding: 0;
+
+	border-bottom: 1px #226622 solid;
+}
+
 #quiz_progress .titles {
 	float: left;
+	padding: 0.5em;
 }
 
 #quiz_progress {
@@ -436,27 +345,90 @@ body.front #second-sidebar {
 }
 
 #quiz_progress nav {
-	float: right;
+	clear: both;
+	background-color: #262;
+	padding: 0 0.5em;
 }
 
 #quiz_progress nav a {
-	display: inline-block;
-	float: left;
-	background-color: #3e7342;
-	border: 1px solid #386535;
 	color: white;
-	width: 100px;
-	height: 27px;
-	margin-right: 10px;
-	text-decoration: none;
-	text-align: center;
-	padding-top: 8px;
+	font-size: 1.1em;
 }
 
-#quiz_progress nav a:hover {
-	background-color: #427949;
-
+#quiz_progress nav a.next {
+	float: right;
 }
+
+
+
+.breadcrumb {
+	background-color: #f6f6f6;
+	border-bottom: 1px solid #dedede;
+	font-size: 0.85em;
+	padding: 0.2em 0.2em;
+}
+
+/**************** Sarah's Flow Chart of Joy *********/
+
+.reaction-discovery .flow-chart {
+	margin-top: 1em;
+}
+
+.reaction-discovery .flow-chart tr th {
+	background-color: #776;
+	font-weight: bold;
+}
+
+.reaction-discovery .flow-chart tr td {
+	background-color: #bca;
+}
+
+.reaction-discovery .flow-chart tr td.selected {
+	background-color: #ddb;
+	cursor: pointer;
+}
+
+.reaction-discovery .flow-chart .outcome {
+	font-color: white;
+}
+
+.reaction-discovery .flow-chart .outcome .success {
+	background-color: #5a5;
+}
+
+.reaction-discovery .flow-chart .outcome .amend {
+	background-color: #55b;
+}
+
+.reaction-discovery .flow-chart .outcome .fail {
+	background-color: #a55;
+}
+
+.reaction-discovery .choice td {
+	cursor:pointer;
+}
+
+.reaction-discovery .choice td:hover {
+	background-color: #ffc;
+}
+
+.reaction-discovery .outcome .success {
+	background-color: #7c7;
+}
+
+.reaction-discovery .outcome .amend {
+	background-color: #77c;
+}
+
+.reaction-discovery .outcome .fail {
+	background-color: #c77;
+}
+
+.reaction-discovery th {
+	cursor:pointer;
+}
+
+/************** FOOTNOTES *************/
 
 ol.footnotes {
 	background-color: #eee;
@@ -470,73 +442,119 @@ ol.footnotes li {
 	margin-bottom: 0.5em;
 }
 
-body.front ul.slides li.topic {
+#site-content {
+	margin-top: 55px;
+}
+
+#site-header, #site-content {
+	display: block;
+	float: none;
+}
+
+#class_nav {
 	display: none;
 }
 
-body.front ul.slides li.slide .content {
-	top: 22%;
-	
+#front-menu {
+	display: none;
 }
 
-body.front ul.slides li .content h2 {
-	font-size: 2.4em;
-	color: #ffc;
-	line-height: 1.1em;
-	
+#second-sidebar {
+	padding-top: 10px;
 }
 
-body.front #front-menu li.hover {
-	background-color: #111;
+@media screen and (min-width: 800px) {
+	#logo {
+		left: 25px !important; 
+	}
+
+	#quiz_progress nav {
+		float: right;
+		clear: none;
+		background-color: transparent;
+		padding: 0;
+		margin-top: 0.5em;
+	}
+
+	#quiz_progress nav a.next {
+		float: none;
+	}
+
+	#quiz_progress nav a {
+		display: inline-block;
+		float: left;
+		background-color: #3e7342;
+		border: 1px solid #386535;
+		color: white;
+		width: 100px;
+		margin-right: 10px;
+		text-decoration: none;
+		text-align: center;
+		padding: 4px 0;
+	}
+
+	#quiz_progress nav a:hover {
+		background-color: #427949;
+	}
+
+
+	#title-wrapper {
+		margin: 0.5em;
+	}
+
+	#draft_message {
+		display: block;
+	}
+	body.front #site-content, #site-content {
+		margin-top: 0;
+	}
+
+	#class_nav {
+		display: block;
+	}
+
+	#front-menu {
+		display: block;
+	}
+
+	body.front nav li {
+		float: left;
+		width: 47%;
+	}
+
+	body.front nav li.odd {
+		margin-right: 6%;
+		clear: both;
+	}
+	body.platon-use-slider #second-sidebar #front-menu li.row3-start {
+		clear: none;
+	}
+
+	body.front #second-sidebar ul.slides > li .content {
+		width: 60%;
+		padding: 0 20%;
+		font-size: 1.2em;
+	}
+	body.platon-use-slider #second-sidebar #front-menu li {
+		width: 16.6667% !important;
+	}
 }
+
+@media screen and (min-width: 1400px) {
+	#logo {
+		left: 35px !important; 
+	}
 
 body.front #second-sidebar ul.slides > li .content {
-	text-align: center;
-	width: 40%;
+		font-size: 1.3em;
+		width: 50%;
+		padding: 0 25%;
+	}
+body.front #second-sidebar ul.slides > li .content h2 {
+	font-size: 2em;
+}
+	body.front li .content .intro {
+		margin: 2em 5%;
+	}
 }
 
-body.front li .content .intro  {
-	background-color: #2f2f2f;
-	padding: 1.7em;
-	font-size: 1.3em;
-	
-}
-
-body.front #front-menu li.hover {
-	background-color: black;
-}
-
-body.front nav {
-	padding: 1.7em 0;
-	font-size: 1.15em;
-}
-
-body.front .topic h2 {
-	margin-bottom: 0.1em;
-}
-
-body.front nav ul {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-}
-
-body.front nav li {
-	list-style-type: none;
-	padding: 0.3em 0;
-	margin: 0.1em 0;
-	background-color: #2f2f2f;
-	width: 45%;
-	border: 0;
-	float: left;
-}
-
-body.front nav li.odd {
-	clear: both;
-	
-	margin-right: 9%;
-}
-
-body.front nav li:hover {
-	background-color: #222;
-}

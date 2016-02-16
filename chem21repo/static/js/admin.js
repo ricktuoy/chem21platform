@@ -15,21 +15,49 @@ $(document).ready(function() {
 	function get_topic_menu_item(topic) {
 		return $("#front-menu li[data-topic=\""+topic+"\"]", "body.front");
 	}
-
-	$("#front-menu li", "body.front").on("mouseenter", function(e) {
+	function show_topic_menu(topic_el)  {
 		$("#front-menu li", "body.front").each(function() {
 			$(this).removeClass("hover");
 		});
-		$(this).addClass("hover");
-		var topic = get_topic_panel($(this).data("topic"));
+		topic_el.addClass("hover");
+		var topic = get_topic_panel(topic_el.data("topic"));
 		$(".topic, .slide","body.front").hide();
 		topic.show();
+	}
+	$("#front-menu", "body.front").on("mouseenter", "li", function(e) {
+		if(!$("#front-menu").hasClass("mobile-opened"))  {  
+			show_topic_menu($(this));
+		}
+	});
+	$("#front-menu", "body.front").on("click", "li a", function(e) {
+		var li = $(this).closest("li");
+		var menu = $(this).closest("#front-menu");
+		if(menu.hasClass("mobile-opened"))  { 
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			show_topic_menu(li);
+			//menu.removeClass("mobile-opened");
+			//menu.slideUp();
+		}
 	});
 	$(".topic:visible .content ul", "body.front").on("mouseleave", function(e) {
 		var menu_item = get_topic_menu_item($(this).data("topic"));
 		menu_item.removeClass("hover");
 		$(".topic, .slide","body.front").hide();
 		$(".topic, .slide","body.front").show();
+	});
+
+	$("#menu-toggle-link").on("click", function() {
+		if($("body").hasClass("front")) {
+			var menu = $("#front-menu");
+			if(!menu.hasClass("mobile-opened")) {
+				menu.addClass("mobile-opened");
+				menu.slideDown();
+			} else {
+				menu.removeClass("mobile-opened");
+				menu.slideUp();
+			}
+		}
 	});
 
 });

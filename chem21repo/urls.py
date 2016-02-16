@@ -76,8 +76,9 @@ urlpatterns = [
     url(r'^(?P<topic_slug>[^/]*)/(?P<module_slug>[^/]*)/(?P<lesson_slug>[^/]*)/(?P<slug>[^/]*)/$',
         QuestionView.as_view(), name="question_detail"),
 ]
+
 if settings.DEBUG:
     import debug_toolbar
-    urlpatterns += patterns('',
-                            url(r'^__debug__/', include(debug_toolbar.urls)),
-                            )
+    urlpatterns = patterns('',
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ) + urlpatterns

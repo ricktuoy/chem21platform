@@ -3,8 +3,7 @@
 {% load fb_versions %}
 
 {% block content %}
-<div id="site-content">
-  <div class="row">
+
   	<div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
       <div id="title-wrapper">
         <h1>CHEM21</h1>
@@ -45,11 +44,15 @@
         </ul>
         <ul id="front-menu">
           {% for topic in object_list %}
-            <li data-topic="{{ topic.slug }}"><a href="{{ topic.get_absolute_url }}"><img src="{% if topic.image %}{% version topic.image 'front_menu' %}{% else %}{% static "img/logo_square.jpg" %}{% endif %}" alt="{{ topic.title }}" />{{ topic.title }}</a></li>
+            <li data-topic="{{ topic.slug }}" {% if forloop.counter0|divisibleby:3 %}class="row3-start"{% endif %}>
+            <a href="{{ topic.get_absolute_url }}">
+            <img src="{% if topic.image %}{% version topic.image 'front_menu' %}
+            {% else %}
+              {% static "img/logo_square.jpg" %}
+            {% endif %}" alt="{{ topic.title }}" />{{ topic.title }}</a></li>
           {% endfor %}
         </ul>      
       </div>
     </div>
-  </div>
-</div>
+
 {% endblock %}

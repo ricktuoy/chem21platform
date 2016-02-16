@@ -10,25 +10,18 @@ class Command(BaseCommand):
     help = 'Publish the site'
     leave_locale_alone = True
 
-    def handle(self, *args, **options):
-        paths = ['/', ]
-        for topic in Topic.objects.all():
-            paths.append(reverse('topic', kwargs={'slug': topic.slug}))
-            for module in topic.modules.all():
-                paths.append(
-                    reverse('module_detail', kwargs={
-                        'topic_slug': topic.slug,
-                        'slug': module.slug}))
-                for lesson in module.lessons.all():
-                    paths.append(reverse('lesson_detail', kwargs={
-                                 'topic_slug': topic.slug,
-                                 'module_slug': module.slug,
-                                 'slug': lesson.slug}))
-                    for question in lesson.questions.all():
-                        paths.append(reverse('question_detail', kwargs={
-                                     'topic_slug': topic.slug,
-                                     'module_slug': module.slug,
-                                     'lesson_slug': lesson.slug,
-                                     'slug': question.slug}))
+    def publish_learning_object(self, obj):
+        paths = obj.get_url_list()
         gen = StaticGenerator(*paths, fs=S3StaticFileSystem())
+        gen.publish()
+
+    def handle(self, *args, **options):
+        paths = frozenset(['/', ])
+        lobj_classes = [Topic, Module, Lesson, Question]
+
+        for klass in lobj_classes:
+            for lobj in klass.objects.all():
+                paths += frozenset(lobj.get_url_list())
+
+        gen = StaticGenerator(*list(paths), fs=S3StaticFileSystem())
         gen.publish()

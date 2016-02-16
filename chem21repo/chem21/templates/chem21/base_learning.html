@@ -25,7 +25,7 @@
 {% block sidebar_2 %}
 <div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
 	<div id="breadcrumb">
-		<div class="breadcrumb"><a href="/">Home</a></div>    
+		<div class="breadcrumb"><a href="/">Home</a> > {% for crumb in breadcrumbs %}<a href="{{ crumb.get_absolute_url }}">{{ crumb.title }}</a> > {% endfor %}{{ object.title }}</div>    
 	</div>
 	<div id="title-wrapper">
     	<h1>{% block display_title %}{{ object.title }}{% endblock %}</h1>
@@ -39,6 +39,16 @@
 	<div id="content" class="has-group-progress">
 	{% block admin_tools %}
 	{% endblock %}
+	{% block progress %}
+<div id="quiz_progress">
+{% block progress_title %}
+<div class="titles"><h2>Introduction</h2></div>
+{% endblock progress_title %}
+	<nav class="question_nav">{% if previous %}<a href="{{ previous.get_absolute_url }}">&laquo; Previous</a>{% endif %}
+{% if next %}<a class="next" href="{{ next.get_absolute_url }}">Next &raquo;</a>{% endif %}
+	</nav>
+</div>
+{% endblock %}
 	{% block learning_object %}
 	{% if object.text %}
 	{% replace_tokens object.text %}

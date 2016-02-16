@@ -1045,7 +1045,7 @@ a.edit-small-pictogram:hover,
 .edit-small-pictogram a:hover {
     color: transparent
 }
-@media screen and (min-width: 1200px) {
+@media screen and (min-width: 800px) {
     #opigno-group-progress {
         max-width: 28%;
         min-width: 28%;

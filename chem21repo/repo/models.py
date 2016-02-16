@@ -266,8 +266,79 @@ class DrupalModel(models.Model):
         raise AttributeError
 
     def set_parent(self, parent):
+        self._parent = parent
         return None
 
+    def get_parent(self):
+        return self._parent
+
+
+    def get_ancestors(self):
+        try:
+            par = self.get_parent()
+        except AttributeError:
+            return []
+        if not par:
+            return ["??",]
+        if par.slug=="-":
+            return par.get_ancestors()
+        return par.get_ancestors() + [self.get_parent(), ]
+
+    def get_siblings(self):
+        return self.get_parent().children
+
+    def get_earlier_siblings(self):
+        return self.get_siblings().filter(order__lt=self.order).order_by('order')
+
+    def get_later_siblings(self):
+        return self.get_siblings().filter(order__gt=self.order).order_by('order')
+
+    def get_next_object(self):
+        try:
+            ch = self.children.all()[0]
+            if not isinstance(ch,UniqueFile): 
+                ch.set_parent(self)
+                return ch
+        except IndexError:
+            pass
+        try:
+            sibs = self.get_later_siblings()
+        except AttributeError:
+            logging.debug("NO FACKING PARENT - next :/ %s" % self.title)
+            return None
+        p = self.get_parent()
+        try:
+            p.current_module = self.current_module
+        except:
+            pass
+        try:
+            o = sibs[0]
+        except IndexError:
+            return p.get_next_object()
+        o.set_parent(p)
+        return o
+
+
+    def get_previous_object(self):
+        try:
+            sibs = self.get_earlier_siblings()
+        except AttributeError:
+            logging.debug("NO FACKING PARENT - prev :/ %s" % self.title)
+            return None
+        p = self.get_parent()
+        try:
+            p.current_module = self.current_module
+        except:
+            pass
+        try:
+            o = sibs[0]
+        except IndexError:
+            if p.slug == "-":
+                return p.get_previous_object()
+            return p
+        o.set_parent(p)
+        return o
+            
     @property
     def new_children(self):
         return self.children.filter(remote_id__isnull=True)
@@ -276,6 +347,7 @@ class DrupalModel(models.Model):
         r = super(DrupalModel, self).__init__(*args, **kwargs)
         self.drupal.instantiate(self)
         self.fixture_mode = False
+        self._parent = None
         return r
 
     class Meta:
@@ -1053,6 +1125,9 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     child_attr_name = "modules"
     text = mceModels.HTMLField(null=True, blank=True, default="")
 
+    def get_parent(self):
+        raise AttributeError
+
     @property
     def title(self):
         return self.name
@@ -1085,6 +1160,8 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     def get_absolute_url(self):
         return reverse('topic', kwargs={'slug': self.slug, })
 
+    def get_url_list(self):
+        return [self.get_absolute_url(), ]
 
 class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     objects = OrderedDrupalManager()
@@ -1102,7 +1179,11 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     child_attr_name = "lessons"
 
     def set_parent(self, parent):
+        super(Module, self).set_parent(parent)
         self.current_topic = parent
+
+    def get_parent(self):
+        return self.topic
 
     @property
     def title(self):
@@ -1156,6 +1237,9 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
             'module_detail',
             kwargs={'topic_slug': self.topic.slug,
                     'slug': self.slug, })
+
+    def get_url_list(self):
+        return [self.get_absolute_url(), ]
 
 
 class Path(BaseModel, NameUnicodeMixin):
@@ -1272,9 +1356,12 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     )
 
     def set_parent(self, parent):
+        super(Lesson, self).set_parent(parent)
         self.current_topic = parent.topic
         self.current_module = parent
 
+    def get_parent(self):
+        return self.current_module
 
     @property
     def child_orders(self):
@@ -1295,9 +1382,24 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
 
     def get_absolute_url(self):
         return reverse('lesson_detail', kwargs={
-                        'topic_slug': self.current_topic.slug,
+                        'topic_slug': self.current_module.topic.slug,
                         'module_slug': self.current_module.slug,
                         'slug': self.slug})
+
+    def get_url_list(self):
+        urls = []
+        for module in self.modules.all():
+            self.current_module = module
+            self.current_topic = module.topic
+            urls.append(self.get_absolute_url())
+        return urls
+
+    def get_touched_url_list(self, fields_changed=None):
+        urls = []
+        for module in self.modules.all():
+            pass
+        return urls
+
 
 class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     objects = QuestionsInLessonManager()
@@ -1308,7 +1410,6 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     files = models.ManyToManyField(UniqueFile, related_name="questions")
     text = mceModels.HTMLField(null=True, blank=True, default="")
     byline = mceModels.HTMLField(null=True, blank=True, default="")
-    #pdf = models.ForeignKey(UniqueFile, null=True, related_name="pdf_question")
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")
     child_attr_name = "files"
@@ -1323,9 +1424,14 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     )
 
     def set_parent(self, parent):
+        super(Question, self).set_parent(parent)
         self.current_topic = parent.current_module.topic
         self.current_module = parent.current_module
         self.current_lesson = parent
+        self.current_lesson.set_parent(self.current_module)
+
+    def get_parent(self):
+        return self.current_lesson
 
     def save(self, *args, **kwargs):
         if getattr(self, 'fixture_files_only', False):
@@ -1335,10 +1441,42 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     def get_absolute_url(self):
         return reverse(
             'question_detail',
-            kwargs={'topic_slug': self.current_topic.slug,
+            kwargs={'topic_slug': self.current_module.topic.slug,
                     'module_slug': self.current_module.slug,
                     'lesson_slug': self.current_lesson.slug,
                     'slug': self.slug, })
+
+    def get_url_list(self):
+        urls = []
+        for lesson in self.lessons.all():
+            for module in lesson.modules.all():
+                self.current_lesson = lesson
+                self.current_module = module
+                self.current_topic = module.topic
+                urls.append(self.get_absolute_url())
+        return urls
+
+    def get_touched_url_list(self, fields_changed=None):
+        urls = []
+        if fields_changed is None or 'title' in fields_changed \
+                or 'slug' in fields_changed:
+            lessons = self.lessons.all()
+            for lesson in lessons:
+                for module in lesson.modules.all():
+                    lesson.current_module = module
+                    lesson.current_topic = module.topic
+                    if lesson.slug == "-":
+                        urls.append(module.get_absolute_url())
+                    urls.append(lesson.get_absolute_url())
+                    for question in lesson.questions.all():
+                        question.current_lesson = lesson
+                        question.current_module = module
+                        question.current_topic = module.topic
+                        urls.append(question.get_absolute_url())
+        return urls
+
+
+
 
     # ##################### Drupal interface attributes ##################
 
