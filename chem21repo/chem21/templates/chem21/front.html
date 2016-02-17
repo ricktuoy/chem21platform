@@ -8,6 +8,9 @@
       <div id="title-wrapper">
         <h1>CHEM21</h1>
       </div>
+      <div id="front-back">
+      <a href="#" title="Back">&laquo;</a>
+      </div>
       <div id="content">
         <ul class="slides">
           <li class="slide" style="background-image: url({% static "slides/homepage_background_3.jpg" %});">
@@ -17,6 +20,8 @@
               <p> A short introduction (of about a paragraph) will go here.  It will explain who the site is for and what they can hope to get from it.</p>
               <a href="/about">&raquo; read more about the site</a>
               </div>
+              <div class="cta">
+              <p><a id="give_feedback" href="#">Feedback on this page</a></p>
             </div>
           </li>
           {% for topic in object_list %}
@@ -53,6 +58,12 @@
           {% endfor %}
         </ul>      
       </div>
+    
     </div>
 
+
+{% endblock %}
+{% block footer %}
+
+        {% include 'chem21/disqus.html' %}
 {% endblock %}

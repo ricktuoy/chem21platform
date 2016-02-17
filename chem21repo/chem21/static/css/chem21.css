@@ -245,7 +245,6 @@ body.front nav li {
 	list-style-type: none;
 	margin: 0.2em 0;
 	background-color: #2f2f2f;
-	
 	padding: 0.5em 0;
 	border: 0;
 	line-height: 1.1em;
@@ -253,6 +252,26 @@ body.front nav li {
 
 body.front nav li:hover {
 	background-color: #222;
+}
+
+body.front #front-back {
+	position:fixed;
+	top: 15px;
+	right: 75px;
+	font-size: 125px;
+	background-color: #555;
+	line-height: 47px;
+	z-index: 9999;
+	padding: 0 10px;
+	border: 1px solid #666;
+}
+
+body.front #front-back a {
+
+		vertical-align: 20px;
+
+	color: #ffc;
+	text-decoration: none;
 }
 
 body.front #site-content {
@@ -463,6 +482,99 @@ ol.footnotes li {
 	padding-top: 10px;
 }
 
+nav#end-nav {
+	text-align: center;
+}
+
+nav#end-nav div.next {
+	background-color: #444;
+	color: white;
+	padding: 1em;
+	font-size: 1.1em;
+	margin-bottom: 0;
+	margin-top: 1em;
+}
+
+nav#end-nav div.next a {
+	color:white;
+}
+
+nav#end-nav span.next {
+	font-weight: bold;
+}
+
+nav#end-nav div.back {
+color: #666;
+	background-color: #efefef;
+	
+	padding: 0.1em 1em;
+	font-size: 1em;
+	border-bottom: 1px solid #999;
+	margin-bottom: 2em;
+}
+nav#end-nav div.back a {
+color: #666;
+}
+
+body.front #front-back {
+	display: none;
+}
+
+
+body.front #disqus_thread iframe {
+	width: 600px !important;
+	min-width: 600px !important;
+	position: fixed !important;
+	top: 150px;
+	right: 50px;
+	z-index: 999999;
+	background-color: #222;
+	padding: 1em;
+}
+
+@media screen and (max-width: 799px) {
+	#class_nav {
+		float: none;
+		width: 100%;
+		box-shadow: none;
+		background-color: #333;
+		border: 0;
+		padding: 0 !important;
+
+	}
+
+	#class_nav li {
+		color: #efefef !important;
+	}
+
+	#class_nav h3 {
+		padding: 0.1em 0.5em;
+		border-top: 1px solid #888;
+		border-bottom: 1px solid #888;
+		background-color: #444;
+		color: #fafafa;
+	}
+
+	#class_nav a {
+		color: #eee;
+	}
+	
+	#class_nav .item-list {
+		padding-left: 1em;
+		padding-bottom: 1em;
+	}
+
+	#class_nav .item-list .item-list .item-list {
+		padding: 0;
+	}
+
+	#give_feedback {
+		display: none;
+	}
+
+}
+
+
 @media screen and (min-width: 800px) {
 	#logo {
 		left: 25px !important; 
@@ -537,6 +649,12 @@ ol.footnotes li {
 	}
 	body.platon-use-slider #second-sidebar #front-menu li {
 		width: 16.6667% !important;
+	}
+	
+	body.front #front-back {
+	top: 150px;
+	left: 8%;
+	right: auto;
 	}
 }
 

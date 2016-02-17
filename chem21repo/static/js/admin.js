@@ -23,6 +23,7 @@ $(document).ready(function() {
 		var topic = get_topic_panel(topic_el.data("topic"));
 		$(".topic, .slide","body.front").hide();
 		topic.show();
+		$("#front-back","body.front").fadeIn();
 	}
 	$("#front-menu", "body.front").on("mouseenter", "li", function(e) {
 		if(!$("#front-menu").hasClass("mobile-opened"))  {  
@@ -40,14 +41,11 @@ $(document).ready(function() {
 			//menu.slideUp();
 		}
 	});
-	$(".topic:visible .content ul", "body.front").on("mouseleave", function(e) {
-		var menu_item = get_topic_menu_item($(this).data("topic"));
-		menu_item.removeClass("hover");
-		$(".topic, .slide","body.front").hide();
-		$(".topic, .slide","body.front").show();
-	});
 
-	$("#menu-toggle-link").on("click", function() {
+
+	$("#menu-toggle-link").on("click", function(e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
 		if($("body").hasClass("front")) {
 			var menu = $("#front-menu");
 			if(!menu.hasClass("mobile-opened")) {
@@ -57,6 +55,52 @@ $(document).ready(function() {
 				menu.removeClass("mobile-opened");
 				menu.slideUp();
 			}
+		} else {
+			var nav = $("#class_nav");
+			if(!nav.hasClass("mobile-opened")) {
+				nav.addClass("mobile-opened");
+				nav.slideDown();
+			} else {
+				nav.removeClass("mobile-opened");
+				nav.slideUp();
+			}
+
+		}
+	});
+
+	if($("body").hasClass("front")) {
+		// hide disqus
+		console.debug("Hiding ....");
+		console.debug($("#disqus_thread"));
+		$("#disqus_thread").hide();
+	}
+
+	$("body.front").on("click","#give_feedback",function(e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		if($(this).hasClass("activated")) {
+			$(this).removeClass("activated");
+			$(this).text("Feedback on this page");
+			$("#disqus_thread, #disqus_thread iframe").hide();
+		} else {
+			$(this).addClass("activated");
+			$("#disqus_thread iframe").css("width",600);
+			$("#disqus_thread iframe").css("min-width",600);
+			$(this).text("Hide feedback");
+			$("#disqus_thread, #disqus_thread iframe").show();
+		}
+	});
+
+	$("body.front").on("click","#front-back",function(e) {
+		$(this).fadeOut("fast");
+		$("#front-menu li", "body.front").each(function() {
+			$(this).removeClass("hover");
+		});
+		$(".topic","body.front").hide();
+		$(".slide","body.front").show();
+		if($("#front-menu").hasClass("mobile-opened"))  {
+			$("#front-menu").slideUp();
+			$("#front-menu").removeClass("mobile-opened");
 		}
 	});
 

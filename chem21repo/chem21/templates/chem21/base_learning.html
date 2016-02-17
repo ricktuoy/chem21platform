@@ -54,14 +54,24 @@
 	{% replace_tokens object.text %}
 	{{ tokens_replaced|safe }}
 	{% endif %}
+	{% block bottom_nav %}
+	<nav id="end-nav">
+	
+	{% if next %}<div class="next"><span class="next">Next</span> &raquo; <a class="next" href="{{ next.get_absolute_url }}">{{ next.title }} </a></div>{% endif %}
+	{% if previous %}<div class="back"><span class="next">Back</span> &laquo; <a class="prev" href="{{ previous.get_absolute_url}}" title="{{ previous.get_absolute_url }}">{{ previous.title }}</a></div>{% endif %}
+	</nav>
+	{% endblock %}
 	{% if footnotes_html %}
 <ol class="footnotes">
 {{ footnotes_html|safe }}
 </ol>
 {% endif %}
+
 	{% endblock %}
+	{% include 'chem21/disqus.html' %}
 	</div>
 </div>
 {% endblock %}
 
+{{ block.super }}
 {% endblock %}
