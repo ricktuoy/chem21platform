@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
         for klass in lobj_classes:
             for lobj in klass.objects.all():
-                paths += frozenset(lobj.get_url_list())
+                paths |= frozenset(lobj.get_url_list())
 
         gen = StaticGenerator(*list(paths), fs=S3StaticFileSystem())
         gen.publish()
