@@ -18,6 +18,7 @@ INSTALLED_APPS = (
     'cachedS3',
     'querystring_parser',
     'tinymce',
+    'revproxy',
     'bibliotag',
     'social.apps.django_app.default',
 )

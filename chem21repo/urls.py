@@ -67,6 +67,7 @@ urlpatterns = [
     url(r'^local/sync/', PullView.as_view(), name="pull_ajax"),
     url(r'^dirty/(?P<object_name>.+)/(?P<id>[0-9]+)/$',
         DirtyView.as_view(), name="dirty"),
+    url(r'^s3/(?P<path>.*)$', S3ProxyView.as_view(), name="s3_proxy"),
     url(r'^[/]?$', FrontView.as_view(), name="front"),
     url(r'^(?P<slug>[^/]*)/$', TopicView.as_view(), name="topic"),
     url(r'^(?P<topic_slug>[^/]*)/(?P<slug>[^/]*)/$',

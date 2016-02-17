@@ -21,13 +21,18 @@ from django.views.generic import View
 from django.views.generic import DetailView
 from django.views.generic import TemplateView
 from django.views.generic import ListView
+from django.conf import settings
 from querystring_parser import parser
 from chem21repo.api_clients import RESTError, RESTAuthError, C21RESTRequests
 from django.contrib.auth.decorators import login_required
-
+from revproxy.views import ProxyView
+from django.http import JsonResponse
 # Create your views here.
 
-from django.http import JsonResponse
+
+class S3ProxyView(ProxyView):
+    upstream = settings.S3_URL
+
 
 class LoginRequiredMixin(object):
     @classmethod
