@@ -4,7 +4,7 @@ DATABASES = {
     "default": dj_database_url.config(default='postgres://localhost'),
 }
 
-REQUIRE_BUILD_PROFILE = 'chem21repo.build.js'
+REQUIRE_BUILD_PROFILE = '../chem21repo.dev.build.js'
 # Use Amazon S3 for static files storage.
 STATIC_URL = S3_URL +"/"
 TINYMCE_JS_URL = "/s3/tiny_mce/tiny_mce.js"
