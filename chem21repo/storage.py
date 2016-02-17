@@ -13,7 +13,7 @@ class TinyMCEProxyCachedS3BotoStorage(OptimizedCachedStaticFilesStorage):
 		url = super(TinyMCEProxyCachedS3BotoStorage, self).url(*args, **kwargs)
 		if "tiny_mce" in url or "tinymce" in url:
 			url = reverse("s3_proxy", path=url.replace(settings.S3_URL+"/", ""))
-			url = "FUCK YOU"
+			# url = "FUCK YOU"
 		return url
 
 
