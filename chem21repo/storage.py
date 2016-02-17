@@ -6,11 +6,12 @@ import grp
 import tempfile
 from django.core.files.storage import DefaultStorage
 from django.core.urlresolvers import reverse
+from require_s3.storage import OptimizedCachedStaticFilesStorage
 
-class TinyMCEProxyCachedS3BotoStorage(CachedS3BotoStorage):
+class TinyMCEProxyCachedS3BotoStorage(OptimizedCachedStaticFilesStorage):
 	def url(self, *args, **kwargs):
 		url = super(TinyMCEProxyCachedS3BotoStorage, self).url(*args, **kwargs)
-		if ("tiny_mce" in url or "tinymce" in url) and (".html" in url or ".htm" in url):
+		if ("tiny_mce" in url or "tinymce" in url):
 			url = reverse("s3_proxy", path=url.replace(settings.S3_URL+"/", ""))
 		return url
 
@@ -24,7 +25,7 @@ try:
 except AttributeError:
     pass
 
-SiteRootS3BotoStorage = lambda: TinyMCEProxyCachedS3BotoStorage(location='site/')
+SiteRootS3BotoStorage = lambda: CachedS3BotoStorage(location='site/')
 
 
 class S3StaticFileSystem(object):
