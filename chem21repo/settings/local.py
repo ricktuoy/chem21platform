@@ -17,6 +17,8 @@ ALLOWED_HOSTS = ['localhost', "10.0.2.2", "10.0.2.2:8080",
 
 REQUIRE_BUILD_PROFILE = '../chem21repo.dev.build.js'
 
+TINYMCE_JS_URL = "/s3/tiny_mce/tiny_mce.js"
+
 INTERNAL_IPS = ("localhost", "10.0.2.2", "10.0.2.2:8080",
                 "127.0.0.1", "localhost:8080", "127.0.0.1:8080")
 
