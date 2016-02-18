@@ -27,6 +27,7 @@ from chem21repo.api_clients import RESTError, RESTAuthError, C21RESTRequests
 from django.contrib.auth.decorators import login_required
 from revproxy.views import ProxyView
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 
@@ -42,6 +43,11 @@ class LoginRequiredMixin(object):
             return view
         return login_required(view)
 
+class CSRFExemptMixin(object)
+	@classmethod
+    def as_view(cls, **initkwargs):
+        view = super(CSRFExemptMixin, cls).as_view(**initkwargs)
+        return csrf_exempt(view)
 
 class JSONResponseMixin(LoginRequiredMixin):
 
@@ -436,7 +442,7 @@ class BatchProcessView(View):
              'error': errors}, status=code)
 
 
-class AttachUniqueFileView(View):
+class AttachUniqueFileView(View, CSRFExemptMixin):
 
     def get_post_dict_from_request(self, request):
         try:
