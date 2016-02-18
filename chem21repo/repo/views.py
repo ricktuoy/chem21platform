@@ -436,6 +436,40 @@ class BatchProcessView(View):
              'error': errors}, status=code)
 
 
+class AttachUniqueFileView(View):
+
+    def get_post_dict_from_request(self, request):
+        try:
+            return self._post_dict
+        except AttributeError:
+            self._post_dict = parser.parse(request.POST.urlencode())
+            return self._post_dict
+
+    def get_module_from_request(self, request):
+        kwargs = get_post_dict_from_request(request)
+        return Modules.objects.get(code=kwargs['code'])
+
+    def get_uniquefiles_from_request(self, request):
+        kwargs = get_post_dict_from_request(request)
+        for fd in kwargs['files']:
+            defaults = {'ext': fd['ext'], 'type': fd['type'], 'title':fd['title']}
+            fo, created = UniqueFile.get_or_create(
+                checksum=fd['checksum'], defaults=defaults)
+            if not created:
+                fo.ext = fd['ext']
+                fo.type = fd['type']
+                fo.title = fd['title'] 
+                fo.save()
+            yield fo
+
+    def post(self, request, *args, **kwargs):
+        mod = self.get_module_from_request(request)
+        for f in self.get_uniquefiles_from_request(request):
+            mod.files.add(f)
+        return JsonResponse(
+            {'module': mod.title, }, status=200)
+
+
 class JQueryFileHandleView(LoginRequiredMixin, View):
     __metaclass__ = ABCMeta
 
@@ -521,7 +555,6 @@ class EndnoteSearchView(JSONView):
 
 
 class PushView(BatchProcessView):
-
     def process_queryset(self, qs):
         error = []
         success = []
