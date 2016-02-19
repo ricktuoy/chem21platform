@@ -54,6 +54,10 @@
 <a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.pk %}"
 		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
 		Edit</a>
+	{% if object.video %}
+	<a class="admin-edit" href="{% url opts.uniquefile|admin_urlname:'change' object.video.pk %}"
+			data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">Edit video attributes</a>
+	{% endif %}
 {% endif %}
 {% if object.text %}
 {% replace_tokens object.text %}
@@ -67,11 +71,9 @@
 </video>
 <figcaption class="overlay">
 {% if object.byline|striptags %}
-
 {{ object.byline|safe }}
-
 {% else %}
-Presentation by <span class="byline">{{ object.author_string }}</span></figcaption>
+Presentation by <span class="byline">{{ object.video.author_string }}</span></figcaption>
 {% endif %}
 </figcaption>
 </figure>

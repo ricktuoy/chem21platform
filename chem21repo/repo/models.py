@@ -985,7 +985,12 @@ class UniqueFile(OrderedModel, DrupalModel):
     #    return super(UniqueFile, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
-        return self.path
+        if self.path:
+        	return self.path
+        elif self.title:
+        	return self.title
+        else:
+        	return self.checksum
 
     @property
     def _stripped_ext(self):
