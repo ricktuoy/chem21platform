@@ -462,7 +462,7 @@ class AttachUniqueFileView(CSRFExemptMixin, View):
         kwargs = self.get_post_dict_from_request(request)
         for fd in json.loads(kwargs['files']):
             defaults = {'ext': fd['ext'], 'type': fd['type'], 'title':fd['title']}
-            fo, created = UniqueFile.get_or_create(
+            fo, created = UniqueFile.objects.get_or_create(
                 checksum=fd['checksum'], defaults=defaults)
             if not created:
                 fo.ext = fd['ext']
@@ -474,7 +474,8 @@ class AttachUniqueFileView(CSRFExemptMixin, View):
     def post(self, request, *args, **kwargs):
         mod = self.get_module_from_request(request)
         for f in self.get_uniquefiles_from_request(request):
-            mod.files.add(f)
+            ufm, created = UniqueFilesofModule.objects.get_or_create(module=mod, file=f)
+            #mod.files.add(f)
         return JsonResponse(
             {'module': mod.title, }, status=200)
 
