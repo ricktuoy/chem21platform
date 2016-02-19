@@ -43,11 +43,13 @@ class LoginRequiredMixin(object):
             return view
         return login_required(view)
 
-class CSRFExemptMixin(object)
-	@classmethod
+
+class CSRFExemptMixin(object):
+    @classmethod
     def as_view(cls, **initkwargs):
         view = super(CSRFExemptMixin, cls).as_view(**initkwargs)
         return csrf_exempt(view)
+
 
 class JSONResponseMixin(LoginRequiredMixin):
 
