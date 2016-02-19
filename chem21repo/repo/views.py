@@ -442,7 +442,7 @@ class BatchProcessView(View):
              'error': errors}, status=code)
 
 
-class AttachUniqueFileView(View, CSRFExemptMixin):
+class AttachUniqueFileView(CSRFExemptMixin, View):
 
     def get_post_dict_from_request(self, request):
         try:
