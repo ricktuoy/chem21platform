@@ -454,11 +454,11 @@ class AttachUniqueFileView(CSRFExemptMixin, View):
             return self._post_dict
 
     def get_module_from_request(self, request):
-        kwargs = get_post_dict_from_request(request)
+        kwargs = self.get_post_dict_from_request(request)
         return Modules.objects.get(code=kwargs['code'])
 
     def get_uniquefiles_from_request(self, request):
-        kwargs = get_post_dict_from_request(request)
+        kwargs = self.get_post_dict_from_request(request)
         for fd in kwargs['files']:
             defaults = {'ext': fd['ext'], 'type': fd['type'], 'title':fd['title']}
             fo, created = UniqueFile.get_or_create(
