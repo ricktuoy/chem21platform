@@ -459,7 +459,7 @@ class AttachUniqueFileView(CSRFExemptMixin, View):
 
     def get_uniquefiles_from_request(self, request):
         kwargs = self.get_post_dict_from_request(request)
-        for fd in kwargs['files']:
+        for fd in json.loads(kwargs['files']):
             defaults = {'ext': fd['ext'], 'type': fd['type'], 'title':fd['title']}
             fo, created = UniqueFile.get_or_create(
                 checksum=fd['checksum'], defaults=defaults)
