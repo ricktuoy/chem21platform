@@ -520,6 +520,31 @@ body.front #front-back {
 	display: none;
 }
 
+figure.presentation {
+	padding: 0;
+	margin: 0;
+	position: relative;
+	border: 1px solid #bbb;
+}
+
+figure.presentation figcaption.overlay {
+	position: absolute;
+	opacity: 0.85;
+	background-color: #222;
+	color: #fafafa;
+	width: 100%;
+	left: 0;
+	top: 0;
+	font-size: 1.1em;
+	padding: 0.5em 0;
+	text-align: center;
+	border: 1px solid #666;
+	box-shadow: 2px 2px 15px #aaa;
+}
+
+figure.presentation figcaption.overlay .byline {
+	font-weight: bold;
+}
 
 body.front #disqus_thread iframe {
 	width: 600px !important;
