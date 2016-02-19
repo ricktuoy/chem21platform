@@ -455,7 +455,7 @@ class AttachUniqueFileView(CSRFExemptMixin, View):
 
     def get_module_from_request(self, request):
         kwargs = self.get_post_dict_from_request(request)
-        return Modules.objects.get(code=kwargs['code'])
+        return Module.objects.get(code=kwargs['module'])
 
     def get_uniquefiles_from_request(self, request):
         kwargs = self.get_post_dict_from_request(request)
