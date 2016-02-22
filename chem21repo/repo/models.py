@@ -1006,10 +1006,10 @@ class UniqueFile(OrderedModel, DrupalModel):
         if self.type=="video":
             return reverse('video_detail', kwargs={'checksum': self.checksum})
         else:
-            return self.url
+            return settings.S3_URL+"/"+self.get_file_relative_url()
 
     def get_file_relative_url(self):
-        return "sources/" + self.filename
+        return "media/sources/" + self.filename
 
     def get_mime_type(self):
         ext = self._stripped_ext
@@ -1387,7 +1387,6 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
             except:
                 pass
         return None
-            
 
     def get_text(self):
         if not self.text:
