@@ -272,14 +272,15 @@ class DrupalModel(models.Model):
     def get_parent(self):
         return self._parent
 
+
     def get_ancestors(self):
         try:
             par = self.get_parent()
         except AttributeError:
             return []
         if not par:
-            return ["??", ]
-        if par.slug == "-":
+            return ["??",]
+        if par.slug=="-":
             return par.get_ancestors()
         return par.get_ancestors() + [self.get_parent(), ]
 
@@ -296,7 +297,7 @@ class DrupalModel(models.Model):
         if check_children:
             try:
                 ch = self.children.all()[0]
-                if not isinstance(ch, UniqueFile): 
+                if not isinstance(ch,UniqueFile): 
                     ch.set_parent(self)
                     return ch
             except IndexError:

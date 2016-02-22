@@ -20,7 +20,6 @@ INSTALLED_APPS = (
     'tinymce',
     'revproxy',
     'bibliotag',
-    'linktag',
     'social.apps.django_app.default',
 )
 
@@ -122,11 +121,11 @@ CHEM21_PLATFORM_API_USER = 'admin'
 CHEM21_PLATFORM_API_PWD = '9chard87'
 
 TINYMCE_DEFAULT_CONFIG = {
-    'plugins': "table,spellchecker,paste,searchreplace,bibliotag,linktag",
+    'plugins': "table,spellchecker,paste,searchreplace,bibliotag",
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 10,
     'theme': "advanced",
-    'theme_advanced_buttons1': "bold,italic,underline,linktag,link,unlink,bullist,undo,code,bibliotag",
+    'theme_advanced_buttons1': "bold,italic,underline,link,unlink,bullist,undo,code,bibliotag",
     'theme_advanced_buttons2': "",
     'theme_advanced_buttons3': ""
 }
