@@ -11,14 +11,14 @@
                 <span></span>
             </span>
             {% endif %}
-            <a class="file_type_{{ f.type }}" href="{{ f.get_absolute_url }}">{{ f.get_title }}</a> {{ f.type }}/{{ f.ext }}
+            <a class="file_type_{{ f.type }}" href="{{ f.absolute_url }}">{{ f.get_title }}</a> {{ f.type }}/{{ f.ext }} [<a target="_blank" href="{{ f.url }}">Source</a>]
         </div>
         {% if f.cuts %}
         <ol class="cuts">
             {% for cut in f.cuts.all %}
             <li class="repo-object-cut_file-{{ cut.id }}">
                 <div>
-                    <a class="file_type_{{ cut.type }}" href="{{ cut.get_absolute_url }}">{{ cut.get_title }}</a> {{ cut.type }}/{{ cut.ext}}
+                    <a class="file_type_{{ cut.type }}" href="{{ cut.get_absolute_url }}">{{ cut.get_title }}</a> {{ cut.type }}/{{ cut.ext}} [<a target="_blank" href="{{ cut.url }}">Source</a>]
                 </div>
             </li>
             {% endfor %}

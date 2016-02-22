@@ -1000,13 +1000,13 @@ class UniqueFile(OrderedModel, DrupalModel):
 
     @property
     def url(self):
-        return DefaultStorage().url(self.get_file_relative_url())
+        return settings.S3_URL+"/media/"+self.get_file_relative_url()
 
     def get_absolute_url(self):
-        if self.type=="video":
+        if self.type == "video":
             return reverse('video_detail', kwargs={'checksum': self.checksum})
         else:
-            return settings.S3_URL+"/media/"+self.get_file_relative_url()
+            return self.url
 
     def get_file_relative_url(self):
         return "sources/" + self.filename

@@ -258,7 +258,6 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                     } else {
                         $(this).toggleClass("selected");
                     }
-                    event.preventDefault();
                 }
             }
         });
