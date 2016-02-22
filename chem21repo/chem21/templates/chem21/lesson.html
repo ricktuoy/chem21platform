@@ -13,11 +13,9 @@
 			{% else %}
 			<li class="active">
 				{% if module.text|striptags or perms.repo.change_module %}
-			
 				<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
-			
 			{% else %}
-			{{ module.name }}
+				{{ module.name }}
 			{% endif %}
 				<ol>
 				{% include 'chem21/include/active_module_nav.html' with module=module current_lesson=object %}
@@ -38,4 +36,31 @@
 		data-from-url-edit="{% url opts.lesson|admin_urlname:'changelist' %}">
 		Edit</a>
 {% endif %}
+{% endblock %}
+{% block learning_object %}
+{% block question %}
+{% if object.get_text %}
+{% replace_tokens object.get_text %}
+{% endif %}
+{% if object.video %}
+<figure class="presentation">
+<video width="100%" controls>
+	<source src="{{ object.video.url }}" type="video/mp4" />
+	Your browser does not support the video tag
+</video>
+<figcaption class="overlay">
+{% if object.byline|striptags %}
+	{{ object.byline|safe }}
+{% else %}
+	Presentation by <span class="byline">{{ object.video.author_string }}</span></figcaption>
+{% endif %}
+</figcaption>
+</figure>
+{% endif %}
+{% if footnotes_html %}
+<ol class="footnotes">
+{{ footnotes_html|safe }}
+</ol>
+{% endif %}
+{% endblock %}
 {% endblock %}

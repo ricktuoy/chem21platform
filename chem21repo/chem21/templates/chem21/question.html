@@ -71,9 +71,9 @@
 </video>
 <figcaption class="overlay">
 {% if object.byline|striptags %}
-{{ object.byline|safe }}
+	{{ object.byline|safe }}
 {% else %}
-Presentation by <span class="byline">{{ object.video.author_string }}</span></figcaption>
+	Presentation by <span class="byline">{{ object.video.author_string }}</span></figcaption>
 {% endif %}
 </figcaption>
 </figure>

@@ -230,6 +230,7 @@ class DrupalModel(models.Model):
     dirty = models.TextField(default="[]")
     text_versions = GenericRelation(TextVersion)
     changed = models.BooleanField(default=False)
+    dummy = models.BooleanField(default=False)
 
     def has_text_changes(self, since=None):
         return self.text_versions.exclude(
@@ -280,7 +281,7 @@ class DrupalModel(models.Model):
             return []
         if not par:
             return ["??",]
-        if par.slug=="-":
+        if par.slug == "-":
             return par.get_ancestors()
         return par.get_ancestors() + [self.get_parent(), ]
 
@@ -296,7 +297,7 @@ class DrupalModel(models.Model):
     def get_next_object(self, check_children=True):
         if check_children:
             try:
-                ch = self.children.all()[0]
+                ch = self.children.exclude(dummy=True)[0]
                 if not isinstance(ch,UniqueFile): 
                     ch.set_parent(self)
                     return ch
@@ -305,7 +306,6 @@ class DrupalModel(models.Model):
         try:
             sibs = self.get_later_siblings()
         except AttributeError:
-            logging.debug("NO FACKING PARENT - next :/ %s" % self.title)
             return None
         p = self.get_parent()
         try:
@@ -1361,6 +1361,43 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
         title='title', id='remote_id',
         question_orders='child_orders',
     )
+
+    @property
+    def video(self):
+        if not self.text:
+            try:
+                q = self.questions.first()
+                q.dummy = True
+                q.save()
+                return q.video
+            except:
+                pass
+        return None
+
+    @property
+    def byline(self):
+        if not self.text:
+            try:
+                q = self.questions.first()
+                q.dummy = True
+                q.save()
+                return q.byline
+            except:
+                pass
+        return None
+            
+
+    def get_text(self):
+        if not self.text:
+            try:
+                q = self.questions.first()
+                q.dummy = True
+                q.save()
+                return q.text
+            except:
+                pass
+        return ""
+
 
     def set_parent(self, parent):
         super(Lesson, self).set_parent(parent)
