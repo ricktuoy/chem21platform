@@ -562,6 +562,29 @@ class EndnoteSearchView(JSONView):
             *args, **kwargs)
 
 
+class InternalLinkSearchView(JSONView):
+    def get_context_data(self, **kwargs):
+        out = []
+        search_models = [{'question': Question, 'lesson': Lesson, 
+                          'module': Module, 'topic': Topic}]
+        for nm, md in search_models.iteritems():
+            try:
+                qs = md.objects.filter(title__contains=kwargs['term']).values('title', 'pk')
+                records = [{'label': r['title'],
+                            'category': nm, 'pk': r['pk']} for r in qs]
+            except:
+                qs = md.objects.filter(name__contains=kwargs['term']).values('name', 'pk')
+                records = [{'label': r['name'], 'category': nm,
+                            'pk': r['pk']} for r in qs]
+            out += records
+        return out
+
+    def render_to_response(self, *args, **kwargs):
+        kwargs['safe'] = False
+        return super(InternalLinkSearchView, self).render_to_response(
+            *args, **kwargs)
+
+
 class PushView(BatchProcessView):
     def process_queryset(self, qs):
         error = []
