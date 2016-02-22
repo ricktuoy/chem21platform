@@ -289,7 +289,7 @@ class DrupalModel(models.Model):
         return self.get_parent().children
 
     def get_earlier_siblings(self):
-        return self.get_siblings().filter(order__lt=self.order).order_by('-order')
+        return self.get_siblings().filter(order__lt=self.order).exclude(dummy=True).order_by('-order')
 
     def get_later_siblings(self):
         return self.get_siblings().filter(order__gt=self.order).order_by('order')
@@ -297,7 +297,7 @@ class DrupalModel(models.Model):
     def get_next_object(self, check_children=True):
         if check_children:
             try:
-                ch = self.children.exclude(dummy=True)[0]
+                ch = self.children.exclude(dummy=True).order_by('order')[0]
                 if not isinstance(ch,UniqueFile): 
                     ch.set_parent(self)
                     return ch
