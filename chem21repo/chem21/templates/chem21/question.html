@@ -4,14 +4,14 @@
 {% block head %}
 {% endblock %}
 {% block title %}{{ object.title }} :: {{ current_lesson.title }} :: {{ current_module.title }} :: CHEM21 learning platform{% endblock %}
-{% block display_title %}{% ifequal current_module.slug "-" %}{{ current_module.topic.title }} {% else %} {{ current_module.title }} {% endifequal %}: {{ current_lesson.title }}{% endblock %}
+{% block display_title %}{% if current_module.dummy %}{{ current_module.topic.title }} {% else %} {{ current_module.title }} {% endif %}: {{ current_lesson.title }}{% endblock %}
 {% block class_nav %}
 <div class="item-list">
 	<ol>
 	{% for module in class_tree.modules.all|dictsort:"order" %}
 		{% ifequal module current_module %}
 			
-				{% ifequal module.slug "-" %}
+				{% if module.dummy %}
 					{% include 'chem21/include/active_module_nav.html' with module=module current_question=object %}
 				{% else %}
 				<li class="active">
@@ -28,16 +28,16 @@
 					
 				</ol></div>
 				</li>
-				{% endifequal %}
+				{% endif %}
 
 		{% else %}
-			{% ifequal module.slug "-" %}
+			{% if module.dummy %}
 				{% include 'chem21/include/active_module_nav.html' with module=module current_question=object %}
 			{% else %}
 			<li>
 				<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
 			</li>
-			{% endifequal %}
+			{% endif %}
 		{% endifequal %}
 	{% endfor %}
 	</ol>

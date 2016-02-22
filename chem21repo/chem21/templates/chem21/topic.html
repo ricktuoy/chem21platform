@@ -4,13 +4,13 @@
 <div class="item-list">
 	<ol>
 	{% for module in class_tree.modules.all|dictsort:"order" %}
-		{% ifequal module.slug "-" %}
+		{% if module.dummy %}
 			{% include 'chem21/include/active_module_nav.html' with module=module %}
 		{% else %}
 		<li>
 			<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
 		</li>
-		{% endifequal %}
+		{% endif %}
 	{% endfor %}
 	</ol>
 </div>  

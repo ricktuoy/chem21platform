@@ -281,7 +281,7 @@ class DrupalModel(models.Model):
             return []
         if not par:
             return ["??",]
-        if par.slug == "-":
+        if par.slug == "-" or par.dummy:
             return par.get_ancestors()
         return par.get_ancestors() + [self.get_parent(), ]
 
@@ -335,7 +335,7 @@ class DrupalModel(models.Model):
         try:
             o = sibs[0]
         except IndexError:
-            if p.slug == "-":
+            if p.slug == "-" or p.dummy:
                 return p.get_previous_object()
             return p
         o.set_parent(p)
@@ -1509,7 +1509,7 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
                 for module in lesson.modules.all():
                     lesson.current_module = module
                     lesson.current_topic = module.topic
-                    if lesson.slug == "-":
+                    if lesson.dummy == "-" or lesson.dummy:
                         urls.append(module.get_absolute_url())
                     urls.append(lesson.get_absolute_url())
                     for question in lesson.questions.all():
