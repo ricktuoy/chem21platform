@@ -984,7 +984,12 @@ class UniqueFile(OrderedModel, DrupalModel):
     #    return super(UniqueFile, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
-        return self.path
+        if self.path:
+        	return self.path
+        elif self.title:
+        	return self.title
+        else:
+        	return self.checksum
 
     @property
     def _stripped_ext(self):
@@ -1519,7 +1524,12 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
 
     def get_byline(self):
         if not self.byline and self.video:
-            return "Author: %s" % self.video.author_string
+            return self.video.author_string
+        elif self.byline:
+        	return self.byline
+        else:
+        	return ""
+
 
     @property
     def json_content(self):

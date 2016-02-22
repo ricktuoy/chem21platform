@@ -2,6 +2,7 @@ from chem21repo.repo.models import Lesson
 from chem21repo.repo.models import Module
 from chem21repo.repo.models import Question
 from chem21repo.repo.models import Topic
+from chem21repo.repo.models import UniqueFile
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.db.models import Prefetch
@@ -58,7 +59,7 @@ class LearningView(DetailView):
                                  Opt(v.app_label, v.model))
                                 for k, v in
                                 ContentType.objects.get_for_models(
-            Module, Topic, Lesson, Question,
+            Module, Topic, Lesson, Question, UniqueFile,
             for_concrete_models=False).iteritems()])
 
         nxt = obj.get_next_object()

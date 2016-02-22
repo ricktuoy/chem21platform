@@ -104,4 +104,16 @@ $(document).ready(function() {
 		}
 	});
 
+	$("figure.presentation video").on("play",function(e) {
+		console.debug("Playing");
+		$(this).closest("figure.presentation").find("figcaption.overlay").slideUp();
+	});
+
+	$("figure.presentation video").on("pause", function(e) {
+		$(this).closest("figure.presentation").find("figcaption.overlay").slideDown();
+	});
+
+	$("figure.presentation video").on("ended", function(e) {
+		$(this).closest("figure.presentation").find("figcaption.overlay").slideDown();
+	});
 });

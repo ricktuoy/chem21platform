@@ -1,6 +1,7 @@
 import logging
 import traceback
 import os
+import json
 
 from .models import Lesson
 from .models import Module
@@ -444,7 +445,7 @@ class BatchProcessView(View):
              'error': errors}, status=code)
 
 
-class AttachUniqueFileView(View, CSRFExemptMixin):
+class AttachUniqueFileView(CSRFExemptMixin, View):
 
     def get_post_dict_from_request(self, request):
         try:
@@ -454,14 +455,14 @@ class AttachUniqueFileView(View, CSRFExemptMixin):
             return self._post_dict
 
     def get_module_from_request(self, request):
-        kwargs = get_post_dict_from_request(request)
-        return Modules.objects.get(code=kwargs['code'])
+        kwargs = self.get_post_dict_from_request(request)
+        return Module.objects.get(code=kwargs['module'])
 
     def get_uniquefiles_from_request(self, request):
-        kwargs = get_post_dict_from_request(request)
-        for fd in kwargs['files']:
+        kwargs = self.get_post_dict_from_request(request)
+        for fd in json.loads(kwargs['files']):
             defaults = {'ext': fd['ext'], 'type': fd['type'], 'title':fd['title']}
-            fo, created = UniqueFile.get_or_create(
+            fo, created = UniqueFile.objects.get_or_create(
                 checksum=fd['checksum'], defaults=defaults)
             if not created:
                 fo.ext = fd['ext']
@@ -473,7 +474,8 @@ class AttachUniqueFileView(View, CSRFExemptMixin):
     def post(self, request, *args, **kwargs):
         mod = self.get_module_from_request(request)
         for f in self.get_uniquefiles_from_request(request):
-            mod.files.add(f)
+            ufm, created = UniqueFilesofModule.objects.get_or_create(module=mod, file=f)
+            #mod.files.add(f)
         return JsonResponse(
             {'module': mod.title, }, status=200)
 
