@@ -121,8 +121,8 @@ class HomePageView(LoginRequiredMixin, TemplateView):
             Prefetch("modules__uniquefilesofmodule_set",
                      queryset=UniqueFilesofModule.objects.filter(
                          file__active=True,
-                         file__type__in=["video", "image"],
-                         file__cut_of__isnull=True).order_by('order'),
+                         file__type__in=["video", "image","application"],
+                         file__cut_of__isnull=True).order_by('file__type'),
                      to_attr="ordered_videos"),
             Prefetch("modules__ordered_videos__file__cuts",
                      queryset=UniqueFile.objects.filter(

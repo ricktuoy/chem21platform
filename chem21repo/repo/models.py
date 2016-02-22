@@ -325,7 +325,6 @@ class DrupalModel(models.Model):
         try:
             sibs = self.get_earlier_siblings()
         except AttributeError:
-            logging.debug("NO FACKING PARENT - prev :/ %s" % self.title)
             return None
         p = self.get_parent()
         try:
@@ -1004,7 +1003,10 @@ class UniqueFile(OrderedModel, DrupalModel):
         return DefaultStorage().url(self.get_file_relative_url())
 
     def get_absolute_url(self):
-        return reverse('video_detail', kwargs={'checksum': self.checksum})
+        if self.type=="video":
+            return reverse('video_detail', kwargs={'checksum': self.checksum})
+        else:
+            return self.url
 
     def get_file_relative_url(self):
         return "sources/" + self.filename
