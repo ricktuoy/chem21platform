@@ -72,7 +72,7 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
             $.get(url).done(function(data) {
             }).fail(function(jqXHR, textStatus, errorThrown) {});
         };
-        $(".file_type_video").colorbox({
+        $(".file_type_video, .file_type_application, .file_type_image").colorbox({
             onComplete: function() {
                 $(this).colorbox.resize()
             }

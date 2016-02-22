@@ -74,7 +74,6 @@ $(document).ready(function() {
 		console.debug($("#disqus_thread"));
 		$("#disqus_thread").hide();
 	}
-
 	$("body.front").on("click","#give_feedback",function(e) {
 		e.preventDefault();
 		e.stopImmediatePropagation();
@@ -90,7 +89,6 @@ $(document).ready(function() {
 			$("#disqus_thread, #disqus_thread iframe").show();
 		}
 	});
-
 	$("body.front").on("click","#front-back",function(e) {
 		$(this).fadeOut("fast");
 		$("#front-menu li", "body.front").each(function() {
@@ -103,12 +101,10 @@ $(document).ready(function() {
 			$("#front-menu").removeClass("mobile-opened");
 		}
 	});
-
 	$("figure.presentation video").on("play",function(e) {
 		console.debug("Playing");
 		$(this).closest("figure.presentation").find("figcaption.overlay").slideUp();
 	});
-
 	$("figure.presentation video").on("pause", function(e) {
 		$(this).closest("figure.presentation").find("figcaption.overlay").slideDown();
 	});
