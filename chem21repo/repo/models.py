@@ -1382,7 +1382,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
                 return q.byline
             except:
                 pass
-        return None
+        return self.byline
 
     def get_text(self):
         if not self.text:
@@ -1393,7 +1393,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
                 return q.text
             except:
                 pass
-        return ""
+        return self.text
 
 
     def set_parent(self, parent):
