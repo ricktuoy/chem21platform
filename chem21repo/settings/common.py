@@ -59,6 +59,7 @@ TEMPLATES = [
 TEMPLATE_CONTEXT_PROCESSORS = (
     'social.apps.django_app.context_processors.backends',
     'social.apps.django_app.context_processors.login_redirect',
+    'django.core.context_processors.request'
 )
 
 WSGI_APPLICATION = 'chem21repo.wsgi.application'

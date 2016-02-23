@@ -20,12 +20,12 @@ class LearningView(DetailView):
 
         context = super(LearningView, self).get_context_data(**kwargs)
 
-        obj = context['object'] 
-        
+        obj = context['object']
+
         try:
-        	obj.set_parent(self.parent)
+            obj.set_parent(self.parent)
         except AttributeError:
-        	pass
+            pass
         try:
             slug = self.kwargs['topic_slug']
         except KeyError:
@@ -65,9 +65,9 @@ class LearningView(DetailView):
         nxt = obj.get_next_object()
         prev = obj.get_previous_object()
         if nxt:
-        	context['next'] = nxt
+            context['next'] = nxt
         if prev:
-        	context['previous'] = prev
+            context['previous'] = prev
         return context
 
 
@@ -124,4 +124,3 @@ class LessonView(LearningView):
 class ModuleView(LearningView):
     template_name = "chem21/module.html"
     model = Module
-

@@ -411,6 +411,7 @@ class OrderedManagerBase:
     def _reset_order(self):
         i = 1
         for o in self.order_queryset().order_by(self.order_field):
+            print i
             self.set_order_value(o, i)
             i += 1
             o.save()
@@ -515,7 +516,7 @@ class OrderedRelationalManagerBase(OrderedManagerBase):
 
     def order_queryset(self):
         return self.get_queryset().filter(
-            **{self.order_key: self._get_order_key_value(self)})
+            **{self.order_key: self._get_order_key_value()})
 
 
 class OrderedManyToManyManagerBase(OrderedRelationalManagerBase):
@@ -851,11 +852,6 @@ class DrupalConnector(object):
                 return k
         raise AttributeError
 
-
-
-
-
-
 @receiver(models.signals.pre_save)
 def generate_dirty_record(sender,
                           instance, raw,
@@ -985,11 +981,11 @@ class UniqueFile(OrderedModel, DrupalModel):
 
     def __unicode__(self):
         if self.path:
-        	return self.path
+            return self.path
         elif self.title:
-        	return self.title
+            return self.title
         else:
-        	return self.checksum
+            return self.checksum
 
     @property
     def _stripped_ext(self):
@@ -1565,9 +1561,9 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
         if not self.byline and self.video:
             return self.video.author_string
         elif self.byline:
-        	return self.byline
+            return self.byline
         else:
-        	return ""
+            return ""
 
 
     @property

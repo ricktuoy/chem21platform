@@ -121,7 +121,7 @@ class HomePageView(LoginRequiredMixin, TemplateView):
             Prefetch("modules__uniquefilesofmodule_set",
                      queryset=UniqueFilesofModule.objects.filter(
                          file__active=True,
-                         file__type__in=["video", "image","application"],
+                         file__type__in=["video", "image", "application"],
                          file__cut_of__isnull=True).order_by('file__type'),
                      to_attr="ordered_videos"),
             Prefetch("modules__ordered_videos__file__cuts",
@@ -461,21 +461,23 @@ class AttachUniqueFileView(CSRFExemptMixin, View):
     def get_uniquefiles_from_request(self, request):
         kwargs = self.get_post_dict_from_request(request)
         for fd in json.loads(kwargs['files']):
-            defaults = {'ext': fd['ext'], 'type': fd['type'], 'title':fd['title']}
+            defaults = {'ext': fd['ext'],
+                        'type': fd['type'],
+                        'title': fd['title']}
             fo, created = UniqueFile.objects.get_or_create(
                 checksum=fd['checksum'], defaults=defaults)
             if not created:
                 fo.ext = fd['ext']
                 fo.type = fd['type']
-                fo.title = fd['title'] 
+                fo.title = fd['title']
                 fo.save()
             yield fo
 
     def post(self, request, *args, **kwargs):
         mod = self.get_module_from_request(request)
         for f in self.get_uniquefiles_from_request(request):
-            ufm, created = UniqueFilesofModule.objects.get_or_create(module=mod, file=f)
-            #mod.files.add(f)
+            ufm, created = UniqueFilesofModule.objects.get_or_create(
+                module=mod, file=f)
         return JsonResponse(
             {'module': mod.title, }, status=200)
 
