@@ -37,8 +37,7 @@
 	</div>
 	<div id="opigno-group-progress"></div>
 	<div id="content" class="has-group-progress">
-	{% block admin_tools %}
-	{% endblock %}
+
 	{% block progress %}
 <div id="quiz_progress">
 {% block progress_title %}
@@ -49,11 +48,32 @@
 	</nav>
 </div>
 {% endblock %}
+{% block admin_tools %}
+{% endblock %}
 	{% block learning_object %}
 	{% if object.text %}
 	{% replace_tokens object.text %}
 	{{ tokens_replaced|safe }}
 	{% endif %}
+	{% if object.video %}
+<figure class="presentation">
+<video width="100%" controls>
+	<source src="{{ object.video.url }}" type="video/mp4" />
+	Your browser does not support the video tag
+</video>
+<figcaption class="overlay">
+{% if object.byline|striptags %}
+	{{ object.byline|safe }}
+{% else %}
+	Presentation by <span class="byline">{{ object.video.author_string }}</span></figcaption>
+{% endif %}
+</figcaption>
+</figure>
+{% endif %}
+{% if object.pdf %}
+<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
+<!-- TODO: display pdf -->
+{% endif %}
 	{% block bottom_nav %}
 	<nav id="end-nav">
 	

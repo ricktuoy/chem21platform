@@ -32,9 +32,15 @@
 {% endblock %}
 {% block admin_tools %}
 {% if perms.repo.change_lesson %}
+{% ifequal  object.get_text object.text %}
 <a class="admin-edit" href="{% url opts.lesson|admin_urlname:'change' object.pk %}"
 		data-from-url-edit="{% url opts.lesson|admin_urlname:'changelist' %}">
 		Edit</a>
+{% else %}
+<a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.get_first_child.pk %}"
+		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
+		Edit</a>
+{% endifequal %}
 {% endif %}
 {% endblock %}
 {% block learning_object %}

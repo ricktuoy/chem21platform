@@ -46,10 +46,7 @@
 {% block progress_title %}
 <div class="titles"><h2>{{ object.title }}</h2>(Step {{ question_num }} of {{ num_questions }})</div>
 {% endblock progress_title %}
-{% block learning_object %}
-
-
-{% block question %}
+{% block admin_tools %}
 {% if perms.repo.change_question %}
 <a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.pk %}"
 		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
@@ -59,6 +56,12 @@
 			data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">Edit video attributes</a>
 	{% endif %}
 {% endif %}
+{% endblock %}
+{% block learning_object %}
+
+
+{% block question %}
+
 {% if object.text %}
 {% replace_tokens object.text %}
 {{ tokens_replaced|safe }}

@@ -566,6 +566,23 @@ class EndnoteSearchView(JSONView):
             *args, **kwargs)
 
 
+class FiguresGetView(JSONView):
+    def get_context_data(self, **kwargs):
+        model = ContentType.objects.get(
+            app_label="repo",
+            model=kwargs['type']).model_class()
+        try:
+            obj = model.object.get(pk=kwargs['pk'])
+            return dict([(f.pk, f.title) for f in obj.files.all()])
+        except model.DoesNotExist:
+            return {}
+
+    def render_to_response(self, *args, **kwargs):
+        kwargs['safe'] = False
+        return super(FigureGetView, self).render_to_response(
+            *args, **kwargs)
+
+
 class PushView(BatchProcessView):
     def process_queryset(self, qs):
         error = []
