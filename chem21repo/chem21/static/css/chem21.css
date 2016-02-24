@@ -546,6 +546,11 @@ figure.presentation figcaption.overlay .byline {
 	font-weight: bold;
 }
 
+
+#content table td p {
+    margin: 0;
+}
+
 body.front #disqus_thread iframe {
 	width: 600px !important;
 	min-width: 600px !important;

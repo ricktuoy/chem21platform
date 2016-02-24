@@ -16,7 +16,7 @@
      */
         modules: [{
         name: 'file_listing'
-    },{name: 'select_bibliotag'}],
+    },{name: 'select_bibliotag'},{name: 'select_figuretag'}],
     /*
      * Allow CSS optimizations. Allowed values:
      * - "standard": @import inlining, comment removal and line returns.
@@ -58,7 +58,8 @@
     skipDirOptimize: true,
     paths: {
         "file_listing": "../file_listing",
-        "select_bibliotag": "../../tiny_mce/plugins/bibliotag/js/select_bibliotag"
+        "select_bibliotag": "../../tiny_mce/plugins/bibliotag/js/select_bibliotag",
+        "select_figuretag": "../../tiny_mce/plugins/figuretag/js/select_figuretag"
     },
     
 })

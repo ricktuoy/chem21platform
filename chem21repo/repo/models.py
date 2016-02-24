@@ -1395,7 +1395,6 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
                 pass
         return self.text
 
-
     def set_parent(self, parent):
         super(Lesson, self).set_parent(parent)
         self.current_topic = parent.topic

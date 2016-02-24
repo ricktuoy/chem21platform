@@ -51,8 +51,8 @@
 {% block admin_tools %}
 {% endblock %}
 	{% block learning_object %}
-	{% if object.text %}
-	{% replace_tokens object.text %}
+	{% if object.get_text %}
+	{% replace_tokens object.get_text %}
 	{{ tokens_replaced|safe }}
 	{% endif %}
 	{% if object.video %}

@@ -117,3 +117,6 @@ table.diff td {
     padding: 0.1em 0.2em;
 }
 
+#content table td p {
+    margin: 0;
+}

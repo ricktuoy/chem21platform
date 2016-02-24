@@ -572,14 +572,14 @@ class FiguresGetView(JSONView):
             app_label="repo",
             model=kwargs['type']).model_class()
         try:
-            obj = model.object.get(pk=kwargs['pk'])
+            obj = model.objects.get(pk=kwargs['pk'])
             return dict([(f.pk, f.title) for f in obj.files.all()])
         except model.DoesNotExist:
             return {}
 
     def render_to_response(self, *args, **kwargs):
         kwargs['safe'] = False
-        return super(FigureGetView, self).render_to_response(
+        return super(FiguresGetView, self).render_to_response(
             *args, **kwargs)
 
 

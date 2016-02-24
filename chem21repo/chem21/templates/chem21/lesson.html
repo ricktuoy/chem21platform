@@ -33,41 +33,13 @@
 {% block admin_tools %}
 {% if perms.repo.change_lesson %}
 {% ifequal  object.get_text object.text %}
-<a class="admin-edit" href="{% url opts.lesson|admin_urlname:'change' object.pk %}"
+		<a class="admin-edit" href="{% url opts.lesson|admin_urlname:'change' object.pk %}"
 		data-from-url-edit="{% url opts.lesson|admin_urlname:'changelist' %}">
 		Edit</a>
 {% else %}
-<a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.get_first_child.pk %}"
+		<a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.get_first_child.pk %}"
 		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
 		Edit</a>
 {% endifequal %}
 {% endif %}
-{% endblock %}
-{% block learning_object %}
-{% block question %}
-{% if object.get_text %}
-{% replace_tokens object.get_text %}
-{{ tokens_replaced|safe }}
-{% endif %}
-{% if object.video %}
-<figure class="presentation">
-<video width="100%" controls>
-	<source src="{{ object.video.url }}" type="video/mp4" />
-	Your browser does not support the video tag
-</video>
-<figcaption class="overlay">
-{% if object.byline|striptags %}
-	{{ object.byline|safe }}
-{% else %}
-	Presentation by <span class="byline">{{ object.video.author_string }}</span></figcaption>
-{% endif %}
-</figcaption>
-</figure>
-{% endif %}
-{% if footnotes_html %}
-<ol class="footnotes">
-{{ footnotes_html|safe }}
-</ol>
-{% endif %}
-{% endblock %}
 {% endblock %}
