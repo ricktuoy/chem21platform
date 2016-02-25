@@ -95,7 +95,7 @@ class BiblioTagProcessor(TagProcessor):
             [self._get_footnote_html(bib, id)
              for id, bib in
              zip(
-                range(1, len(self.bibs)+1), self.bibs)])
+                range(1, len(self.bibs) + 1), self.bibs)])
 
 
 class BiblioInlineTagProcessor(TagProcessor):
@@ -110,12 +110,29 @@ class BiblioInlineTagProcessor(TagProcessor):
         return bib.get_inline_html()
 
 
+class FigureGroupTagProcessor(TagProcessor):
+    tag_name = "figgroup"
+
+    def tag_function(self, st):
+        return "<figure class=\"inline\">%s</figure>" % st
+
+
+class FigCaptionTagProcessor(TagProcessor):
+    tag_name = "figcaption"
+
+    def tag_function(self, st):
+        return "<figcaption>%s</figcaption>" % st
+
+
 class FigureTokenProcessor(TokenProcessor):
     token_name = "figure"
 
     def token_function(self, command, *args):
-        if command == "show":
-            fle = UniqueFile.objects.get(remote_id=args[0])
+        if command == "show" or command == "local":
+            if command == "show":
+                fle = UniqueFile.objects.get(remote_id=args[0])
+            else:
+                fle = UniqueFile.objects.get(pk=args[0])
             try:
                 alt = args[1]
             except IndexError:
@@ -130,7 +147,7 @@ class ReplaceTokensNode(template.Node):
     def render(self, context):
         txt = self.text.resolve(context)
         simple_processors = [
-            FigureTokenProcessor(), BiblioInlineTagProcessor(), ]
+            FigureTokenProcessor(), FigCaptionTagProcessor(), BiblioInlineTagProcessor(), FigureGroupTagProcessor() ]
         for proc in simple_processors:
             txt = proc.apply(txt)
         btag_proc = BiblioTagProcessor()

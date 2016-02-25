@@ -551,6 +551,26 @@ figure.presentation figcaption.overlay .byline {
     margin: 0;
 }
 
+figure.inline {
+	background-color: #e8e8e8;
+	text-align: center;
+	margin: 0;
+	padding: 1em 0 0 0;
+}
+
+figure.inline img {
+	border: 1px solid #aaa;
+}
+
+figure.inline figcaption {
+	background-color: #dfdfdf;
+	border-top: #dbc;
+	color: #111;
+	font-style: italic;
+	padding: 0.5em;
+	margin-top: 0.8em;
+}
+
 body.front #disqus_thread iframe {
 	width: 600px !important;
 	min-width: 600px !important;
