@@ -1,38 +1,33 @@
-boto==2.38.0
-dj-database-url==0.3.0
-dj-static==0.0.6
-Django==1.8
--e git+https://github.com/ricktaylord/django-cached-s3-storage.git@aafe927913d7bb854b21825282a86c1062ff1815#egg=django_cachedS3_storage-master
-django-debug-panel==0.8.2
-django-debug-toolbar==1.4
--e git+https://github.com/ricktaylord/django-filebrowser.git@56f9f2ebf089a3d16f2dff77ea237fc2325fad8f#egg=django_filebrowser-master
-django-grappelli==2.6.5
-django-herokuapp==0.9.20
-django-require==1.0.8
-django-require-s3==1.0.0
-django-revproxy==0.9.10
--e git+https://github.com/ricktaylord/django-static-generator.git@8ac91e1a73456b5927186983051c12fcf2c01539#egg=django_staticgenerator-master
--e hg+https://ricktaylord@bitbucket.org/david/django-storages@f153a70ba254dc129d9403546809a02256ef75b5#egg=django_storages-dev
-django-tinymce==2.2.0
--e git+https://github.com/ricktaylord/django-tinymce-biblio.git@1a11c36c8b87d2f6018fabaff8f74b68a2817fd1#egg=django_tinymce_biblio-master
-django-toolbelt==0.0.1
-gunicorn==19.3.0
-html2text==2016.1.8
-httplib2==0.9.2
-oauthlib==1.0.3
-Pillow==3.0.0
-psycopg2==2.6.1
-PyJWT==1.4.0
-python-openid==2.2.5
-python-social-auth==0.2.13
-pytz==2015.4
--e git+https://github.com/bernii/querystring-parser.git@6bd45faa359516c19fdd76c4396c160f0ee67da6#egg=querystring_parser-master
-requests==2.8.1
-requests-oauthlib==0.6.0
-sh==1.11
+Pillow==2.6.1
+Pygments==2.0.1
+SOAPpy==0.12.22
+argparse==1.2.1
+cffi==0.8.6
+chardet==2.3.0
+colorama==0.3.2
+cryptography==0.6.1
+defusedxml==0.4.1
+docutils==0.12
+html5lib==0.999
+mercurial==3.1.2
+ndg-httpsclient==0.3.2
+pbr==1.8.1
+ply==3.4
+pyOpenSSL==0.14
+pyasn1==0.1.7
+pycparser==2.10
+python-apt==0.9.3.12
+python-debian==0.1.27
+python-debianbts==1.11
+reportbug==6.6.3
+requests==2.4.3
+roman==2.0.0
 six==1.10.0
-sqlparse==0.1.18
-static3==0.6.1
-urllib3==1.10.1
-waitress==0.8.9
+stevedore==1.9.0
+urllib3==1.9.1
+virtualenv==13.1.2
+virtualenv-clone==0.2.6
+virtualenvwrapper==4.7.1
 wheel==0.24.0
+wsgiref==0.1.2
+wstools==0.4.3
