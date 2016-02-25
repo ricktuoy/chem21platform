@@ -45,6 +45,10 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
         var onRelocate = function(e, ui) {
             function getAjaxUrlFromEl(el, dest) {
                 var sref = getObjectRef(el);
+                if( sref['obj'] == 'source_file') {
+                    sref['pk'] = el.data('inModulePk');
+                }
+
                 if ($.type(dest) == "string" && dest == "top") {
                     var to = "0";
                 } else {
@@ -58,9 +62,7 @@ define(["jquery", "jquery.colorbox", "jquery.mjs.nestedSortable", "jquery.cookie
                 }
                 return url;
             }
-
             var movedEl = $(ui.item);
-  
             var allEls = movedEl.closest("ol").children("li");
             var newPos = allEls.index(movedEl) + 1;
             if (newPos > 1) {

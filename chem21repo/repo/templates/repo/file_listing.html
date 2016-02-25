@@ -2,7 +2,8 @@
 <ol>
     {% for v in file_list %}
     {% with f=v.file %}
-    <li class="repo-object-source_file-{{ v.pk }}"
+    <li class="repo-object-source_file-{{ f.pk }}"
+        data-in-module-pk="{{ v.pk }}"
         data-url-edit="{% url opts.uniquefile|admin_urlname:'change' f.pk %}"
         data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">
         <div>
