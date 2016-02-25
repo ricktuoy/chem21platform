@@ -236,6 +236,17 @@ class DrupalModel(models.Model):
         return self.text_versions.exclude(
             user__pk=1).exclude(user__pk=2).count() or False
 
+    def get_text(self):
+        if not self.text:
+            try:
+                q = self.questions.first()
+                q.dummy = True
+                q.save()
+                return q.text
+            except:
+                pass
+        return self.text
+
     @property
     def is_dirty(self):
         dirty = self.dirty != "[]"
