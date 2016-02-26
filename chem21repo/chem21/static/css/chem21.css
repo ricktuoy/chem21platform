@@ -551,7 +551,7 @@ figure.presentation figcaption.overlay .byline {
     margin: 0;
 }
 
-#content dl dd {
+#content dl dt {
 	font-weight: bold;
 	border-bottom: 1px solid #bbb;
 }
