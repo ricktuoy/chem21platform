@@ -551,6 +551,11 @@ figure.presentation figcaption.overlay .byline {
     margin: 0;
 }
 
+#content dl dd {
+	font-weight: bold;
+	border-bottom: 1px solid #bbb;
+}
+
 figure.inline {
 	border-top: 2px solid #aaa;
 	box-shadow: 1px 1px 8px #ddd;
