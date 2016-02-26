@@ -552,14 +552,16 @@ figure.presentation figcaption.overlay .byline {
 }
 
 figure.inline {
-	background-color: #e8e8e8;
+	border-top: 2px solid #aaa;
+	box-shadow: 1px 1px 8px #ddd;
+	background-color: white;
 	text-align: center;
 	margin: 0;
 	padding: 1em 0 0 0;
 }
 
 figure.inline img {
-	border: 1px solid #aaa;
+	max-width: 90%;
 }
 
 figure.inline figcaption {

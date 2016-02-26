@@ -56,24 +56,26 @@ class TagProcessor(BaseProcessor):
 
     @property
     def pattern(self):
-        return r'%s%s%s(.*?)%s\/%s%s' % (self.openchar, self.tag_name, self.closechar,
-                                         self.openchar, self.tag_name, self.closechar)
+        return r'%s%s[:]?(.*?)%s(.*?)%s\/%s%s' % (
+            self.openchar, self.tag_name, self.closechar,
+            self.openchar, self.tag_name, self.closechar)
 
     @abstractmethod
-    def tag_function(self, st):
+    def tag_function(self, st, *args):
         return None
 
     def repl_function(self, match):
-        return self.tag_function(match.group(1))
+        args = match.group(1).split(":")
+        return self.tag_function(match.group(2), *args)
 
 
 class BiblioTagProcessor(TagProcessor):
     tag_name = "bib"
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.bibs = []
         self.bibset = set([])
-        return super(BiblioTagProcessor, self).__init__()
+        return super(BiblioTagProcessor, self).__init__(*args, **kwargs)
 
     def tag_function(self, st):
         try:
@@ -84,7 +86,8 @@ class BiblioTagProcessor(TagProcessor):
         if st not in self.bibset:
             self.bibs.append(bib)
             self.bibset.add(st)
-        return "<a href=\"#citekey_%d\">[%d]</a>" % (len(self.bibs), len(self.bibs))
+        return "<a href=\"#citekey_%d\">[%d]</a>" % (
+            len(self.bibs), len(self.bibs))
 
     def _get_footnote_html(self, bib, id):
         return "<li id=\"citekey_%d\">%s</li>" % (
@@ -110,11 +113,62 @@ class BiblioInlineTagProcessor(TagProcessor):
         return bib.get_inline_html()
 
 
+class FigCaptionTagProcessor(TagProcessor):
+    tag_name = "figcaption"
+
+    def tag_function(self, st, *args):
+        return "<figcaption>%s</figcaption>" % st
+
+
 class FigureGroupTagProcessor(TagProcessor):
     tag_name = "figgroup"
 
-    def tag_function(self, st):
-        return "<figure class=\"inline\">%s</figure>" % st
+    def __init__(self, *args, **kwargs):
+        self.count = {}
+        return super(
+            FigureGroupTagProcessor, self).__init__(
+                *args, **kwargs)
+
+    def inc_count(self, t):
+        try:
+            self.count[t] += 1
+        except KeyError:
+            self.count[t] = 1
+
+    def get_count(self, t):
+        try:
+            return self.count[t]
+        except KeyError:
+            self.count[t] = 1
+            return 1
+
+    def get_type(self):
+        t = "figure"
+        return t
+
+    def replace_caption_html(self, t):
+        out = "<span class=\"figure_name\">%s %d</span>" % (
+            t.capitalize(), self.get_count(t))
+        (self.full_text, nsubs) = re.subn(
+            r"\[figcaption\](.*?)\[\/figcaption\]",
+            lambda m: "[figcaption]%s: %s[/figcaption]" % (out, m.group(1)),
+            self.full_text
+        )
+        if not nsubs:
+            self.full_text += "[figcaption]%s[/figcaption]" % out
+        return out
+
+    def tag_function(self, st, *args):
+        self.full_text = st
+        try:
+            t = args[0]
+        except IndexError:
+            t = "figure"
+        if not t:
+            t = "figure"
+        self.replace_caption_html(t)
+        self.inc_count(t)
+        return "<figure class=\"inline\">%s</figure>" % self.full_text
 
 
 class SurroundFiguresTokenProcessor(TokenProcessor):
@@ -136,18 +190,12 @@ class SurroundFiguresTokenProcessor(TokenProcessor):
                 if startfiggroup.start() < endfiggroup.start():
                     return _super(match)
                 else:
+                    # leave alone
                     return match.group(0)
             except AttributeError:
                 # leave alone
                 return match.group(0)
         return _super(match)
-
-
-class FigCaptionTagProcessor(TagProcessor):
-    tag_name = "figcaption"
-
-    def tag_function(self, st):
-        return "<figcaption>%s</figcaption>" % st
 
 
 class FigureTokenProcessor(TokenProcessor):
@@ -173,8 +221,8 @@ class ReplaceTokensNode(template.Node):
     def render(self, context):
         txt = self.text.resolve(context)
         simple_processors = [
-            FigureTokenProcessor(), FigCaptionTagProcessor(),
-            BiblioInlineTagProcessor(), FigureGroupTagProcessor()]
+            FigureTokenProcessor(), FigureGroupTagProcessor(), FigCaptionTagProcessor(),
+            BiblioInlineTagProcessor(), ]
         for proc in simple_processors:
             txt = proc.apply(txt)
         btag_proc = BiblioTagProcessor()

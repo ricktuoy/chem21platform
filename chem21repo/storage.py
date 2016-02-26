@@ -8,14 +8,14 @@ from django.core.files.storage import DefaultStorage
 from django.core.urlresolvers import reverse
 from require_s3.storage import OptimizedCachedStaticFilesStorage
 
-class TinyMCEProxyCachedS3BotoStorage(OptimizedCachedStaticFilesStorage):
-	def url(self, *args, **kwargs):
-		url = super(TinyMCEProxyCachedS3BotoStorage, self).url(*args, **kwargs)
-		if "tiny_mce" in url or "tinymce" in url:
-			url = reverse("s3_proxy", kwargs={'path':url.replace(settings.S3_URL+"/", "")})
-			# url = "FUCK YOU"
-		return url
 
+class TinyMCEProxyCachedS3BotoStorage(OptimizedCachedStaticFilesStorage):
+    def url(self, *args, **kwargs):
+        url = super(TinyMCEProxyCachedS3BotoStorage, self).url(*args, **kwargs)
+        if "tiny_mce" in url or "tinymce" in url:
+            url = reverse(
+                "s3_proxy", kwargs={'path': url.replace(settings.S3_URL + "/", "")})
+        return url
 
 
 MediaRootS3BotoStorage = lambda: CachedS3BotoStorage(location='media/')
@@ -68,12 +68,11 @@ class S3StaticFileSystem(object):
         # os.chmod(filename, flags)
 
     def rename(self, from_file, to_file):
-        print str(from_file)+":"+str(to_file)
+        print str(from_file) + ":" + str(to_file)
         try:
             self.storage.move(from_file, to_file, True)
         except OSError:
             print "Failed to move %s to %s" % (from_file, to_file)
-
 
     def remove(self, path):
         self.storage.remove(path)
