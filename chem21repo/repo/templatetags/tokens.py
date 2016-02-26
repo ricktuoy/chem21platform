@@ -4,6 +4,7 @@ from django import template
 from django.template.defaultfilters import stringfilter
 from abc import ABCMeta, abstractproperty, abstractmethod
 from chem21repo.repo.models import Biblio, UniqueFile
+import logging
 
 register = template.Library()
 
@@ -23,7 +24,9 @@ class BaseProcessor:
 
     def apply(self, st):
         self.full_text = st
-        return re.sub(self.pattern, self.repl_function, st)
+        logging.debug("Applying processor %s" % self.__class__)
+        logging.debug(self.full_text)
+        return self.pattern.sub(self.repl_function, st)
 
 
 class TokenProcessor(BaseProcessor):
@@ -39,8 +42,15 @@ class TokenProcessor(BaseProcessor):
 
     @property
     def pattern(self):
-        return r'%s%s(.*?)%s' % (self.openchar,
-                                 self.token_name, self.closechar)
+        try:
+            return self._pattern
+        except AttributeError:
+            self._pattern = re.compile(
+                r'%s%s(.*?)%s' % (self.openchar,
+                                  self.token_name,
+                                  self.closechar),
+                re.DOTALL)
+            return self._pattern
 
     def repl_function(self, match):
         args = match.group(1).split(":")
@@ -56,15 +66,22 @@ class TagProcessor(BaseProcessor):
 
     @property
     def pattern(self):
-        return r'%s%s[:]?(.*?)%s(.*?)%s\/%s%s' % (
-            self.openchar, self.tag_name, self.closechar,
-            self.openchar, self.tag_name, self.closechar)
+        try:
+            return self._pattern
+        except AttributeError:
+            self._pattern = re.compile(
+                r'%s%s[:]?(.*?)%s(.*?)%s\/%s%s' % (
+                    self.openchar, self.tag_name, self.closechar,
+                    self.openchar, self.tag_name, self.closechar),
+                re.DOTALL)
+            return self._pattern
 
     @abstractmethod
     def tag_function(self, st, *args):
         return None
 
     def repl_function(self, match):
+        logging.debug("Tag match")
         args = match.group(1).split(":")
         return self.tag_function(match.group(2), *args)
 
@@ -77,7 +94,7 @@ class BiblioTagProcessor(TagProcessor):
         self.bibset = set([])
         return super(BiblioTagProcessor, self).__init__(*args, **kwargs)
 
-    def tag_function(self, st):
+    def tag_function(self, st, *args):
         try:
             bib = Biblio.objects.get(citekey=st)
         except Biblio.DoesNotExist:
@@ -104,7 +121,7 @@ class BiblioTagProcessor(TagProcessor):
 class BiblioInlineTagProcessor(TagProcessor):
     tag_name = "ibib"
 
-    def tag_function(self, st):
+    def tag_function(self, st, *args):
         try:
             bib = Biblio.objects.get(citekey=st)
         except Biblio.DoesNotExist:
@@ -159,6 +176,7 @@ class FigureGroupTagProcessor(TagProcessor):
         return out
 
     def tag_function(self, st, *args):
+        logging.debug("Figure group found, args %s" % str(args))
         self.full_text = st
         try:
             t = args[0]

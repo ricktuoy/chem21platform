@@ -560,8 +560,12 @@ figure.inline {
 	padding: 1em 0 0 0;
 }
 
-figure.inline img {
+figure.inline img, figure.inline table {
 	max-width: 90%;
+}
+
+figure.inline table {
+	margin: 0 auto;
 }
 
 figure.inline figcaption {
