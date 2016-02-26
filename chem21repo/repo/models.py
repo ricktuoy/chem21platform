@@ -870,6 +870,7 @@ def generate_dirty_record(sender,
                           **kwargs):
     if isinstance(instance, DrupalModel) \
             and not isinstance(instance, UniqueFile):
+        instance.changed = True
         if update_fields:
             instance.drupal.mark_fields_changed(update_fields)
             return

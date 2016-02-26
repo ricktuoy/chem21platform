@@ -117,6 +117,32 @@ class FigureGroupTagProcessor(TagProcessor):
         return "<figure class=\"inline\">%s</figure>" % st
 
 
+class SurroundFiguresTokenProcessor(TokenProcessor):
+    token_name = "figure"
+
+    def token_function(self, *args):
+        joinargs = ("figure", ) + args
+        return "[figgroup][figure%s][/figgroup]" % ":".join(joinargs)
+
+    def repl_function(self, match):
+        _super = super(SurroundFiguresTokenProcessor, self).repl_function
+        print match.group(0)
+        self.is_matched = 1
+        remainder = self.full_text[match.end():]
+        endfiggroup = re.search("\[\/figgroup\]", remainder)
+        if endfiggroup:
+            startfiggroup = re.search("\[figgroup\]", remainder)
+            try:
+                if startfiggroup.start() < endfiggroup.start():
+                    return _super(match)
+                else:
+                    return match.group(0)
+            except AttributeError:
+                # leave alone
+                return match.group(0)
+        return _super(match)
+
+
 class FigCaptionTagProcessor(TagProcessor):
     tag_name = "figcaption"
 
@@ -147,7 +173,8 @@ class ReplaceTokensNode(template.Node):
     def render(self, context):
         txt = self.text.resolve(context)
         simple_processors = [
-            FigureTokenProcessor(), FigCaptionTagProcessor(), BiblioInlineTagProcessor(), FigureGroupTagProcessor() ]
+            FigureTokenProcessor(), FigCaptionTagProcessor(),
+            BiblioInlineTagProcessor(), FigureGroupTagProcessor()]
         for proc in simple_processors:
             txt = proc.apply(txt)
         btag_proc = BiblioTagProcessor()
