@@ -1,0 +1,20 @@
+from django.core.files.storage import DefaultStorage, default_storage
+from filebrowser.sites import site
+
+class Command(BaseCommand):
+    help = 'Print nodes with text changes'
+
+    def handle(self, *args, **options):
+        mods = [Topic, Module, Lesson, Question]
+        proc = SurroundFiguresTokenProcessor()
+        for model in mods:
+            for obj in model.objects.all():
+                if obj.text:
+                    proc = SurroundFiguresTokenProcessor()
+                    obj.text = proc.apply(obj.text)
+                    if hasattr(proc, 'is_matched'):
+                        try:
+                            print obj.title
+                        except UnicodeEncodeError:
+                            print "SHITTY TITLE"
+                    obj.save()

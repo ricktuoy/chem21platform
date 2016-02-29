@@ -1197,6 +1197,9 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     remote_id = models.IntegerField(null=True, db_index=True)
     child_attr_name = "modules"
     text = mceModels.HTMLField(null=True, blank=True, default="")
+    icon = FileBrowseField(max_length=500, null=True)
+
+
 
     def get_siblings(self):
         return Topic.objects.filter(code="XXX")

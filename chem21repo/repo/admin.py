@@ -2,6 +2,7 @@ from .models import *
 from django.contrib import admin
 from django import forms
 import logging
+from filebrowser.sites import site
 
 
 def register_modeladmin(fn):
@@ -82,7 +83,7 @@ create_admin(
     fields=['name', 'code', 'text'],
     hidden_fields=['topic', ],
 )
-create_admin(model=Topic, fields=['name', 'text' ])
+create_admin(model=Topic, fields=['name', 'text','icon' ])
 
 
 create_admin(

@@ -49,7 +49,7 @@
           {% for topic in object_list %}
             <li data-topic="{{ topic.slug }}" {% if forloop.counter0|divisibleby:3 %}class="row3-start"{% endif %}>
             <a href="{{ topic.get_absolute_url }}">
-            <img src="{% if topic.image %}{% version topic.image 'front_menu' %}
+            <img src="{% if topic.icon %}{% version topic.icon 'medium' %}
             {% else %}
               {% static "img/logo_square.jpg" %}
             {% endif %}" alt="{{ topic.title }}" />{{ topic.title }}</a></li>

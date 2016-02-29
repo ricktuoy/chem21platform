@@ -18,7 +18,21 @@ class TinyMCEProxyCachedS3BotoStorage(OptimizedCachedStaticFilesStorage):
         return url
 
 
-MediaRootS3BotoStorage = lambda: CachedS3BotoStorage(location='media/')
+class MediaRootS3BotoStorage(CachedS3BotoStorage):
+    def __init__(self, *args, **kwargs):
+        kwargs['location'] = 'media/'
+        return super(MediaRootS3BotoStorage, self).__init__(*args, **kwargs)
+
+    def isdir(self, path):
+        path = self._clean_name(path)
+        path = path.rstrip("/")
+        return super(MediaRootS3BotoStorage, self).isdir(path)
+
+    def listdir(self, path):
+        path = self._clean_name(path)
+        path = path.rstrip("/")
+        return super(MediaRootS3BotoStorage, self).listdir(path)
+
 
 try:
     SharedMediaStorage = lambda: FileSystemStorage(
