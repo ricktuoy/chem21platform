@@ -558,6 +558,7 @@ figure.presentation figcaption.overlay .byline {
 
 figure.inline {
 	border-top: 2px solid #aaa;
+	border-bottom: 1px solid #bbb;
 	box-shadow: 1px 1px 8px #ddd;
 	background-color: white;
 	text-align: center;

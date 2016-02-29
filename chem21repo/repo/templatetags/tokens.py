@@ -137,6 +137,26 @@ class FigCaptionTagProcessor(TagProcessor):
         return "<figcaption>%s</figcaption>" % st
 
 
+class BaseLinkTagProcessor(TagProcessor):
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
+    def get_html_classes(self):
+        return None
+
+    def set_ancestors(self, obj, anc_pks=[]):
+        if not anc_pks:
+            return obj
+        par = anc_pks.pop(0)
+        obj.set_parent(par)
+        return set_ancestors(obj.get_parent(), anc_pks)
+
+
+    def tag_function(self, st, *args):
+        out = '<a href="%s">%s</a>' % (dest.get_absolute_url, st)
+
+
+
 class FigureGroupTagProcessor(TagProcessor):
     tag_name = "figgroup"
 
@@ -239,7 +259,8 @@ class ReplaceTokensNode(template.Node):
     def render(self, context):
         txt = self.text.resolve(context)
         simple_processors = [
-            FigureTokenProcessor(), FigureGroupTagProcessor(), FigCaptionTagProcessor(),
+            FigureTokenProcessor(), FigureGroupTagProcessor(
+            ), FigCaptionTagProcessor(),
             BiblioInlineTagProcessor(), ]
         for proc in simple_processors:
             txt = proc.apply(txt)

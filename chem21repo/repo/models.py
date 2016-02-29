@@ -284,14 +284,13 @@ class DrupalModel(models.Model):
     def get_parent(self):
         return self._parent
 
-
     def get_ancestors(self):
         try:
             par = self.get_parent()
         except AttributeError:
             return []
         if not par:
-            return ["??",]
+            return ["??", ]
         if par.slug == "-" or par.dummy:
             return par.get_ancestors()
         return par.get_ancestors() + [self.get_parent(), ]
@@ -300,39 +299,84 @@ class DrupalModel(models.Model):
         return self.get_parent().children
 
     def get_earlier_siblings(self):
-        return self.get_siblings().filter(order__lt=self.order).exclude(dummy=True).order_by('-order')
+        return self.get_siblings().filter(
+            order__lt=self.order).exclude(dummy=True).order_by('-order')
 
     def get_later_siblings(self):
-        return self.get_siblings().filter(order__gt=self.order).order_by('order')
+        return self.get_siblings().filter(
+            order__gt=self.order).order_by('order')
+
+    def get_first_display_child(self):
+        try:
+            ch = self.children.all().order_by('order').first()
+        except IndexError:
+            return None
+        if ch.dummy:
+            return ch.get_first_display_child()
+        return ch
+
+    def get_last_display_child(self):
+        try:
+            ch = self.children.all().order_by('-order').first()
+        except (IndexError, AttributeError):
+            return None
+        if ch is None:
+            return None
+        ch.set_parent(self)
+        if ch.dummy:
+            return ch.get_last_display_child()
+        return ch
+
+    def get_recurse_last_display_child(self):
+        ch = self.get_last_display_child()
+        if ch is None or ch == self:
+            return self
+        else:
+            return ch.get_recurse_last_display_child()
+
+    def get_next_sibling(self):
+        sibs = self.get_later_siblings()
+        logging.debug(sibs)
+        p = self.get_parent()
+        try:
+            p.current_module = self.current_module
+        except AttributeError:
+            pass
+        try:
+            sib = sibs[0]
+        except IndexError:
+            return None
+        sib.set_parent(p)
+        return sib
 
     def get_next_object(self, check_children=True):
         if check_children:
             try:
-                ch = self.children.exclude(dummy=True).order_by('order')[0]
-                if not isinstance(ch,UniqueFile): 
+                ch = self.get_first_display_child()
+                if ch is not None and not isinstance(ch, UniqueFile):
                     ch.set_parent(self)
                     return ch
-            except IndexError:
+            except AttributeError:
                 pass
+            ch = self.children.all().order_by('order').first()
+            logging.debug(ch)
+            if ch is not None and ch.dummy and not isinstance(ch, UniqueFile):
+                o = ch
+                o.set_parent(self)
+                sib = o.get_next_sibling()
+                if sib:
+                    return sib
+        sib = self.get_next_sibling()
+        if sib:
+            return sib
         try:
-            sibs = self.get_later_siblings()
+            return self.get_parent().get_next_object(check_children=False)
         except AttributeError:
             return None
-        p = self.get_parent()
-        try:
-            p.current_module = self.current_module
-        except:
-            pass
-        try:
-            o = sibs[0]
-        except IndexError:
-            return p.get_next_object(check_children=False)
-
-        o.set_parent(p)
-        return o
 
 
-    def get_previous_object(self):
+
+    def get_previous_object(self, check_children=True):
         try:
             sibs = self.get_earlier_siblings()
         except AttributeError:
@@ -345,10 +389,15 @@ class DrupalModel(models.Model):
         try:
             o = sibs[0]
         except IndexError:
-            if p.slug == "-" or p.dummy:
+            if self.dummy or p.slug == "-" or p.dummy:
                 return p.get_previous_object()
             return p
         o.set_parent(p)
+
+        if check_children:
+            ch = o.get_recurse_last_display_child()
+            if ch:
+                return ch
         return o
             
     @property
@@ -1474,6 +1523,12 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
         h5p_resources='h5p_resource_dict',
         json_content='json_content'
     )
+
+    def get_last_display_child(self):
+        return None
+
+    def get_first_display_child(self):
+        return None
 
     def set_parent(self, parent):
         super(Question, self).set_parent(parent)
