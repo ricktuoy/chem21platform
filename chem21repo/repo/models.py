@@ -299,6 +299,7 @@ class DrupalModel(models.Model):
         return self.get_parent().children
 
     def get_earlier_siblings(self):
+
         return self.get_siblings().filter(
             order__lt=self.order).exclude(dummy=True).order_by('-order')
 
@@ -1190,6 +1191,9 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     remote_id = models.IntegerField(null=True, db_index=True)
     child_attr_name = "modules"
     text = mceModels.HTMLField(null=True, blank=True, default="")
+
+    def get_siblings(self):
+        return Topic.filter(code="XXX")
 
     def get_parent(self):
         raise AttributeError
