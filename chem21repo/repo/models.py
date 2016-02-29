@@ -382,19 +382,25 @@ class DrupalModel(models.Model):
             sibs = self.get_earlier_siblings()
         except AttributeError:
             return None
-        p = self.get_parent()
+        try:
+            p = self.get_parent()
+        except AttributeError:
+            p = None
         try:
             p.current_module = self.current_module
-        except:
+        except AttributeError:
             pass
         try:
             o = sibs[0]
         except IndexError:
-            if self.dummy or p.slug == "-" or p.dummy:
-                return p.get_previous_object()
-            return p
-        o.set_parent(p)
-
+            if p is not None:
+                if self.dummy or p.slug == "-" or p.dummy:
+                    return p.get_previous_object()
+                return p
+            else:
+                return None
+        if p is not None:
+            o.set_parent(p)
         if check_children:
             ch = o.get_recurse_last_display_child()
             if ch:
