@@ -1195,6 +1195,12 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     def get_siblings(self):
         return Topic.objects.filter(code="XXX")
 
+    def get_next_sibling(self):
+        return None
+
+    def get_previous_sibling(self):
+        return None
+
     def get_parent(self):
         raise AttributeError
 
