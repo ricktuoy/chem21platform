@@ -1193,7 +1193,7 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     text = mceModels.HTMLField(null=True, blank=True, default="")
 
     def get_siblings(self):
-        return Topic.filter(code="XXX")
+        return Topic.objects.filter(code="XXX")
 
     def get_parent(self):
         raise AttributeError
