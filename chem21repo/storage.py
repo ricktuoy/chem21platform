@@ -1,6 +1,7 @@
 from cachedS3.storage import CachedS3BotoStorage
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.utils import timezone
 import os
 import grp
 import tempfile
@@ -32,6 +33,18 @@ class MediaRootS3BotoStorage(CachedS3BotoStorage):
         path = self._clean_name(path)
         path = path.rstrip("/")
         return super(MediaRootS3BotoStorage, self).listdir(path)
+    
+    def modified_time(self, name):
+        name = self._clean_name(name)
+        entry = self.entries.get(name)
+        # Parse the last_modified string to a local datetime object.
+        try:
+            return self.folders[name]
+        except KeyError:
+            try:
+                return entry.last_modified
+            except AttributeError:
+                return timezone.now()
 
 
 try:
