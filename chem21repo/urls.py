@@ -70,6 +70,8 @@ urlpatterns = [
     url(r'^local/strip_remote/', StripRemoteIdView.as_view(), name="strip_id"),
     url(r'^push/', PushView.as_view(), name="push_ajax"),
     url(r'^local/clear/', MarkAsCleanView.as_view(), name="clear_ajax"),
+    url(r'^about/$',
+        TemplateView.as_view(template_name="chem21/about.html"), name="about"),
     url(r'^local/sync/', PullView.as_view(), name="pull_ajax"),
     url(r'^dirty/(?P<object_name>.+)/(?P<id>[0-9]+)/$',
         DirtyView.as_view(), name="dirty"),
@@ -82,10 +84,11 @@ urlpatterns = [
         LessonView.as_view(), name="lesson_detail"),
     url(r'^(?P<topic_slug>[^/]*)/(?P<module_slug>[^/]*)/(?P<lesson_slug>[^/]*)/(?P<slug>[^/]*)/$',
         QuestionView.as_view(), name="question_detail"),
+
 ]
 
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns = patterns('',
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ) + urlpatterns
+                           url(r'^__debug__/', include(debug_toolbar.urls)),
+                           ) + urlpatterns

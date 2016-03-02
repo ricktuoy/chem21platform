@@ -1,0 +1,44 @@
+{% extends 'chem21/base.html' %}
+{% block title %}About us :: CHEM21 learning platform{% endblock %}
+{% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
+{% block content %}
+{% block sidebar_1 %}
+<div id="first-sidebar" class="col col-2-out-of-2 col-1-out-of-4 col-1-out-of-6">
+	<div id="main-navigation-wrapper">
+	    <div class="row main-navigation-row">
+			<div  id="main-navigation-item-home" class="col col-1-out-of-2 col-2-out-of-4 col-3-out-of-6 main-navigation-item">
+				<a href="/" class="col col-1-out-of-2 col-2-out-of-4 col-3-out-of-6 main-navigation-item"><span>Home</span></a>
+			</div>
+		</div>          
+	</div>
+</div>
+{% endblock %}
+{% block sidebar_2 %}
+<div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
+<h2>About this site</h2>
+<p>
+This online resource has been put together as part of the <a href="http://www.chem21.eu">CHEM21 project</a>, which aims to educate and train pharmaceutical chemists to incorporate green chemistry into their everyday practice.  As such, the audience for this platform includes undergraduate students, postgraduates and industrial chemists: anyone who is involved, or could be involved, in practical pharmaceutical chemistry.
+</p><p>
+The intention is that the material here is a permanent resource that can be studied in various ways:
+</p>
+<ul>
+<li>
+    as a course in its own right
+</li>
+<li>
+    embedded into other courses, in whole or part
+</li>
+<li>
+    as individual stand-alone modules that can be chosen to suit the needs of individuals or organisations
+</li>
+</ul>
+<p>
+The educational material is licensed (unless otherwise specified) under Creative Commons license CC BY-NC 4.0, which gives permission for it to be shared and adapted for non-commercial purposes as long as attribution is given.
+</p>
+<p>
+The full list of available courses and modules is available from the <a href="/">home page</a>.
+<p>
+</div>
+</div>
+{% endblock %}
+{% endblock %}

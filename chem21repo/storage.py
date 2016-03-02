@@ -33,7 +33,7 @@ class MediaRootS3BotoStorage(CachedS3BotoStorage):
         path = self._clean_name(path)
         path = path.rstrip("/")
         return super(MediaRootS3BotoStorage, self).listdir(path)
-    
+
     def modified_time(self, name):
         name = self._clean_name(name)
         entry = self.entries.get(name)
