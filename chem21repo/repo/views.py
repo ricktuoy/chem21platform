@@ -583,6 +583,38 @@ class FiguresGetView(JSONView):
             *args, **kwargs)
 
 
+class StructureGetView(JSONView):
+
+    def obj_to_dict(self, obj):
+        d = {'pk': obj.pk, 'name': obj.title}
+        if isinstance(obj, Question):
+            return d
+        logging.debug(d)
+        logging.debug(dir(obj))
+        d['children'] = [self.obj_to_dict(ch) for ch in obj.ordered_children]
+        return d
+
+    def get_context_data(self, **kwargs):
+        struct = Topic.objects.prefetch_related(
+            Prefetch("modules",
+                     queryset=Module.objects.all().order_by('order'),
+                     to_attr="ordered_children"),
+            Prefetch("ordered_children__lessons",
+                     queryset=Lesson.objects.all().order_by('order'),
+                     to_attr="ordered_children"),
+            Prefetch("ordered_children__ordered_children__questions",
+                     queryset=Question.objects.exclude(dummy=True).order_by(
+                         'order'),
+                     to_attr="ordered_children"))
+        return [self.obj_to_dict(ch) for ch in struct]
+
+
+    def render_to_response(self, *args, **kwargs):
+        kwargs['safe'] = False
+        return super(StructureGetView, self).render_to_response(
+            *args, **kwargs)
+
+
 class PushView(BatchProcessView):
     def process_queryset(self, qs):
         error = []

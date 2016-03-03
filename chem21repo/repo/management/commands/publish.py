@@ -17,10 +17,10 @@ class Command(BaseCommand):
                     default=True,
                     help="Don't publish the homepage")
         parser.add_argument('--type',
-        			dest="type",
+                    dest="type",
                     type=str)
         parser.add_argument('--id',
-        			dest="id",
+                    dest="id",
                     type=int)
 
     def publish_learning_object(self, obj):

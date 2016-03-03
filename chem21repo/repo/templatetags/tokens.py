@@ -151,10 +151,8 @@ class BaseLinkTagProcessor(TagProcessor):
         obj.set_parent(par)
         return set_ancestors(obj.get_parent(), anc_pks)
 
-
     def tag_function(self, st, *args):
         out = '<a href="%s">%s</a>' % (dest.get_absolute_url, st)
-
 
 
 class FigureGroupTagProcessor(TagProcessor):
@@ -196,7 +194,6 @@ class FigureGroupTagProcessor(TagProcessor):
         return out
 
     def tag_function(self, st, *args):
-        logging.debug("Figure group found, args %s" % str(args))
         self.full_text = st
         try:
             t = args[0]
@@ -204,9 +201,15 @@ class FigureGroupTagProcessor(TagProcessor):
             t = "figure"
         if not t:
             t = "figure"
+        try:
+            classes = " " + args[1]
+        except IndexError:
+            classes = ""
+        if not classes:
+            classes = ""
         self.replace_caption_html(t)
         self.inc_count(t)
-        return "<figure class=\"inline\">%s</figure>" % self.full_text
+        return "<figure class=\"inline%s\">%s</figure>" % (classes, self.full_text)
 
 
 class SurroundFiguresTokenProcessor(TokenProcessor):
