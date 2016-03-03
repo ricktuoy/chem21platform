@@ -3,7 +3,7 @@ import re
 from django import template
 from django.template.defaultfilters import stringfilter
 from abc import ABCMeta, abstractproperty, abstractmethod
-from chem21repo.repo.models import Biblio, UniqueFile
+from chem21repo.repo.models import Biblio, UniqueFile, Topic, Module, Lesson, Question
 import logging
 
 register = template.Library()
@@ -239,6 +239,51 @@ class SurroundFiguresTokenProcessor(TokenProcessor):
         return _super(match)
 
 
+class LinkMixin:
+    @classmethod
+    def get_object(cls,*args):
+        try:
+            topic = Topic.objects.get(pk=args[0])
+            obj = topic
+        except IndexError:
+            pass
+        try:
+            module = Module.objects.get(pk=args[1])
+            obj = module
+        except IndexError:
+            pass
+        try:
+            lesson = Lesson.objects.get(pk=args[2])
+            obj = lesson
+            obj.current_module = module
+        except IndexError:
+            pass
+        try:
+            question = Question.objects.get(pk=args[3])
+            obj = question
+            obj.current_lesson = lesson
+            obj.current_module = module
+        except IndexError:
+            pass
+        return obj
+
+
+class CTATokenProcessor(LinkMixin, TokenProcessor):
+    token_name = "cta"
+
+    def token_function(self, *args):
+        obj = CTATokenProcessor.get_object(*[int(x) for x in args])
+        return "<p class=\"cta\"><a href=\"%s\">For more on this subject, see \"<span class=\"subject_title\">%s</span></a>\"</p>" % (obj.get_absolute_url(), obj.title)
+
+
+class ILinkTagProcessor(LinkMixin, TagProcessor):
+    tag_name = "inlink"
+
+    def tag_function(self, st, *args):
+        obj = ILinkTagProcessor.get_object(*[int(x) for x in args])
+        return "<a class=\"internal\" href=\"%s\">%s</a>" % (obj.get_absolute_url(), st)
+
+
 class FigureTokenProcessor(TokenProcessor):
     token_name = "figure"
 
@@ -264,7 +309,9 @@ class ReplaceTokensNode(template.Node):
         simple_processors = [
             FigureTokenProcessor(), FigureGroupTagProcessor(
             ), FigCaptionTagProcessor(),
-            BiblioInlineTagProcessor(), ]
+            BiblioInlineTagProcessor(),
+            ILinkTagProcessor(),
+            CTATokenProcessor()]
         for proc in simple_processors:
             txt = proc.apply(txt)
         btag_proc = BiblioTagProcessor()
