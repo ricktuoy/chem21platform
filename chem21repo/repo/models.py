@@ -360,7 +360,6 @@ class DrupalModel(models.Model):
             except AttributeError:
                 pass
             ch = self.children.all().order_by('order').first()
-            logging.debug(ch)
             if ch is not None and ch.dummy and not isinstance(ch, UniqueFile):
                 o = ch
                 o.set_parent(self)
@@ -368,6 +367,8 @@ class DrupalModel(models.Model):
                 if sib:
                     return sib
         sib = self.get_next_sibling()
+        if sib and sib.dummy:
+        	return sib.get_next_object(check_children=True)
         if sib:
             return sib
         try:

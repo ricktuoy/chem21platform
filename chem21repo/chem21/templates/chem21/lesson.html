@@ -13,10 +13,10 @@
 			{% else %}
 			<li class="active">
 				{% if module.text|striptags or perms.repo.change_module %}
-				<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
-			{% else %}
-				{{ module.name }}
-			{% endif %}
+					<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
+				{% else %}
+					{{ module.name }}
+				{% endif %}
 				<ol>
 				{% include 'chem21/include/active_module_nav.html' with module=module current_lesson=object %}
 				</ol>
@@ -24,7 +24,11 @@
 			{% endif %}
 			
 		{% else %}
+			{% if module.dummy %}
+			{% include 'chem21/include/active_module_nav.html' with module=module current_lesson=object %}
+			{% else %}
 			<li><a href="{{ module.get_absolute_url }}">{{ module.name }}</a></li>
+			{% endif %}
 		{% endifequal %}
 	{% endfor %}
 	</ol>

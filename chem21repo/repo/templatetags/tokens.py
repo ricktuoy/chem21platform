@@ -1,10 +1,17 @@
 import re
 
-from django import template
-from django.template.defaultfilters import stringfilter
-from abc import ABCMeta, abstractproperty, abstractmethod
-from chem21repo.repo.models import Biblio, UniqueFile, Topic, Module, Lesson, Question
 import logging
+
+from abc import ABCMeta
+from abc import abstractproperty
+from abc import abstractmethod
+from chem21repo.repo.models import Biblio
+from chem21repo.repo.models import Lesson
+from chem21repo.repo.models import Module
+from chem21repo.repo.models import Question
+from chem21repo.repo.models import Topic
+from chem21repo.repo.models import UniqueFile
+from django import template
 
 register = template.Library()
 
@@ -24,8 +31,6 @@ class BaseProcessor:
 
     def apply(self, st):
         self.full_text = st
-        logging.debug("Applying processor %s" % self.__class__)
-        logging.debug(self.full_text)
         return self.pattern.sub(self.repl_function, st)
 
 
@@ -137,24 +142,6 @@ class FigCaptionTagProcessor(TagProcessor):
         return "<figcaption>%s</figcaption>" % st
 
 
-class BaseLinkTagProcessor(TagProcessor):
-    __metaclass__ = ABCMeta
-
-    @abstractproperty
-    def get_html_classes(self):
-        return None
-
-    def set_ancestors(self, obj, anc_pks=[]):
-        if not anc_pks:
-            return obj
-        par = anc_pks.pop(0)
-        obj.set_parent(par)
-        return set_ancestors(obj.get_parent(), anc_pks)
-
-    def tag_function(self, st, *args):
-        out = '<a href="%s">%s</a>' % (dest.get_absolute_url, st)
-
-
 class FigureGroupTagProcessor(TagProcessor):
     tag_name = "figgroup"
 
@@ -209,7 +196,8 @@ class FigureGroupTagProcessor(TagProcessor):
             classes = ""
         self.replace_caption_html(t)
         self.inc_count(t)
-        return "<figure class=\"inline%s\">%s</figure>" % (classes, self.full_text)
+        return "<figure class=\"inline%s\">%s</figure>" % (
+            classes, self.full_text)
 
 
 class SurroundFiguresTokenProcessor(TokenProcessor):
@@ -241,7 +229,7 @@ class SurroundFiguresTokenProcessor(TokenProcessor):
 
 class LinkMixin:
     @classmethod
-    def get_object(cls,*args):
+    def get_object(cls, *args):
         try:
             topic = Topic.objects.get(pk=args[0])
             obj = topic
@@ -273,7 +261,9 @@ class CTATokenProcessor(LinkMixin, TokenProcessor):
 
     def token_function(self, *args):
         obj = CTATokenProcessor.get_object(*[int(x) for x in args])
-        return "<p class=\"cta\"><a href=\"%s\">For more on this subject, see \"<span class=\"subject_title\">%s</span></a>\"</p>" % (obj.get_absolute_url(), obj.title)
+        return "<p class=\"cta\"><a href=\"%s\">For more on this subject," + \
+            " see \"<span class=\"subject_title\">%s</span></a>\"</p>" % (
+                obj.get_absolute_url(), obj.title)
 
 
 class ILinkTagProcessor(LinkMixin, TagProcessor):
@@ -281,7 +271,8 @@ class ILinkTagProcessor(LinkMixin, TagProcessor):
 
     def tag_function(self, st, *args):
         obj = ILinkTagProcessor.get_object(*[int(x) for x in args])
-        return "<a class=\"internal\" href=\"%s\">%s</a>" % (obj.get_absolute_url(), st)
+        return "<a class=\"internal\" href=\"%s\">%s</a>" % (
+            obj.get_absolute_url(), st)
 
 
 class FigureTokenProcessor(TokenProcessor):
