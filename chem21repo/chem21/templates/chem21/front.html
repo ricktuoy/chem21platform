@@ -16,6 +16,7 @@
           <li class="slide" style="background-image: url({% static "slides/homepage_background_3.jpg" %});">
             <div class="content">
               <h2>Welcome&nbsp;to&nbsp;the&nbsp;CHEM21 online&nbsp;learning&nbsp;platform</h2>
+              <nav>
               <div class="intro">
               <p>
                 A range of interactive educational and training material that will allow you, as a pharmaceutical chemist, to incorporate green chemistry more fully into your everyday practice. 
@@ -24,6 +25,8 @@
               </div>
               <div class="cta">
               <p><a id="give_feedback" href="#">Feedback on this page</a></p>
+              </div>
+              </nav>
             </div>
           </li>
           {% for topic in object_list %}
@@ -42,6 +45,7 @@
               {% endifnotequal %}
             {% endfor %}
             </ul>
+            <p class="clear">&nbsp;</p>
             </nav>
             </div>
           </li>

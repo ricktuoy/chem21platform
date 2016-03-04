@@ -368,15 +368,13 @@ class DrupalModel(models.Model):
                     return sib
         sib = self.get_next_sibling()
         if sib and sib.dummy:
-        	return sib.get_next_object(check_children=True)
+            return sib.get_next_object(check_children=True)
         if sib:
             return sib
         try:
             return self.get_parent().get_next_object(check_children=False)
         except AttributeError:
             return None
-
-
 
     def get_previous_object(self, check_children=True):
         try:

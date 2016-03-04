@@ -5,7 +5,10 @@
     overflow: hidden;
     position: absolute !important;
 }
-
+.clear {
+	clear: both;
+	height: 1px;
+}
 
 #logo img {
 	max-height: 115px;
@@ -109,22 +112,42 @@ h1 {
 
 /****************** Front page ****************/
 
+body.front #site-content {
+	background-color: transparent;
+	background-image: none;
+}
+
+body.front #content {
+	background-color: transparent;
+}
+
+body.front #content .slides li .content nav {
+	opacity: 0.85;
+	background-color: #222;
+}
+
 #front-menu {
 	z-index:9999999;
-	background-color: #111;
+	background-color: #222;
 	opacity: 0.85;
 }
 
 body.front #second-sidebar {
-	background-color: #333;
+	background-color: transparent;
 }
 
 body.front {
 	background-color: #333;
+
+    background-image: url('../img/front-background.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+
 }
 
 body.front #site-footer {
-	background-color: #333;
+	background-color: transparent;
 }
 
 
@@ -202,9 +225,11 @@ body.front #second-sidebar ul.slides > li .content {
 }
 
 body.front li .content .intro  {
-	background-color: #2f2f2f;
-	padding: 1.7em;
-	font-size: 0.9em;
+
+	font-size: 1.05em;
+	color: white;
+
+	padding: 0 1em;
 }
 
 body.front #front-menu li.hover {
@@ -228,12 +253,10 @@ body.front ul.slides li.slide .content {
 body.front ul.slides li .content h2 {
 	font-size: 1.4em;
 	color: #ffc;
+	text-shadow: 0 0 8px #111;
 	line-height: 1.1em;
 }
 
-body.front .topic h2 {
-	margin-bottom: 0.1em;
-}
 
 body.front nav ul {
 	list-style-type: none;
@@ -244,22 +267,23 @@ body.front nav ul {
 body.front nav li {
 	list-style-type: none;
 	margin: 0.2em 0;
-	background-color: #2f2f2f;
+	background-color: transparent;
 	padding: 0.5em 0;
 	border: 0;
 	line-height: 1.1em;
 }
 
 body.front nav li:hover {
-	background-color: #222;
+	background-color: black;
 }
 
 body.front #front-back {
 	position:fixed;
+	opacity: 0.9em;
 	top: 15px;
 	right: 75px;
 	font-size: 125px;
-	background-color: #555;
+	background-color: #111;
 	line-height: 47px;
 	z-index: 9999;
 	padding: 0 10px;
@@ -594,6 +618,11 @@ body.front #disqus_thread iframe {
 	padding: 1em;
 }
 
+p.cta {
+	border: 1px solid #dca;
+	background-color: #fed;
+}
+
 @media screen and (max-width: 799px) {
 	#class_nav {
 		float: none;
@@ -706,7 +735,7 @@ body.front #disqus_thread iframe {
 
 	body.front #second-sidebar ul.slides > li .content {
 		width: 60%;
-		padding: 0 20%;
+		margin: -30px 20% 0 20%;
 		font-size: 1.2em;
 	}
 	body.platon-use-slider #second-sidebar #front-menu li {
@@ -728,7 +757,8 @@ body.front #disqus_thread iframe {
 body.front #second-sidebar ul.slides > li .content {
 		font-size: 1.3em;
 		width: 50%;
-		padding: 0 25%;
+		margin: -30px 25% 0 25%;
+		padding: 0;
 	}
 body.front #second-sidebar ul.slides > li .content h2 {
 	font-size: 2em;
