@@ -124,6 +124,7 @@ body.front #content {
 body.front #content .slides li .content nav {
 	opacity: 0.85;
 	background-color: #222;
+	padding: 1.5em 2%;
 }
 
 #front-menu {
@@ -257,6 +258,9 @@ body.front ul.slides li .content h2 {
 	line-height: 1.1em;
 }
 
+body.front ul.slides .topic_nav {
+
+}
 
 body.front nav ul {
 	list-style-type: none;
@@ -471,6 +475,91 @@ body.front #site-content {
 	cursor:pointer;
 }
 
+/************** green principles diagram ****/
+
+.green_principles li {
+        display: inline-block;
+        vertical-align: top;
+        font-size: 0.9em;
+        line-height: 1.1em;
+        width: 15%;
+        height: 3.5em;
+        aria-hidden: true;
+        margin: 0.5em 0 0 0;
+        padding: 0.5em 0.5% 0.5em 0.5%;
+        background-color: #eee;
+        color: #aaa;
+}
+
+.green_principles li.active {
+        font-weight: bold;
+        color: white;
+        aria-hidden: false;
+}
+
+.green_principles li.active.p1 {
+        background-color: #00ced1;
+}
+
+
+.green_principles li.active.p2 {
+        background-color: #00ced1;
+}
+
+
+.green_principles li.active.p3 {
+        background-color: #ff7f50;
+}
+
+
+.green_principles li.active.p4 {
+        background-color: #ff7f50;
+}
+
+
+.green_principles li.active.p5 {
+        background-color: #ff7f50;
+}
+
+
+.green_principles li.active.p6 {
+        background-color: #00ced1;
+}
+
+
+.green_principles li.active.p7 {
+        background-color: #00ced1;
+}
+
+
+.green_principles li.active.p8 {
+        background-color: #00ced1;
+}
+
+.green_principles li.active.p9 {
+        background-color: #00ced1;
+}
+
+.green_principles li.active.p10 {
+        background-color: #ff7f50;
+}
+
+.green_principles li.active.p11 {
+        background-color: #ff7f50;
+}
+
+.green_principles li.active.p12 {
+        background-color: #ff7f50;
+}
+
+.green_principles {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+}
+
+
+
 /************** FOOTNOTES *************/
 
 ol.footnotes {
@@ -619,8 +708,9 @@ body.front #disqus_thread iframe {
 }
 
 p.cta {
-	border: 1px solid #dca;
-	background-color: #fed;
+	border: 1px solid #dda;
+	background-color: #ffd;
+	padding: 0.5em;
 }
 
 @media screen and (max-width: 799px) {
@@ -764,7 +854,7 @@ body.front #second-sidebar ul.slides > li .content h2 {
 	font-size: 2em;
 }
 	body.front li .content .intro {
-		margin: 2em 5%;
+		margin: 0 1%;
 	}
 }
 

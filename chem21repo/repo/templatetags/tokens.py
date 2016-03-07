@@ -134,6 +134,73 @@ class BiblioInlineTagProcessor(TagProcessor):
             bib.save()
         return bib.get_inline_html()
 
+class GreenPrincipleTokenProcessor(TokenProcessor):
+    token_name = "greenprinciple"
+    principles = [
+        {'title': 'Prevention',
+         'description': ''
+         },
+        {'title': 'Atom economy',
+         'description': ''
+         },
+        {'title': 'Less hazardous chemical syntheses',
+         'description': ''
+         },
+        {'title': 'Designing safer chemicals',
+         'description': ''
+         },
+        {'title': 'Safer solvents and auxiliaries',
+         'description': ''
+         },
+        {'title': 'Design for energy efficiency',
+         'description': ''
+         },
+        {'title': 'Use of renewable feedstocks',
+         'description': ''
+         },
+        {'title': 'Reduce derivatives',
+         'description': ''
+         },
+        {'title': 'Catalysis',
+         'description': ''
+         },
+        {'title': 'Design for degradation',
+         'description': ''
+         },
+        {'title': 'Real-time analysis for pollution prevention',
+         'description': ''
+         },
+        {'title': 'Inherently safer chemistry for accident prevention',
+         'description': ''
+         },
+    ]
+
+    def build_html(self, num_list):
+        out = "<ol class=\"green_principles\">"
+        num = 1
+        for principle in self.principles:
+            active_cls = ""
+            if num in num_list:
+                active_cls = " active"
+            out += "<li class=\"%s%s\">%s</li>" % (
+                "p" + str(num), active_cls, principle['title'])
+            num += 1
+        out += "</ol>"
+        return out
+
+    def token_function(self, *args):
+        num_list = []
+        try:
+            command = args[0]
+        except IndexError:
+            return
+        if command == "show":
+            try:
+                num_list = [int(x) for x in args[1:]]
+            except IndexError:
+                num_list = range(1, 12)
+        return self.build_html(num_list)
+
 
 class FigCaptionTagProcessor(TagProcessor):
     tag_name = "figcaption"
@@ -301,7 +368,8 @@ class ReplaceTokensNode(template.Node):
             ), FigCaptionTagProcessor(),
             BiblioInlineTagProcessor(),
             ILinkTagProcessor(),
-            CTATokenProcessor()]
+            CTATokenProcessor(),
+            GreenPrincipleTokenProcessor()]
         for proc in simple_processors:
             txt = proc.apply(txt)
         btag_proc = BiblioTagProcessor()
