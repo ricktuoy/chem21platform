@@ -19,7 +19,7 @@
               <nav>
               <div class="intro">
               <p>
-                A range of interactive educational and training material that will allow you, as a pharmaceutical chemist, to incorporate green chemistry more fully into your everyday practice. 
+                A range of interactive educational and training material to promote the uptake of green and sustainable methodologies in the synthesis of pharmaceuticals. 
               </p>
               <a href="/about">&raquo; read more about the site</a>
               </div>
@@ -35,14 +35,14 @@
             <h2>{{ topic.title }}</h2>
             <nav class="topic_nav">
             <ul>
-            {% for module in topic.modules.all %}
-              {% ifnotequal module.slug "-" %}
+            {% for module in topic.ordered_children|dictsort:"order" %}
+              {% if not module.dummy %}
               <li class="{% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}"><a href="{{ module.get_absolute_url }}">{{ module.title }}</a></li>
               {% else %}
-              {% for lesson in module.lessons.all %}
+              {% for lesson in module.ordered_children|dictsort:"order" %}
               <li class="{% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}"><a href="{% url 'lesson_detail' topic_slug=module.topic.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.title }}</a></li>
               {% endfor %}
-              {% endifnotequal %}
+              {% endif %}
             {% endfor %}
             </ul>
             <p class="clear">&nbsp;</p>

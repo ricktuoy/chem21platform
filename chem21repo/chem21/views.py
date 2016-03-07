@@ -76,8 +76,13 @@ class FrontView(ListView):
     model = Topic
 
     def get_queryset(self):
-        return Topic.objects.all().order_by('order').prefetch_related(
-            "modules")
+        return Topic.objects.prefetch_related(
+            Prefetch("modules",
+                     queryset=Module.objects.all().order_by('order'),
+                     to_attr="ordered_children"),
+            Prefetch("ordered_children__lessons",
+                     queryset=Lesson.objects.all().order_by('order'),
+                     to_attr="ordered_children"))
 
 
 class TopicView(LearningView):
@@ -124,3 +129,5 @@ class LessonView(LearningView):
 class ModuleView(LearningView):
     template_name = "chem21/module.html"
     model = Module
+
+
