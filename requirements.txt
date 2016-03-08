@@ -14,9 +14,9 @@ django-revproxy==0.9.10
 -e git+https://github.com/ricktaylord/django-static-generator.git@8ac91e1a73456b5927186983051c12fcf2c01539#egg=django_staticgenerator-master
 -e hg+https://ricktaylord@bitbucket.org/david/django-storages@f153a70ba254dc129d9403546809a02256ef75b5#egg=django_storages-dev
 django-tinymce==2.2.0
--e git+https://github.com/ricktaylord/django-tinymce-biblio.git@6afd67a579e2d0cf2bcb9fa140c3b13b5d8ed17d#egg=django_tinymce_biblio-master
--e git+https://github.com/ricktaylord/django-tinymce-figures.git@7b5d20492700a6564286c91a703133196d3f1925#egg=django_tinymce_figuretag-master
--e git+https://github.com/ricktaylord/django-tinymce-links.git@fc7bcf6e9acf036ce5235a1fae66c8e6a0bd0774#egg=django_tinymce_links-master
+-e git+https://github.com/ricktaylord/django-tinymce-biblio.git#egg=django_tinymce_biblio-master
+-e git+https://github.com/ricktaylord/django-tinymce-figures.git#egg=django_tinymce_figuretag-master
+-e git+https://github.com/ricktaylord/django-tinymce-links.git#egg=django_tinymce_links-master
 django-toolbelt==0.0.1
 gunicorn==19.3.0
 html2text==2016.1.8
