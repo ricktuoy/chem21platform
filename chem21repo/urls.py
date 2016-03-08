@@ -67,6 +67,8 @@ urlpatterns = [
     url(r'^files/attach/$',
         AttachUniqueFileView.as_view(),
         name="attach_files"),
+    url(r'^quiz/import/(?P<object_name>.+)/(?P<id>[0-9]+)/$',
+    	ImportQuizView.as_view(), name="quiz_import"),
     url(r'version/(?P<pk>[0-9]+)[/]?$', TextVersionView.as_view(),
         name="version"),
     url('', include('social.apps.django_app.urls', namespace='social')),

@@ -231,6 +231,7 @@ class DrupalModel(models.Model):
     text_versions = GenericRelation(TextVersion)
     changed = models.BooleanField(default=False)
     dummy = models.BooleanField(default=False)
+    quiz_name = models.CharField(max_length=100, blank=True, null=True)
 
     def has_text_changes(self, since=None):
         return self.text_versions.exclude(

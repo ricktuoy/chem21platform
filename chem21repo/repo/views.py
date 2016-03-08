@@ -13,6 +13,7 @@ from .models import TextVersion
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
+from django.core.files.storage import default_storage
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Prefetch
@@ -29,6 +30,7 @@ from django.contrib.auth.decorators import login_required
 from revproxy.views import ProxyView
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.files.base import ContentFile
 # Create your views here.
 
 
@@ -608,7 +610,6 @@ class StructureGetView(JSONView):
                      to_attr="ordered_children"))
         return [self.obj_to_dict(ch) for ch in struct]
 
-
     def render_to_response(self, *args, **kwargs):
         kwargs['safe'] = False
         return super(StructureGetView, self).render_to_response(
@@ -664,6 +665,104 @@ class StripRemoteIdView(BatchProcessView):
             except (RESTError, RESTAuthError), e:
                 error.append(str(e))
         return (success, error)
+
+
+class ImportQuizView(JSONView):
+    json_field_name = "json"
+
+    def populate_post_dict(self):
+        try:
+            return self._post_dict
+        except AttributeError:
+            self._post_dict = parser.parse(self.request.POST.urlencode())
+            return self._post_dict
+
+    def get_json_data(self):
+        self.populate_post_dict()
+        self.data = json.loads(self._post_dict[self.json_field_name])
+        return self.data
+
+    def post(self, request, *args, **kwargs):
+        self.request = request
+        self.status_code = 200
+        self.error = []
+
+        data = self.get_json_data()
+
+        try:
+            t = data['quiz_object']
+        except KeyError:
+            self.error.append("Not a quiz object")
+
+        if t != "questions_answers":
+            self.error.append("Not questions and answers; cannot import")
+
+        try:
+            name = data['id']
+        except KeyError:
+            self.error.append("Quiz object has no id")
+
+        try:
+            model = ContentType.objects.get(
+                app_label="repo",
+                model=kwargs['object_name']).model_class()
+        except ContentType.DoesNotExist:
+            self.error.append("Unknown learning object type")
+
+        try:
+            attach_to = model.objects.get(pk=kwargs['id'])
+        except model.DoesNotExist:
+            self.error.append("Cannot find learning object")
+
+        if len(self.error):
+            return JsonResponse(
+                {'error': self.error, }, status=500
+            )
+
+        dest_questions = "quiz/%s_questions.json" % name
+        dest_answers = "quiz/%s_answers.json" % name
+
+        question_data = [
+            {'id': el['id'],
+             'type': el['type'],
+             'text': el['text'],
+             'responses': el['responses']}
+            for el in data]
+        answer_data = [
+            {'id': el['id'],
+             'correct': el['correct']}
+            for el in data]
+
+        questions = data
+        questions['data'] = question_data
+
+        answers = data
+        answers['data'] = answer_data
+
+        f = ContentFile(json.dumps(questions))
+        default_storage.save(dest_questions, f)
+
+        f = ContentFile(json.dumps(answers))
+        default_storage.save(dest_answers, f)
+
+        attach_to.quiz_name = name
+        attach_to.save()
+
+        return JsonResponse(
+            {'success': 'Saved to %s, %s' % (
+                default_storage.url(dest_questions),
+                default_storage.url(dest_answers))},
+            status=200)
+
+
+
+
+
+
+
+
+
+
 
 
 class AddFileView(BatchProcessView):
