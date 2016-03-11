@@ -559,6 +559,29 @@ body.front #site-content {
 }
 
 
+/***************** QUIZZES *****************/
+.quiz_questions .question {
+	background-color: #ccf;
+	padding: 1em;
+	font-size: 1.5em;
+	border: 1px solid #bbe;
+}
+
+
+.quiz_questions .question h3 {
+	margin-top: 0;
+}
+
+.quiz_questions .question ul, .quiz_questions .question li {
+	list-style-type: none;
+}
+
+.quiz_questions .question ul li.choice {
+	background-color: #bbd;
+	padding: 0.3em 1em;
+	margin: 0.5em 2em 0.5em 0;
+	border: 1px solid #aac;
+}
 
 /************** FOOTNOTES *************/
 

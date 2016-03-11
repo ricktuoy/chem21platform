@@ -667,8 +667,8 @@ class StripRemoteIdView(BatchProcessView):
         return (success, error)
 
 
-class ImportQuizView(JSONView):
-    json_field_name = "json"
+class ImportQuizView(CSRFExemptMixin, JSONView):
+    
 
     def populate_post_dict(self):
         try:
@@ -679,45 +679,43 @@ class ImportQuizView(JSONView):
 
     def get_json_data(self):
         self.populate_post_dict()
-        self.data = json.loads(self._post_dict[self.json_field_name])
+        self.data = json.loads(self.request.body)
         return self.data
+
+    def error_response(self, error=""):
+        return JsonResponse({'error': error}, status=500)
 
     def post(self, request, *args, **kwargs):
         self.request = request
-        self.status_code = 200
-        self.error = []
+        self.errors = []
 
         data = self.get_json_data()
 
         try:
             t = data['quiz_object']
         except KeyError:
-            self.error.append("Not a quiz object")
+            return self.error_response("Not a quiz_object")
 
         if t != "questions_answers":
-            self.error.append("Not questions and answers; cannot import")
+            return self.error_response(
+                "Not questions and answers; cannot import")
 
         try:
             name = data['id']
         except KeyError:
-            self.error.append("Quiz object has no id")
+            return self.error_response("Quiz object has no id")
 
         try:
             model = ContentType.objects.get(
                 app_label="repo",
                 model=kwargs['object_name']).model_class()
         except ContentType.DoesNotExist:
-            self.error.append("Unknown learning object type")
+            return self.error_response("Unknown learning object type")
 
         try:
             attach_to = model.objects.get(pk=kwargs['id'])
         except model.DoesNotExist:
-            self.error.append("Cannot find learning object")
-
-        if len(self.error):
-            return JsonResponse(
-                {'error': self.error, }, status=500
-            )
+            return self.error_response("Cannot find learning object")
 
         dest_questions = "quiz/%s_questions.json" % name
         dest_answers = "quiz/%s_answers.json" % name
@@ -727,17 +725,19 @@ class ImportQuizView(JSONView):
              'type': el['type'],
              'text': el['text'],
              'responses': el['responses']}
-            for el in data]
+            for el in data['data']]
         answer_data = [
             {'id': el['id'],
              'correct': el['correct']}
-            for el in data]
+            for el in data['data']]
 
-        questions = data
+        questions = data.copy()
         questions['data'] = question_data
+        questions['quiz_object'] = "questions"
 
-        answers = data
+        answers = data.copy()
         answers['data'] = answer_data
+        answers['quiz_object'] = "answers"
 
         f = ContentFile(json.dumps(questions))
         default_storage.save(dest_questions, f)

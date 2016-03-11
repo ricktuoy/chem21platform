@@ -13,6 +13,7 @@ from chem21repo.repo.models import Topic
 from chem21repo.repo.models import UniqueFile
 from django import template
 
+
 register = template.Library()
 
 
@@ -328,7 +329,8 @@ class CTATokenProcessor(LinkMixin, TokenProcessor):
 
     def token_function(self, *args):
         obj = CTATokenProcessor.get_object(*[int(x) for x in args])
-        return "<p class=\"cta\">To study this area in more depth, see <a href=\"%s\"><span class=\"subject_title\">%s</span></a></p>" % (
+        return "<p class=\"cta\">To study this area in more depth," + \
+        	   " see <a href=\"%s\"><span class=\"subject_title\">%s</span></a></p>" % (
                 obj.get_absolute_url(), obj.title)
 
 
@@ -364,8 +366,9 @@ class ReplaceTokensNode(template.Node):
     def render(self, context):
         txt = self.text.resolve(context)
         simple_processors = [
-            FigureTokenProcessor(), FigureGroupTagProcessor(
-            ), FigCaptionTagProcessor(),
+            FigureTokenProcessor(),
+            FigureGroupTagProcessor(),
+            FigCaptionTagProcessor(),
             BiblioInlineTagProcessor(),
             ILinkTagProcessor(),
             CTATokenProcessor(),

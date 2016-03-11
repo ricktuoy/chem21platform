@@ -29,10 +29,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes import generic
 from StringIO import StringIO
 
-
-
-
-
 class Biblio(models.Model):
     citekey = models.CharField(max_length=300, unique=True)
     title = models.CharField(max_length=500, blank=True, default="")
@@ -232,6 +228,16 @@ class DrupalModel(models.Model):
     changed = models.BooleanField(default=False)
     dummy = models.BooleanField(default=False)
     quiz_name = models.CharField(max_length=100, blank=True, null=True)
+
+    @property
+    def quiz(self):
+        return self.quiz_name
+
+    @property
+    def has_quiz(self):
+        if self.quiz:
+        	return True
+        return False
 
     def has_text_changes(self, since=None):
         return self.text_versions.exclude(

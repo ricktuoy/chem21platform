@@ -1,5 +1,6 @@
 {% extends 'chem21/base.html' %}
 {% load tokens %}
+{% load quiz %}
 {% block head %}
 {% if not object.text  and not perms.repo.change_question and not object.video and object.get_first_child %}
 	<meta http-equiv="refresh" content="0;URL={{ object.get_first_child.get_absolute_url }}" /> 
@@ -69,6 +70,9 @@
 {% endif %}
 </figcaption>
 </figure>
+{% endif %}
+{% if object.has_quiz %}
+{% render_quiz object.quiz %}
 {% endif %}
 {% if object.pdf %}
 <a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
