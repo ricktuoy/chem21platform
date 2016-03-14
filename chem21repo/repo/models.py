@@ -1448,6 +1448,18 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     )
 
     @property
+    def first_question(self):
+        try:
+            return self._first_question
+        except AttributeError:
+            self._first_question = self.questions.first()
+            return self._first_question
+
+    def is_question(self):
+        if self.first_question.dummy:
+            return self.first_question
+
+    @property
     def video(self):
         if not self.text:
             try:
