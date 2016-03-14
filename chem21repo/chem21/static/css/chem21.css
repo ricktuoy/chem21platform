@@ -154,8 +154,12 @@ body.front {
 
 body.front #site-footer {
 	background-color: transparent;
+	border: 0;
 }
 
+#site-footer {
+	border-top: 3px solid #aaa;
+}
 
 
 body.platon-use-slider #second-sidebar #front-menu {
@@ -311,14 +315,14 @@ body.front #site-content {
 	margin-top: 95px;
 }
 
-body.front #content .content .cobranding img {
+.cobranding img {
 	width: 20%;
 	padding: 5px 1%;
 	max-width: 95px;
 	float: right;
 } 
 
-body.front #content .content .cobranding img#imi_logo  {
+.cobranding img#imi_logo  {
 	float: left;
 } 
 

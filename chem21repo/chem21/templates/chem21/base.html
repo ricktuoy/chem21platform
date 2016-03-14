@@ -72,12 +72,14 @@
     <div class="row">
   {% block content %}
      
-  {% endblock %}
-
-  {% block footer %}
-  <footer id="site-footer">
-   
+       <footer id="site-footer">
+   {% block footer %}
+   {% endblock %}
   </footer>
   {% endblock %}
+
+  
+
+  
 </body>
 </html>
