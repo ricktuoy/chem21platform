@@ -161,6 +161,14 @@ body.front #site-footer {
 	border-top: 3px solid #aaa;
 }
 
+#site-footer p.verbage {
+	color: #444;
+	text-align: center;
+	font-size: 1.1em;
+	max-width: 800px;
+	margin: 0.75em auto 0 auto;
+}
+
 
 body.platon-use-slider #second-sidebar #front-menu {
 	position: fixed;
