@@ -236,7 +236,7 @@ class DrupalModel(models.Model):
     @property
     def has_quiz(self):
         if self.quiz:
-        	return True
+            return True
         return False
 
     def has_text_changes(self, since=None):
@@ -1090,8 +1090,7 @@ class UniqueFile(OrderedModel, DrupalModel):
 
     @property
     def author_string(self):
-        if self.cut_of and self.cut_of.pk != self.pk:
-            return self.cut_of.author_string
+
         authors = list(self.authors.all())
         if len(authors) == 1:
             return unicode(authors[0])
@@ -1099,6 +1098,8 @@ class UniqueFile(OrderedModel, DrupalModel):
         try:
             return "%s; and %s" % (out, unicode(authors[-1]))
         except IndexError:
+            if self.cut_of and self.cut_of.pk != self.pk:
+                return self.cut_of.author_string
             return out
 
     def get_module_pks(self):
