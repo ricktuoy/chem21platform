@@ -173,6 +173,10 @@ body.front #site-footer {
 	margin: 0.75em auto 0 auto;
 }
 
+#site-footer p.verbage a {
+	color: #595;
+}
+
 
 body.platon-use-slider #second-sidebar #front-menu {
 	position: fixed;
@@ -330,7 +334,7 @@ body.front #site-content {
 .cobranding img {
 	width: 20%;
 	padding: 5px 1%;
-	max-width: 95px;
+	max-width: 110px;
 	float: right;
 } 
 
