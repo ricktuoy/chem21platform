@@ -23,10 +23,25 @@
               </p>
               <a href="/about">&raquo; read more about the site</a>
               </div>
+<div class="cobranding">
+              <a href="http://imi.europa.eu">
+              <img src="{% static "img/imi_Logo.png" %}" alt="Innovative Medicines Initiative" id="imi_logo" />
+              </a>
+              <a href="http://ec.europa.eu/research/health/index.cfm?pg=home">
+              <img src="{% static "img/eu_logo.png" %}" alt="European Commission" id="eu_logo" />
+              </a>
+              <a href="http://www.efpia.eu">
+              <img src="{% static "img/efpia_logo.png" %}" alt="European Federation of Pharmaceutical Industries and Associations" id="efpia_logo" />
+              </a>
+              <div class="clear">&nbsp;</div>
+              </div>
+              <!--
               <div class="cta">
               <p><a id="give_feedback" href="#">Feedback on this page</a></p>
               </div>
+              -->
               </nav>
+              
             </div>
           </li>
           {% for topic in object_list %}

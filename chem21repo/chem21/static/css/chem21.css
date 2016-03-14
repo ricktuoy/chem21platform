@@ -124,6 +124,11 @@ body.front #content {
 body.front #content .slides li .content nav {
 	opacity: 0.85;
 	background-color: #222;
+	padding: 1em 0 0 0;
+}
+
+body.front #content .slides li.topic .content nav {
+
 	padding: 1.5em 2%;
 }
 
@@ -305,6 +310,24 @@ body.front #front-back a {
 body.front #site-content {
 	margin-top: 95px;
 }
+
+body.front #content .content .cobranding img {
+	width: 20%;
+	padding: 5px 1%;
+	max-width: 95px;
+	float: right;
+} 
+
+body.front #content .content .cobranding img#imi_logo  {
+	float: left;
+} 
+
+body.front #content .content .cobranding {
+	background-color: white;
+	margin: 1.5em 0;
+	border-top: 1px solid #555;
+}
+
 
 /************ Biblio  **************/
 

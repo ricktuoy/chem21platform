@@ -6,7 +6,7 @@ define(["jquery", "jquery.cookie", "jquery.ui/droppable", "jquery.ui/draggable"]
         $(".quiz .reveal-answer").hide();
 
         $(".question.single .choice").on("click", function() {
-            $(this).closest(f
+            $(this).closest()
             $(".question").data("response", $(this).data("id"));
         });
 
