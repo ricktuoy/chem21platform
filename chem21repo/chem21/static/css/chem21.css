@@ -129,7 +129,11 @@ body.front #content .slides li .content nav {
 
 body.front #content .slides li.topic .content nav {
 
-	padding: 1.5em 2%;
+	padding: 1.5em 0 0 0;
+}
+
+body.front #content .slides li.topic .content nav ul {
+	margin: 0 2%;
 }
 
 #front-menu {
@@ -338,6 +342,9 @@ body.front #content .content .cobranding {
 	background-color: white;
 	margin: 1.5em 0;
 	border-top: 1px solid #555;
+	font-size: 0.7em;
+	color: #555;
+	text-align: left;
 }
 
 

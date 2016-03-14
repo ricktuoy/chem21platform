@@ -1,4 +1,4 @@
-{% extends 'chem21/base.html' %}
+{% extends 'chem21/base_inner.html' %}
 {% block title %}About us :: CHEM21 learning platform{% endblock %}
 {% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
 {% block content %}
@@ -41,4 +41,5 @@ The full list of available courses and modules is available from the <a href="/"
 </div>
 </div>
 {% endblock %}
+{{ block.super }}
 {% endblock %}
