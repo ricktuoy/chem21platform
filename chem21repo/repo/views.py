@@ -337,27 +337,27 @@ class DeleteViewBase(LoginRequiredMixin, RemoveViewBase):
         return ret
 
 
-class QuestionRemoveView(LoginRequiredMixin, RemoveViewBase, JSONView):
+class QuestionRemoveView(RemoveViewBase, JSONView):
     m2m_field = "questions"
     model = Question
     parent_model = Lesson
 
 
-class FileRemoveView(LoginRequiredMixin, RemoveViewBase, JSONView):
+class FileRemoveView(RemoveViewBase, JSONView):
     m2m_field = "files"
     model = UniqueFile
     model_name = "file"
     parent_model = Question
 
 
-class FileDeleteView(LoginRequiredMixin, DeleteViewBase, JSONView):
+class FileDeleteView(DeleteViewBase, JSONView):
     m2m_field = "files"
     model = UniqueFile
     model_name = "file"
     parent_model = Question
 
 
-class LessonRemoveView(LoginRequiredMixin, RemoveViewBase, JSONView):
+class LessonRemoveView(RemoveViewBase, JSONView):
     m2m_field = "lessons"
     model = Lesson
     parent_model = Module
