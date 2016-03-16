@@ -628,14 +628,49 @@ body.front #content .content .cobranding {
 }
 
 .quiz_questions .question ul li.choice.correct {
-	font-weight: bold;
-	color: #393;
+	color: #4caf50;
 }
 
 .quiz_questions .question ul li.choice.incorrect {
-	color: #666;
+	color: #b54;
 }
 
+.quiz_questions.marked .question ul li.choice.chosen {
+	font-weight: bold;
+}
+
+.quiz_questions .controls a {
+	background-color: #4caf50;
+	padding: 0.5em;
+	color: white;
+	text-decoration: none;
+	display: inline-block;
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+	margin-right: 1%;
+	font-size: 0.9em;
+}
+
+.quiz_questions .controls a:hover {
+	background-color: #072;
+}
+
+.quiz_questions a.submit {
+	margin-top: 0.75em;
+	background-color: #183;
+	padding: 0.75em;
+	width: 100%;
+	display: block;
+	color: white;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+	font-weight: bold;
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.quiz_questions a.submit:hover {
+	background-color: #072;
+}
 
 .quiz_questions.unmarked ul li.choice {
 	cursor: pointer;
@@ -668,6 +703,8 @@ body.front #content .content .cobranding {
 .quiz_questions.marked .scores span.label {
 	font-weight: bold;
 }
+
+
 
 /************** FOOTNOTES *************/
 
