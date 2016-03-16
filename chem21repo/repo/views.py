@@ -54,7 +54,7 @@ class CSRFExemptMixin(object):
         return csrf_exempt(view)
 
 
-class JSONResponseMixin(LoginRequiredMixin):
+class JSONResponseMixin:
 
     """
     A mixin that can be used to render a JSON response.
@@ -189,7 +189,7 @@ class TextVersionView(LoginRequiredMixin, DetailView):
         return context
 
 
-class DirtyView(JSONView):
+class DirtyView(LoginRequiredMixin, JSONView):
 
     def get_context_data(self, **kwargs):
         if(kwargs['object_name'] == "file"):
@@ -246,28 +246,28 @@ class MoveViewBase:
         return context
 
 
-class SourceFileMoveView(MoveViewBase, JSONView):
+class SourceFileMoveView(LoginRequiredMixin, MoveViewBase, JSONView):
     orderable_model = UniqueFilesofModule
 
 
-class CutFileMoveView(MoveViewBase, JSONView):
+class CutFileMoveView(LoginRequiredMixin, MoveViewBase, JSONView):
     orderable_model = UniqueFile
     orderable_manager = UniqueFile.cut_objects
 
 
-class ModuleMoveView(MoveViewBase, JSONView):
+class ModuleMoveView(LoginRequiredMixin, MoveViewBase, JSONView):
     orderable_model = Module
 
 
-class TopicMoveView(MoveViewBase, JSONView):
+class TopicMoveView(LoginRequiredMixin, MoveViewBase, JSONView):
     orderable_model = Topic
 
 
-class LessonMoveView(MoveViewBase, JSONView):
+class LessonMoveView(LoginRequiredMixin, MoveViewBase, JSONView):
     orderable_model = Lesson
 
 
-class QuestionMoveView(MoveViewBase, JSONView):
+class QuestionMoveView(LoginRequiredMixin, MoveViewBase, JSONView):
     orderable_model = Question
 
 
@@ -324,7 +324,7 @@ class RemoveViewBase:
                  'pk': child.pk}}
 
 
-class DeleteViewBase(RemoveViewBase):
+class DeleteViewBase(LoginRequiredMixin, RemoveViewBase):
     __metaclass__ = ABCMeta
 
     def get_context_data(self, *args, **kwargs):
@@ -337,27 +337,27 @@ class DeleteViewBase(RemoveViewBase):
         return ret
 
 
-class QuestionRemoveView(RemoveViewBase, JSONView):
+class QuestionRemoveView(LoginRequiredMixin, RemoveViewBase, JSONView):
     m2m_field = "questions"
     model = Question
     parent_model = Lesson
 
 
-class FileRemoveView(RemoveViewBase, JSONView):
+class FileRemoveView(LoginRequiredMixin, RemoveViewBase, JSONView):
     m2m_field = "files"
     model = UniqueFile
     model_name = "file"
     parent_model = Question
 
 
-class FileDeleteView(DeleteViewBase, JSONView):
+class FileDeleteView(LoginRequiredMixin, DeleteViewBase, JSONView):
     m2m_field = "files"
     model = UniqueFile
     model_name = "file"
     parent_model = Question
 
 
-class LessonRemoveView(RemoveViewBase, JSONView):
+class LessonRemoveView(LoginRequiredMixin, RemoveViewBase, JSONView):
     m2m_field = "lessons"
     model = Lesson
     parent_model = Module
@@ -558,7 +558,7 @@ class EndnoteUploadView(JQueryFileHandleView):
         return ""
 
 
-class EndnoteSearchView(JSONView):
+class EndnoteSearchView(LoginRequiredMixin, JSONView):
     def get_context_data(self, **kwargs):
         return C21RESTRequests().search_endnote(kwargs['term'])
 
@@ -568,7 +568,7 @@ class EndnoteSearchView(JSONView):
             *args, **kwargs)
 
 
-class FiguresGetView(JSONView):
+class FiguresGetView(LoginRequiredMixin, JSONView):
     def get_context_data(self, **kwargs):
         model = ContentType.objects.get(
             app_label="repo",
@@ -585,7 +585,7 @@ class FiguresGetView(JSONView):
             *args, **kwargs)
 
 
-class StructureGetView(JSONView):
+class StructureGetView(LoginRequiredMixin, JSONView):
 
     def obj_to_dict(self, obj):
         d = {'pk': obj.pk, 'name': obj.title}
@@ -668,7 +668,6 @@ class StripRemoteIdView(BatchProcessView):
 
 
 class ImportQuizView(CSRFExemptMixin, JSONView):
-    
 
     def populate_post_dict(self):
         try:
@@ -753,16 +752,6 @@ class ImportQuizView(CSRFExemptMixin, JSONView):
                 default_storage.url(dest_questions),
                 default_storage.url(dest_answers))},
             status=200)
-
-
-
-
-
-
-
-
-
-
 
 
 class AddFileView(BatchProcessView):
