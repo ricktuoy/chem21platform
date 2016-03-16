@@ -452,8 +452,6 @@ body.front #content .content .cobranding {
 	float: right;
 }
 
-
-
 .breadcrumb {
 	background-color: #f6f6f6;
 	border-bottom: 1px solid #dedede;
@@ -572,11 +570,9 @@ body.front #content .content .cobranding {
         background-color: #00ced1;
 }
 
-
 .green_principles li.active.p7 {
         background-color: #00ced1;
 }
-
 
 .green_principles li.active.p8 {
         background-color: #00ced1;
@@ -607,10 +603,10 @@ body.front #content .content .cobranding {
 
 /***************** QUIZZES *****************/
 .quiz_questions .question {
-	background-color: #ccf;
+	background-color: #f1f1f1;
 	padding: 1em;
 	font-size: 1.5em;
-	border: 1px solid #bbe;
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12) 
 }
 
 
@@ -623,10 +619,54 @@ body.front #content .content .cobranding {
 }
 
 .quiz_questions .question ul li.choice {
-	background-color: #bbd;
+	background-color: white;
 	padding: 0.3em 1em;
 	margin: 0.5em 2em 0.5em 0;
-	border: 1px solid #aac;
+	border: 1px solid #eee;
+	border-left: 4px solid #4caf50;
+
+}
+
+.quiz_questions .question ul li.choice.correct {
+	font-weight: bold;
+	color: #393;
+}
+
+.quiz_questions .question ul li.choice.incorrect {
+	color: #666;
+}
+
+
+.quiz_questions.unmarked ul li.choice {
+	cursor: pointer;
+}
+
+.quiz_questions.unmarked .question ul li.choice:hover {
+	background-color: #ddf;
+}
+
+.quiz_questions.unmarked .question .choice.chosen {
+	background-color: #ddf;
+}
+
+
+.quiz_questions.marked .question ul li.choice.correct.unchosen,
+.quiz_questions.marked .question ul li.choice.incorrect.chosen {
+	border-left: 4px solid #af504c;
+}
+
+.quiz_questions.marked .scores {
+	background-color: white;
+	padding: 1em;
+	font-size: 0.8em;
+}
+
+.quiz_questions.marked .scores p {
+	margin: 0.3em 0;
+}
+
+.quiz_questions.marked .scores span.label {
+	font-weight: bold;
 }
 
 /************** FOOTNOTES *************/

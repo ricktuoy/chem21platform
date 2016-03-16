@@ -49,22 +49,29 @@ class ChoiceQuestionRender(QuestionRender):
 
     def get_question_html_id(self, num):
         try:
-            return "question_" + self.questions[num]['id']
+            if num >= 0:
+                return "question_" + self.questions[num]['id']
         except IndexError:
-            raise QuestionNotFoundError("No question number %s" % num)
+            pass
+        raise QuestionNotFoundError("No question number %s" % num)
+
+    def is_final_question(self):
+        if(self.num == len(self.questions)):
+            return True
+        return False
 
     def render_navigation(self):
         tpl = "<a href=\"#%s\">%s</a>"
 
         try:
             previous_html = tpl % (
-                self.get_question_html_id(self.num - 1), "Previous")
+                self.get_question_html_id(self.num - 2), "Previous")
         except QuestionNotFoundError:
             previous_html = ""
 
         try:
             next_html = tpl % (
-                self.get_question_html_id(self.num + 1), "Next")
+                self.get_question_html_id(self.num), "Next")
         except QuestionNotFoundError:
             next_html = ""
 
@@ -74,13 +81,21 @@ class ChoiceQuestionRender(QuestionRender):
         else:
             return ""
 
+    def render_submit(self):
+        if self.is_final_question():
+            return "<a href=\"#\" class=\"submit\">Assess my answers</a>"
+        else:
+            return ""
+
     def render(self):
-        return "<div class=\"question\" id=\"question_%s\"" + \
+        return "<div class=\"question\" id=\"question_%s\"" % self.id + \
             "data-id=\"%s\" data-type=\"%s\">\n" % (
-                self.id, self.id, self.question_type) + \
+                self.id, self.question_type) + \
             self.render_question_text() + \
             self.render_choices() + \
-            self.render_navigation() + "</div>"
+            self.render_navigation() + \
+            self.render_submit() + \
+            "</div>"
 
 
 class DragChoiceQuestionRender(ChoiceQuestionRender):
@@ -148,9 +163,8 @@ class RenderQuizNode(template.Node):
                 "r") as f:
             quiz = json.load(f)
         json_url = default_storage.url(self.answer_file_path(quiz_name))
-        return "<div class=\"quiz_questions\" data-id=\"%s\"" + \
-            " data-answers-json=\"%s\">%s</div>" % (
-                quiz['id'],
+        return "<div class=\"quiz_questions\" data-id=\"%s\"" % quiz['id'] + \
+            " data-answers-json-url=\"%s\">%s</div>" % (
                 json_url,
                 "\n".join(
                     [QuestionRenderDispatch[question.get("type", "default")]
@@ -160,7 +174,8 @@ class RenderQuizNode(template.Node):
                         for i, question in
                         zip(range(1, len(quiz['data']) + 1), quiz['data'])]
                 )
-            )
+        )
+
 
 @register.tag(name="render_quiz")
 def do_render_quiz(parser, token):

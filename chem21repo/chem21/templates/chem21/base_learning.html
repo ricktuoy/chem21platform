@@ -2,6 +2,12 @@
 {% load tokens %}
 {% load quiz %}
 {% load static from staticfiles %}
+{% load require %}
+{% block scripts %}
+
+{{ block.super }}
+{% require_module '../quiz' %}
+{% endblock %}
 {% block head %}
 {% if not object.text  and not perms.repo.change_question and not object.video and object.get_first_child %}
 	<meta http-equiv="refresh" content="0;URL={{ object.get_first_child.get_absolute_url }}" /> 
