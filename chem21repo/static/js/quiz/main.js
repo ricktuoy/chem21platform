@@ -69,7 +69,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
         });
 
         $(".quiz_questions").on("click", ".question.marked .choice", function(e) {
-            console.debug("Choice of previously marked question");
+            
             e.stopImmediatePropagation();
         });
 
@@ -94,7 +94,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
         });
 
         $(".quiz_questions").on("click", ".question .controls a", function() {
-            console.debug("Generic control click");
+            
             var $question = $(this).closest(".question");
             if($question.hasClass("marked")) {
                 var id = $(this).attr("href");
@@ -154,8 +154,6 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 $q.data("possible_score", 100);
                 $q.data("actual_score", percentage_score);
                 $controls.before($scores);
-                console.debug("Question");
-                console.debug(question);
 
                 $q.find(".help").hide();
                 $q.addClass("marked");
@@ -195,17 +193,17 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
 
         $(".quiz_questions").on("mark", function() {
             var $quiz = $(this);
-            console.debug("Possible count");
+            
             var $questions = $quiz.find(".question");
             var total_possible = $questions.reduce(function(prev, curr, i, arr) {
                 var r = prev + $(curr).data("possible_score");
-                console.debug(r);
+                
                 return r;
             }, 0);
-            console.debug("Good count");
+            
             var total_good = $questions.reduce(function(prev, curr, i, arr) {
                 var r = prev + $(curr).data("actual_score");
-                console.debug(r);
+                
                 return r;
             }, 0);
             $quiz.prepend("<p class=\"quiz_total\"><span class=\"label\">Your quiz score: </span>" + (Math.round(( total_good / total_possible) * 100)) +"%</p>");
