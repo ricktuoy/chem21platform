@@ -650,6 +650,10 @@ body.front #content .content .cobranding {
 	font-size: 0.9em;
 }
 
+.quiz_questions .controls a.skip {
+	background-color: #af504c;
+}
+
 .quiz_questions .controls a:hover {
 	background-color: #072;
 }
