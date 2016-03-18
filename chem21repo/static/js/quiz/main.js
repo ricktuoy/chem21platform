@@ -144,17 +144,18 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 }
                 $question_score.append("<span class=\"label\">Your question score: </span><span class=\"score\">" + 
                     percentage_score + "%" + skipped_msg + "</span>");
+                if(question.discussion) {
+                    var discussion = $("<div class=\"discussion\" />");
+                    discussion.html(question.discussion);
+                    $question_score.after(discussion);
+                }
 
                 $q.data("possible_score", 100);
                 $q.data("actual_score", percentage_score);
                 $controls.before($scores);
                 console.debug("Question");
                 console.debug(question);
-                if(question.discussion) {
-                    var discussion = $("<div class=\"discussion\" />");
-                    discussion.html(question.discussion);
-                    $controls.before(discussion);
-                }
+
                 $q.find(".help").hide();
                 $q.addClass("marked");
                 $next = $q.next();

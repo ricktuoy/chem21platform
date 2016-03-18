@@ -738,6 +738,11 @@ body.front #content .content .cobranding {
 	font-weight: bold;
 }
 
+.quiz_questions .question .discussion {
+	font-style: italic;
+	font-size: 0.85em;
+}
+
 
 
 
