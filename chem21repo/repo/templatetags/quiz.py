@@ -23,6 +23,10 @@ class ChoiceQuestionRender(QuestionRender):
     __metaclass__ = ABCMeta
 
     @property
+    def help_text(self):
+        return ""
+
+    @property
     def question_type(self):
         return self.type
 
@@ -61,19 +65,23 @@ class ChoiceQuestionRender(QuestionRender):
         return False
 
     def render_navigation(self):
-        tpl = "<a href=\"#%s\">%s</a>"
+        tpl = "<a class=\"%s\" href=\"#%s\">%s</a>"
 
         try:
-            previous_html = tpl % (
-                self.get_question_html_id(self.num - 2), "Previous")
+            previous_html = tpl % ("previous",
+                                   self.get_question_html_id(self.num - 2),
+                                   "Previous")
         except QuestionNotFoundError:
             previous_html = ""
 
         try:
-            next_html = tpl % (
-                self.get_question_html_id(self.num), "Next")
+            next_html = tpl % ("skip",
+                               self.get_question_html_id(self.num),
+                               "Skip question")
         except QuestionNotFoundError:
-            next_html = ""
+            next_html = tpl % ("skip",
+                               "final",
+                               "Skip question")
 
         if previous_html or next_html:
             return "<nav class=\"controls\">%s%s</nav>" % (
@@ -83,15 +91,26 @@ class ChoiceQuestionRender(QuestionRender):
 
     def render_submit(self):
         if self.is_final_question():
-            return "<a href=\"#\" class=\"submit\">Assess my answers</a>"
+            return "<a href=\"#\" class=\"submit\">View all scores</a>"
         else:
             return ""
+
+    def render_help_text(self):
+        if self.help_text:
+            return "<p class=\"help\">%s</p>" % self.help_text
+        else:
+            return ""
+
+    def render_score(self):
+        return "<p class=\"final_score\"></p>"
 
     def render(self):
         return "<div class=\"question\" id=\"question_%s\"" % self.id + \
             "data-id=\"%s\" data-type=\"%s\">\n" % (
                 self.id, self.question_type) + \
             self.render_question_text() + \
+            self.render_help_text() + \
+            self.render_score() + \
             self.render_choices() + \
             self.render_navigation() + \
             self.render_submit() + \
@@ -131,7 +150,7 @@ class TextChoiceQuestionRender(ChoiceQuestionRender):
 
 
 class MultiChoiceQuestionRender(TextChoiceQuestionRender):
-    pass
+    help_text = "Select all that apply"
 
 
 class SingleChoiceQuestionRender(TextChoiceQuestionRender):

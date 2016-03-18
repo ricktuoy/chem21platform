@@ -628,16 +628,15 @@ body.front #content .content .cobranding {
 }
 
 .quiz_questions .question ul li.choice.correct {
-	color: #4caf50;
+	border-left: 15px solid #4caf50;
 }
 
 .quiz_questions .question ul li.choice.incorrect {
-	color: #b54;
+	border-left: 15px solid #b54;
 }
 
-.quiz_questions.marked .question ul li.choice.chosen {
-	font-weight: bold;
-}
+
+
 
 .quiz_questions .controls a {
 	background-color: #4caf50;
@@ -672,37 +671,73 @@ body.front #content .content .cobranding {
 	background-color: #072;
 }
 
-.quiz_questions.unmarked ul li.choice {
+.quiz_questions .question h3 {
+	margin-bottom: 0.5em;
+}
+
+.quiz_questions .question:not(.marked) ul li.choice {
 	cursor: pointer;
 }
 
-.quiz_questions.unmarked .question ul li.choice:hover {
+.quiz_questions .question:not(.marked) ul li.choice:hover {
 	background-color: #ddf;
 }
 
-.quiz_questions.unmarked .question .choice.chosen {
+.quiz_questions .question .choice.chosen {
 	background-color: #ddf;
 }
 
 
-.quiz_questions.marked .question ul li.choice.correct.unchosen,
-.quiz_questions.marked .question ul li.choice.incorrect.chosen {
-	border-left: 4px solid #af504c;
+.quiz_questions .question.marked ul li.choice.correct.unchosen,
+.quiz_questions .question.marked ul li.choice.incorrect.chosen {
+	border-right: 15px solid #af504c;
 }
 
-.quiz_questions.marked .scores {
+.quiz_questions .question.marked ul li.choice.incorrect.unchosen,
+.quiz_questions .question.marked ul li.choice.correct.chosen {
+	border-right: 15px solid #50af4c;
+}
+
+.quiz_questions .question.marked .answers {
 	background-color: white;
 	padding: 1em;
 	font-size: 0.8em;
+	margin-bottom: 1em;
 }
 
-.quiz_questions.marked .scores p {
+.quiz_questions .question.marked .answers p {
 	margin: 0.3em 0;
 }
 
-.quiz_questions.marked .scores span.label {
+.quiz_questions .question.marked span.label {
 	font-weight: bold;
 }
+
+.quiz_questions .question.marked h3 {
+	color: #777;
+	margin-bottom: 0;
+}
+
+.quiz_questions .question .help {
+	font-size: 0.8em;
+	font-style: italic;
+	background-color: #e9e9e9;
+	padding: 0.3em;
+	margin-top: 0;
+	border-left: 4px solid #ddd;
+}
+
+.quiz_questions .question .final_score {
+	font-size: 1.15em;
+	font-weight: bold;
+	margin: 0 0 0.1em 0;
+}
+
+.quiz_questions .quiz_total {
+	font-size: 1.8em;
+	font-weight: bold;
+}
+
 
 
 

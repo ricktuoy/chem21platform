@@ -1,5 +1,6 @@
 define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"], function($) {
     $(function() {
+        $.fn.reduce = [].reduce;
 
         $(".quiz_questions .question").not(":first").hide();
 
@@ -7,12 +8,22 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
 
         $(".quiz_questions").addClass("unmarked");
 
-        $(".question").on("responseAdd", function(e, source) {
+        $(".quiz_questions").on("responseAdd", ".question", function(e, source) {
             if($(this).closest(".quiz_questions").hasClass("marked")) {
                 return true;
             }
+
             var d = $(this).data("response");
             var id = source.data("id");
+            var skip = $(this).find(".controls a.skip");
+            var $next = $(this).next(); 
+            if(skip.length > 0) {
+              
+                    skip.removeClass("skip");
+                    skip.addClass("next");
+                    skip.html("Continue");
+                
+            }
             if(typeof(d)=="undefined") {
                 d = {};
             }
@@ -23,7 +34,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             $(this).trigger("refreshResponses");
         });
 
-        $(".question").on("refreshResponses", function() {
+        $(".quiz_questions").on("refreshResponses", ".question", function() {
             var d = $(this).data("response");
             var choices = $(this).find(".choice");
             choices.addClass("unchosen");
@@ -36,7 +47,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             });
         });
 
-        $(".question").on("responseClear", function(e) {
+        $(".quiz_questions").on("responseClear", ".question",  function(e) {
             $(this).data("response", {});
             $(this).trigger("refreshResponses");
         });
@@ -57,78 +68,140 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             dest.show();
         });
 
-        $(".question[data-type=\"single\"] .choice").on("click", function() {
-            $(this).closest(".question").trigger("responseClear");
+        $(".quiz_questions").on("click", ".question.marked .choice", function(e) {
+            console.debug("Choice of previously marked question");
+            e.stopImmediatePropagation();
+        });
+
+        $(".quiz_questions").on("click", ".question[data-type=\"single\"] .choice", function() {
+            $(this).closest(".question").trigger("responseClear"); 
+        });
+
+        $(".quiz_questions").on("click", ".question .choice", function() {
             $(this).closest(".question").trigger("responseAdd", [$(this)] );
-            var next = $(this).closest(".question").next();
-            if(next.length > 0) {
-                $(this).closest(".quiz_questions").trigger("move", [next]);
+        });
+
+        $(".quiz_questions").on("click", ".question[data-type=\"single\"] .choice", function() {
+            $(this).closest(".question").trigger("mark"); 
+        });
+
+        $(".quiz_questions").on("click", ".question .controls a.skip", function() {
+            console.debug("Skip it mofo");
+            $(this).closest(".question").data("skipped", true);
+        });
+
+        $(".quiz_questions").on("click", ".question .controls a", function() {
+            console.debug("Generic control click");
+            var $question = $(this).closest(".question");
+            if($question.hasClass("marked")) {
+                var id = $(this).attr("href");
+                var target = $(".question"+id);
+                if( target.length>0 ) {
+                    $(this).closest(".quiz_questions").trigger("move", [target]);
+                }
             } else {
-                $(this).closest(".quiz_questions").trigger("mark");
+                $question.trigger("mark");
             }
         });
 
-        $(".question[data-type=\"multi\"] .choice").on("click", function() {
-            $(this).closest(".question").trigger("responseAdd", [$(this)] );
-        });
-
-        $(".question .controls a").on("click", function() {
-            var id = $(this).attr("href");
-            var target = $(".question"+id);
-            if( target.length>0 ) {
-                $(this).closest(".quiz_questions").trigger("move", [target]);
-            }
-        });
-
-        $(".quiz_questions .submit").on("click", function() {
+        $(".quiz_questions").on("click", ".submit", function() {
             $(this).closest(".quiz_questions").trigger("mark");
+
+        });
+
+        $(".quiz_questions").on("mark", ".question", function(e) {
+            if($(this).hasClass("marked")) {
+                return;
+            }
+            var $quiz = $(this).closest(".quiz_questions");
+            var $q = $(this);
+            var processor = function(question) {
+                if($q.data("skipped")) {
+                    $q.find("choice").removeClass("unchosen").removeClass("chosen").addClass("skipped");
+                }
+                var answer_texts = [];
+                $q.find(".choice").addClass("incorrect");
+                $.each(question.correct, function(i, rId) {
+                    var $c = $q.find(".choice[data-id=\""+rId+"\"]");
+                    $c.removeClass("incorrect");
+                    $c.addClass("correct");
+                    answer_texts.push($c.html());
+                });
+                var chosen_texts = $q.find(".choice.chosen").map(function() {
+                    return $(this).html();
+                }).get();
+                var $scores = $("<div class=\"answers\" />"); 
+                var $question_score = $q.find(".final_score");
+                $scores.append("<p><span class=\"label\">Correct answers:</span> "+answer_texts.join("; ")+".</p>");
+                $scores.append("<p><span class=\"label\">Your answers:</span> "+chosen_texts.join("; ")+".</p>");
+                var num_choices = $q.find(".choice").length;
+                var num_good = $q.find(".choice.incorrect.unchosen, .choice.correct.chosen").length;
+                var percentage_score = Math.round((num_good  / num_choices) * 100 );
+                var skipped_msg = "";
+                var $controls = $q.find(".controls");
+                if($q.data("skipped")) {
+                    skipped_msg = " (skipped).";
+                }
+                $question_score.append("<span class=\"label\">Your question score: </span><span class=\"score\">" + 
+                    percentage_score + "%" + skipped_msg + "</span>");
+
+                $q.data("possible_score", 100);
+                $q.data("actual_score", percentage_score);
+                $controls.before($scores);
+                console.debug("Question");
+                console.debug(question);
+                if(question.discussion) {
+                    var discussion = $("<div class=\"discussion\" />");
+                    discussion.html(question.discussion);
+                    $controls.before(discussion);
+                }
+                $q.find(".help").hide();
+                $q.addClass("marked");
+                $next = $q.next();
+                if($next.length == 0) {
+                    var $cont = $q.find(".controls a.next");
+                    $cont.hide();
+                }
+                
+            }
+            
+            var qdef = $q.data("definition");
+            if(typeof(qdef) == "undefined") {
+                var url = $quiz.data("answersJsonUrl");
+                $.getJSON(url, function(data) {
+                    $.each(data.data, function(i, question) {
+                        var $qq = $quiz.find(".question#question_"+question.id);
+                        $qq.data("definition", question);
+                    });
+                    processor($q.data("definition"));
+                });
+            } else {
+                processor(qdef);
+            }
+
+            e.stopImmediatePropagation();
         });
 
         $(".quiz_questions").on("mark", function() {
-            if($(this).closest(".quiz_questions").hasClass("marked")) {
-                return true;
-            }
-            var url = $(this).data("answersJsonUrl");
-            var quiz = $(this);
-            $.getJSON(url, function(data) {
-                quiz.addClass("marked");
-                quiz.removeClass("unmarked");
-                var total_possible = 0;
-                var total_good = 0;
-                $.each(data.data, function(i, question) {
-                    var answer_texts = [];
-                    var $q = quiz.find(".question#question_"+question.id);
-                    $q.find(".choice").addClass("incorrect");
-                    $.each(question.correct, function(i, rId) {
-                        var $c = $q.find(".choice[data-id=\""+rId+"\"]");
-                        $c.removeClass("incorrect");
-                        $c.addClass("correct");
-                        answer_texts.push($c.html());
-                    });
-                    var chosen_texts = $q.find(".choice.chosen").map(function() {
-                        return $(this).html();
-                    }).get();
+            var $quiz = $(this);
+            console.debug("Possible count");
+            var $questions = $quiz.find(".question");
+            var total_possible = $questions.reduce(function(prev, curr, i, arr) {
+                var r = prev + $(curr).data("possible_score");
+                console.debug(r);
+                return r;
+            }, 0);
+            console.debug("Good count");
+            var total_good = $questions.reduce(function(prev, curr, i, arr) {
+                var r = prev + $(curr).data("actual_score");
+                console.debug(r);
+                return r;
+            }, 0);
+            $quiz.prepend("<p class=\"quiz_total\"><span class=\"label\">Your quiz score: </span>" + (Math.round(( total_good / total_possible) * 100)) +"%</p>");
+            $quiz.find(".question .controls").hide();
+            $quiz.find(".question .submit").hide();
+            $quiz.find(".question").show();
 
-                    var $scores = $("<div class=\"scores\" />"); 
-                    $scores.append("<p><span class=\"label\">Correct answers:</span> "+answer_texts.join("; ")+".</p>");
-                    $scores.append("<p><span class=\"label\">Your answers:</span> "+chosen_texts.join("; ")+".</p>");
-                    var num_choices = $q.find(".choice").length;
-                    var num_good = $q.find(".choice.incorrect.unchosen, .choice.correct.chosen").length;
-                    var percentage_score = Math.round((num_good  / num_choices) * 100 );
-                    $scores.append("<p><span class=\"label\">Question score:</span> " + percentage_score + "%</p>");
-                    total_possible += 100;
-                    total_good += percentage_score;
-                    $q.append($scores);
-                    if("discussion" in question) {
-                        $q.append($("<div class=\"discussion\" />").html(question.discussion));
-                    }
-                });
-                quiz.prepend("<p class=\"totals\"><span class=\"label\">Your total score for this quiz: </span>" + (Math.round(( total_good / total_possible) * 100)) +"%</p>");
-
-                $(".question .controls").hide();
-                $(".question .submit").hide();
-                $(".question").show();
-            });
         });
     });
 });
