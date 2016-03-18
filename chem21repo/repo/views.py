@@ -727,7 +727,8 @@ class ImportQuizView(CSRFExemptMixin, JSONView):
             for el in data['data']]
         answer_data = [
             {'id': el['id'],
-             'correct': el['correct']}
+             'correct': el['correct'],
+             'discussion': el['discussion']}
             for el in data['data']]
 
         questions = data.copy()
