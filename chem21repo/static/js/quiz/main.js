@@ -86,7 +86,10 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
         });
 
         $(".quiz_questions").on("click", ".question .controls a.skip", function() {
-            console.debug("Skip it mofo");
+            var $skip = $(this);
+            $skip.removeClass("skip");
+            $skip.addClass("next");
+            $skip.html("Continue");
             $(this).closest(".question").data("skipped", true);
         });
 
@@ -133,22 +136,20 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 var $scores = $("<div class=\"answers\" />"); 
                 var $question_score = $q.find(".final_score");
                 $scores.append("<p><span class=\"label\">Correct answers:</span> "+answer_texts.join("; ")+".</p>");
-                $scores.append("<p><span class=\"label\">Your answers:</span> "+chosen_texts.join("; ")+".</p>");
+                if(!$q.data("skipped")) {
+                    $scores.append("<p><span class=\"label\">Your answers:</span> "+chosen_texts.join("; ")+".</p>");
+                }
                 var num_choices = $q.find(".choice").length;
                 var num_good = $q.find(".choice.incorrect.unchosen, .choice.correct.chosen").length;
                 var percentage_score = Math.round((num_good  / num_choices) * 100 );
                 var skipped_msg = "";
                 var $controls = $q.find(".controls");
+
                 if($q.data("skipped")) {
                     skipped_msg = " (skipped).";
                 }
                 $question_score.append("<span class=\"label\">Your question score: </span><span class=\"score\">" + 
                     percentage_score + "%" + skipped_msg + "</span>");
-                if(question.discussion) {
-                    var discussion = $("<div class=\"discussion\" />");
-                    discussion.html(question.discussion);
-                    $question_score.after(discussion);
-                }
 
                 $q.data("possible_score", 100);
                 $q.data("actual_score", percentage_score);
@@ -163,6 +164,15 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     var $cont = $q.find(".controls a.next");
                     $cont.hide();
                 }
+                if(question.discussion) {
+                    var $discussion = $("<div class=\"discussion\" />");
+                    $discussion.html(question.discussion);
+                    $question_score.after($discussion);
+                    $controls.detach().insertAfter($discussion);
+                } else {
+                    $controls.detach().insertAfter($question_score);
+                }
+
                 
             }
             

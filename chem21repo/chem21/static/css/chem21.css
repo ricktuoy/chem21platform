@@ -612,6 +612,7 @@ body.front #content .content .cobranding {
 
 .quiz_questions .question h3 {
 	margin-top: 0;
+	line-height: 1.1em;
 }
 
 .quiz_questions .question ul, .quiz_questions .question li {
