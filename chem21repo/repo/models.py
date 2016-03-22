@@ -29,6 +29,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes import generic
 from StringIO import StringIO
 
+
 class Biblio(models.Model):
     citekey = models.CharField(max_length=300, unique=True)
     title = models.CharField(max_length=500, blank=True, default="")
@@ -38,11 +39,15 @@ class Biblio(models.Model):
 
     unknown = models.BooleanField(default=False)
 
+    def bust(self):
+        self._get_html_from_drupal()
+
     def _get_html_from_drupal(self):
 
         try:
             api = C21RESTRequests()
             ret = api.get_endnode_html(self.citekey)
+            print ret
             self.inline_html = ret[0]['html']
             self.footnote_html = self.inline_html
         except IndexError:
