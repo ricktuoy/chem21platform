@@ -585,14 +585,29 @@ class FiguresGetView(LoginRequiredMixin, JSONView):
             *args, **kwargs)
 
 
+class FileLinkGetView(LoginRequiredMixin, JSONView):
+    def get_context_data(self, **kwargs):
+        model = ContentType.objects.get(
+            app_label="repo",
+            model=kwargs['type']).model_class()
+        try:
+            obj = model.objects.get(pk=kwargs['pk'])
+            return dict([(f.url, f.title) for f in obj.files.all()])
+        except model.DoesNotExist:
+            return {}
+
+    def render_to_response(self, *args, **kwargs):
+        kwargs['safe'] = False
+        return super(FileLinkGetView, self).render_to_response(
+            *args, **kwargs)
+
+
 class StructureGetView(LoginRequiredMixin, JSONView):
 
     def obj_to_dict(self, obj):
         d = {'pk': obj.pk, 'name': obj.title}
         if isinstance(obj, Question):
             return d
-        logging.debug(d)
-        logging.debug(dir(obj))
         d['children'] = [self.obj_to_dict(ch) for ch in obj.ordered_children]
         return d
 
