@@ -6,12 +6,18 @@ class Command(BaseCommand):
     help = 'Busts the biblio cache for ref(s)'
 
     def add_arguments(self, parser):
-        parser.add_argument('citekey',
+        parser.add_argument('citekeys',
+                            nargs='*',
                             type=str,
                             help="Citekey(s)")
 
     def handle(self, *args, **options):
-        ckey = options['citekey']
-        bib = Biblio.objects.get(citekey=ckey)
-        bib.bust()
-        bib.save()
+        ckeys = options['citekeys']
+        if len(ckeys):
+            bibs = Biblio.objects.filter(citekey__in=ckeys)
+        else:
+            bibs = Biblio.objects.all()
+        print [bib.citekey for bib in bibs]
+        for bib in bibs:
+            bib.bust()
+            bib.save()
