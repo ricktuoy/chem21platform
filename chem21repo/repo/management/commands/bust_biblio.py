@@ -19,5 +19,9 @@ class Command(BaseCommand):
             bibs = Biblio.objects.all()
         print [bib.citekey for bib in bibs]
         for bib in bibs:
-            bib.bust()
-            bib.save()
+            try:
+                bib.bust()
+                bib.save()
+            except Biblio.DoesNotExist:
+                print "No ref found for this citekey"
+            
