@@ -17,11 +17,10 @@ class Command(BaseCommand):
             bibs = Biblio.objects.filter(citekey__in=ckeys)
         else:
             bibs = Biblio.objects.all()
-        print [bib.citekey for bib in bibs]
         for bib in bibs:
             try:
                 bib.bust()
                 bib.save()
             except Biblio.DoesNotExist:
                 print "No ref found for this citekey"
-            
+
