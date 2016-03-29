@@ -693,14 +693,22 @@ body.front #content .content .cobranding {
 }
 
 
-.quiz_questions .question.marked ul li.choice.correct.unchosen,
+.quiz_questions .question.marked.multi ul li.choice.correct.unchosen,
 .quiz_questions .question.marked ul li.choice.incorrect.chosen {
-	border-right: 15px solid #af504c;
+
+	background-image: url("../img/incorrect.png");
+	background-repeat: no-repeat;
+	background-position: right;
+	background-origin: content-box;
 }
 
-.quiz_questions .question.marked ul li.choice.incorrect.unchosen,
+.quiz_questions .question.marked.multi ul li.choice.incorrect.unchosen,
 .quiz_questions .question.marked ul li.choice.correct.chosen {
-	border-right: 15px solid #50af4c;
+
+	background-image: url("../img/correct.png");
+background-repeat: no-repeat;
+	background-position: right;
+	background-origin: content-box;
 }
 
 .quiz_questions .question.marked .answers {

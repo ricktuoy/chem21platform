@@ -2,6 +2,10 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
     $(function() {
         $.fn.reduce = [].reduce;
 
+        $(".quiz_questions .question").each(function() {
+            $(this).addClass($(this).data("type"));
+        });
+
         $(".quiz_questions .question").not(":first").hide();
 
         $(".quiz_questions .reveal-answer").hide();
