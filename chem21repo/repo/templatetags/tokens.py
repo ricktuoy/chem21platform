@@ -97,7 +97,7 @@ class BiblioTagProcessor(TagProcessor):
 
     def __init__(self, *args, **kwargs):
         self.bibs = []
-        self.bibset = set([])
+        self.bibset = {}
         return super(BiblioTagProcessor, self).__init__(*args, **kwargs)
 
     def tag_function(self, st, *args):
@@ -108,9 +108,9 @@ class BiblioTagProcessor(TagProcessor):
             bib.save()
         if st not in self.bibset:
             self.bibs.append(bib)
-            self.bibset.add(st)
+            self.bibset[st] = len(self.bibs)
         return "<a href=\"#citekey_%d\">[%d]</a>" % (
-            len(self.bibs), len(self.bibs))
+            self.bibset[st], self.bibset[st])
 
     def _get_footnote_html(self, bib, id):
         return "<li id=\"citekey_%d\">%s</li>" % (
@@ -329,8 +329,7 @@ class CTATokenProcessor(LinkMixin, TokenProcessor):
 
     def token_function(self, *args):
         obj = CTATokenProcessor.get_object(*[int(x) for x in args])
-        return "<p class=\"cta\">To study this area in more depth," + \
-        	   " see <a href=\"%s\"><span class=\"subject_title\">%s</span></a></p>" % (
+        return "<p class=\"cta\">To study this area in more depth, see <a href=\"%s\"><span class=\"subject_title\">%s</span></a></p>" % (
                 obj.get_absolute_url(), obj.title)
 
 
