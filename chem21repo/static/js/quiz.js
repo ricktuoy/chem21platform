@@ -4,7 +4,7 @@
 // except 'app' ones, 
 requirejs.config({
     "baseUrl": "/static/js/lib",
-    "urlArgs": "bust=001"
+    "urlArgs": "bust=002"
 });
 // Load the main app module to start the app
 requirejs(["quiz/main"]);
