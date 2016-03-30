@@ -38,7 +38,7 @@ class LearningView(DetailView):
                      queryset=Lesson.objects.all().order_by('order'),
                      to_attr="ordered_lessons"),
             Prefetch("modules__ordered_lessons__questions",
-                     queryset=Question.objects.exclude(dummy=True).order_by(
+                     queryset=Question.objects.all().order_by(
                          'order'),
                      to_attr="ordered_questions")).first()
 

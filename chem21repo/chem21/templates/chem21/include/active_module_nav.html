@@ -16,12 +16,14 @@
 									{% endif %}
 									<ol class="active">
 									{% for question in lesson.ordered_questions|dictsort:"order" %}
-										{% ifequal question current_question %}
-											<li class="active">{{ question.title }}</li>
-										{% else %}
-											<li><a href="{% url 'question_detail' topic_slug=class_tree.slug module_slug=module.slug lesson_slug=lesson.slug slug=question.slug %}">{{ question.title }}</a></li>
-											
-										{% endifequal %}
+										{% if not lesson.is_question or forloop.counter0 %}
+											{% ifequal question current_question %}
+												<li class="active">{{ question.title }}</li>
+											{% else %}
+												<li><a href="{% url 'question_detail' topic_slug=class_tree.slug module_slug=module.slug lesson_slug=lesson.slug slug=question.slug %}">{{ question.title }}</a></li>
+												
+											{% endifequal %}
+										{% endif %}
 									{% endfor %}
 								</ol></li>
 							{% else %}
