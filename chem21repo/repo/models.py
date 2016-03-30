@@ -1479,6 +1479,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     text = mceModels.HTMLField(null=True, blank=True, default="")
     _child_orders = {}
     child_attr_name = "questions"
+    is_question = models.BooleanField(default=False)
 
     # define the interface with Drupal
     drupal = DrupalConnector(
@@ -1495,7 +1496,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
             self._first_question = self.questions.first()
             return self._first_question
 
-
+"""
     @property
     def is_question(self):
         if self.text:
@@ -1506,7 +1507,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
         except AttributeError:
             pass
         return False
-
+"""
 
     @property
     def video(self):
