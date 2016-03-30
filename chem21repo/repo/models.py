@@ -417,7 +417,7 @@ class DrupalModel(models.Model):
             if ch:
                 return ch
         return o
-            
+
     @property
     def new_children(self):
         return self.children.filter(remote_id__isnull=True)
@@ -1272,8 +1272,43 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
                                    related_name="modules")
     remote_id = models.IntegerField(null=True, db_index=True)
     text = mceModels.HTMLField(null=True, blank=True, default="")
+    is_question = models.BooleanField(default=False)
     _child_orders = {}
     child_attr_name = "lessons"
+
+    @property
+    def first_question(self):
+        try:
+            return self._first_question
+        except AttributeError:
+            self._first_question = self.lessons.first().questions.first()
+            return self._first_question
+
+    @property
+    def video(self):
+        if self.is_question:
+            try:
+                return self.first_question.video
+            except:
+                pass
+        return None
+
+    @property
+    def byline(self):
+        if self.is_question:
+            try:
+                return self.first_question.byline
+            except:
+                pass
+        return self.byline
+
+    def get_text(self):
+        if self.is_question:
+            try:
+                return self.first_question.text
+            except:
+                pass
+        return self.text
 
     def set_parent(self, parent):
         super(Module, self).set_parent(parent)
@@ -1461,6 +1496,8 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
             return self._first_question
 
     def is_question(self):
+        if self.text:
+            return False
         try:
             if self.first_question.dummy:
                 return self.first_question
@@ -1469,35 +1506,26 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
 
     @property
     def video(self):
-        if not self.text:
+        if self.is_question:
             try:
-                q = self.questions.first()
-                q.dummy = True
-                q.save()
-                return q.video
+                return self.first_question.video
             except:
                 pass
         return None
 
     @property
     def byline(self):
-        if not self.text:
+        if self.is_question:
             try:
-                q = self.questions.first()
-                q.dummy = True
-                q.save()
-                return q.byline
+                return self.first_question.byline
             except:
                 pass
         return self.byline
 
     def get_text(self):
-        if not self.text:
+        if self.is_question:
             try:
-                q = self.questions.first()
-                q.dummy = True
-                q.save()
-                return q.text
+                return self.first_question.text
             except:
                 pass
         return self.text

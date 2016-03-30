@@ -61,6 +61,7 @@ class LearningView(DetailView):
                                 ContentType.objects.get_for_models(
             Module, Topic, Lesson, Question, UniqueFile,
             for_concrete_models=False).iteritems()])
+        context['opts']['current'] = context['opts'][ContentType.objects.get_for_model(obj).model.replace(" ","")]
 
         nxt = obj.get_next_object()
         prev = obj.get_previous_object()
@@ -129,5 +130,3 @@ class LessonView(LearningView):
 class ModuleView(LearningView):
     template_name = "chem21/module.html"
     model = Module
-
-

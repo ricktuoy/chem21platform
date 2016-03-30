@@ -27,10 +27,4 @@
 	</ol>
 </div>  
 {% endblock %}
-{% block admin_tools %}
-{% if perms.repo.change_module %}
-<a class="admin-edit" href="{% url opts.module|admin_urlname:'change' object.pk %}"
-		data-from-url-edit="{% url opts.module|admin_urlname:'changelist' %}">
-		Edit</a>
-{% endif %}
-{% endblock %}
+

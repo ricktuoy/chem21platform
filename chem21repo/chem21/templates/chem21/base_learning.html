@@ -1,6 +1,7 @@
 {% extends 'chem21/base_inner.html' %}
 {% load tokens %}
 {% load quiz %}
+{% load admin_urls %}
 {% load static from staticfiles %}
 {% load require %}
 {% block scripts %}
@@ -57,6 +58,21 @@
 </div>
 {% endblock %}
 {% block admin_tools %}
+{% if perms.repo.change_lesson %}
+{% if object.is_question %}
+		<a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
+		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
+		Edit</a>
+{% else %}
+		<a class="admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
+		data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
+		Edit</a>
+{% endif %}
+{% if object.video %}
+	<a class="admin-edit" href="{% url opts.uniquefile|admin_urlname:'change' object.video.pk %}"
+	data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">Edit video attributes</a>
+{% endif %}
+{% endif %}
 {% endblock %}
 	{% block learning_object %}
 	{% if object.get_text %}

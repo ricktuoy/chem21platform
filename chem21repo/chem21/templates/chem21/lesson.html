@@ -34,20 +34,3 @@
 	</ol>
 </div>  
 {% endblock %}
-{% block admin_tools %}
-{% if perms.repo.change_lesson %}
-{% if object.is_question %}
-		<a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
-		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
-		Edit</a>
-		{% if object.first_question.video %}
-			<a class="admin-edit" href="{% url opts.uniquefile|admin_urlname:'change' object.first_question.video.pk %}"
-			data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">Edit video attributes</a>
-		{% endif %}
-{% else %}
-		<a class="admin-edit" href="{% url opts.lesson|admin_urlname:'change' object.pk %}"
-		data-from-url-edit="{% url opts.lesson|admin_urlname:'changelist' %}">
-		Edit</a>
-{% endif %}
-{% endif %}
-{% endblock %}
