@@ -1509,6 +1509,16 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
         return False
     """
 
+
+    @property
+    def pdf(self):
+        if self.is_question:
+            try:
+                return self.first_question.pdf
+            except:
+                pass
+        return None
+
     @property
     def video(self):
         if self.is_question:

@@ -148,12 +148,10 @@ body.front #second-sidebar {
 
 body.front {
 	background-color: #333;
-
     background-image: url('../img/front-background.jpg');
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;
-
 }
 
 body.front #site-footer {
@@ -176,7 +174,6 @@ body.front #site-footer {
 #site-footer p.verbage a {
 	color: #595;
 }
-
 
 body.platon-use-slider #second-sidebar #front-menu {
 	position: fixed;
@@ -251,10 +248,8 @@ body.front #second-sidebar ul.slides > li .content {
 }
 
 body.front li .content .intro  {
-
 	font-size: 1.05em;
 	color: white;
-
 	padding: 0 1em;
 }
 
@@ -265,7 +260,6 @@ body.front #front-menu li.hover {
 body.front nav {
 	padding: 1.7em 0;
 }
-
 
 body.front ul.slides li.topic {
 	display: none;
@@ -281,10 +275,6 @@ body.front ul.slides li .content h2 {
 	color: #ffc;
 	text-shadow: 0 0 8px #111;
 	line-height: 1.1em;
-}
-
-body.front ul.slides .topic_nav {
-
 }
 
 body.front nav ul {
@@ -320,9 +310,7 @@ body.front #front-back {
 }
 
 body.front #front-back a {
-
-		vertical-align: 20px;
-
+	vertical-align: 20px;
 	color: #ffc;
 	text-decoration: none;
 }
@@ -414,7 +402,6 @@ body.front #content .content .cobranding {
 	color: #555;
 }
 
-
 #quiz_progress h2 {
 	display: inline-block;
 	margin: 0 1em 0 0;
@@ -424,7 +411,6 @@ body.front #content .content .cobranding {
 	font-size: 0.8em;
 	font-weight: normal;
 	padding: 0;
-
 	border-bottom: 1px #226622 solid;
 }
 
@@ -625,7 +611,6 @@ body.front #content .content .cobranding {
 	margin: 0.5em 2em 0.5em 0;
 	border: 1px solid #eee;
 	border-left: 4px solid #4caf50;
-
 }
 
 .quiz_questions .question ul li.choice.correct {
@@ -635,9 +620,6 @@ body.front #content .content .cobranding {
 .quiz_questions .question ul li.choice.incorrect {
 	border-left: 15px solid #b54;
 }
-
-
-
 
 .quiz_questions .controls a {
 	background-color: #4caf50;
@@ -691,7 +673,6 @@ body.front #content .content .cobranding {
 .quiz_questions .question .choice.chosen {
 	background-color: #ddf;
 }
-
 
 .quiz_questions .question.marked.multi ul li.choice.correct.unchosen,
 .quiz_questions .question.marked ul li.choice.incorrect.chosen {
@@ -756,9 +737,6 @@ background-repeat: no-repeat;
 	font-size: 0.85em;
 }
 
-
-
-
 /************** FOOTNOTES *************/
 
 ol.footnotes {
@@ -816,16 +794,16 @@ nav#end-nav span.next {
 }
 
 nav#end-nav div.back {
-color: #666;
-	background-color: #efefef;
-	
+	color: #666;
+	background-color: #efefef;	
 	padding: 0.1em 1em;
 	font-size: 1em;
 	border-bottom: 1px solid #999;
 	margin-bottom: 2em;
 }
+
 nav#end-nav div.back a {
-color: #666;
+	color: #666;
 }
 
 body.front #front-back {
