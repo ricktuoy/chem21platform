@@ -13,6 +13,8 @@ from chem21repo.repo.models import Topic
 from chem21repo.repo.models import UniqueFile
 from django import template
 from django.template.loader import get_template
+from BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
+import logging
 
 register = template.Library()
 
@@ -24,13 +26,16 @@ class PlaceVideoNode(template.Node):
     def render(self, context):
         txt = self.text.resolve(context)
         video = self.video.resolve(context)
-        num_paras = txt.count("</p>") 
+        soup = BeautifulSoup(txt)
+        logging.debug(soup.prettify())
+        els = soup.findAll(True, recursive=False)
+        logging.debug(els)
+        num_blocks = len(els)
         vid_template = template.loader.get_template("includes/video_%s.html" % video.render_type)
         vid_cxt = video.render_args
         vid_html = vid_template.render(vid_cxt)
-        if num_paras > 3:
+        if num_blocks > 3:
             # display as an aside
-            insert_char = txt.find("</p>")+4
             vid_html = "<aside>%s</aside>" % vid_html
             txt = vid_html + txt
             context['text_with_inset_video'] = txt
