@@ -28,7 +28,7 @@ class PlaceVideoNode(template.Node):
         vid_template = template.loader.get_template("includes/video_%s.html" % video.render_type)
         vid_cxt = video.render_args
         vid_html = vid_template.render(vid_cxt)
-        if num_paras > 2:
+        if num_paras > 3:
             # display as an aside
             insert_char = txt.find("</p>")+4
             vid_html = "<aside>%s</aside>" % vid_html
