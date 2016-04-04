@@ -240,11 +240,13 @@ class FigureGroupTagProcessor(TagProcessor):
     def replace_caption_html(self, t):
         figtitle = "<span class=\"figure_name\">%s %d</span>" % (
             t.capitalize(), self.get_count(t))
+        logging.debug(self.inner_text)
         (self.inner_text, nsubs) = re.subn(
             r"\[figcaption\](.*?)\[\/figcaption\]",
             lambda m: "[figcaption]%s: %s[/figcaption]" % (figtitle, m.group(1)),
             self.inner_text
         )
+        logging.debug(nsubs)
         if not nsubs:
             self.inner_text += "[figcaption]%s[/figcaption]" % figtitle
 
@@ -384,8 +386,10 @@ class ReplaceTokensNode(template.Node):
             'cta':CTATokenProcessor(),
             'green':GreenPrincipleTokenProcessor()
             }
-        for key,proc in processors.iteritems():
-            txt = proc.apply(txt)
+        proc_order = ['figure','figgroup','figcaption',
+                      'ibib','bib','ilink','cta','green']
+        for key in proc_order:
+            txt = processors[key].apply(txt)
 
         context['footnotes_html'] = processors['bib'].get_footnotes_html()
         asides_html = processors['figgroup'].get_asides_html()
