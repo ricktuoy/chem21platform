@@ -848,10 +848,14 @@ figure.presentation figcaption.overlay .byline {
 	margin-bottom: 1.5%;
 	margin-top: 1em;
 	margin-left: 1.5%;
-	padding: 1.5%;
+}
+
+#content aside figure.presentation {
+	padding: 4%;
 	background-color: white;
 	border: 1px solid #bbb;
 }
+
 
 #content table td p {
     margin: 0;

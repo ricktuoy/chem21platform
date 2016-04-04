@@ -215,6 +215,7 @@ class FigureGroupTagProcessor(TagProcessor):
 
     def __init__(self, *args, **kwargs):
         self.count = {}
+        self.asides = []
         return super(
             FigureGroupTagProcessor, self).__init__(
                 *args, **kwargs)
@@ -237,19 +238,18 @@ class FigureGroupTagProcessor(TagProcessor):
         return t
 
     def replace_caption_html(self, t):
-        out = "<span class=\"figure_name\">%s %d</span>" % (
+        figtitle = "<span class=\"figure_name\">%s %d</span>" % (
             t.capitalize(), self.get_count(t))
-        (self.full_text, nsubs) = re.subn(
+        (self.inner_text, nsubs) = re.subn(
             r"\[figcaption\](.*?)\[\/figcaption\]",
-            lambda m: "[figcaption]%s: %s[/figcaption]" % (out, m.group(1)),
-            self.full_text
+            lambda m: "[figcaption]%s: %s[/figcaption]" % (figtitle, m.group(1)),
+            self.inner_text
         )
         if not nsubs:
-            self.full_text += "[figcaption]%s[/figcaption]" % out
-        return out
+            self.inner_text += "[figcaption]%s[/figcaption]" % figtitle
 
     def tag_function(self, st, *args):
-        self.full_text = st
+        self.inner_text = st
         try:
             t = args[0]
         except IndexError:
@@ -257,15 +257,25 @@ class FigureGroupTagProcessor(TagProcessor):
         if not t:
             t = "figure"
         try:
+            class_set = set(args[1].split(" "))
             classes = " " + args[1]
         except IndexError:
             classes = ""
+            class_set = set([])
         if not classes:
             classes = ""
+            class_Set = set([])
         self.replace_caption_html(t)
         self.inc_count(t)
-        return "<figure class=\"inline%s\">%s</figure>" % (
-            classes, self.full_text)
+        self.inner_text = "<figure class=\"inline%s\">%s</figure>" % (
+            classes, self.inner_text)
+        if "aside" in class_set:
+            self.asides.append(self.inner_text)
+            return ""
+        return self.inner_text
+
+    def get_asides_html(self):
+        return "".join(map(lambda x: "<aside>%s</aside>" % x, self.asides))  
 
 
 class SurroundFiguresTokenProcessor(TokenProcessor):
@@ -364,19 +374,23 @@ class ReplaceTokensNode(template.Node):
 
     def render(self, context):
         txt = self.text.resolve(context)
-        simple_processors = [
-            FigureTokenProcessor(),
-            FigureGroupTagProcessor(),
-            FigCaptionTagProcessor(),
-            BiblioInlineTagProcessor(),
-            ILinkTagProcessor(),
-            CTATokenProcessor(),
-            GreenPrincipleTokenProcessor()]
-        for proc in simple_processors:
+        processors = {
+            'figure':FigureTokenProcessor(),
+            'figgroup':FigureGroupTagProcessor(),
+            'figcaption':FigCaptionTagProcessor(),
+            'ibib':BiblioInlineTagProcessor(),
+            'bib':BiblioTagProcessor(),
+            'ilink':ILinkTagProcessor(),
+            'cta':CTATokenProcessor(),
+            'green':GreenPrincipleTokenProcessor()
+            }
+        for key,proc in processors.iteritems():
             txt = proc.apply(txt)
-        btag_proc = BiblioTagProcessor()
-        txt = btag_proc.apply(txt)
-        context['footnotes_html'] = btag_proc.get_footnotes_html()
+
+        context['footnotes_html'] = processors['bib'].get_footnotes_html()
+        asides_html = processors['figgroup'].get_asides_html()
+        asides_html = processors['figcaption'].apply(asides_html)
+        context['pre_content'] = context.get('pre_content',"") + asides_html 
         context['tokens_replaced'] = txt
         return ""
 

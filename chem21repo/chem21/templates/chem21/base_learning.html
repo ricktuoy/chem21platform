@@ -79,15 +79,14 @@
 	{% if object.get_text %}
 		{% replace_tokens object.get_text %}
 		{% if object.video %}
-		{% try_inset_video tokens_replaced object.video %}
+			{% get_video tokens_replaced object.video %}
 		{% endif %}
-		{% if text_with_inset_video %}
-			{{ text_with_inset_video|safe }}
-		{% else %}
-			{{ tokens_replaced|safe }}
+		{% if pre_content %}
+			{{ pre_content|safe }}
 		{% endif %}
+		{{ tokens_replaced|safe }}
 	{% endif %}
-	{% if not text_with_inset_video and video %}
+	{% if video %}
 		{{ video|safe }}
 	{% endif %}
 	{% if object.has_quiz %}

@@ -37,13 +37,13 @@ class PlaceVideoNode(template.Node):
         if num_blocks > 3:
             # display as an aside
             vid_html = "<aside>%s</aside>" % vid_html
-            txt = vid_html + txt
-            context['text_with_inset_video'] = txt
+            context['pre_content'] = context.get('pre_content', "") + vid_html
+            return ""
         context['video'] = vid_html
         return ""
 
 
-@register.tag(name="try_inset_video")
+@register.tag(name="get_video")
 def do_try_inset_video(parser, token):
     try:
         tag_name, text_field, video_field = token.split_contents()
