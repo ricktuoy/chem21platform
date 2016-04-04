@@ -774,6 +774,7 @@ ol.footnotes li {
 
 nav#end-nav {
 	text-align: center;
+	clear: both;
 }
 
 nav#end-nav div.next {
@@ -837,9 +838,16 @@ figure.presentation figcaption.overlay .byline {
 }
 
 
+#content aside {
+	width: 40%;
+	float: right;
+}
+
 #content table td p {
     margin: 0;
 }
+
+
 
 #content dl dt {
 	font-weight: bold;

@@ -1067,6 +1067,17 @@ class UniqueFile(OrderedModel, DrupalModel):
             return self.checksum
 
     @property
+    def render_type(self):
+        if self.type == "video":
+            return "html5"
+
+    @property
+    def render_args(self):
+        if self.type == "video":
+            return {'url':self.url, 'byline': self.author_string }
+    
+
+    @property
     def _stripped_ext(self):
         try:
             return self.ext.replace(".", "")

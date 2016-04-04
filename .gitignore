@@ -5,6 +5,7 @@ devserver.log
 *.swp
 static/*
 *.sublime-workspace
+*.sublime-project
 logs/*
 node_modules/*
 *.dmp

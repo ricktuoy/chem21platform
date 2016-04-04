@@ -1,6 +1,7 @@
 {% extends 'chem21/base_inner.html' %}
 {% load tokens %}
 {% load quiz %}
+{% load video %}
 {% load admin_urls %}
 {% load static from staticfiles %}
 {% load require %}
@@ -74,48 +75,43 @@
 {% endif %}
 {% endif %}
 {% endblock %}
-	{% block learning_object %}
+{% block learning_object %}
 	{% if object.get_text %}
-	{% replace_tokens object.get_text %}
-	{{ tokens_replaced|safe }}
+		{% replace_tokens object.get_text %}
+		{% if object.video %}
+		{% try_inset_video tokens_replaced object.video %}
+		{% endif %}
+		{% if text_with_inset_video %}
+			{{ text_with_inset_video|safe }}
+		{% else %}
+			{{ tokens_replaced|safe }}
+		{% endif %}
 	{% endif %}
-	{% if object.video %}
-<figure class="presentation">
-<video width="100%" controls>
-	<source src="{{ object.video.url }}" type="video/mp4" />
-	Your browser does not support the video tag
-</video>
-<figcaption class="overlay">
-{% if object.byline|striptags %}
-	{{ object.byline|safe }}
-{% else %}
-	Presentation by <span class="byline">{{ object.video.author_string }}</span></figcaption>
-{% endif %}
-</figcaption>
-</figure>
-{% endif %}
-{% if object.has_quiz %}
-{% render_quiz object.quiz %}
-{% endif %}
-{% if object.pdf %}
-<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
-<!-- TODO: display pdf -->
-{% endif %}
+	{% if not text_with_inset_video and video %}
+		{{ video|safe }}
+	{% endif %}
+	{% if object.has_quiz %}
+		{% render_quiz object.quiz %}
+	{% endif %}
+	{% if object.pdf %}
+	<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
+	<!-- TODO: display pdf -->
+	{% endif %}
 	{% block bottom_nav %}
-	<nav id="end-nav">
-	
-	{% if next %}<div class="next"><span class="next">Next</span> &raquo; <a class="next" href="{{ next.get_absolute_url }}">{{ next.title }} </a></div>{% endif %}
-	{% if previous %}<div class="back"><span class="next">Back</span> &laquo; <a class="prev" href="{{ previous.get_absolute_url}}" title="{{ previous.get_absolute_url }}">{{ previous.title }}</a></div>{% endif %}
-	</nav>
+		<nav id="end-nav">
+		
+		{% if next %}<div class="next"><span class="next">Next</span> &raquo; <a class="next" href="{{ next.get_absolute_url }}">{{ next.title }} </a></div>{% endif %}
+		{% if previous %}<div class="back"><span class="next">Back</span> &laquo; <a class="prev" href="{{ previous.get_absolute_url}}" title="{{ previous.get_absolute_url }}">{{ previous.title }}</a></div>{% endif %}
+		</nav>
 	{% endblock %}
 	{% if footnotes_html %}
-<ol class="footnotes">
-{{ footnotes_html|safe }}
-</ol>
-{% endif %}
+		<ol class="footnotes">
+		{{ footnotes_html|safe }}
+		</ol>
+	{% endif %}
 
-	{% endblock %}
-	{% include 'chem21/disqus.html' %}
+{% endblock %}
+{% include 'chem21/disqus.html' %}
 	</div>
 </div>
 {% endblock %}
