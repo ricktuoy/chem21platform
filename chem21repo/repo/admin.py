@@ -98,7 +98,8 @@ create_admin(
 
 create_admin(
     model=UniqueFile,
-    fields=["title", "type", "remote_path", 'authors'])
+    fields=["title", "type", "remote_path", 
+            'authors', 'description'])
 
 for md in [Question, UniqueFile, Author,
            Event, Lesson, FileLink, Module,

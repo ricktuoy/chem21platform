@@ -815,7 +815,6 @@ figure.presentation {
 	padding: 0;
 	margin: 0;
 	position: relative;
-	border: 1px solid #bbb;
 }
 
 figure.presentation figcaption.overlay {
@@ -841,6 +840,12 @@ figure.presentation figcaption.overlay .byline {
 #content aside {
 	width: 40%;
 	float: right;
+	margin-bottom: 1.5%;
+	margin-top: 1em;
+	margin-left: 1.5%;
+	padding: 1.5%;
+	background-color: white;
+	border: 1px solid #bbb;
 }
 
 #content table td p {
@@ -862,6 +867,7 @@ figure.inline {
 	text-align: center;
 	margin: 0;
 	padding: 1em 0 0 0;
+	clear:both;
 }
 
 figure.inline img, figure.inline table {

@@ -1053,10 +1053,7 @@ class UniqueFile(OrderedModel, DrupalModel):
     remote_path = models.CharField(max_length=255, null=True, blank=True)
     remote_id = models.IntegerField(null=True, db_index=True)
     authors = models.ManyToManyField(Author, blank=True)
-
-    # def __init__(self, *args, **kwargs):
-
-    #    return super(UniqueFile, self).__init__(*args, **kwargs)
+    description = mceModels.HTMLField(null=True, blank=True, default="")
 
     def __unicode__(self):
         if self.path:
