@@ -6,4 +6,9 @@
 <figcaption class="overlay">
 	Presentation by <span class="byline">{{ byline }}</span></figcaption>
 </figcaption>
+{% if description %}
+<figcaption class="description">
+{{ description|safe }}
+</figcaption>
+{% endif %}
 </figure>

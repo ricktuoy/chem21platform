@@ -1063,6 +1063,7 @@ class UniqueFile(OrderedModel, DrupalModel):
         else:
             return self.checksum
 
+
     @property
     def render_type(self):
         if self.type == "video":
@@ -1071,7 +1072,9 @@ class UniqueFile(OrderedModel, DrupalModel):
     @property
     def render_args(self):
         if self.type == "video":
-            return {'url':self.url, 'byline': self.author_string }
+            return {'url':self.url, 
+                    'byline': self.author_string ,
+                    'description': self.description.replace("<p>","").replace("</p>","")}
     
 
     @property

@@ -832,6 +832,11 @@ figure.presentation figcaption.overlay {
 	box-shadow: 2px 2px 15px #aaa;
 }
 
+figure.presentation figcaption.description {
+	color: #333;
+	font-style: italic;
+}
+
 figure.presentation figcaption.overlay .byline {
 	font-weight: bold;
 }
