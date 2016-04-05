@@ -4,7 +4,7 @@
 {% block head %}
 {% endblock %}
 {% block title %}{{ object.title }} :: {{ current_lesson.title }} :: {{ current_module.title }} :: CHEM21 learning platform{% endblock %}
-{% block display_title %}{% if current_module.dummy %}{{ current_module.topic.title }} {% else %} {{ current_module.title }} {% endif %}: {{ current_lesson.title }}{% endblock %}
+{% block display_title %}{% if not current_module.dummy %}{{ current_module.topic.title }}: {% endif %}{% if current_module.dummy %}{{ current_module.topic.title }} {% else %} {{ current_module.title }} {% endif %}{% endblock %}
 {% block class_nav %}
 <div class="item-list">
 	<ol>
@@ -43,6 +43,4 @@
 	</ol>
 </div>  
 {% endblock %}
-{% block progress_title %}
-<div class="titles"><h2>{{ object.title }}</h2>(Step {{ question_num }} of {{ num_questions }})</div>
-{% endblock progress_title %}
+

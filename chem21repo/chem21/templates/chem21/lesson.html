@@ -2,7 +2,7 @@
 {% load tokens %}
 {% load admin_urls %}
 {% block title %} {{ object.title }} :: {{ current_module.title }} :: CHEM21 learning platform{% endblock %}
-{% block display_title %}{% if current_module.dummy %}{{ current_module.topic.title }} {% else %} {{ current_module.title }} {% endif %}: {{ object.title }}{% endblock %}
+{% block display_title %}{% if not current_module.dummy %}{{ current_module.topic.title }}: {% endif %}{% if current_module.dummy %}{{ current_module.topic.title }} {% else %} {{ current_module.title }} {% endif %}{% endblock %}
 {% block class_nav %}
 <div class="item-list">
 	<ol>

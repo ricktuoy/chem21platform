@@ -1,1 +1,491 @@
-.clearfix{overflow:hidden;*zoom:1}.center-block{display:block;margin-left:auto;margin-right:auto}.pull-right{float:right !important}.pull-left{float:left !important}.hide{display:none !important}.show{display:block !important}.invisible{visibility:hidden}.text-hide{text-indent:-119988px;overflow:hidden;text-align:left;text-transform:capitalize}.hidden{display:none !important}.affix{position:fixed}.color-white{color:#fcfcfc}.background-color-white{background-color:#fcfcfc}.color-light-gray{color:#f8f7f5}.background-color-light-gray{background-color:#f8f7f5}.color-medium-gray{color:#ececeb}.background-color-medium-gray{background-color:#ececeb}.color-dark-gray{color:#58585a}.background-color-dark-gray{background-color:#58585a}.color-light-blue{color:#4da14f}.background-color-light-blue{background-color:#4da14f}.color-dark-blue{color:#3e7342}.background-color-dark-blue{background-color:#3e7342}.color-deep-blue{color:#ffffff}.background-color-deep-blue{background-color:#ffffff}.color-leaf-green{color:#0a334e}.background-color-leaf-green{background-color:#0a334e}.color-blood-red{color:#ea645b}.background-color-blood-red{background-color:#ea645b}#second-sidebar{background-color:#f8f7f5}#title-wrapper{background:#ececeb}#site-header{background-color:#ffffff}#site-footer{background-color:#ffffff}body.cke_show_borders{background:#f8f7f5}input[type="text"],input[type="password"],textarea,select{border-color:#ececeb}fieldset input[type="text"],fieldset input[type="password"],fieldset textarea,fieldset select{border-color:#d3d3d1}.quiz-question-body{background:#ececeb}.form-item .description{color:#58585a}.action-element,.action-add-element,.action-sort-element,.action-start-element,.action-next-element,.action-prev-element,.form-submit,input[type="submit"],input[type="button"],button{background:#0a334e}.danger-element,#edit-delete{background:#ea645b}.admin .left .admin-panel h3,.admin .right .admin-panel h3{background:#4da14f}.admin .left .admin-panel dt,.admin .right .admin-panel dt{background:#ececeb}.admin .left .admin-panel dd,.admin .right .admin-panel dd{background:#ececeb}.admin .left .admin-panel dt.hover,.admin .left .admin-panel dd.hover,.admin .right .admin-panel dt.hover,.admin .right .admin-panel dd.hover{background:#f8f7f5}body.platon-use-custom-background #first-sidebar{background:#ececeb}a:hover #messages-num-unread,a.active #messages-num-unread{color:#3e7342}td{background:#ececeb}th{background:#4da14f}caption{background:#3e7342}body{background-color:#ffffff}fieldset{background:#ececeb}legend{background:#4da14f}a{color:#3e7342}a:hover{color:#4da14f}ul.tabs li a,ul.tabs li a.active{background-color:#4da14f}ul.tabs li a.active,ul.tabs li a:hover{background-color:#3e7342}.action-links li a.opigno-quiz-app-sort-quizzes{background-color:#0a334e}.action-links li a{background-color:#0a334e}#og-context-navigation li a{background-color:#4da14f}#og-context-navigation li a:hover,#og-context-navigation li a.acive{background-color:#3e7342}.main-navigation-row .main-navigation-item a{color:#3e7342}.main-navigation-row .main-navigation-item a:hover,.main-navigation-row .main-navigation-item a.active{background-color:#3e7342}#baaacck-to-parent-link a{color:#3e7342}#apps-list .app-name{background:#4da14f}#apps-list .app-status{color:#4da14f}#apps-list .app-action{color:#58585a;background:#ececeb}#app-wrapper .app-main #app-top h1{color:#58585a}.vjs-default-skin{color:#3e7342}.vjs-default-skin .vjs-control-bar{background:#58585a}.vjs-default-skin .vjs-load-progress{background:#ececeb}.vjs-default-skin .vjs-volume-level,.vjs-default-skin .vjs-play-progress{background:#3e7342}.audiojs{color:#3e7342;background:#58585a}.audiojs .loaded{background:#ececeb}.audiojs .progress{background:#3e7342}#forum-statistics #forum-statistics-header{background:#3e7342}#forum-statistics .forum-statistics-sub-header{background:#4da14f}#forum-statistics .forum-statistics-sub-body{background:#ececeb}.forum-tools{background:#58585a}.forum-post-info{background:#4da14f}.forum-post-title{background:#3e7342}body .forum-table-wrap .forum-table-superheader{background-color:#3e7342}.forum-table th{background-color:#4da14f}#forum .form-type-select select{background-color:#0a334e}.forum-add-node a,.forum-add-node a:hover,.topic-reply-allowed a,.topic-reply-allowed a:hover{background-color:#0a334e}#quiz-question-answering-form .quiz-question-navigation-wrapper{background:#58585a}#quiz_progress{background:#4da14f}div.quiz-report div.dt{background:#3e7342}.node-course-other-fields{background-color:#4da14f}#quiz-question-answering-form .form-type-radio:first-of-type label{background:#94ca88}#quiz-question-answering-form .form-type-radio:last-of-type label{background:#f6b9b5}.opigno-tool-block{background:#4da14f}.opigno-tool-block.js-processed:hover{background:#3e7342}#homebox-add .item-list{background:#ececeb}#homebox-add .item-list a{background-color:#94ca88}#homebox-add .item-list a:hover{background-color:#0a334e}#homebox-add .item-list a.restore{background-color:#ea645b}#homebox .homebox-portlet{background:#ececeb}#homebox .homebox-portlet .portlet-header{background:#3e7342}#homebox-add-link{background-color:#0a334e}#folder-menu-container .folder-wrapper{background:#3e7342}#folder-menu-container .folder-wrapper #tabs ul li a.disabled{background-color:#8b8b8d !important}#folder-add-content-links{background:#58585a}.view-calendar{background-color:#ececeb}.calendar-calendar th,.calendar-calendar th.days{background:#ececeb}.calendar-calendar td{color:#58585a}.calendar-calendar td.today{background:#ececeb !important}.calendar-calendar td.today div.day{border-color:#58585a !important}#drupalchat-wrapper .subpanel_title{background-color:#3e7342}#drupalchat-wrapper .subpanel ul,#drupalchat-wrapper .subpanel ul li{background-color:#f8f7f5}#first-sidebar #first-sidebar-toggle{background-image:url(collapse-menu-icon.png)}#site-header{background-image:url(header-background.jpg)}#baaacck-to-parent-link a{background-image:url(back-icon.png)}#main-navigation-item-home a{background-image:url(main-navigation-home-icon-inactive.png)}#main-navigation-item-my-courses a{background-image:url(main-navigation-my-courses-icon-inactive.png)}#main-navigation-item-training-catalogue a{background-image:url(main-navigation-training-catalogue-icon-inactive.png)}#main-navigation-item-forum a{background-image:url(main-navigation-forum-icon-inactive.png)}#main-navigation-item-calendar a{background-image:url(main-navigation-calendar-icon-inactive.png)}#main-navigation-item-my-achievements a{background-image:url(main-navigation-my-achievements-icon-inactive.png)}#main-navigation-item-messages a{background-image:url(main-navigation-messages-icon-inactive.png)}#main-navigation-item-administration a{background-image:url(main-navigation-administration-icon-inactive.png)}.view-opigno-course-catalgue .opigno-group h3{background:#3e7342}.view-opigno-my-courses .opigno-group h3{background:#3e7342}
+.clearfix {
+    overflow: hidden;
+    *zoom: 1;
+}
+
+.center-block {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pull-right {
+    float: right !important;
+}
+
+.pull-left {
+    float: left !important;
+}
+
+.hide {
+    display: none !important;
+}
+
+.show {
+    display: block !important;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.text-hide {
+    text-indent: -119988px;
+    overflow: hidden;
+    text-align: left;
+    text-transform: capitalize;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.affix {
+    position: fixed;
+}
+
+.color-white {
+    color: #fcfcfc;
+}
+
+.background-color-white {
+    background-color: #fcfcfc;
+}
+
+.color-light-gray {
+    color: #fafafa;
+}
+
+.background-color-light-gray {
+    background-color: #fcfcfc;
+}
+
+.color-medium-gray {
+    color: #ececeb;
+}
+
+.background-color-medium-gray {
+    background-color: #ececeb;
+}
+
+.color-dark-gray {
+    color: #58585a;
+}
+
+.background-color-dark-gray {
+    background-color: #58585a;
+}
+
+.color-light-blue {
+    color: #4da14f;
+}
+
+.background-color-light-blue {
+    background-color: #4da14f;
+}
+
+.color-dark-blue {
+    color: #3e7342;
+}
+
+.background-color-dark-blue {
+    background-color: #3e7342;
+}
+
+.color-deep-blue {
+    color: #fff;
+}
+
+.background-color-deep-blue {
+    background-color: #fff;
+}
+
+.color-leaf-green {
+    color: #0a334e;
+}
+
+.background-color-leaf-green {
+    background-color: #0a334e;
+}
+
+.color-blood-red {
+    color: #ea645b;
+}
+
+.background-color-blood-red {
+    background-color: #ea645b;
+}
+
+#second-sidebar {
+    background-color: #fcfcfc;
+}
+
+#title-wrapper {
+    
+}
+
+#site-header {
+    background-color: #fff;
+}
+
+#site-footer {
+    background-color: #fff;
+}
+
+body.cke_show_borders {
+    background: #fcfcfc;
+}
+
+input[type="text"],input[type="password"],textarea,select {
+    border-color: #ececeb;
+}
+
+fieldset input[type="text"],fieldset input[type="password"],fieldset textarea,fieldset select {
+    border-color: #d3d3d1;
+}
+
+.quiz-question-body {
+    background: #ececeb;
+}
+
+.form-item .description {
+    color: #58585a;
+}
+
+.action-element,.action-add-element,.action-sort-element,.action-start-element,.action-next-element,.action-prev-element,.form-submit,input[type="submit"],input[type="button"],button {
+    background: #0a334e;
+}
+
+.danger-element,#edit-delete {
+    background: #ea645b;
+}
+
+.admin .left .admin-panel h3,.admin .right .admin-panel h3 {
+    background: #4da14f;
+}
+
+.admin .left .admin-panel dt,.admin .right .admin-panel dt {
+    background: #ececeb;
+}
+
+.admin .left .admin-panel dd,.admin .right .admin-panel dd {
+    background: #ececeb;
+}
+
+.admin .left .admin-panel dt.hover,.admin .left .admin-panel dd.hover,.admin .right .admin-panel dt.hover,.admin .right .admin-panel dd.hover {
+    background: #fcfcfc;
+}
+
+body.platon-use-custom-background #first-sidebar {
+    background: #ececeb;
+}
+
+a:hover #messages-num-unread,a.active #messages-num-unread {
+    color: #3e7342;
+}
+
+td {
+    background: #ececeb;
+}
+
+th {
+    background: #4da14f;
+}
+
+caption {
+    background: #3e7342;
+}
+
+body {
+    background-color: #fff;
+}
+
+fieldset {
+    background: #ececeb;
+}
+
+legend {
+    background: #4da14f;
+}
+
+a {
+    color: #3e7342;
+}
+
+a:hover {
+    color: #4da14f;
+}
+
+ul.tabs li a,ul.tabs li a.active {
+    background-color: #4da14f;
+}
+
+ul.tabs li a.active,ul.tabs li a:hover {
+    background-color: #3e7342;
+}
+
+.action-links li a.opigno-quiz-app-sort-quizzes {
+    background-color: #0a334e;
+}
+
+.action-links li a {
+    background-color: #0a334e;
+}
+
+#og-context-navigation li a {
+    background-color: #4da14f;
+}
+
+#og-context-navigation li a:hover,#og-context-navigation li a.acive {
+    background-color: #3e7342;
+}
+
+.main-navigation-row .main-navigation-item a {
+    color: #3e7342;
+}
+
+.main-navigation-row .main-navigation-item a:hover,.main-navigation-row .main-navigation-item a.active {
+    background-color: #3e7342;
+}
+
+#baaacck-to-parent-link a {
+    color: #3e7342;
+}
+
+#apps-list .app-name {
+    background: #4da14f;
+}
+
+#apps-list .app-status {
+    color: #4da14f;
+}
+
+#apps-list .app-action {
+    color: #58585a;
+    background: #ececeb;
+}
+
+#app-wrapper .app-main #app-top h1 {
+    color: #58585a;
+}
+
+.vjs-default-skin {
+    color: #3e7342;
+}
+
+.vjs-default-skin .vjs-control-bar {
+    background: #58585a;
+}
+
+.vjs-default-skin .vjs-load-progress {
+    background: #ececeb;
+}
+
+.vjs-default-skin .vjs-volume-level,.vjs-default-skin .vjs-play-progress {
+    background: #3e7342;
+}
+
+.audiojs {
+    color: #3e7342;
+    background: #58585a;
+}
+
+.audiojs .loaded {
+    background: #ececeb;
+}
+
+.audiojs .progress {
+    background: #3e7342;
+}
+
+#forum-statistics #forum-statistics-header {
+    background: #3e7342;
+}
+
+#forum-statistics .forum-statistics-sub-header {
+    background: #4da14f;
+}
+
+#forum-statistics .forum-statistics-sub-body {
+    background: #ececeb;
+}
+
+.forum-tools {
+    background: #58585a;
+}
+
+.forum-post-info {
+    background: #4da14f;
+}
+
+.forum-post-title {
+    background: #3e7342;
+}
+
+body .forum-table-wrap .forum-table-superheader {
+    background-color: #3e7342;
+}
+
+.forum-table th {
+    background-color: #4da14f;
+}
+
+#forum .form-type-select select {
+    background-color: #0a334e;
+}
+
+.forum-add-node a,.forum-add-node a:hover,.topic-reply-allowed a,.topic-reply-allowed a:hover {
+    background-color: #0a334e;
+}
+
+#quiz-question-answering-form .quiz-question-navigation-wrapper {
+    background: #58585a;
+}
+
+#quiz_progress {
+    background: #4da14f;
+}
+
+div.quiz-report div.dt {
+    background: #3e7342;
+}
+
+.node-course-other-fields {
+    background-color: #4da14f;
+}
+
+#quiz-question-answering-form .form-type-radio:first-of-type label {
+    background: #94ca88;
+}
+
+#quiz-question-answering-form .form-type-radio:last-of-type label {
+    background: #f6b9b5;
+}
+
+.opigno-tool-block {
+    background: #4da14f;
+}
+
+.opigno-tool-block.js-processed:hover {
+    background: #3e7342;
+}
+
+#homebox-add .item-list {
+    background: #ececeb;
+}
+
+#homebox-add .item-list a {
+    background-color: #94ca88;
+}
+
+#homebox-add .item-list a:hover {
+    background-color: #0a334e;
+}
+
+#homebox-add .item-list a.restore {
+    background-color: #ea645b;
+}
+
+#homebox .homebox-portlet {
+    background: #ececeb;
+}
+
+#homebox .homebox-portlet .portlet-header {
+    background: #3e7342;
+}
+
+#homebox-add-link {
+    background-color: #0a334e;
+}
+
+#folder-menu-container .folder-wrapper {
+    background: #3e7342;
+}
+
+#folder-menu-container .folder-wrapper #tabs ul li a.disabled {
+    background-color: #8b8b8d !important;
+}
+
+#folder-add-content-links {
+    background: #58585a;
+}
+
+.view-calendar {
+    background-color: #ececeb;
+}
+
+.calendar-calendar th,.calendar-calendar th.days {
+    background: #ececeb;
+}
+
+.calendar-calendar td {
+    color: #58585a;
+}
+
+.calendar-calendar td.today {
+    background: #ececeb !important;
+}
+
+.calendar-calendar td.today div.day {
+    border-color: #58585a !important;
+}
+
+#drupalchat-wrapper .subpanel_title {
+    background-color: #3e7342;
+}
+
+#drupalchat-wrapper .subpanel ul,#drupalchat-wrapper .subpanel ul li {
+    background-color: #fcfcfc;
+}
+
+#first-sidebar #first-sidebar-toggle {
+    background-image: url(collapse-menu-icon.png);
+}
+
+#site-header {
+    background-image: url(header-background.jpg);
+}
+
+#baaacck-to-parent-link a {
+    background-image: url(back-icon.png);
+}
+
+#main-navigation-item-home a {
+    background-image: url(main-navigation-home-icon-inactive.png);
+}
+
+#main-navigation-item-my-courses a {
+    background-image: url(main-navigation-my-courses-icon-inactive.png);
+}
+
+#main-navigation-item-training-catalogue a {
+    background-image: url(main-navigation-training-catalogue-icon-inactive.png);
+}
+
+#main-navigation-item-forum a {
+    background-image: url(main-navigation-forum-icon-inactive.png);
+}
+
+#main-navigation-item-calendar a {
+    background-image: url(main-navigation-calendar-icon-inactive.png);
+}
+
+#main-navigation-item-my-achievements a {
+    background-image: url(main-navigation-my-achievements-icon-inactive.png);
+}
+
+#main-navigation-item-messages a {
+    background-image: url(main-navigation-messages-icon-inactive.png);
+}
+
+#main-navigation-item-administration a {
+    background-image: url(main-navigation-administration-icon-inactive.png);
+}
+
+.view-opigno-course-catalgue .opigno-group h3 {
+    background: #3e7342;
+}
+
+.view-opigno-my-courses .opigno-group h3 {
+    background: #3e7342;
+}

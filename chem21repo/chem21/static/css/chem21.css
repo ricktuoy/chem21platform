@@ -1,4 +1,4 @@
-/************* Main header *********/
+/************* HEADER *********/
 .element-invisible {
     clip: rect(1px, 1px, 1px, 1px);
     height: 1px;
@@ -79,6 +79,8 @@ h1 {
 #site-header .mobile-link-icon:hover {
 	background-color: #777;
 }
+
+
 
 /************* Slide images ****************/
 
@@ -402,47 +404,71 @@ body.front #content .content .cobranding {
 	color: #555;
 }
 
-#quiz_progress h2 {
+
+
+
+#quiz_progress .section {
 	display: inline-block;
-	margin: 0 1em 0 0;
+	text-transform: uppercase;
+	font-size: 1em;
+	font-weight: bold;
+	max-width: 100%;
+	line-height: 1.1em;
+	position: static;
+	margin: 0.4em;
 }
 
+
+
+
 #quiz_progress {
-	font-size: 0.8em;
 	font-weight: normal;
 	padding: 0;
-	border-bottom: 1px #226622 solid;
+	position: relative;
+	top: 0;
+	margin: 0;
+	border-bottom: 1px solid #eee;
 }
 
-#quiz_progress .titles {
-	float: left;
-	padding: 0.5em;
-}
-
-#quiz_progress {
-	overflow:hidden;
-}
 
 #quiz_progress nav {
-	clear: both;
-	background-color: #262;
-	padding: 0 0.5em;
+	background-color: #f0f0f0;
+	padding: 0;
+	bottom: -1.8em;
+	right: 0;
+	width: 100%;
+	margin: 0;
+	border: 0;
 }
+
 
 #quiz_progress nav a {
 	color: white;
-	font-size: 1.1em;
+	font-size: 1em;
+	padding: 0.1em 3%;
+	display: inline-block;
+	margin: 0;
+	width: 30%;
+	background-color: #262;
+	text-decoration: none;
 }
 
 #quiz_progress nav a.next {
-	float: right;
+	float: right;	
 }
+
+#quiz_progress nav a.prev {
+	float: left;	
+}
+
+
 
 .breadcrumb {
 	background-color: #f6f6f6;
 	border-bottom: 1px solid #dedede;
 	font-size: 0.85em;
-	padding: 0.2em 0.2em;
+	padding: 0.2em 1em;
+	margin: 0 0 1.5em 0;
 }
 
 /**************** Sarah's Flow Chart of Joy *********/
@@ -894,6 +920,7 @@ figure.inline figcaption {
 	font-style: italic;
 	padding: 0.5em;
 	margin-top: 0.8em;
+	clear: both;
 }
 
 body.front #disqus_thread iframe {
@@ -961,31 +988,50 @@ p.cta {
 		left: 25px !important; 
 	}
 
-	#quiz_progress nav {
-		float: right;
-		clear: none;
-		background-color: transparent;
-		padding: 0;
-		margin-top: 0.5em;
+
+	#quiz_progress {
+		margin: 0;
+		border-bottom: 1px #226622 solid;
 	}
 
-	#quiz_progress nav a.next {
-		float: none;
+
+	#quiz_progress nav {
+		display: inline-block;
+		width: 35%;
+		background-color: transparent;
+		border: 0;
+		padding: 0;
+		margin-top: 0.5em;
+		padding: 0 0.5em;
+		position: absolute;
+		bottom: 0;
+		right: 0.5em;
 	}
+
+	#quiz_progress .section {
+		max-width: 60%;
+		font-size: 1.2em;
+		position: static;
+		margin-top: 0.6em;
+		margin-bottom: 0.3em;
+	}
+
 
 	#quiz_progress nav a {
 		display: inline-block;
-		float: left;
+		width: 45%;
 		background-color: #3e7342;
 		border: 1px solid #386535;
 		color: white;
-		width: 100px;
-		margin-right: 10px;
+		margin-right: 1%;
 		text-decoration: none;
 		text-align: center;
 		padding: 4px 0;
+		position: static;
 	}
 
+
+	
 	#quiz_progress nav a:hover {
 		background-color: #427949;
 	}

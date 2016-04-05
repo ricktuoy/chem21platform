@@ -1,5 +1,11 @@
 {% extends 'chem21/base_learning.html' %}
 {% load admin_urls %}
+{% block display_title %}
+{{ object.title }}
+{% endblock %}
+{% block progress_title %}
+<h1>Introduction</h1>
+{% endblock %}
 {% block class_nav %}
 <div class="item-list">
 	<ol>
