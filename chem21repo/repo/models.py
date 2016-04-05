@@ -47,9 +47,9 @@ class Biblio(models.Model):
         try:
             api = C21RESTRequests()
             ret = api.get_endnode_html(self.citekey)
-            print ret
             self.inline_html = ret[0]['html']
             self.footnote_html = self.inline_html
+            self.save()
         except IndexError:
             self.unknown = True
             self.save()

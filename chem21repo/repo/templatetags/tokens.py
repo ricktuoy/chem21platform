@@ -390,7 +390,6 @@ class ReplaceTokensNode(template.Node):
                       'figure','figgroup','figcaption',]
         for key in proc_order:
             txt = processors[key].apply(txt)
-
         context['footnotes_html'] = processors['bib'].get_footnotes_html()
         asides_html = processors['figgroup'].get_asides_html()
         asides_html = processors['figcaption'].apply(asides_html)
