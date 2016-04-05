@@ -1930,9 +1930,6 @@ body.platon-use-slider #second-sidebar .slider-footer .slider-counter {
 body.platon-use-slider #second-sidebar .slider-footer .slider-counter .top {
     border-bottom: 2px solid white
 }
-#site-content {
-    background: url(../img/body-background.png) center top repeat-y
-}
 @media screen and (max-width: 800px) {
     #site-content {
         margin-top: 65px;
@@ -5548,7 +5545,8 @@ body.platon-use-slider #second-sidebar .slider-footer .slider-counter .top {
     border-bottom: 2px solid white
 }
 #site-content {
-    background: url(../img/body-background.png) center top repeat-y
+    background-image: url("../img/front-background.jpg");
+    background-attachment: fixed;
 }
 @media screen and (max-width: 800px) {
     #site-content {
