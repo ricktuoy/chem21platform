@@ -377,17 +377,17 @@ class ReplaceTokensNode(template.Node):
     def render(self, context):
         txt = self.text.resolve(context)
         processors = {
-            'figure':FigureTokenProcessor(),
-            'figgroup':FigureGroupTagProcessor(),
-            'figcaption':FigCaptionTagProcessor(),
             'ibib':BiblioInlineTagProcessor(),
             'bib':BiblioTagProcessor(),
             'ilink':ILinkTagProcessor(),
             'cta':CTATokenProcessor(),
-            'green':GreenPrincipleTokenProcessor()
+            'green':GreenPrincipleTokenProcessor(),
+            'figure':FigureTokenProcessor(),
+            'figgroup':FigureGroupTagProcessor(),
+            'figcaption':FigCaptionTagProcessor(),
             }
-        proc_order = ['figure','figgroup','figcaption',
-                      'ibib','bib','ilink','cta','green']
+        proc_order = ['ibib','bib','ilink','cta','green',
+                      'figure','figgroup','figcaption',]
         for key in proc_order:
             txt = processors[key].apply(txt)
 
