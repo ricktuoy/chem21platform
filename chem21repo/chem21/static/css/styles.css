@@ -1985,7 +1985,7 @@ body.platon-use-slider #second-sidebar .slider-footer .slider-counter .top {
 @media screen and (max-width: 800px) {
     body:not(.platon-use-slider) #first-sidebar.collapsed,
     body:not(.platon-use-slider) #first-sidebar.collapsed+#second-sidebar {
-        width: 97%
+        width: 100%
     }
     body:not(.platon-use-slider) #first-sidebar.collapsed .region,
     body:not(.platon-use-slider) #first-sidebar.collapsed+#second-sidebar .region {
@@ -1994,12 +1994,12 @@ body.platon-use-slider #second-sidebar .slider-footer .slider-counter .top {
 }
 @media screen and (min-width: 800px) {
     body:not(.platon-use-slider) #first-sidebar.collapsed+#second-sidebar {
-        width: 97%
+        width: 100%
     }
 }
 @media screen and (min-width: 1400px) {
     body:not(.platon-use-slider) #first-sidebar.collapsed+#second-sidebar {
-        width: 97%
+        width: 100%
     }
 }
 #title-wrapper {
@@ -5603,7 +5603,7 @@ body.platon-use-slider #second-sidebar .slider-footer .slider-counter .top {
 @media screen and (max-width: 800px) {
     body:not(.platon-use-slider) #first-sidebar.collapsed,
     body:not(.platon-use-slider) #first-sidebar.collapsed+#second-sidebar {
-        width: 97%
+        width: 100%
     }
     body:not(.platon-use-slider) #first-sidebar.collapsed .region,
     body:not(.platon-use-slider) #first-sidebar.collapsed+#second-sidebar .region {
@@ -5612,12 +5612,12 @@ body.platon-use-slider #second-sidebar .slider-footer .slider-counter .top {
 }
 @media screen and (min-width: 800px) {
     body:not(.platon-use-slider) #first-sidebar.collapsed+#second-sidebar {
-        width: 97%
+        width: 100%
     }
 }
 @media screen and (min-width: 1400px) {
     body:not(.platon-use-slider) #first-sidebar.collapsed+#second-sidebar {
-        width: 97%
+        width: 100%
     }
 }
 #title-wrapper {
@@ -5636,7 +5636,8 @@ body.platon-use-slider #second-sidebar .slider-footer .slider-counter .top {
     background-color: #0a71b4;
     padding: 10px 0;
     color: white;
-    font-size: 0.7em
+    font-size: 0.7em;
+    clear:both;
 }
 #site-footer a {
     color: white

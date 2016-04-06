@@ -27,7 +27,9 @@
 	z-index: 9999 !important;
 }
 
-
+#first-sidebar.collapsed {
+	display:none;
+}
 
 body.platon-use-slider #site-header {
 	height: 95px !important;
@@ -161,8 +163,15 @@ body.front #site-footer {
 	border: 0;
 }
 
+#second-sidebar {
+	padding-bottom: 3em;
+}
+
 #site-footer {
-	border-top: 3px solid #aaa;
+	border-top: 1px solid #dfdfdf;
+	border-bottom: 30px solid #464;
+	padding-bottom: 5em;
+	margin-top: 2em;
 }
 
 #site-footer p.verbage {
@@ -399,7 +408,7 @@ body.front #content .content .cobranding {
 	background-color: #f0f0f0;
 	padding: 0.4em;
 }
-
+/*
 #class_nav>.item-list>ol>li>a,
 #class_nav>.item-list>ol>li>.jquery-list-position-fix>a {
 	text-decoration: none;
@@ -409,7 +418,7 @@ body.front #content .content .cobranding {
 #class_nav>.item-list>ol>li>.jquery-list-position-fix>a:hover {
 	text-decoration: underline;
 }
-
+*/
 
 
 #class_nav ol li {

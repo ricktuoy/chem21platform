@@ -19,7 +19,7 @@ define(["jquery"], function($) {
             });
             console.debug(max_offset);
 
-            target_texts = targets.find(".jquery-list-position-fix");
+            var target_texts = targets.find(".jquery-list-position-fix");
             target_texts.css("float", "right");
             target_texts.css("display", "block");
             target_texts.each(function() {
@@ -27,7 +27,6 @@ define(["jquery"], function($) {
 
                 $(this).find("ol").css("position","relative").css("left", 2*max_offset/-2);
             });
-            target_text
 
             return this;
         };
