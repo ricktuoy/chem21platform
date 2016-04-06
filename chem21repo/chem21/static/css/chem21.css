@@ -368,10 +368,11 @@ body.front #content .content .cobranding {
 	margin: 0 1% 1% 0;
 	box-shadow: 2px 2px 15px #aaa;
 	border: 1px solid #ccc;
-	border-top: 4px solid #999;
+	border-top: 6px solid #464;
 	font-size: 1.2em;
 	line-height: 1.2em;
 	color: #555;
+	border-bottom: 15px solid #464;
 }
 
 #class_nav ol {
@@ -868,7 +869,7 @@ nav#end-nav {
 }
 
 nav#end-nav div.next {
-	background-color: #444;
+	background-color: #464;
 	color: white;
 	padding: 1em;
 	font-size: 1.1em;
