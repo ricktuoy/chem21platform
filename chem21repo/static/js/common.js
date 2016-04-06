@@ -7,4 +7,4 @@ requirejs.config({
     "urlArgs": "bust=001"
 });
 // Load the main app module to start the app
-requirejs(["../quiz/main"]);
+requirejs(["../common/main"]);

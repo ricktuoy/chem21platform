@@ -8,7 +8,7 @@
 {% block scripts %}
 
 {{ block.super }}
-{% require_module '../quiz' %}
+{% require_module '../common' %}
 {% endblock %}
 {% block head %}
 {% if not object.text  and not perms.repo.change_question and not object.video and object.get_first_child %}
@@ -27,7 +27,6 @@
 	<div id="breadcrumb">
 		<div class="breadcrumb"><a href="/">Home</a> > {% for crumb in breadcrumbs %}<a href="{{ crumb.get_absolute_url }}">{{ crumb.title }}</a> > {% endfor %}{{ object.title }}</div>    
 	</div>
-
 	<div id="class_nav">
 		<h3>{{ class_tree.title }}</h3>
 		{% block class_nav %}
@@ -35,7 +34,6 @@
 	</div>
 	<div id="opigno-group-progress"></div>
 	<div id="content" class="has-group-progress">
-
 	{% block progress %}
 <div id="quiz_progress">
     	<span class="section">{% block display_title %}{{ object.title }}{% endblock %}</span>

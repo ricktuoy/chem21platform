@@ -14,7 +14,13 @@
      * dependencies will be included in the module's file when the build is
      * done. A minimum module entry is {name: "module_name"}.
      */
-        modules: [{name: 'file_listing'},{name: 'quiz'}, {name: 'select_bibliotag'},{name: 'select_figuretag'},{name: 'select_linktag'}],
+        modules: [{name: 'file_listing'},
+                  {name: 'quiz'}, 
+                  {name: 'list_fix'},
+                  {name: 'common'},
+                  {name: 'select_bibliotag'},
+                  {name: 'select_figuretag'},
+                  {name: 'select_linktag'}],
     /*
      * Allow CSS optimizations. Allowed values:
      * - "standard": @import inlining, comment removal and line returns.
@@ -57,6 +63,8 @@
     paths: {
         "quiz": "../quiz",
         "file_listing": "../file_listing",
+        "list_fix": "../list-fix",
+        "common": "../common",
         "select_bibliotag": "../../tiny_mce/plugins/bibliotag/js/select_bibliotag",
         "select_figuretag": "../../tiny_mce/plugins/figuretag/js/select_figuretag",
         "select_linktag": "../../tiny_mce/plugins/linktag/js/select_linktag"
