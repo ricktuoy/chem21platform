@@ -5,6 +5,12 @@
 {% load admin_urls %}
 {% load static from staticfiles %}
 {% load require %}
+  {% block styles %}
+{{ block.super }}
+<link type="text/css" rel="stylesheet" href="{% static "js/lib/colorbox/jquery.colorbox.css" %}" />
+  {% endblock %}
+}
+
 {% block scripts %}
 
 {{ block.super }}

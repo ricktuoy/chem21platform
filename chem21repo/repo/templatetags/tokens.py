@@ -274,6 +274,8 @@ class FigureGroupTagProcessor(TagProcessor):
         if "aside" in class_set:
             self.asides.append(self.inner_text)
             return ""
+        
+
         return self.inner_text
 
     def get_asides_html(self):
@@ -367,7 +369,7 @@ class FigureTokenProcessor(TokenProcessor):
                 alt = args[1]
             except IndexError:
                 alt = ""
-            return "<img src=\"%s\" alt=\"%s\" />" % (fle.url, alt)
+            return "<a href=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (fle.url, fle.url, alt)
 
 
 class ReplaceTokensNode(template.Node):
