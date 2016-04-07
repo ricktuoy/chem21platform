@@ -42,9 +42,11 @@
 {% if next %}<a class="next" href="{{ next.get_absolute_url }}">Next &raquo;</a>{% endif %}
 	</nav>
 </div>
+{% if not object.quiz or object.get_text %}
 {% block progress_title %}
 <div class="titles"><h1>{{ object.title }}</h1></div>
 {% endblock progress_title %}
+{% endif %}
 {% endblock %}
 {% block admin_tools %}
 {% if perms.repo.change_lesson %}
