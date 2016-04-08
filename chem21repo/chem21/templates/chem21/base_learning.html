@@ -9,7 +9,6 @@
 {{ block.super }}
 <link type="text/css" rel="stylesheet" href="{% static "js/lib/colorbox/jquery.colorbox.css" %}" />
   {% endblock %}
-}
 
 {% block scripts %}
 
@@ -72,6 +71,7 @@
 {% endif %}
 {% endblock %}
 {% block learning_object %}
+	{% block learning_text %}
 	{% if object.get_text %}
 		{% replace_tokens object.get_text %}
 		{% if object.video %}
@@ -82,16 +82,23 @@
 		{% endif %}
 		{{ tokens_replaced|safe }}
 	{% endif %}
+	{% endblock %}
+	{% block video %}
 	{% if video %}
 		{{ video|safe }}
 	{% endif %}
+	{% endblock %}
+	{% block quiz %}
 	{% if object.has_quiz %}
 		{% render_quiz object.quiz %}
 	{% endif %}
+	{% endblock %}
+	{% block pdf %}
 	{% if object.pdf %}
 	<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
 	<!-- TODO: display pdf -->
 	{% endif %}
+	{% endblock %}
 	{% block bottom_nav %}
 		<nav id="end-nav">
 		
@@ -99,11 +106,13 @@
 		{% if previous %}<div class="back"><span class="next">Back</span> &laquo; <a class="prev" href="{{ previous.get_absolute_url}}" title="{{ previous.get_absolute_url }}">{{ previous.title }}</a></div>{% endif %}
 		</nav>
 	{% endblock %}
+	{% block footnotes %}
 	{% if footnotes_html %}
 		<ol class="footnotes">
 		{{ footnotes_html|safe }}
 		</ol>
 	{% endif %}
+	{% endblock %}
 
 {% endblock %}
 	</div>

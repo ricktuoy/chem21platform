@@ -226,6 +226,11 @@ class DrupalManager(models.Manager):
             instance.save()
             return instance
 
+class LearningTemplate(models.Model):
+    name = models.CharField(max_length=100)
+    def __unicode__(self):
+        return self.name
+
 
 class DrupalModel(models.Model):
     dirty = models.TextField(default="[]")
@@ -233,6 +238,7 @@ class DrupalModel(models.Model):
     changed = models.BooleanField(default=False)
     dummy = models.BooleanField(default=False)
     quiz_name = models.CharField(max_length=100, blank=True, null=True)
+    template = models.ForeignKey(LearningTemplate, null=True)
 
     @property
     def quiz(self):
@@ -1031,6 +1037,10 @@ class Author(BaseModel, AuthorUnicodeMixin):
         else:
             return self.full_name
 
+class Molecule(models.Model):
+    name = models.CharField(max_length=100, null=True, unique=True)
+    mol_def = models.TextField(null=True, blank=True, default="")
+    smiles_def = models.CharField(max_length=200, null=True, unique=True)
 
 class UniqueFile(OrderedModel, DrupalModel):
     objects = DrupalManager()
@@ -1046,6 +1056,7 @@ class UniqueFile(OrderedModel, DrupalModel):
     file = FileBrowseField(max_length=500, null=True)
     cut_of = models.ForeignKey('self', related_name='cuts', null=True)
     version_of = models.ForeignKey('self', related_name='versions', null=True)
+    thumbnail = models.ForeignKey('self', related_name='thumbnail_of', null=True)
     cut_order = models.IntegerField(default=0)
     ready = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
@@ -1054,6 +1065,7 @@ class UniqueFile(OrderedModel, DrupalModel):
     remote_id = models.IntegerField(null=True, db_index=True)
     authors = models.ManyToManyField(Author, blank=True)
     description = mceModels.HTMLField(null=True, blank=True, default="")
+    molecule = models.ForeignKey(Molecule, null=True, related_name='related_files')
 
     def __unicode__(self):
         if self.path:
@@ -1062,7 +1074,6 @@ class UniqueFile(OrderedModel, DrupalModel):
             return self.title
         else:
             return self.checksum
-
 
     @property
     def render_type(self):
@@ -1305,6 +1316,15 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
         return None
 
     @property
+    def videos(self):
+        if self.is_question:
+            try:
+                return self.first_question.videos
+            except:
+                pass
+        return None
+
+    @property
     def byline(self):
         if self.is_question:
             try:
@@ -1535,6 +1555,15 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
         if self.is_question:
             try:
                 return self.first_question.video
+            except:
+                pass
+        return None
+
+    @property
+    def videos(self):
+        if self.is_question:
+            try:
+                return self.first_question.videos
             except:
                 pass
         return None
@@ -1794,6 +1823,24 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
             except (IndexError, ValueError):
                 self._cached_video = None
         return self._cached_video
+
+    @property
+    def videos(self, reset=False):
+        if not reset:
+            try:
+                return self._cached_videos
+            except AttributeError:
+                pass
+        try:
+            self._cached_videos = list(self.files.filter(type="video").exclude(remote_id__isnull=True))
+        except ValueError:
+            try:
+                self._cached_videos = list(self.files.filter(type="video"))
+            except ValueError:
+                self._cached_videos = None
+        return self._cached_videos
+
+    
 
     def is_h5p(self):
         return not not self.video

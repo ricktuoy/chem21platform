@@ -17,14 +17,12 @@ define(["jquery"], function($) {
                 }
                 $(this).append("<div class=\"clear\">&nbsp;</div>");
             });
-            console.debug(max_offset);
 
             var target_texts = targets.find(".jquery-list-position-fix");
             target_texts.css("float", "right");
             target_texts.css("display", "block");
             target_texts.each(function() {
                 $(this).width($(this).closest("li").width() - max_offset + 3);
-
                 $(this).find("ol").css("position","relative").css("left", 2*max_offset/-2);
             });
 
