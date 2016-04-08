@@ -71,7 +71,6 @@
 {% endif %}
 {% endblock %}
 {% block learning_object %}
-	{% block learning_text %}
 	{% if object.get_text %}
 		{% replace_tokens object.get_text %}
 		{% if object.video %}
@@ -82,7 +81,6 @@
 		{% endif %}
 		{{ tokens_replaced|safe }}
 	{% endif %}
-	{% endblock %}
 	{% if video %}
 		{{ video|safe }}
 	{% endif %}
