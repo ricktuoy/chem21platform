@@ -496,11 +496,11 @@ class JQueryFileHandleView(LoginRequiredMixin, View):
 
     @property
     def filename(self):
-        return self._wrapped_file.name
+        return self._f.name
 
     @property
     def filesize(self):
-        return self._wrapped_file.size
+        return self._f.size
 
     @abstractproperty
     def fileurl(self):
@@ -522,7 +522,7 @@ class JQueryFileHandleView(LoginRequiredMixin, View):
                 'delete_type': self.deletetype}
 
     @abstractmethod
-    def process_file(self):
+    def process_file(self, f, **kwargs):
         return None
 
     def post(self, request, *args, **kwargs):
@@ -530,16 +530,49 @@ class JQueryFileHandleView(LoginRequiredMixin, View):
             return JsonResponse(
                 {'error': "No files uploaded.", }, status=405
             )
-
+        ret = []
         # getting file data for farther manipulations
-        self._file = request.FILES[u'files[]']
-        self._wrapped_file = UploadedFile(self._file)
-        self.process_file()
+        for k, f in request.files.iteritems():
+            self.process_file(f, k, *args, **kwargs)
+            ret.append(self.get_return_values)
         if self.errors:
             return JsonResponse({'error': self.errors}, status=400)
         else:
             return JsonResponse(
-                self.get_return_values(), status=200)
+                ret, status=200)
+
+
+class MediaUploadHandle(object):
+    __metaclass__ = ABCMeta
+    @abstractmethod
+    def process(self, f, **kwargs):
+        pass
+
+
+class MolUploadHandle(object):
+    def process(self, f, name=None, **kwargs):
+        data = f.read()
+        mol = Molecule()
+
+class MediaUploadView(JQueryFileHandleView):
+    def get_post_dict_from_request(self, request):
+        try:
+            return self._post_dict
+        except AttributeError:
+            self._post_dict = parser.parse(request.POST.urlencode())
+            return self._post_dict
+    
+    def post(self, request, *args, **kwargs):
+        kwargs.update(self.get_post_dict_from_request(request))
+
+        self.handle = handle
+        self.file = f
+        pass
+
+    def process_file(self, f, **kwargs):
+        self.handle.process(f, **kwargs)
+
+
 
 
 class EndnoteUploadView(JQueryFileHandleView):

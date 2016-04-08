@@ -8,6 +8,9 @@ from django.views.generic import ListView
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from django.contrib.contenttypes.models import ContentType
+from abc import abstractmethod
+from abc import abstractproperty
+from abc import ABCMeta
 
 
 class LearningView(DetailView):
@@ -70,6 +73,28 @@ class LearningView(DetailView):
         if prev:
             context['previous'] = prev
         return context
+
+
+class MediaUploadHandle(object):
+    __metaclass__ = ABCMeta
+    @abstractmethod
+    def process(self, f):
+        pass
+
+
+class MolUploadHandle(object):
+    def process(self, f):
+        pass
+
+
+class MediaUpload(object):
+    def __init__(self, f):
+        self.handle = handle
+        self.file = f
+        pass
+
+    def process(self):
+        self.handle.process(f)
 
 
 class FrontView(ListView):

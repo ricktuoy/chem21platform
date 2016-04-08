@@ -83,11 +83,9 @@
 		{{ tokens_replaced|safe }}
 	{% endif %}
 	{% endblock %}
-	{% block video %}
 	{% if video %}
 		{{ video|safe }}
 	{% endif %}
-	{% endblock %}
 	{% block quiz %}
 	{% if object.has_quiz %}
 		{% render_quiz object.quiz %}
