@@ -1004,6 +1004,15 @@ figure.inline figcaption {
 	padding: 0.5em;
 	margin-top: 0.8em;
 	clear: both;
+	font-weight: bold;
+}
+
+figure.inline .figure_name {
+	font-weight: normal;
+}
+
+#content span.figure_ref {
+	font-weight: bold;
 }
 
 body.front #disqus_thread iframe {
