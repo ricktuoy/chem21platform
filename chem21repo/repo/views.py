@@ -2,6 +2,8 @@ import logging
 import traceback
 import os
 import json
+import hashlib
+import mimetypes
 
 from .models import Lesson
 from .models import Module
@@ -532,21 +534,50 @@ class JQueryFileHandleView(LoginRequiredMixin, View):
             )
         ret = []
         # getting file data for farther manipulations
-        for k, f in request.files.iteritems():
+        for k, f in request.FILES.iteritems():
             self.process_file(f, k, *args, **kwargs)
-            ret.append(self.get_return_values)
+            ret.append(self.get_return_values())
         if self.errors:
             return JsonResponse({'error': self.errors}, status=400)
         else:
             return JsonResponse(
-                ret, status=200)
+                ret, status=200, safe=False)
 
 
 class MediaUploadHandle(object):
-    __metaclass__ = ABCMeta
-    @abstractmethod
-    def process(self, f, **kwargs):
-        pass
+     
+    def process(self, f, lobj=None, **kwargs):
+        m = hashlib.md5()
+        
+        for ch in f.chunks():
+            m.update(ch)
+        
+        checksum = m.hexdigest()
+        name = f.name
+        title, ext = os.path.splitext(name)
+        tpe = mimetypes.guess_type(title)
+
+        dest_path = "uploads/" + checksum + ext
+        default_storage.save(dest_path, f)
+
+        defaults = {'ext': ext,
+            'type': tpe,
+            'title': title}
+        
+        fo, created = UniqueFile.objects.get_or_create(
+            checksum=checksum, defaults=defaults)
+        
+        if not created:
+            fo.ext = ext
+            fo.type = tpe
+            fo.title = title
+            fo.save()
+
+        if lobj:
+            lobj.files.add(fo)
+
+        return fo
+            
 
 
 class MolUploadHandle(object):
@@ -555,6 +586,15 @@ class MolUploadHandle(object):
         mol = Molecule()
 
 class MediaUploadView(JQueryFileHandleView):
+
+    @property
+    def filename(self):
+        return self.file_obj.title
+
+    @property
+    def filesize(self):
+        return self.file.size
+
     def get_post_dict_from_request(self, request):
         try:
             return self._post_dict
@@ -564,13 +604,42 @@ class MediaUploadView(JQueryFileHandleView):
     
     def post(self, request, *args, **kwargs):
         kwargs.update(self.get_post_dict_from_request(request))
-
+        handle = MediaUploadHandle()
         self.handle = handle
-        self.file = f
-        pass
+        return super(MediaUploadView, self).post(request, *args, **kwargs)
+            
+    @property
+    def learning_object(self):
+        try:
+            return self._learning_object
+        except AttributeError:
+            pass
 
-    def process_file(self, f, **kwargs):
-        self.handle.process(f, **kwargs)
+        self._learning_object = None
+        try:
+            model = ContentType.objects.get(
+                app_label="repo",
+                model=self.kwargs['type']).model_class()
+            try:
+                self._learning_object = model.objects.get(pk=self.kwargs['pk'])
+            except model.DoesNotExist:
+                pass
+        except (KeyError, ContentType.DoesNotExist):
+            pass
+        return self._learning_object
+
+    @property
+    def fileurl(self):
+        return self.file_obj.url
+
+    @property
+    def deleteurl(self):
+        return None
+    
+    def process_file(self, f, k, *args, **kwargs):
+        self.file = f
+        fo = self.handle.process(f, lobj=self.learning_object, **kwargs)
+        self.file_obj = fo
 
 
 

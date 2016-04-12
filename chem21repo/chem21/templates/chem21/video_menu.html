@@ -1,0 +1,36 @@
+{% extends 'chem21/base_learning.html' %}
+{% load require %}
+{% load quiz %}
+{% block scripts %}
+{{ block.super }}
+{% require_module '../mol_menu' %}
+{% endblock %}
+
+{% block post_text %}
+	{% block menu %}
+	<ul class="figure-menu">
+	{% for video in object.videos %}
+		<li>
+			<figure class="menu-item">
+				{% if video.molecule %}
+					<canvas data-mol-def="{{ video.molecule.mol_def|safe|escapejs }}" data-name="{{ video.molecule.name }}" class="molecule"></canvas>
+				{% endif %}
+				<figcaption><a href="{{ video.url }}" title="{{ video.molecule.name }}">Watch {{ video.molecule.name }} video</a></figcaption>
+			</figure>
+		</li>
+	{% endfor %}
+	</ul>
+	{% endblock %}
+	{% if object.has_quiz %}
+		{% render_quiz object.quiz %}
+	{% endif %}
+	{% if object.pdf %}
+	<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
+	{% endif %}
+{% endblock %}
+
+{% block learning_text %}
+{{ block.super }}
+
+{% endblock %}
+

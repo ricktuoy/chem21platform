@@ -11,9 +11,14 @@ from django.contrib.contenttypes.models import ContentType
 from abc import abstractmethod
 from abc import abstractproperty
 from abc import ABCMeta
+import hashlib
 
 
 class LearningView(DetailView):
+    def get_template_names(self):
+        if self.object.template:
+            return ["chem21/%s.html" % self.object.template.name,]
+        return super(LearningView, self).get_template_names()
 
     def get_context_data(self, *args, **kwargs):
         class Opt(object):
@@ -24,6 +29,7 @@ class LearningView(DetailView):
         context = super(LearningView, self).get_context_data(**kwargs)
 
         obj = context['object']
+        self.object = obj
 
         try:
             obj.set_parent(self.parent)
@@ -75,16 +81,8 @@ class LearningView(DetailView):
         return context
 
 
-class MediaUploadHandle(object):
-    __metaclass__ = ABCMeta
-    @abstractmethod
-    def process(self, f):
-        pass
 
 
-class MolUploadHandle(object):
-    def process(self, f):
-        pass
 
 
 class MediaUpload(object):
@@ -119,7 +117,8 @@ class TopicView(LearningView):
 class QuestionView(LearningView):
     template_name = "chem21/question.html"
 
-    def get_queryset(self,):
+
+    def get_queryset(self):
         self.module = get_object_or_404(
             Module, slug=self.kwargs['module_slug'])
         self.lesson = get_object_or_404(
@@ -140,6 +139,8 @@ class QuestionView(LearningView):
         qnum = question_orders[context['object'].pk]
         context['question_num'] = qnum
         return context
+
+
 
 
 class LessonView(LearningView):

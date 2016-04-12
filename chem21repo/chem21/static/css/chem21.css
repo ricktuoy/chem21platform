@@ -392,12 +392,12 @@ body.front #content .content .cobranding {
 	margin: 0 0 0.2em 0;
 }
 
-
 #class_nav>.item-list>ol>li.active {
 	position: relative;
 	left: -3px;
 	top: -2px;
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+	padding-bottom: 0.8em;
 }
 
 
@@ -423,7 +423,15 @@ body.front #content .content .cobranding {
 
 #class_nav ol li {
 	margin: 0 0 0.2em 0;
+	clear: both;
 	
+}
+
+#class_nav .clear {
+	width: 90%;
+	height: 1px;
+	float: right;
+	clear: both;
 }
 
 #class_nav li li {
@@ -440,6 +448,7 @@ body.front #content .content .cobranding {
 	padding: 0.3em 0 0 0.5em;
 	list-style-type: lower-alpha;
 	font-weight: normal;
+	clear: both;
 }
 
 #class_nav ol ol ol {
@@ -468,9 +477,6 @@ body.front #content .content .cobranding {
 }
 
 
-
-
-
 #quiz_progress .section {
 	display: inline-block;
 	text-transform: uppercase;
@@ -481,9 +487,6 @@ body.front #content .content .cobranding {
 	position: static;
 	margin: 0.4em;
 }
-
-
-
 
 #quiz_progress {
 	font-weight: normal;
@@ -819,6 +822,7 @@ background-repeat: no-repeat;
 	margin: 0 0 0.1em 0;
 }
 
+
 .quiz_questions .quiz_total {
 	font-size: 1.8em;
 	font-weight: bold;
@@ -932,7 +936,6 @@ figure.presentation figcaption.overlay .byline {
 	font-weight: bold;
 }
 
-
 #content aside {
 	width: 40%;
 	float: right;
@@ -944,7 +947,15 @@ figure.presentation figcaption.overlay .byline {
 .not-front #content p, .not-front #content ul, .not-front #content dl, .not-front #content ol {
 	max-width: 950px;
 	font-size: 1.15em;
-	line-height: 1.35em;
+	line-height: 1.4em;
+}
+
+.not-front #content ul li, .not-front #content ol li {
+	margin-top: 0.4em;
+}
+
+.not-front #content ul ul, .not-front #content ol ol {
+	font-size: 1em;
 }
 
 #content aside figure.presentation {
@@ -953,12 +964,9 @@ figure.presentation figcaption.overlay .byline {
 	border: 1px solid #bbb;
 }
 
-
 #content table td p {
     margin: 0;
 }
-
-
 
 #content dl dt {
 	font-weight: bold;

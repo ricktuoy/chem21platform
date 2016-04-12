@@ -24,7 +24,6 @@ class Call(protocol.Protocol):
         output.addCallbacks(self.writeResponse, self.noResponse)
 
     def writeResponse(self, resp):
-        print "Response %s" % resp
         self.transport.write(resp)
         self.transport.loseConnection()
 

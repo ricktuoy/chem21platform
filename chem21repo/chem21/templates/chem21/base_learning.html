@@ -11,12 +11,15 @@
   {% endblock %}
 
 {% block scripts %}
-
 {{ block.super }}
+{% if perms.repo.change_lesson and not staticgenerator %}
+{% require_module '../front-admin' %}
+{% else %}
 {% require_module '../common' %}
+{% endif %}
 {% endblock %}
 {% block head %}
-{% if not object.text  and not perms.repo.change_question and not object.video and object.get_first_child %}
+{% if not object.text and not perms.repo.change_question and not object.video and object.get_first_child and not object.is_question %}
 	<meta http-equiv="refresh" content="0;URL={{ object.get_first_child.get_absolute_url }}" /> 
 {% endif %}
 {% endblock %}
@@ -54,20 +57,37 @@
 {% endif %}
 {% endblock %}
 {% block admin_tools %}
-{% if perms.repo.change_lesson %}
+
+ 	<form id="admin_tools">
+ 	{% if perms.repo.change_lesson %}
 {% if object.is_question %}
-		<a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
+		<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
 		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
 		Edit</a>
 {% else %}
-		<a class="admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
+		<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
 		data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
 		Edit</a>
 {% endif %}
 {% if object.video %}
-	<a class="admin-edit" href="{% url opts.uniquefile|admin_urlname:'change' object.video.pk %}"
+	<a class="btn btn-success admin-edit" href="{% url opts.uniquefile|admin_urlname:'change' object.video.pk %}"
 	data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">Edit video attributes</a>
 {% endif %}
+	    <!-- The fileinput-button span is used to style the file input field as button -->
+	    <span class="btn btn-success fileinput-button">
+	        <i class="glyphicon glyphicon-plus"></i>
+	        <span>Upload media...</span>
+	        <!-- The file input field used as target for the file upload widget -->
+	        <input id="fileupload" type="file" name="files[]" multiple>
+	    </span>
+		    <!-- The global progress bar -->
+		    <div class="progress">
+		        <div class="progress-bar progress-bar-success"></div>
+		    </div>
+		    <!-- The container for the uploaded files -->
+		    <ul id="files" class="files"></ul>
+	    
+    </form>
 {% endif %}
 {% endblock %}
 {% block learning_object %}
@@ -81,15 +101,13 @@
 		{% endif %}
 		{{ tokens_replaced|safe }}
 	{% endif %}
+	{% block post_text %}
 	{% if video %}
 		{{ video|safe }}
 	{% endif %}
-	{% block quiz %}
 	{% if object.has_quiz %}
 		{% render_quiz object.quiz %}
 	{% endif %}
-	{% endblock %}
-	{% block pdf %}
 	{% if object.pdf %}
 	<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
 	<!-- TODO: display pdf -->

@@ -102,6 +102,7 @@ create_admin(
             'authors', 'description'])
 
 for md in [Question, UniqueFile, Author,
+           LearningTemplate, Molecule,
            Event, Lesson, FileLink, Module,
            UniqueFilesofModule]:
     create_power_admin(md)

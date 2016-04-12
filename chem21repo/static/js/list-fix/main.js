@@ -22,8 +22,13 @@ define(["jquery"], function($) {
             target_texts.css("float", "right");
             target_texts.css("display", "block");
             target_texts.each(function() {
-                $(this).width($(this).closest("li").width() - max_offset + 3);
+                var par = $(this).closest("li");
+                $(this).width(par.width() - max_offset +2);
                 $(this).find("ol").css("position","relative").css("left", 2*max_offset/-2);
+            });
+            target_texts.each(function() {
+                var par = $(this).closest("li");
+                par.css("height",$(this).height());
             });
 
             return this;

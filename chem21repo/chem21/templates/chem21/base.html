@@ -11,6 +11,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}CHEM21: learn online for free{% endblock %}</title>
   {% block styles %}
+  {% if not staticgenerator %}
+    <link rel="stylesheet" href="{% static "js/lib/jquery.fileupload.css" %}" />
+    <link rel="stylesheet" href="{% static "css/front-admin.css" %}" />
+  {% endif %}
+
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
     <link type="text/css" rel="stylesheet" href="{% static "css/hacks.css" %}" />
     <link type="text/css" rel="stylesheet" href="{% static "css/reset.css" %}" />
@@ -18,13 +23,13 @@
     <link type="text/css" rel="stylesheet" href="{% static "css/color.css" %}?002" />
     <link type="text/css" rel="stylesheet" href="{% static "css/opigno_lms.css" %}" />
     <link type="text/css" rel="stylesheet" href="{% static "css/chem21.css" %}?011" />
+
   {% endblock %}
   {% block scripts %}
   <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
- <script src="{% static "js/jquery.gdocsviewer.min.js" %}"></script>
+  <script src="{% static "js/jquery.gdocsviewer.min.js" %}"></script>
   <script src="{% static "js/jquery.cookie.js" %}"></script>
-      <script src="{% static "js/admin.js" %}?006"></script>
-  <!-- <script src="{% static "js/platon.js" %}?004"></script> -->
+  <script src="{% static "js/admin.js" %}?006"></script>
   <script src="{% static "js/reaction_flow_chart.js" %}?005"></script>
   <!--[if lt IE 9]>
   <script src="{% static "chem21/js/vendor/html5shiv/html5shiv.js" %}"></script>
