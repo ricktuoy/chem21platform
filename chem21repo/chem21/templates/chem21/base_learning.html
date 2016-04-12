@@ -52,7 +52,7 @@
 </div>
 {% if not object.quiz or object.get_text %}
 {% block progress_title %}
-<div class="titles"><h1>{{ object.title }}</h1></div>
+<div class="titles"><h1>{{ object.get_title }}</h1></div>
 {% endblock progress_title %}
 {% endif %}
 {% endblock %}
