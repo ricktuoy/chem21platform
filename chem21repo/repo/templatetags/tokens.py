@@ -34,6 +34,18 @@ class BaseProcessor:
         self.full_text = st
         return self.pattern.sub(self.repl_function, st)
 
+class FigureRefProcessor(BaseProcessor):
+    @property
+    def pattern(self):
+        try:
+            return self._pattern
+        except AttributeError:
+            self._pattern = re.compile(
+                r'(figure|Figure|scheme|Scheme|table|Table)\s+[0-9]+',
+                re.DOTALL)
+            return self._pattern
+    def repl_function(self, match):
+        return "<span class=\"figure_ref\">%s</span>" % match.group()
 
 class TokenProcessor(BaseProcessor):
     __metaclass__ = ABCMeta
@@ -384,12 +396,13 @@ class ReplaceTokensNode(template.Node):
             'ilink':ILinkTagProcessor(),
             'cta':CTATokenProcessor(),
             'green':GreenPrincipleTokenProcessor(),
+            'figref':FigureRefProcessor(),
             'figure':FigureTokenProcessor(),
             'figgroup':FigureGroupTagProcessor(),
             'figcaption':FigCaptionTagProcessor(),
             }
         proc_order = ['ibib','bib','ilink','cta','green',
-                      'figure','figgroup','figcaption',]
+                      'figref','figure','figgroup','figcaption',]
         for key in proc_order:
             txt = processors[key].apply(txt)
         context['footnotes_html'] = processors['bib'].get_footnotes_html()

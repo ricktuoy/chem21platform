@@ -254,6 +254,9 @@ class DrupalModel(models.Model):
         return self.text_versions.exclude(
             user__pk=1).exclude(user__pk=2).count() or False
 
+    def get_title(self):
+        return self.title
+
     def get_text(self):
         if not self.text:
             try:
@@ -1341,6 +1344,14 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
                 pass
         return self.text
 
+    def get_title(self):
+        if self.is_question:
+            try:
+                return self.first_question.title
+            except:
+                pass
+        return self.title
+
     def set_parent(self, parent):
         super(Module, self).set_parent(parent)
         self.current_topic = parent
@@ -1584,6 +1595,14 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
             except:
                 pass
         return self.text
+
+    def get_title(self):
+        if self.is_question:
+            try:
+                return self.first_question.title
+            except:
+                pass
+        return self.title
 
     def set_parent(self, parent):
         super(Lesson, self).set_parent(parent)
