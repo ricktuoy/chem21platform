@@ -44,12 +44,13 @@ class LearningView(DetailView):
 
         context['class_tree'] = Topic.objects.filter(
             slug=slug).prefetch_related(
-            "modules",
+            Prefetch("modules",
+                     queryset=Module.objects.all().exclude(archived=True).order_by('order')),
             Prefetch("modules__lessons",
-                     queryset=Lesson.objects.all().order_by('order'),
+                     queryset=Lesson.objects.all().exclude(archived=True).order_by('order'),
                      to_attr="ordered_lessons"),
             Prefetch("modules__ordered_lessons__questions",
-                     queryset=Question.objects.all().order_by(
+                     queryset=Question.objects.all().exclude(archived=True).order_by(
                          'order'),
                      to_attr="ordered_questions")).first()
 
@@ -114,10 +115,10 @@ class FrontView(ListView):
     def get_queryset(self):
         return Topic.objects.prefetch_related(
             Prefetch("modules",
-                     queryset=Module.objects.all().order_by('order'),
+                     queryset=Module.objects.all().exclude(archived=True).order_by('order'),
                      to_attr="ordered_children"),
             Prefetch("ordered_children__lessons",
-                     queryset=Lesson.objects.all().order_by('order'),
+                     queryset=Lesson.objects.all().exclude(archived=True).order_by('order'),
                      to_attr="ordered_children"))
 
 
