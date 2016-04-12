@@ -238,7 +238,7 @@ class DrupalModel(models.Model):
     changed = models.BooleanField(default=False)
     dummy = models.BooleanField(default=False)
     quiz_name = models.CharField(max_length=100, blank=True, null=True)
-    template = models.ForeignKey(LearningTemplate, null=True)
+    template = models.ForeignKey(LearningTemplate, null=True, blank=True)
 
     @property
     def quiz(self):
