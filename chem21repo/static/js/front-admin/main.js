@@ -13,11 +13,10 @@ define(["jquery","jquery.fileupload","common"], function($) {
             }
         });
         $(".progress, .files").hide();
-        $(".fileinput-button").on("click", function() {
-            $(".progress, .files").show();
-        });
         $(".progress").width("100%");
-        var url = '/upload_media/';
+        var otype = $("#learning_reference_type").val();
+        var opk = $("#learning_reference_pk").val();
+        var url = '/upload_media/'+otype+'/'+opk;
         $('#fileupload').fileupload({
             url: url,
             dataType: 'json',
@@ -29,6 +28,7 @@ define(["jquery","jquery.fileupload","common"], function($) {
                 });
             },
             progressall: function (e, data) {
+                $(".progress, .files").show();
                 var progress = parseInt(data.loaded / data.total * 100, 10);
                 $(".progress-bar-success").width(progress+"%");
             }

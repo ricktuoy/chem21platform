@@ -57,9 +57,11 @@
 {% endif %}
 {% endblock %}
 {% block admin_tools %}
-
+{% if perms.repo.change_lesson %}
  	<form id="admin_tools">
- 	{% if perms.repo.change_lesson %}
+ 		<input type="hidden" id="learning_reference_type" value="{{ learning_reference_type }}" />
+ 		<input type="hidden" id="learning_reference_pk" value="{{ learning_reference_pk }}" />
+ 	
 {% if object.is_question %}
 		<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
 		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">

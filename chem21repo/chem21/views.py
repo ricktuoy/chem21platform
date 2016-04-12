@@ -31,6 +31,8 @@ class LearningView(DetailView):
         obj = context['object']
         self.object = obj
 
+
+
         try:
             obj.set_parent(self.parent)
         except AttributeError:
@@ -78,6 +80,16 @@ class LearningView(DetailView):
             context['next'] = nxt
         if prev:
             context['previous'] = prev
+
+        try:
+            if obj.is_question:
+                context['learning_reference_type'] = "question"
+                context['learning_reference_pk'] = obj.first_question.pk
+        except AttributeError:
+            pass
+        if 'learning_reference_type' not in context:
+            context['learning_reference_type'] = self.name
+            context['learning_reference_pk'] = obj.pk
         return context
 
 
@@ -112,10 +124,12 @@ class FrontView(ListView):
 class TopicView(LearningView):
     template_name = "chem21/topic.html"
     model = Topic
+    name = "topic"
 
 
 class QuestionView(LearningView):
     template_name = "chem21/question.html"
+    name = "question"
 
 
     def get_queryset(self):
@@ -145,6 +159,7 @@ class QuestionView(LearningView):
 
 class LessonView(LearningView):
     template_name = "chem21/lesson.html"
+    name = "lesson"
 
     def get_queryset(self):
         self.module = get_object_or_404(
@@ -155,4 +170,5 @@ class LessonView(LearningView):
 
 class ModuleView(LearningView):
     template_name = "chem21/module.html"
-    model = Module
+    model = Module#
+    name = "module"

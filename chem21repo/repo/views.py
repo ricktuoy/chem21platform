@@ -545,6 +545,7 @@ class JQueryFileHandleView(LoginRequiredMixin, View):
 
 
 class MediaUploadHandle(object):
+
      
     def process(self, f, lobj=None, **kwargs):
         m = hashlib.md5()
@@ -557,7 +558,7 @@ class MediaUploadHandle(object):
         title, ext = os.path.splitext(name)
         tpe = mimetypes.guess_type(title)
 
-        dest_path = "uploads/" + checksum + ext
+        dest_path = "sources/" + checksum + ext
         default_storage.save(dest_path, f)
 
         defaults = {'ext': ext,
@@ -587,6 +588,12 @@ class MolUploadHandle(object):
 
 class MediaUploadView(JQueryFileHandleView):
 
+
+    def get_return_values(self):
+        ret = super(MediaUploadView, self).get_return_values()
+        ret['urlkwargs'] = self.urlkwargs
+        return ret
+
     @property
     def filename(self):
         return self.file_obj.title
@@ -603,13 +610,14 @@ class MediaUploadView(JQueryFileHandleView):
             return self._post_dict
     
     def post(self, request, *args, **kwargs):
+        self.urlkwargs = kwargs
         kwargs.update(self.get_post_dict_from_request(request))
         handle = MediaUploadHandle()
         self.handle = handle
         return super(MediaUploadView, self).post(request, *args, **kwargs)
             
     @property
-    def learning_object(self):
+    def learning_object(self,**kwargs):
         try:
             return self._learning_object
         except AttributeError:
@@ -619,9 +627,9 @@ class MediaUploadView(JQueryFileHandleView):
         try:
             model = ContentType.objects.get(
                 app_label="repo",
-                model=self.kwargs['type']).model_class()
+                model=self.urlkwargs['type']).model_class()
             try:
-                self._learning_object = model.objects.get(pk=self.kwargs['pk'])
+                self._learning_object = model.objects.get(pk=self.urlkwargs['pk'])
             except model.DoesNotExist:
                 pass
         except (KeyError, ContentType.DoesNotExist):
