@@ -95,6 +95,7 @@
 {% block learning_object %}
 	{% if object.get_text %}
 		{% replace_tokens object.get_text %}
+	
 		{% if object.video %}
 			{% get_video tokens_replaced object.video %}
 		{% endif %}
@@ -106,6 +107,9 @@
 	{% block post_text %}
 	{% if video %}
 		{{ video|safe }}
+	{% endif %}
+	{% if not video and object.video %}
+		{{ object.video|safe }}
 	{% endif %}
 	{% if object.has_quiz %}
 		{% render_quiz object.quiz %}
