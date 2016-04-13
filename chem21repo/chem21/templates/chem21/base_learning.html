@@ -105,11 +105,11 @@
 		{{ tokens_replaced|safe }}
 	{% endif %}
 	{% block post_text %}
+	{% if not video and object.video %}
+		{% get_video "" object.video %}
+	{% endif %}
 	{% if video %}
 		{{ video|safe }}
-	{% endif %}
-	{% if not video and object.video %}
-		{{ object.video|safe }}
 	{% endif %}
 	{% if object.has_quiz %}
 		{% render_quiz object.quiz %}
