@@ -52,17 +52,29 @@ class Biblio(models.Model):
             self.save()
         except IndexError:
             self.unknown = True
+            self.inline_html = ""
+            self.footnote_html = ""
             self.save()
-            raise Biblio.DoesNotExist
+            raise Biblio.DoesNotExist("Unknown reference: '%s'." % self.citekey)
 
     def get_inline_html(self):
+        if self.unknown:
+            return False
         if self.inline_html is None:
-            self._get_html_from_drupal()
+            try:
+                self._get_html_from_drupal()
+            except Biblio.DoesNotExist:
+                return False
         return self.inline_html
 
     def get_footnote_html(self):
+        if self.unknown:
+            return False
         if self.footnote_html is None:
-            self._get_html_from_drupal()
+            try:
+                self._get_html_from_drupal()
+            except Biblio.DoesNotExist:
+                return False
         return self.footnote_html
 
 
@@ -1852,12 +1864,9 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
             except AttributeError:
                 pass
         try:
-            self._cached_videos = list(self.files.filter(type="video").exclude(remote_id__isnull=True))
+            self._cached_videos = list(self.files.filter(type="video"))
         except ValueError:
-            try:
-                self._cached_videos = list(self.files.filter(type="video"))
-            except ValueError:
-                self._cached_videos = None
+            self._cached_videos = None
         return self._cached_videos
 
     

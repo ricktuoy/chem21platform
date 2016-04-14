@@ -556,7 +556,8 @@ class MediaUploadHandle(object):
         checksum = m.hexdigest()
         name = f.name
         title, ext = os.path.splitext(name)
-        tpe = mimetypes.guess_type(title)
+        tpe, encoding = mimetypes.guess_type(name)
+        tpe, enc = tpe.split("/")
 
         dest_path = "sources/" + checksum + ext
         default_storage.save(dest_path, f)

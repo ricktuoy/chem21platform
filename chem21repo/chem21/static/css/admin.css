@@ -1,0 +1,27 @@
+.messages {
+	list-style-type: none;
+	margin: 0 0 1em 0;
+	padding: 0;
+}
+
+.messages li {
+	margin: 0;
+	font-style: italic;
+	font-weight: bold;
+	background-color: #eee;
+	border: 1px solid #ddd;
+	padding: 0.3em;
+}
+
+.messages li.success {
+	background-color: #6d6;
+	border: 1px solid #0a0;
+}
+
+.messages li.error {
+	background-color: #c66;
+	border: 1px solid #a00;
+
+}
+
+

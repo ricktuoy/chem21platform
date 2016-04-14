@@ -12,11 +12,13 @@
 
 {% block scripts %}
 {{ block.super }}
+{% block require %}
 {% if perms.repo.change_lesson and not staticgenerator %}
 {% require_module '../front-admin' %}
 {% else %}
 {% require_module '../common' %}
 {% endif %}
+{% endblock %}
 {% endblock %}
 {% block head %}
 {% if not object.text and not perms.repo.change_question and not object.video and object.get_first_child and not object.is_question %}
@@ -56,8 +58,17 @@
 {% endblock progress_title %}
 {% endif %}
 {% endblock %}
+
 {% block admin_tools %}
+
 {% if perms.repo.change_lesson %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
  	<form id="admin_tools">
  		<input type="hidden" id="learning_reference_type" value="{{ learning_reference_type }}" />
  		<input type="hidden" id="learning_reference_pk" value="{{ learning_reference_pk }}" />
@@ -76,18 +87,20 @@
 	data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">Edit video attributes</a>
 {% endif %}
 	    <!-- The fileinput-button span is used to style the file input field as button -->
+	    <div style="display:inline" id="media_upload">
 	    <span class="btn btn-success fileinput-button">
 	        <i class="glyphicon glyphicon-plus"></i>
 	        <span>Upload media...</span>
 	        <!-- The file input field used as target for the file upload widget -->
-	        <input id="fileupload" type="file" name="files[]" multiple>
+	        <input class="fileupload" type="file" name="files[]" multiple>
 	    </span>
 		    <!-- The global progress bar -->
 		    <div class="progress">
 		        <div class="progress-bar progress-bar-success"></div>
 		    </div>
 		    <!-- The container for the uploaded files -->
-		    <ul id="files" class="files"></ul>
+		    <ul class="files"></ul>
+		</div>
 	    
     </form>
 {% endif %}

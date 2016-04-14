@@ -12,7 +12,7 @@ from chem21repo.repo.models import Question
 from chem21repo.repo.models import Topic
 from chem21repo.repo.models import UniqueFile
 from django import template
-
+from django.contrib import messages
 
 register = template.Library()
 
@@ -75,6 +75,8 @@ class TokenProcessor(BaseProcessor):
         return self.token_function(*args[1:])
 
 
+
+
 class TagProcessor(BaseProcessor):
     __metaclass__ = ABCMeta
 
@@ -107,9 +109,11 @@ class TagProcessor(BaseProcessor):
 class BiblioTagProcessor(TagProcessor):
     tag_name = "bib"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, request=None, *args, **kwargs):
         self.bibs = []
         self.bibset = {}
+        if request:
+            self.request = request
         return super(BiblioTagProcessor, self).__init__(*args, **kwargs)
 
     def tag_function(self, st, *args):
@@ -125,8 +129,19 @@ class BiblioTagProcessor(TagProcessor):
             self.bibset[st], self.bibset[st])
 
     def _get_footnote_html(self, bib, id):
+        html = bib.get_footnote_html()
+        if html == False:
+            try:
+                messages.add_message(self.request, 
+                    messages.ERROR, 
+                    "Could not find reference on this page with citekey '%s'." % bib.citekey)
+            except AttributeError:
+                pass
+            html = "Unknown reference."
         return "<li id=\"citekey_%d\">%s</li>" % (
-            id, bib.get_footnote_html())
+            id, html)
+
+
 
     def get_footnotes_html(self):
         return "\n".join(
@@ -138,6 +153,10 @@ class BiblioTagProcessor(TagProcessor):
 
 class BiblioInlineTagProcessor(TagProcessor):
     tag_name = "ibib"
+
+    def __init__(self, request=None, *args, **kwargs):
+        if request:
+            self.request = request
 
     def tag_function(self, st, *args):
         try:
@@ -390,9 +409,10 @@ class ReplaceTokensNode(template.Node):
 
     def render(self, context):
         txt = self.text.resolve(context)
+        request = context['request']
         processors = {
-            'ibib':BiblioInlineTagProcessor(),
-            'bib':BiblioTagProcessor(),
+            'ibib':BiblioInlineTagProcessor(request=request),
+            'bib':BiblioTagProcessor(request=request),
             'ilink':ILinkTagProcessor(),
             'cta':CTATokenProcessor(),
             'green':GreenPrincipleTokenProcessor(),

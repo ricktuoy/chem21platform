@@ -4,10 +4,7 @@
 // except 'app' ones, 
 requirejs.config({
     "baseUrl": "/static/js/lib",
-    "urlArgs": "bust=002",
-    "shim": {
-        'jquery.colorbox': ['jquery']
-    }
+    "urlArgs": "bust=001",
 });
 // Load the main app module to start the app
-requirejs(["../mol-menu/main"]);
+requirejs(["../mol-menu-admin/main"]);

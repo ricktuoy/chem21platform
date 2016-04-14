@@ -1,21 +1,36 @@
-{% extends 'chem21/base_learning.html' %}
+{% extends 'chem21/question.html' %}
 {% load require %}
 {% load quiz %}
-{% block scripts %}
+{% load static from staticfiles %}
+
+
+{% block require %}
+{% if staticgenerator %}
+{% require_module '../mol-menu' %}
+{% else %}
+{% require_module '../mol-menu-admin' %}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}}
+<script src="{% static "js/lib/chemdoodle/ChemDoodleWeb.js" %}"></script>
 {{ block.super }}
-{% require_module '../mol_menu' %}
+
 {% endblock %}
 
 {% block post_text %}
 	{% block menu %}
-	<ul class="figure-menu">
+	<ul id="video-menu" class="figure-menu">
 	{% for video in object.videos %}
 		<li>
 			<figure class="menu-item">
 				{% if video.molecule %}
 					<canvas data-mol-def="{{ video.molecule.mol_def|safe|escapejs }}" data-name="{{ video.molecule.name }}" class="molecule"></canvas>
 				{% endif %}
-				<figcaption><a href="{{ video.url }}" title="{{ video.molecule.name }}">Watch {{ video.molecule.name }} video</a></figcaption>
+				<figcaption><a href="{{ video.url }}" title="{{ video.molecule.name }}">{{ video.title }}</a></figcaption>
+				{% if not staticgenerator %}
+
+				{% endif %}
 			</figure>
 		</li>
 	{% endfor %}
@@ -27,10 +42,9 @@
 	{% if object.pdf %}
 	<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
 	{% endif %}
+	<div style='display:none'>
+        <div id='inlinevideocontent' >
+        <video controls="controls" src="" />
+        </div>
+	</div>
 {% endblock %}
-
-{% block learning_text %}
-{{ block.super }}
-
-{% endblock %}
-

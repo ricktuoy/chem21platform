@@ -23,6 +23,9 @@
     <link type="text/css" rel="stylesheet" href="{% static "css/color.css" %}?002" />
     <link type="text/css" rel="stylesheet" href="{% static "css/opigno_lms.css" %}" />
     <link type="text/css" rel="stylesheet" href="{% static "css/chem21.css" %}?012" />
+    {% if not staticgenerator %}
+<link type="text/css" rel="stylesheet" href="{% static "css/admin.css" %}?001" />
+    {% endif %}
 
   {% endblock %}
   {% block scripts %}

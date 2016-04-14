@@ -17,22 +17,24 @@ define(["jquery","jquery.fileupload","common"], function($) {
         var otype = $("#learning_reference_type").val();
         var opk = $("#learning_reference_pk").val();
         var url = '/upload_media/'+otype+'/'+opk;
-        $('#fileupload').fileupload({
+        $('#media_upload .fileupload').fileupload({
             url: url,
             dataType: 'json',
             done: function (e, data) {
                 $.each(data.result, function (index, file) {
                     var para = $('<a />').attr("href",file.url).text(file.name);
                     para.wrap($("<li />"));
-                    para.appendTo('#files');
+                    para.appendTo('#media_upload .files');
                 });
             },
             progressall: function (e, data) {
-                $(".progress, .files").show();
+                $("#media_upload .progress, #media_upload .files").show();
                 var progress = parseInt(data.loaded / data.total * 100, 10);
-                $(".progress-bar-success").width(progress+"%");
+                $("#media_upload .progress-bar-success").width(progress+"%");
             }
         }).prop('disabled', !$.support.fileInput)
             .parent().addClass($.support.fileInput ? undefined : 'disabled');
+
+        
     });
 });
