@@ -1,5 +1,7 @@
 define(["jquery","jquery.colorbox","common"], function($) {
     $(function() {
+        var $iv = $("#inlinevideocontent");
+        var $ivv = $("#inlinevideocontent video"); 
         $(".figure-menu canvas.molecule").each(function() {
             var $canvas = $(this);
             var molDef = $canvas.data("molDef");
@@ -12,14 +14,34 @@ define(["jquery","jquery.colorbox","common"], function($) {
             var molecule = ChemDoodle.readMOL(molDef);
             CDcanvas.loadMolecule(molecule);
         });
-        $("#video-menu a").css("border","1px solid red");
-        $("#video-menu a").colorbox({
-            scalePhotos: true,
-            maxWidth: "95%",
-            maxHeight: "100%",
+        $("#video-menu a[data-video-type='html5']").colorbox({
+            inline: true,
+            width: "85%",
+            onOpen: function() {
+                var url = $(this).attr("href");
+                $(this).data('url', url);
+                $ivv.hide();
+                $iv.append($("<p class=\"loading\">Loading video ...</p>"));
+                $ivv.attr("src",url);
+                $ivv[0].load();
+                $ivv.data("colorbox-link", $(this));
+                $(this).attr("href", "#inlinevideocontent");
+            },
+            onCleanup: function() {
+                var url = $(this).data('url');
+                $ivv.attr("src","");
+                $(this).attr("href", url);
+            },
             onComplete: function() {
                 $(this).colorbox.resize();
             }
+        });
+        $("#inlinevideocontent video").on("loadeddata", function() {
+            var $clink = $(this).data("colorbox-link");
+            $(this).show();
+            $(iv).find(".loading").remove();
+            $clink.colorbox.resize();
+            $(this)[0].play();
         });
     });
 });

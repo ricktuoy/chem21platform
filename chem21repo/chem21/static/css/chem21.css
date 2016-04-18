@@ -1196,3 +1196,34 @@ body.front #second-sidebar ul.slides > li .content h2 {
 	}
 }
 
+#inlinevideocontent {
+	background-color: black;
+	margin: 0;
+	color: #eee;
+	text-align: center;
+	padding: 1em;
+}
+
+#inlinevideocontent p {
+	background-color: transparent;
+	margin: 0;
+	font-size: 2em;
+	font-weight: bold;
+}
+
+#inlinevideocontent video {
+	max-width: 100%;
+}
+
+ul.figure-menu {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+ul.figure-menu li {
+	width: 25%;
+	min-width: 200px;
+	float:left;
+	background-color: #ccc;
+}

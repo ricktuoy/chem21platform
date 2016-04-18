@@ -23,8 +23,11 @@ INTERNAL_IPS = ("localhost", "10.0.2.2", "10.0.2.2:8080",
 
 DATABASES = {
     "default":  {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'repo.db')
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'chem21',
+        'USER': 'rick',
+        'HOST': 'localhost',
+        'PASSWORD': '9chard87'
     }
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.file"
