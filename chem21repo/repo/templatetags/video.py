@@ -34,12 +34,13 @@ class PlaceVideoNode(template.Node):
         vid_template = template.loader.get_template("includes/video_%s.html" % video.render_type)
         vid_cxt = video.render_args
         vid_html = vid_template.render(vid_cxt)
-        if num_blocks > 3:
+        if num_blocks > 1:
             # display as an aside
             vid_html = "<aside>%s</aside>" % vid_html
             context['pre_content'] = context.get('pre_content', "") + vid_html
             return ""
-        context['video'] = vid_html
+        else:
+            context['video'] = vid_html
         return ""
 
 
