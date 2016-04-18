@@ -22,6 +22,9 @@ class BaseProcessor:
     openchar = "\["
     closechar = "\]"
 
+    def __init__(self, *args, **kwargs):
+        pass
+
     @abstractproperty
     def pattern(self):
         return None
@@ -106,14 +109,19 @@ class TagProcessor(BaseProcessor):
         return self.tag_function(match.group(2), *args)
 
 
-class BiblioTagProcessor(TagProcessor):
+class ContextProcessorMixin(object):
+    def __init__(self, *args, **kwargs):
+        self.context = kwargs.get("context", {})
+        self.request = self.context.get("request", None)
+        super(ContextProcessorMixin,self).__init__(*args, **kwargs)
+
+
+class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "bib"
 
     def __init__(self, request=None, *args, **kwargs):
         self.bibs = []
         self.bibset = {}
-        if request:
-            self.request = request
         return super(BiblioTagProcessor, self).__init__(*args, **kwargs)
 
     def tag_function(self, st, *args):
@@ -151,12 +159,9 @@ class BiblioTagProcessor(TagProcessor):
                 range(1, len(self.bibs) + 1), self.bibs)])
 
 
-class BiblioInlineTagProcessor(TagProcessor):
+class BiblioInlineTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "ibib"
 
-    def __init__(self, request=None, *args, **kwargs):
-        if request:
-            self.request = request
 
     def tag_function(self, st, *args):
         try:
@@ -166,7 +171,7 @@ class BiblioInlineTagProcessor(TagProcessor):
             bib.save()
         return bib.get_inline_html()
 
-class GreenPrincipleTokenProcessor(TokenProcessor):
+class GreenPrincipleTokenProcessor(ContextProcessorMixin, TokenProcessor):
     token_name = "greenprinciple"
     principles = [
         {'title': 'Prevention',
@@ -231,7 +236,8 @@ class GreenPrincipleTokenProcessor(TokenProcessor):
                 num_list = [int(x) for x in args[1:]]
             except IndexError:
                 num_list = range(1, 12)
-        return self.build_html(num_list)
+        self.context['pre_content'] = self.context.get('pre_content', "") + self.build_html(num_list)
+        return ""
 
 
 class FigCaptionTagProcessor(TagProcessor):
@@ -411,11 +417,11 @@ class ReplaceTokensNode(template.Node):
         txt = self.text.resolve(context)
         request = context['request']
         processors = {
-            'ibib':BiblioInlineTagProcessor(request=request),
-            'bib':BiblioTagProcessor(request=request),
+            'ibib':BiblioInlineTagProcessor(context=context),
+            'bib':BiblioTagProcessor(context=context),
             'ilink':ILinkTagProcessor(),
             'cta':CTATokenProcessor(),
-            'green':GreenPrincipleTokenProcessor(),
+            'green':GreenPrincipleTokenProcessor(context=context),
             'figref':FigureRefProcessor(),
             'figure':FigureTokenProcessor(),
             'figgroup':FigureGroupTagProcessor(),

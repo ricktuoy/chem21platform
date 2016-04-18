@@ -677,6 +677,8 @@ body.front #content .content .cobranding {
         width: 100%;
         margin: 0;
         padding: 0;
+        clear: both;
+        max-width: 100% !important;
 }
 
 
@@ -942,6 +944,13 @@ figure.presentation figcaption.overlay .byline {
 	margin-bottom: 1.5%;
 	margin-top: 1em;
 	margin-left: 1.5%;
+}
+
+#content aside.half {
+	width: 50%;
+}
+#content aside.wide {
+	width: 66%;
 }
 
 .not-front #content p, .not-front #content ul, .not-front #content dl, .not-front #content ol {

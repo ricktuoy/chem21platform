@@ -52,11 +52,7 @@
 {% if next %}<a class="next" href="{{ next.get_absolute_url }}">Next &raquo;</a>{% endif %}
 	</nav>
 </div>
-{% if not object.quiz or object.get_text %}
-{% block progress_title %}
-<div class="titles"><h1>{{ object.get_title }}</h1></div>
-{% endblock progress_title %}
-{% endif %}
+
 {% endblock %}
 
 {% block admin_tools %}
@@ -115,10 +111,17 @@
 		{% if pre_content %}
 			{{ pre_content|safe }}
 		{% endif %}
+	{% endif %}
+	{% if not object.quiz or object.get_text %}
+		{% block progress_title %}
+			<div class="titles"><h1>{{ object.get_title }}</h1></div>
+		{% endblock progress_title %}
+	{% endif %}
+	{% if tokens_replaced %}
 		{{ tokens_replaced|safe }}
 	{% endif %}
 	{% block post_text %}
-	{% if not video and object.video %}
+	{% if not object.get_text and object.video %}
 		{% get_video "" object.video %}
 	{% endif %}
 	{% if video %}
