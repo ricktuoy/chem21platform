@@ -156,4 +156,7 @@
 {% endblock %}
 
 {{ block.super }}
+  {% if staticgenerator %}
+<script>(function(t,e,o,n){var s,c,i;t.SMCX=t.SMCX||[],e.getElementById(n)||(s=e.getElementsByTagName(o),c=s[s.length-1],i=e.createElement(o),i.type="text/javascript",i.async=!0,i.id=n,i.src=["https:"===location.protocol?"https://":"http://","widget.surveymonkey.com/collect/website/js/fDYSKdNwokzu4r_2BEARBxtrQyfgJzT9fk9w_2F23t68iqOF2VZNNZo0n1qqXMyiTZVO.js"].join(""),c.parentNode.insertBefore(i,c))})(window,document,"script","smcx-sdk");</script>
+  {% endif %}
 {% endblock %}
