@@ -17,6 +17,7 @@ django-toolbelt==0.0.1
 gunicorn==19.3.0
 Pillow==3.0.0
 psycopg2==2.6.1
+python-magic==0.4.11
 pytz==2015.4
 sh==1.11
 static3==0.6.1
