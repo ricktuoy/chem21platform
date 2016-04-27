@@ -112,7 +112,7 @@
 			{{ pre_content|safe }}
 		{% endif %}
 	{% endif %}
-	{% if not object.quiz or object.get_text %}
+	{% if not object.has_quiz or object.get_text %}
 		{% block progress_title %}
 			<div class="titles"><h1>{{ object.get_title }}</h1></div>
 		{% endblock progress_title %}

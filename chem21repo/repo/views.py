@@ -33,6 +33,7 @@ from revproxy.views import ProxyView
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
+import magic
 # Create your views here.
 
 
@@ -489,7 +490,7 @@ class AttachUniqueFileView(CSRFExemptMixin, View):
 class JQueryFileHandleView(LoginRequiredMixin, View):
     __metaclass__ = ABCMeta
 
-    errors = {}
+    errors = []
 
     def get(self, request, *args, **kwargs):
         return JsonResponse(
@@ -576,7 +577,10 @@ class MediaUploadHandle(object):
             fo.save()
 
         if lobj:
-            lobj.files.add(fo)
+            try:
+                lobj.files.add(fo)
+            except AttributeError:
+                pass
 
         return fo
             
@@ -587,8 +591,34 @@ class MolUploadHandle(object):
         data = f.read()
         mol = Molecule()
 
+class JSONFileObjectWrapper(object):
+    def __init__(self, name, url):
+        self.name = name
+        self.url = url
+        self.title = name
+
+class JSONUploadHandle(MediaUploadHandle):
+    def process(self, f, lobj=None, **kwargs):
+        try:
+            qparse = QuizParser(f)
+        except QuizValidationError, e:    
+            return super(JSONUploadHandle, self).process(f, lobj=lobj, **kwargs)
+        dest_questions, dest_answers = qparse.save()
+        if lobj:
+            lobj.quiz_name = qparse.name
+            lobj.save()
+        return JSONFileObjectWrapper(name = "Quiz questions: %s" % qparse.name, url = default_storage.url(dest_questions))
+
+
 class MediaUploadView(JQueryFileHandleView):
 
+    content_type_handle_map = {
+        'text/mol': MolUploadHandle,
+        'application/mol': MolUploadHandle,
+        'text/json': JSONUploadHandle
+    }
+
+    default_handle = MediaUploadHandle
 
     def get_return_values(self):
         ret = super(MediaUploadView, self).get_return_values()
@@ -613,8 +643,7 @@ class MediaUploadView(JQueryFileHandleView):
     def post(self, request, *args, **kwargs):
         self.urlkwargs = kwargs
         kwargs.update(self.get_post_dict_from_request(request))
-        handle = MediaUploadHandle()
-        self.handle = handle
+
         return super(MediaUploadView, self).post(request, *args, **kwargs)
             
     @property
@@ -644,10 +673,33 @@ class MediaUploadView(JQueryFileHandleView):
     @property
     def deleteurl(self):
         return None
+
+
     
     def process_file(self, f, k, *args, **kwargs):
+        self.errors = []
         self.file = f
-        fo = self.handle.process(f, lobj=self.learning_object, **kwargs)
+        ct = f.content_type
+        if ct == "application/octet-stream":
+            ct = magic.from_buffer(f.read(1024), mime=True)
+            if ct =="text/plain":
+                try:
+                    f.seek(0)
+                    js = json.loads(f.read())
+                    f.seek(0)
+                    ct = "text/json"
+                except ValueError, e:
+                    ct = "text/plain"
+        handle_cls = self.content_type_handle_map.get(ct, self.default_handle)
+        self.handle = handle_cls()
+        #self.errors.append(unicode(handle_cls))
+        try:
+            fo = self.handle.process(f, lobj=self.learning_object, **kwargs)
+            
+        except Exception as e:
+            self.errors.append(str(e))
+            self.file_obj = JSONFileObjectWrapper(name = "", url ="" )
+            return
         self.file_obj = fo
 
 
@@ -792,29 +844,24 @@ class StripRemoteIdView(BatchProcessView):
                 error.append(str(e))
         return (success, error)
 
+class QuizValidationError(Exception):
+    pass
 
-class ImportQuizView(CSRFExemptMixin, JSONView):
+class QuizParser(object):
 
-    def populate_post_dict(self):
+    def __init__(self, bstring):
         try:
-            return self._post_dict
-        except AttributeError:
-            self._post_dict = parser.parse(self.request.POST.urlencode())
-            return self._post_dict
+            self.data = json.load(bstring)
+        except Exception as e:
+            return self.error_response("%s" % (str(e)))
+            self.data = json.loads(bstring)
+        self.validate()
 
-    def get_json_data(self):
-        self.populate_post_dict()
-        self.data = json.loads(self.request.body)
-        return self.data
+    def error_response(self, text):
+        raise QuizValidationError(text)
 
-    def error_response(self, error=""):
-        return JsonResponse({'error': error}, status=500)
-
-    def post(self, request, *args, **kwargs):
-        self.request = request
-        self.errors = []
-
-        data = self.get_json_data()
+    def validate(self):
+        data = self.data
 
         try:
             t = data['quiz_object']
@@ -826,24 +873,20 @@ class ImportQuizView(CSRFExemptMixin, JSONView):
                 "Not questions and answers; cannot import")
 
         try:
-            name = data['id']
+            self.name = data['id']
         except KeyError:
             return self.error_response("Quiz object has no id")
 
-        try:
-            model = ContentType.objects.get(
-                app_label="repo",
-                model=kwargs['object_name']).model_class()
-        except ContentType.DoesNotExist:
-            return self.error_response("Unknown learning object type")
 
-        try:
-            attach_to = model.objects.get(pk=kwargs['id'])
-        except model.DoesNotExist:
-            return self.error_response("Cannot find learning object")
 
-        dest_questions = "quiz/%s_questions.json" % name
-        dest_answers = "quiz/%s_answers.json" % name
+        return True
+
+    def save(self):
+
+        data = self.data
+
+        dest_questions = "quiz/%s_questions.json" % self.name
+        dest_answers = "quiz/%s_answers.json" % self.name
 
         question_data = [
             {'id': el['id'],
@@ -871,7 +914,48 @@ class ImportQuizView(CSRFExemptMixin, JSONView):
         f = ContentFile(json.dumps(answers))
         default_storage.save(dest_answers, f)
 
-        attach_to.quiz_name = name
+        return (dest_questions, dest_answers)
+
+
+class ImportQuizView(CSRFExemptMixin, JSONView):
+
+    def populate_post_dict(self):
+        try:
+            return self._post_dict
+        except AttributeError:
+            self._post_dict = parser.parse(self.request.POST.urlencode())
+            return self._post_dict
+
+    def error_response(self, error=""):
+        return JsonResponse({'error': error}, status=500)
+
+    def post(self, request, *args, **kwargs):
+        self.request = request
+        self.errors = []
+
+        data = self.get_json_data()
+        self.populate_post_dict()
+
+        try:
+            qparse = QuizParser(self.request.body)
+        except QuizValidationError, e:
+            return self.error_response(e.message)
+
+        try:
+            self.model = ContentType.objects.get(
+                app_label="repo",
+                model=kwargs['object_name']).model_class()
+        except ContentType.DoesNotExist:
+            return self.error_response("Unknown learning object type")
+
+        try:
+            self.attach_to = model.objects.get(pk=kwargs['id'])
+        except model.DoesNotExist:
+            return self.error_response("Cannot find learning object")
+
+        dest_questions, dest_answers = qparse.save()
+
+        attach_to.quiz_name = qparse.name
         attach_to.save()
 
         return JsonResponse(
@@ -879,6 +963,8 @@ class ImportQuizView(CSRFExemptMixin, JSONView):
                 default_storage.url(dest_questions),
                 default_storage.url(dest_answers))},
             status=200)
+
+
 
 
 class AddFileView(BatchProcessView):

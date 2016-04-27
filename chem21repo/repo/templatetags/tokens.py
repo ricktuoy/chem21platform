@@ -104,7 +104,6 @@ class TagProcessor(BaseProcessor):
         return None
 
     def repl_function(self, match):
-        logging.debug("Tag match")
         args = match.group(1).split(":")
         return self.tag_function(match.group(2), *args)
 

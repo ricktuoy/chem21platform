@@ -255,7 +255,15 @@ class DrupalModel(models.Model):
 
     @property
     def quiz(self):
-        return self.quiz_name
+        try:
+            if self.is_question:
+                return self.first_question.quiz
+        except:
+            pass
+
+        if self.quiz_name:
+            return self.quiz_name
+
 
     @property
     def has_quiz(self):
