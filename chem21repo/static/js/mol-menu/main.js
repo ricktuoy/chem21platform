@@ -10,9 +10,20 @@ define(["jquery","jquery.colorbox","common"], function($) {
             var id = "molecule_"+molName;
             $canvas.attr("id",id);
             $canvas.height(height);
+            $canvas.width(200)
             var CDcanvas = new ChemDoodle.ViewerCanvas(id);
+              CDcanvas.specs.bonds_width_2D = .6;
+              CDcanvas.specs.backgroundColor = undefined;
+              CDcanvas.specs.bonds_saturationWidth_2D = .18;
+              CDcanvas.specs.bonds_hashSpacing_2D = 2.5;
+              CDcanvas.specs.atoms_font_size_2D = 10;
+              CDcanvas.specs.atoms_font_families_2D = ['Helvetica', 'Arial', 'sans-serif'];
+              CDcanvas.specs.atoms_displayTerminalCarbonLabels_2D = true;
+              CDcanvas.emptyMessage = 'No Data Loaded!';
+            molDef = JSON.parse('"'+molDef+'"');
             var molecule = ChemDoodle.readMOL(molDef);
             CDcanvas.loadMolecule(molecule);
+            CDcanvas.repaint();
         });
         $("#video-menu a[data-video-type='html5']").colorbox({
             inline: true,
@@ -39,7 +50,7 @@ define(["jquery","jquery.colorbox","common"], function($) {
         $("#inlinevideocontent video").on("loadeddata", function() {
             var $clink = $(this).data("colorbox-link");
             $(this).show();
-            $(iv).find(".loading").remove();
+            $iv.find(".loading").remove();
             $clink.colorbox.resize();
             $(this)[0].play();
         });

@@ -260,7 +260,6 @@ class DrupalModel(models.Model):
                 return self.first_question.quiz
         except:
             pass
-
         if self.quiz_name:
             return self.quiz_name
 
@@ -1065,6 +1064,8 @@ class Molecule(models.Model):
     name = models.CharField(max_length=100, null=True, unique=True)
     mol_def = models.TextField(null=True, blank=True, default="")
     smiles_def = models.CharField(max_length=200, null=True, unique=True)
+    def __unicode__(self):
+        return self.name
 
 class UniqueFile(OrderedModel, DrupalModel):
     objects = DrupalManager()

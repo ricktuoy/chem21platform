@@ -12,6 +12,7 @@ from .models import Topic
 from .models import UniqueFile
 from .models import UniqueFilesofModule
 from .models import TextVersion
+from .models import Molecule
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
@@ -104,6 +105,10 @@ class JSONResponseMixin:
 class JSONView(JSONResponseMixin, TemplateView):
 
     def render_to_response(self, context, **response_kwargs):
+        try:
+            response_kwargs['safe'] = self.__class__.safe
+        except AttributeError:
+            pass
         return self.render_to_json_response(context, **response_kwargs)
 
 
@@ -583,13 +588,27 @@ class MediaUploadHandle(object):
                 pass
 
         return fo
-            
-
 
 class MolUploadHandle(object):
-    def process(self, f, name=None, **kwargs):
-        data = f.read()
-        mol = Molecule()
+    def process(self, f, lobj=None, **kwargs):
+        datalines = list(f)
+        name = datalines[0]
+        root, ext = os.path.splitext(name)
+        if root != name:
+            name = root
+        mol, created = Molecule.objects.get_or_create(
+            name=name, 
+            defaults={'mol_def':"\n".join(datalines)})
+        if not created:
+            mol.mol_data = "\n".join(datalines)
+            mol.save
+        if lobj:
+            try:
+                lobj.molecule = mol
+                lobj.save()
+            except AttributeError:
+                pass
+        return JSONFileObjectWrapper(name = name, url=None)
 
 class JSONFileObjectWrapper(object):
     def __init__(self, name, url):
@@ -633,6 +652,12 @@ class MediaUploadView(JQueryFileHandleView):
     def filesize(self):
         return self.file.size
 
+    def get_return_values(self):
+        o = super(MediaUploadView,self).get_return_values()
+        o['content_type'] = self.content_type
+        o['handler'] = unicode(self.handle_cls)
+        return o
+
     def get_post_dict_from_request(self, request):
         try:
             return self._post_dict
@@ -674,36 +699,41 @@ class MediaUploadView(JQueryFileHandleView):
     def deleteurl(self):
         return None
 
-
-    
     def process_file(self, f, k, *args, **kwargs):
         self.errors = []
         self.file = f
         ct = f.content_type
+        # Extra file type sniffing
         if ct == "application/octet-stream":
             ct = magic.from_buffer(f.read(1024), mime=True)
+            f.seek(0)
             if ct =="text/plain":
                 try:
-                    f.seek(0)
                     js = json.loads(f.read())
                     f.seek(0)
                     ct = "text/json"
                 except ValueError, e:
-                    ct = "text/plain"
-        handle_cls = self.content_type_handle_map.get(ct, self.default_handle)
-        self.handle = handle_cls()
-        #self.errors.append(unicode(handle_cls))
+                    try:
+                        lf = list(f)
+                        f.seek(0)
+                        counts_line = lf[3].split()
+                        version = counts_line.pop()
+                        if version in ("V2000", "V3000"):
+                            ct = "text/mol"
+                        else:
+                            ct = "text/plain"
+                    except IndexError, AttributeError:
+                        ct = "text/plain"
+        self.content_type = ct
+        self.handle_cls = self.content_type_handle_map.get(ct, self.default_handle)
+        self.handle = self.handle_cls()
         try:
             fo = self.handle.process(f, lobj=self.learning_object, **kwargs)
-            
         except Exception as e:
             self.errors.append(str(e))
             self.file_obj = JSONFileObjectWrapper(name = "", url ="" )
             return
         self.file_obj = fo
-
-
-
 
 class EndnoteUploadView(JQueryFileHandleView):
 
@@ -746,6 +776,41 @@ class FiguresGetView(LoginRequiredMixin, JSONView):
         kwargs['safe'] = False
         return super(FiguresGetView, self).render_to_response(
             *args, **kwargs)
+
+class MoleculeListView(LoginRequiredMixin, JSONView):
+    safe = False
+    def get_context_data(self, **kwargs):
+        return [{'pk':m.pk, 'name':unicode(m), 'mol':m.mol_def} for m in Molecule.objects.all()]
+
+class MoleculeAttachView(LoginRequiredMixin, View):
+    @staticmethod
+    def error_response(e=""):
+        return JsonResponse({'error': e}, status=500)
+    def post(self, *args, **kwargs):
+        t = kwargs['type']
+        tpk = kwargs['tpk']
+        mpk = kwargs['mpk']
+        try:
+            model = ContentType.objects.get(
+                app_label="repo",
+                model=t).model_class()
+        except ContentType.DoesNotExist:
+            return self.error_response("Learning object of type %s not found" % t)
+        try:
+            inst = model.objects.get(pk=tpk)
+        except model.DoesNotExist:
+            return self.error_response("Object %s with id %d not found" % (t, tpk))
+        try:
+            molinst = Molecule.objects.get(pk=mpk)
+        except Molecule.DoesNotExist:
+            return self.error_response("Object %s with id %d not found" % (t, mpk))
+        try:
+            inst.molecule = molinst
+            inst.save()
+        except AttributeError:
+            return self.error_response("Molecule cannot be attached to %s %s" % (t, unicode(inst)))
+        return JsonResponse({'success': True}, status=200)
+
 
 
 class FileLinkGetView(LoginRequiredMixin, JSONView):

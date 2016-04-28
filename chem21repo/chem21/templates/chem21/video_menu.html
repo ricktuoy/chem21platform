@@ -20,7 +20,7 @@
 	{% block menu %}
 	<ul id="video-menu" class="figure-menu">
 	{% for video in object.videos %}
-		<li>
+		<li data-pk="{{ video.pk }}"{% if video.molecule %} data-mol-pk="{{ video.molecule.pk }}"{% endif %}>
 			<figure class="menu-item">
 				{% if video.molecule %}
 					<canvas data-mol-def="{{ video.molecule.mol_def|safe|escapejs }}" data-name="{{ video.molecule.name }}" class="molecule"></canvas>
