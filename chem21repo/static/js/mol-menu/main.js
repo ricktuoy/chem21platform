@@ -20,8 +20,8 @@ define(["jquery","jquery.colorbox","common"], function($) {
             CDcanvas.loadMolecule(molecule, 1);
             var h = $canvas.closest("figure").height();
             var w = $canvas.closest("figure").width();
+            var lh = $canvas.closest("li").height();
             CDcanvas.resize(w, h);  
-
             CDcanvas.startAnimation(); 
             if(h>max_h) {
                 max_h = h;
@@ -31,7 +31,7 @@ define(["jquery","jquery.colorbox","common"], function($) {
             var $canvas = $(this);
             var $fig = $canvas.closest("figure");
             var $li = $canvas.closest("li");
-            var diff = max_h - $fig.height();
+            var diff = max_h - $li.height() + 30;
             $li.css("margin-bottom", diff+"px");
         });
         $("#video-menu a[data-video-type='html5']").colorbox({
