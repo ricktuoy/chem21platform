@@ -40,9 +40,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             var id = source.data("id");
             delete d[id];
             $(this).data("response", d);
-
             $(this).trigger("refreshResponses");
-
         });
 
         $(".quiz_questions").on("refreshResponses", ".question", function() {

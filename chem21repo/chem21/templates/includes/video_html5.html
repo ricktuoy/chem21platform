@@ -11,4 +11,8 @@
 {{ description|safe }}
 </figcaption>
 {% endif %}
+{% if not staticgenerator %}
+<figcaption class="admin_tools">
+<a class="download" href="{{ url }}" download> Download</a> | <a class="replace" href="#">Replace</a>
+{% endif %}
 </figure>

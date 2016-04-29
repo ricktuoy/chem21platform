@@ -27,9 +27,7 @@ class PlaceVideoNode(template.Node):
         txt = self.text.resolve(context)
         video = self.video.resolve(context)
         soup = BeautifulSoup(txt)
-        logging.debug(soup.prettify())
         els = soup.findAll(True, recursive=False)
-        logging.debug(els)
         num_blocks = len(els)
         vid_template = template.loader.get_template("includes/video_%s.html" % video.render_type)
         vid_cxt = video.render_args
