@@ -2,6 +2,7 @@ define(["jquery","jquery.colorbox","common"], function($) {
     $(function() {
         var $iv = $("#inlinevideocontent");
         var $ivv = $("#inlinevideocontent video"); 
+        var max_h = 0;
         $(".figure-menu canvas.molecule").each(function() {
             var $canvas = $(this);
             var molDef = $canvas.data("molDef");
@@ -19,8 +20,19 @@ define(["jquery","jquery.colorbox","common"], function($) {
             CDcanvas.loadMolecule(molecule, 1);
             var h = $canvas.closest("figure").height();
             var w = $canvas.closest("figure").width();
-            CDcanvas.resize(w, h);   
-            CDcanvas.startAnimation();         
+            CDcanvas.resize(w, h);  
+
+            CDcanvas.startAnimation(); 
+            if(h>max_h) {
+                max_h = h;
+            }         
+        });
+        $(".figure-menu canvas").each(function() {
+            var $canvas = $(this);
+            var $fig = $canvas.closest("figure");
+            var $li = $canvas.closest("li");
+            var diff = max_h - $fig.height();
+            $li.css("margin-bottom", diff+"px");
         });
         $("#video-menu a[data-video-type='html5']").colorbox({
             inline: true,
