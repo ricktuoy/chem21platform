@@ -5,6 +5,7 @@
 {% load admin_urls %}
 {% load static from staticfiles %}
 {% load require %}
+{% load fileupload %}
   {% block styles %}
 {{ block.super }}
 <link type="text/css" rel="stylesheet" href="{% static "js/lib/colorbox/jquery.colorbox.css" %}" />
@@ -82,23 +83,10 @@
 	<a class="btn btn-success admin-edit" href="{% url opts.uniquefile|admin_urlname:'change' object.video.pk %}"
 	data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">Edit video attributes</a>
 {% endif %}
+	</form>
+	{% fileupload_form "media_upload" %}
 	    <!-- The fileinput-button span is used to style the file input field as button -->
-	    <div style="display:inline" id="media_upload">
-	    <span class="btn btn-success fileinput-button">
-	        <i class="glyphicon glyphicon-plus"></i>
-	        <span>Upload media...</span>
-	        <!-- The file input field used as target for the file upload widget -->
-	        <input class="fileupload" type="file" name="files[]" multiple>
-	    </span>
-		    <!-- The global progress bar -->
-		    <div class="progress">
-		        <div class="progress-bar progress-bar-success"></div>
-		    </div>
-		    <!-- The container for the uploaded files -->
-		    <ul class="files"></ul>
-		</div>
 	    
-    </form>
 {% endif %}
 {% endblock %}
 {% block learning_object %}
@@ -108,9 +96,11 @@
 		{% if object.video %}
 			{% get_video tokens_replaced object.video %}
 		{% endif %}
+		{% block pre_content %}
 		{% if pre_content %}
 			{{ pre_content|safe }}
 		{% endif %}
+		{% endblock %}
 	{% endif %}
 	{% if not object.has_quiz or object.get_text %}
 		{% block progress_title %}

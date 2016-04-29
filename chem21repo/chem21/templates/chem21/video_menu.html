@@ -4,7 +4,7 @@
 {% load static from staticfiles %}
 
 {% block require %}
-{% if staticgenerator %}
+{% if staticgenerator or not perms.repo.change_lesson %}
 {% require_module '../mol-menu' %}
 {% else %}
 {% require_module '../mol-menu-admin' %}
@@ -15,6 +15,7 @@
 <script src="{% static "js/lib/chemdoodle/ChemDoodleWeb.js" %}"></script>
 {{ block.super }}
 {% endblock %}
+{% block pre_content %}{% endblock %}
 
 {% block post_text %}
 	{% block menu %}
@@ -25,9 +26,8 @@
 				{% if video.molecule %}
 					<canvas data-mol-def="{{ video.molecule.mol_def|safe|escapejs }}" data-name="{{ video.molecule.name }}" class="molecule"></canvas>
 				{% endif %}
-				<figcaption><a data-video-type="{{ video.render_type }}" href="{{ video.url }}" title="{{ video.molecule.name }}">{{ video.title }}</a></figcaption>
+				<figcaption><a data-video-type="{{ video.render_type }}" href="{{ video.url }}" title="{{ video.molecule.name }}">{% if video.molecule %}{{ video.molecule }} {% else %}{{ video.title }}{% endif %}</a></figcaption>
 				{% if not staticgenerator %}
-
 				{% endif %}
 			</figure>
 		</li>

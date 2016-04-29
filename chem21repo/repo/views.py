@@ -598,9 +598,9 @@ class MolUploadHandle(object):
             name = root
         mol, created = Molecule.objects.get_or_create(
             name=name, 
-            defaults={'mol_def':"\n".join(datalines)})
+            defaults={'mol_def':"".join(datalines)})
         if not created:
-            mol.mol_data = "\n".join(datalines)
+            mol.mol_def = "".join(datalines)
             mol.save
         if lobj:
             try:
@@ -608,7 +608,7 @@ class MolUploadHandle(object):
                 lobj.save()
             except AttributeError:
                 pass
-        return JSONFileObjectWrapper(name = name, url=None)
+        return JSONFileObjectWrapper(name = name, url=mol.mol_def)
 
 class JSONFileObjectWrapper(object):
     def __init__(self, name, url):

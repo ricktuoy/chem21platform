@@ -28,7 +28,6 @@ define(["jquery","jquery.fileupload", "mol_menu", "front_admin"], function($) {
         });
 
         $("#video-menu li").on("change", "select", function() {
-            console.debug("Molecule widget changed");
             var vidId = $(this).closest("li").data("pk");
             var molId = $(this).val();
             var url ="/set_molecule/uniquefile/" + vidId + "/" + molId + "/";

@@ -17,20 +17,22 @@ define(["jquery","jquery.fileupload","common"], function($) {
         var otype = $("#learning_reference_type").val();
         var opk = $("#learning_reference_pk").val();
         var url = '/upload_media/'+otype+'/'+opk;
-        $('#media_upload .fileupload').fileupload({
-            url: url,
+        $('#media_upload').attr("action", url);
+        $('#media_upload').data("url", url);
+        $('form.fileupload').fileupload({
+            url: undefined, // use form action
             dataType: 'json',
             done: function (e, data) {
                 $.each(data.result, function (index, file) {
                     var para = $('<a />').attr("href",file.url).text(file.name);
                     para.wrap($("<li />"));
-                    para.appendTo('#media_upload .files');
+                    $(this).find('.files').append(para);
                 });
             },
             progressall: function (e, data) {
-                $("#media_upload .progress, #media_upload .files").show();
+                $(this).find(".progress, .files").show();
                 var progress = parseInt(data.loaded / data.total * 100, 10);
-                $("#media_upload .progress-bar-success").width(progress+"%");
+                $(this).find(".progress-bar-success").width(progress+"%");
             }
         }).prop('disabled', !$.support.fileInput)
             .parent().addClass($.support.fileInput ? undefined : 'disabled');
