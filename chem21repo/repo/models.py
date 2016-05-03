@@ -340,33 +340,57 @@ class DrupalModel(models.Model):
         return self.get_parent().children
 
     def get_earlier_siblings(self):
-
         return self.get_siblings().filter(
-            order__lt=self.order).exclude(dummy=True).order_by('-order')
+            order__lte=self.order).exclude(archived=True).exclude(pk=self.pk).order_by('-order')
 
     def get_later_siblings(self):
         return self.get_siblings().filter(
-            order__gt=self.order).order_by('order')
+            order__gte=self.order).exclude(archived=True).exclude(pk=self.pk).order_by('order')
 
-    def get_first_display_child(self):
+    def _get_display_child_help(self, reverse=False):
+        # raise <child_class>.DoesNotExist if no children
+        order = "order"
+        if reverse:
+            order = "-" + order
+        qs = self.children.all().exclude(archived=True).order_by(order)
+
+        # get the first child except if we know it's a dummy
+        i = 0
         try:
-            ch = self.children.all().order_by('order').first()
+            if self.is_question and not reverse:
+                # avoid the first child: it's a dummy
+                i = 1
+        except AttributeError:
+            pass
+
+        try:
+            ch = qs[i]
         except IndexError:
             return None
-        if ch.dummy:
-            return ch.get_first_display_child()
+
+        # now check we haven't got a dummy child for reverse case
+        # this will only happen when it's an only child of a pseudo-question
+        # in which case we try to get a second child from the queryset 
+        # this will raise IndexError if it is in fact a dummy
+
+        try:
+            if self.is_question and reverse:
+                _ = qs[1].get()
+        except AttributeError:
+            pass
+        except IndexError:
+            return None
+
         return ch
 
+
+    def get_first_display_child(self):
+        return self._get_display_child_help(reverse=False)
+
     def get_last_display_child(self):
-        try:
-            ch = self.children.all().order_by('-order').first()
-        except (IndexError, AttributeError):
-            return None
-        if ch is None:
-            return None
-        ch.set_parent(self)
-        if ch.dummy:
-            return ch.get_last_display_child()
+        ch = self._get_display_child_help(reverse=True)
+        if ch:
+            ch.set_parent(self)
         return ch
 
     def get_recurse_last_display_child(self):
@@ -378,7 +402,6 @@ class DrupalModel(models.Model):
 
     def get_next_sibling(self):
         sibs = self.get_later_siblings()
-        logging.debug(sibs)
         p = self.get_parent()
         try:
             p.current_module = self.current_module
@@ -392,7 +415,8 @@ class DrupalModel(models.Model):
         return sib
 
     def get_next_object(self, check_children=True):
-        if check_children:
+        if check_children:#
+            # first see if this node has any children; if so get the first
             try:
                 ch = self.get_first_display_child()
                 if ch is not None and not isinstance(ch, UniqueFile):
@@ -400,16 +424,16 @@ class DrupalModel(models.Model):
                     return ch
             except AttributeError:
                 pass
-            ch = self.children.all().order_by('order').first()
+            """
+            ch = self.children.all().exclude(archived=True).order_by('order').first()
             if ch is not None and ch.dummy and not isinstance(ch, UniqueFile):
                 o = ch
                 o.set_parent(self)
                 sib = o.get_next_sibling()
                 if sib:
                     return sib
+            """
         sib = self.get_next_sibling()
-        if sib and sib.dummy:
-            return sib.get_next_object(check_children=True)
         if sib:
             return sib
         try:
@@ -426,6 +450,10 @@ class DrupalModel(models.Model):
             p = self.get_parent()
         except AttributeError:
             p = None
+
+        #TODO: need to check for situation where parent is_question
+        # in this situation, we need to check self is not the first child of parent
+        # e.g. check sibs[1]
         try:
             p.current_module = self.current_module
         except AttributeError:
@@ -434,11 +462,16 @@ class DrupalModel(models.Model):
             o = sibs[0]
         except IndexError:
             if p is not None:
-                if self.dummy or p.slug == "-" or p.dummy:
-                    return p.get_previous_object()
                 return p
             else:
                 return None
+        try:
+            if p.is_question:
+                _ = sibs[1]
+        except AttributeError: 
+            pass
+        except IndexError:
+            return p
         if p is not None:
             o.set_parent(p)
         if check_children:
@@ -1091,6 +1124,7 @@ class UniqueFile(OrderedModel, DrupalModel):
     authors = models.ManyToManyField(Author, blank=True)
     description = mceModels.HTMLField(null=True, blank=True, default="")
     molecule = models.ForeignKey(Molecule, null=True, related_name='related_files')
+
 
     def __unicode__(self):
         if self.path:
