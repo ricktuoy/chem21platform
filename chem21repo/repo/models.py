@@ -380,7 +380,6 @@ class DrupalModel(models.Model):
             pass
         except IndexError:
             return None
-
         return ch
 
 

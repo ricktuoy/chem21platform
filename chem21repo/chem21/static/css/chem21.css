@@ -717,7 +717,8 @@ body.front #content .content .cobranding {
 	border-left: 15px solid #b54;
 }
 
-.quiz_questions .controls a {
+.quiz_questions .controls a,
+.quiz_questions a.submit {
 	background-color: #4caf50;
 	padding: 0.5em;
 	color: white;
@@ -728,35 +729,64 @@ body.front #content .content .cobranding {
 	font-size: 0.9em;
 }
 
-.quiz_questions .controls a.skip {
-	background-color: #af504c;
-}
-
-.quiz_questions .controls a:hover {
-	background-color: #072;
-}
-
-.quiz_questions a.submit {
-	margin-top: 0.75em;
-	background-color: #183;
-	padding: 0.75em;
-	width: 100%;
-	display: block;
-	color: white;
-	text-align: center;
-	text-decoration: none;
-	text-transform: uppercase;
-	font-weight: bold;
-	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
-}
-
+.quiz_questions .controls a:hover,
 .quiz_questions a.submit:hover {
 	background-color: #072;
 }
 
+.quiz_questions .controls a.skip {
+	background-color: #af504c;
+}
+
+.quiz_questions .controls a.skip:hover {
+	background-color: #702;
+}
+
+
+.quiz_questions .controls .previous {
+	width: 20%;
+	float: left;
+	background-color: #aaa;
+}
+
+
+.quiz_questions .controls a.previous:hover {
+	background-color: #888;
+}
+
+#content .quiz_questions p.quiz_total {
+	font-size: 2.4em;
+	margin-bottom: 1em;
+	border: 1px solid #0c0;
+	padding: 0.6em;
+}
+
+
+.quiz_questions .question .controls .skip, 
+.quiz_questions .question .controls .next,
+.quiz_questions .question a.submit {
+	width: 70%;
+	float: right;	
+}
+
+.quiz_questions .question .controls .next,
+.quiz_questions .question a.submit {
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+.quiz_questions .question:first-child .controls .skip, 
+.quiz_questions .question:first-child .controls .next,
+.quiz_questions .question:first-child a.submit {
+	width: 100%;
+	float: none;
+}
+
+
 .quiz_questions .question h3 {
 	margin-bottom: 0.5em;
 }
+
 
 .quiz_questions .question:not(.marked) ul li.choice {
 	cursor: pointer;
@@ -783,7 +813,7 @@ body.front #content .content .cobranding {
 .quiz_questions .question.marked ul li.choice.correct.chosen {
 
 	background-image: url("../img/correct.png");
-background-repeat: no-repeat;
+	background-repeat: no-repeat;
 	background-position: right;
 	background-origin: content-box;
 }
@@ -794,7 +824,6 @@ background-repeat: no-repeat;
 	font-size: 0.75em;
 	margin-bottom: 1em;
 }
-
 
 .quiz_questions .question.marked .answers p {
 	margin: 0.3em 0;
@@ -1255,4 +1284,99 @@ ul.figure-menu li {
 	overflow: hidden;
 	border-top: 3px solid #aaa;
 
+}
+
+@-webkit-keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+@-o-keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+.progress {
+  height: 20px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+          box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+}
+.progress-bar {
+  float: left;
+  width: 0;
+  height: 100%;
+  font-size: 12px;
+  line-height: 20px;
+  color: #fff;
+  text-align: center;
+  background-color: #337ab7;
+  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+          box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+  -webkit-transition: width .6s ease;
+       -o-transition: width .6s ease;
+          transition: width .6s ease;
+}
+.progress-striped .progress-bar,
+.progress-bar-striped {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  -webkit-background-size: 40px 40px;
+          background-size: 40px 40px;
+}
+.progress.active .progress-bar,
+.progress-bar.active {
+  -webkit-animation: progress-bar-stripes 2s linear infinite;
+       -o-animation: progress-bar-stripes 2s linear infinite;
+          animation: progress-bar-stripes 2s linear infinite;
+}
+.progress-bar-success {
+  background-color: #5cb85c;
+}
+.progress-striped .progress-bar-success {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+}
+.progress-bar-info {
+  background-color: #5bc0de;
+}
+.progress-striped .progress-bar-info {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+}
+.progress-bar-warning {
+  background-color: #f0ad4e;
+}
+.progress-striped .progress-bar-warning {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+}
+.progress-bar-danger {
+  background-color: #d9534f;
+}
+.progress-striped .progress-bar-danger {
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+  background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
 }

@@ -18,10 +18,8 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             if($(this).closest(".quiz_questions").hasClass("marked")) {
                 return true;
             }
-
             var d = $(this).data("response");
             var id = source.data("id");
-
             if(typeof(d)=="undefined") {
                 d = {};
             }
@@ -54,18 +52,22 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     $(this).removeClass("unchosen");
                 }
             });
-            var num_chosen = Object.keys(d).length;
-            var $skip_c = $(this).find(".controls a.skip");
-            var $next_c = $(this).find(".controls a.next");
-            if(num_chosen > 0 && $skip_c.length) {
-                $skip_c.removeClass("skip");
-                $skip_c.addClass("next");
-                $skip_c.html("Continue quiz");
-            }
-            if(num_chosen == 0 && $next_c.length) {
-                $next_c.removeClass("next");
-                $next_c.addClass("skip");
-                $next_c.html("Skip question")
+            if($(this).hasClass("marked")) {
+
+            } else {
+                var num_chosen = Object.keys(d).length;
+                var $skip_c = $(this).find(".controls a.skip");
+                var $next_c = $(this).find(".controls a.next");
+                if(num_chosen > 0 && $skip_c.length) {
+                    $skip_c.removeClass("skip");
+                    $skip_c.addClass("next");
+                    $skip_c.html("Mark question");
+                }
+                if(num_chosen == 0 && $next_c.length) {
+                    $next_c.removeClass("next");
+                    $next_c.addClass("skip");
+                    $next_c.html("Skip question")
+                }
             }
         });
 
@@ -91,7 +93,6 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
         });
 
         $(".quiz_questions").on("click", ".question.marked .choice", function(e) {
-            
             e.stopImmediatePropagation();
         });
 
@@ -106,21 +107,13 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 $(this).closest(".question").trigger("responseAdd", [$(this)] );
             }
         });
-        /*
-        $(".quiz_questions").on("click", ".question[data-type=\"single\"] .choice", function() {
-            $(this).closest(".question").trigger("mark"); 
-        });
-        */
+
         $(".quiz_questions").on("click", ".question .controls a.skip", function() {
             var $skip = $(this);
-            $skip.removeClass("skip");
-            $skip.addClass("next");
-            $skip.html("Continue");
             $(this).closest(".question").data("skipped", true);
         });
 
         $(".quiz_questions").on("click", ".question .controls a", function() {
-            
             var $question = $(this).closest(".question");
             if($question.hasClass("marked")) {
                 var id = $(this).attr("href");
@@ -135,7 +128,6 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
 
         $(".quiz_questions").on("click", ".submit", function() {
             $(this).closest(".quiz_questions").trigger("mark");
-
         });
 
         $(".quiz_questions").on("mark", ".question", function(e) {
@@ -149,6 +141,8 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     $q.find("choice").removeClass("unchosen").removeClass("chosen").addClass("skipped");
                 }
                 var answer_texts = [];
+                var $title = $("h3", $q).first();
+                $title.html("Answers: " + $title.html());
                 $q.find(".choice").addClass("incorrect");
                 $.each(question.correct, function(i, rId) {
                     var $c = $q.find(".choice[data-id=\""+rId+"\"]");
@@ -185,6 +179,11 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 
                 var skipped_msg = "";
                 var $controls = $q.find(".controls");
+                var $next = $controls.find(".skip, .next");
+                    $next.removeClass("skip");
+                    $next.addClass("next");
+                    $next.html("Continue quiz");
+                
 
                 if($q.data("skipped")) {
                     skipped_msg = " (skipped).";
@@ -197,7 +196,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 $controls.before($scores);
 
                 $q.find(".help").hide();
-                $q.addClass("marked");
+                
                 var $next = $q.next();
                 $q.find("a.submit").show();
                 if($next.length == 0) {
@@ -210,12 +209,12 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     var $discussion = $("<div class=\"discussion\" />");
                     $discussion.html(question.discussion);
                     $question_score.after($discussion);
-                    $controls.detach().insertAfter($discussion);
+                    // $controls.detach().insertAfter($discussion);
                 } else {
-                    $controls.detach().insertAfter($question_score);
+                    // $controls.detach().insertAfter($question_score);
                 }
 
-                
+                $q.addClass("marked");
             }
             
             var qdef = $q.data("definition");

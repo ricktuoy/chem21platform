@@ -114,6 +114,7 @@ class ChoiceQuestionRender(QuestionRender):
             self.render_choices() + \
             self.render_navigation() + \
             self.render_submit() + \
+            "<div class=\"clear\">&nbsp;</div>" + \
             "</div>"
 
 
