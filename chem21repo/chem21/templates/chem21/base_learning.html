@@ -127,9 +127,8 @@
 	{% endblock %}
 	{% block bottom_nav %}
 		<nav id="end-nav">
-		
-		{% if next %}<div class="next"><span class="next">Next</span> &raquo; <a class="next" href="{{ next.get_absolute_url }}">{{ next.title }} </a></div>{% endif %}
-		{% if previous %}<div class="back"><span class="next">Back</span> &laquo; <a class="prev" href="{{ previous.get_absolute_url}}" title="{{ previous.get_absolute_url }}">{{ previous.title }}</a></div>{% endif %}
+		{% if previous %}<a class="prev" href="{{ previous.get_absolute_url}}" title="{{ previous.title }}">&laquo; Previous</a>{% endif %}
+		{% if next %}  <a class="next" href="{{ next.get_absolute_url }}" title="{{ next.title}}">Next: {{ next.title }} &raquo;</a>{% endif %}
 		</nav>
 	{% endblock %}
 	{% block footnotes %}

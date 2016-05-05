@@ -716,22 +716,33 @@ body.front #content .content .cobranding {
 .quiz_questions .question ul li.choice.incorrect {
 	border-left: 15px solid #b54;
 }
-
 .quiz_questions .controls a,
 .quiz_questions a.submit {
+	font-size: 0.9em;
+}
+
+#end-nav a {
+	font-weight: bold;
+	font-size: 1.1em;
+}
+
+.quiz_questions .controls a,
+.quiz_questions a.submit,
+#end-nav a {
 	background-color: #ffef33;
-	padding: 0.5em;
+	padding: 1%;
 	color: #554;
 	
 	text-decoration: none;
 	display: inline-block;
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 	margin-right: 1%;
-	font-size: 0.9em;
+	
 }
 
 .quiz_questions .controls a:hover,
-.quiz_questions a.submit:hover {
+.quiz_questions a.submit:hover,
+#end-nav a:hover  {
 	background-color: #ffef99;
 
 }
@@ -746,7 +757,8 @@ body.front #content .content .cobranding {
 }
 
 
-.quiz_questions .controls .previous {
+.quiz_questions .controls .previous,
+#end-nav a.prev {
 	width: 20%;
 	float: left;
 	background-color: #aaa;
@@ -754,7 +766,8 @@ body.front #content .content .cobranding {
 }
 
 
-.quiz_questions .controls a.previous:hover {
+.quiz_questions .controls a.previous:hover,
+#end-nav a.prev:hover {
 	background-color: #888;
 }
 
@@ -767,7 +780,8 @@ body.front #content .content .cobranding {
 
 .quiz_questions .question .controls .skip, 
 .quiz_questions .question .controls .next,
-.quiz_questions .question a.submit {
+.quiz_questions .question a.submit,
+#end-nav a.next {
 	width: 70%;
 	float: right;	
 }
@@ -868,6 +882,7 @@ body.front #content .content .cobranding {
 /************** FOOTNOTES *************/
 
 ol.footnotes {
+	clear:both;
 	background-color: #eee;
 	padding: 1em 1em 1em 2.5em;
 	border: 1px solid #d0d0d0;
@@ -901,10 +916,14 @@ ol.footnotes li {
 }
 
 nav#end-nav {
-	text-align: center;
 	clear: both;
 }
 
+nav#end-nav a {
+	margin-bottom: 0.8em;
+}
+
+/*
 nav#end-nav div.next {
 	background-color: #444;
 	color: white;
@@ -931,9 +950,12 @@ nav#end-nav div.back {
 	margin-bottom: 2em;
 }
 
+
 nav#end-nav div.back a {
 	color: #666;
 }
+
+*/
 
 body.front #front-back {
 	display: none;
