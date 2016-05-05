@@ -7,6 +7,7 @@ requirejs.config({
     "urlArgs": "bust=004",
     "shim": {
         'jquery.colorbox': ['jquery'],
+        'jquery.throttle-debounce': ['jquery']
     }
 });
 // Load the main app module to start the app
