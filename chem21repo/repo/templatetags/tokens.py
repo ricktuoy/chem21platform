@@ -374,7 +374,7 @@ class LinkMixin:
         return obj
 
 
-class CTATokenProcessor(LinkMixin, TokenProcessor):
+class CTATokenProcessor(ContextProcessorMixin, LinkMixin, TokenProcessor):
     token_name = "cta"
 
     def token_function(self, *args):
@@ -427,7 +427,7 @@ class ReplaceTokensNode(template.Node):
             'ibib':BiblioInlineTagProcessor(context=context),
             'bib':BiblioTagProcessor(context=context),
             'ilink':ILinkTagProcessor(),
-            'cta':CTATokenProcessor(),
+            'cta':CTATokenProcessor(context=context),
             'green':GreenPrincipleTokenProcessor(context=context),
             'figref':FigureRefProcessor(),
             'figure':FigureTokenProcessor(),
