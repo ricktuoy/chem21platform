@@ -14,6 +14,10 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
 
         $(".quiz_questions").addClass("unmarked");
 
+        if($(".quiz_questions").length) {
+            $("#quiz_progress nav, #end-nav").hide();
+        }
+
         $(".quiz_questions").on("responseAdd", ".question", function(e, source) {
             if($(this).closest(".quiz_questions").hasClass("marked")) {
                 return true;
@@ -251,6 +255,8 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             $quiz.find(".question .controls").hide();
             $quiz.find(".question .submit").hide();
             $quiz.find(".question").show();
+            $("#end-nav, #quiz_progress nav").show();
+
 
         });
     });
