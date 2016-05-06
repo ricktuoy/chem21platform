@@ -378,7 +378,15 @@ class CTATokenProcessor(LinkMixin, TokenProcessor):
     token_name = "cta"
 
     def token_function(self, *args):
+        if not args:
+            messages.add_message(self.request, 
+                    messages.ERROR, 
+                    "[cta] token not valid: needs object reference (e.g. [cta:1:2:3] ).")
         obj = CTATokenProcessor.get_object(*[int(x) for x in args])
+        if not obj:
+            messages.add_message(self.request, 
+                    messages.ERROR, 
+                    "[cta:%s] token not valid: cannot find object with this reference." % ":".join(args))
         return "<p class=\"cta\">To study this area in more depth, see <a href=\"%s\"><span class=\"subject_title\">%s</span></a></p>" % (
                 obj.get_absolute_url(), obj.title)
 
