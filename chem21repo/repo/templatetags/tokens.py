@@ -375,7 +375,7 @@ class LinkMixin:
             obj.current_lesson = lesson
             obj.current_module = module
         except IndexError:
-            return None
+            pass
         return obj
 
 

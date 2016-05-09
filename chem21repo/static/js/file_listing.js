@@ -4,7 +4,7 @@
 // except 'app' ones, 
 requirejs.config({
     "baseUrl": "/static/js/lib",
-    "urlArgs": "bust=003",
+    "urlArgs": "bust=004",
     "shim": {
         'jquery.colorbox': ['jquery'],
     }
