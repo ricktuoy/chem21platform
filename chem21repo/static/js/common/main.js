@@ -1,4 +1,4 @@
-define(["jquery","jquery.colorbox","list_fix","quiz","jquery.throttle-debounce"], function($) {
+define(["jquery","jquery.colorbox","flow_chart","list_fix","quiz","jquery.throttle-debounce"], function($) {
     $(function() {
         $("#class_nav").listPositionFix();
         var resize_callback= function() {

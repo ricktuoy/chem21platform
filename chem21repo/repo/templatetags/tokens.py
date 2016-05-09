@@ -37,7 +37,13 @@ class BaseProcessor:
         self.full_text = st
         return self.pattern.sub(self.repl_function, st)
 
-class FigureRefProcessor(BaseProcessor):
+class ContextProcessorMixin(object):
+    def __init__(self, *args, **kwargs):
+        self.context = kwargs.get("context", {})
+        self.request = self.context.get("request", None)
+        super(ContextProcessorMixin,self).__init__(*args, **kwargs)
+
+class FigureRefProcessor(ContextProcessorMixin, BaseProcessor):
     @property
     def pattern(self):
         try:
@@ -108,13 +114,6 @@ class TagProcessor(BaseProcessor):
         return self.tag_function(match.group(2), *args)
 
 
-class ContextProcessorMixin(object):
-    def __init__(self, *args, **kwargs):
-        self.context = kwargs.get("context", {})
-        self.request = self.context.get("request", None)
-        super(ContextProcessorMixin,self).__init__(*args, **kwargs)
-
-
 class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "bib"
 
@@ -161,14 +160,22 @@ class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
 class BiblioInlineTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "ibib"
 
-
     def tag_function(self, st, *args):
         try:
             bib = Biblio.objects.get(citekey=st)
         except Biblio.DoesNotExist:
             bib = Biblio(citekey=st)
             bib.save()
-        return bib.get_inline_html()
+        html = bib.get_inline_html()
+        if html == False:
+            try:
+                messages.add_message(self.request, 
+                    messages.ERROR, 
+                    "Could not find reference on this page with citekey '%s'." % bib.citekey)
+            except AttributeError:
+                pass
+            html = "Unknown reference."
+        return html
 
 class GreenPrincipleTokenProcessor(ContextProcessorMixin, TokenProcessor):
     token_name = "greenprinciple"
@@ -239,14 +246,14 @@ class GreenPrincipleTokenProcessor(ContextProcessorMixin, TokenProcessor):
         return ""
 
 
-class FigCaptionTagProcessor(TagProcessor):
+class FigCaptionTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "figcaption"
 
     def tag_function(self, st, *args):
         return "<figcaption>%s</figcaption>" % st
 
 
-class FigureGroupTagProcessor(TagProcessor):
+class FigureGroupTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "figgroup"
 
     def __init__(self, *args, **kwargs):
@@ -311,14 +318,13 @@ class FigureGroupTagProcessor(TagProcessor):
             self.asides.append(self.inner_text)
             return ""
         
-
         return self.inner_text
 
     def get_asides_html(self):
         return "".join(map(lambda x: "<aside>%s</aside>" % x, self.asides))  
 
 
-class SurroundFiguresTokenProcessor(TokenProcessor):
+class SurroundFiguresTokenProcessor(ContextProcessorMixin, TokenProcessor):
     token_name = "figure"
 
     def token_function(self, *args):
@@ -327,7 +333,6 @@ class SurroundFiguresTokenProcessor(TokenProcessor):
 
     def repl_function(self, match):
         _super = super(SurroundFiguresTokenProcessor, self).repl_function
-        print match.group(0)
         self.is_matched = 1
         remainder = self.full_text[match.end():]
         endfiggroup = re.search("\[\/figgroup\]", remainder)
@@ -393,29 +398,45 @@ class CTATokenProcessor(ContextProcessorMixin, LinkMixin, TokenProcessor):
                 obj.get_absolute_url(), obj.title)
 
 
-class ILinkTagProcessor(LinkMixin, TagProcessor):
+class ILinkTagProcessor(ContextProcessorMixin, LinkMixin, TagProcessor):
     tag_name = "inlink"
 
     def tag_function(self, st, *args):
         obj = ILinkTagProcessor.get_object(*[int(x) for x in args])
+        if not obj:
+            messages.add_message(self.request, 
+                    messages.ERROR, 
+                    "[ilink:%s] token not valid: cannot find object with this reference." % ":".join(args))
+            return ""
         return "<a class=\"internal\" href=\"%s\">%s</a>" % (
             obj.get_absolute_url(), st)
 
 
-class FigureTokenProcessor(TokenProcessor):
+class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
     token_name = "figure"
 
     def token_function(self, command, *args):
         if command == "show" or command == "local":
             if command == "show":
                 fle = UniqueFile.objects.get(remote_id=args[0])
+                where = "remote"
             else:
                 fle = UniqueFile.objects.get(pk=args[0])
+                where = "local"
             try:
                 alt = args[1]
             except IndexError:
                 alt = ""
+            if not fle:
+                messages.add_message(self.request, 
+                    messages.ERROR, 
+                    "[figure] token not valid: cannot find file object with this %s id: %s" % (where, args[0]) )
+                return ""
             return "<a href=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (fle.url, fle.url, alt)
+        messages.add_message(self.request, 
+                messages.ERROR, 
+                "[figure] token not valid: must be either [figure:show:xx] or [figure:local:xx]" % (where, args[0]))
+        return ""
 
 
 class ReplaceTokensNode(template.Node):
@@ -428,13 +449,13 @@ class ReplaceTokensNode(template.Node):
         processors = {
             'ibib':BiblioInlineTagProcessor(context=context),
             'bib':BiblioTagProcessor(context=context),
-            'ilink':ILinkTagProcessor(),
+            'ilink':ILinkTagProcessor(context=context),
             'cta':CTATokenProcessor(context=context),
             'green':GreenPrincipleTokenProcessor(context=context),
-            'figref':FigureRefProcessor(),
-            'figure':FigureTokenProcessor(),
-            'figgroup':FigureGroupTagProcessor(),
-            'figcaption':FigCaptionTagProcessor(),
+            'figref':FigureRefProcessor(context=context),
+            'figure':FigureTokenProcessor(context=context),
+            'figgroup':FigureGroupTagProcessor(context=context),
+            'figcaption':FigCaptionTagProcessor(context=context),
             }
         proc_order = ['ibib','bib','ilink','cta','green',
                       'figref','figure','figgroup','figcaption',]
