@@ -31,6 +31,7 @@ class PlaceVideoNode(template.Node):
         num_blocks = len(els)
         vid_template = template.loader.get_template("includes/video_%s.html" % video.render_type)
         vid_cxt = video.render_args
+        vid_cxt['tools'] = not context.get('staticgenerator', False)
         vid_html = vid_template.render(vid_cxt)
         if num_blocks > 0:
             # display as an aside
