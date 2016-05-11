@@ -25,7 +25,7 @@ define(["jquery"], function($) {
 		}
 	}
 	$(".reaction-discovery thead").click(function() {
-		if(($this).hasClass("open")) {
+		if($(this).hasClass("open")) {
 			return;
 		}
 		var react = $(this).closest(".reaction-discovery");
@@ -40,7 +40,7 @@ define(["jquery"], function($) {
 	});
 
 	$(".reaction-discovery .description").click(function() {
-		if(($this).hasClass("open")) {
+		if($(this).hasClass("open")) {
 			return;
 		}
 		var react = $(this).closest(".reaction-discovery");
