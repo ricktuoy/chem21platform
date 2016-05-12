@@ -87,6 +87,8 @@ urlpatterns = [
     url(r'^local/clear/', MarkAsCleanView.as_view(), name="clear_ajax"),
     url(r'^about/$',
         TemplateView.as_view(template_name="chem21/about.html"), name="about"),
+    url(r'^legal/$',
+        TemplateView.as_view(template_name="chem21/legal.html"), name="legal"),
     url(r'^local/sync/', PullView.as_view(), name="pull_ajax"),
     url(r'^dirty/(?P<object_name>.+)/(?P<id>[0-9]+)/$',
         DirtyView.as_view(), name="dirty"),

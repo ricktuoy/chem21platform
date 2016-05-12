@@ -83,9 +83,6 @@ class TokenProcessor(BaseProcessor):
         args = match.group(1).split(":")
         return self.token_function(*args[1:])
 
-
-
-
 class TagProcessor(BaseProcessor):
     __metaclass__ = ABCMeta
 
@@ -113,6 +110,21 @@ class TagProcessor(BaseProcessor):
         args = match.group(1).split(":")
         return self.tag_function(match.group(2), *args)
 
+class AttributionProcessor(ContextProcessorMixin, TagProcessor):
+    tag_name="attrib"
+    def tag_function(self, st, *args):
+        html = "<p class=\"attrib\">%s</p>" % st
+        return html
+
+
+class RSCRightsProcessor(ContextProcessorMixin, TagProcessor):
+    tag_name="rsc"
+    def tag_function(self, st, *args):
+        rsc_template = template.loader.get_template("chem21/include/rsc_statement.html")
+        cxt = {'content': st}
+        cxt['tools'] = not self.context.get('staticgenerator', False)
+        html = rsc_template.render(cxt)
+        return html
 
 class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "bib"
@@ -232,6 +244,7 @@ class GreenPrincipleTokenProcessor(ContextProcessorMixin, TokenProcessor):
         return out
 
     def token_function(self, *args):
+        return ""
         num_list = []
         try:
             command = args[0]
@@ -451,13 +464,15 @@ class ReplaceTokensNode(template.Node):
             'bib':BiblioTagProcessor(context=context),
             'ilink':ILinkTagProcessor(context=context),
             'cta':CTATokenProcessor(context=context),
+            'rsc':RSCRightsProcessor(context=context),
+            'attrib': AttributionProcessor(context=context),
             'green':GreenPrincipleTokenProcessor(context=context),
             'figref':FigureRefProcessor(context=context),
             'figure':FigureTokenProcessor(context=context),
             'figgroup':FigureGroupTagProcessor(context=context),
             'figcaption':FigCaptionTagProcessor(context=context),
             }
-        proc_order = ['ibib','bib','ilink','cta','green',
+        proc_order = ['ibib','bib','ilink','rsc','attrib','cta','green',
                       'figref','figure','figgroup','figcaption',]
         for key in proc_order:
             txt = processors[key].apply(txt)

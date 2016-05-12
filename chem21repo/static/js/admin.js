@@ -3,7 +3,6 @@ $(document).ready(function() {
 		var from_url = $(this).data("fromUrlEdit");
 		var return_on_save = {url: window.location.pathname, fromUrl:from_url};
     	$.cookie("admin_save_redirect", JSON.stringify(return_on_save), { path: '/' });
-    	//console.debug(return_on_save);
     	window.location = url;
     	return false;
 	});
@@ -37,11 +36,8 @@ $(document).ready(function() {
 			e.preventDefault();
 			e.stopImmediatePropagation();
 			show_topic_menu(li);
-			//menu.removeClass("mobile-opened");
-			//menu.slideUp();
 		}
 	});
-
 
 	$("#menu-toggle-link").on("click", function(e) {
 		e.preventDefault();
@@ -68,27 +64,6 @@ $(document).ready(function() {
 		}
 	});
 
-	if($("body").hasClass("front")) {
-		// hide disqus
-		console.debug("Hiding ....");
-		console.debug($("#disqus_thread"));
-		$("#disqus_thread").hide();
-	}
-	$("body.front").on("click","#give_feedback",function(e) {
-		e.preventDefault();
-		e.stopImmediatePropagation();
-		if($(this).hasClass("activated")) {
-			$(this).removeClass("activated");
-			$(this).text("Feedback on this page");
-			$("#disqus_thread, #disqus_thread iframe").hide();
-		} else {
-			$(this).addClass("activated");
-			$("#disqus_thread iframe").css("width",600);
-			$("#disqus_thread iframe").css("min-width",600);
-			$(this).text("Hide feedback");
-			$("#disqus_thread, #disqus_thread iframe").show();
-		}
-	});
 	$("body.front").on("click","#front-back",function(e) {
 		$(this).fadeOut("fast");
 		$("#front-menu li", "body.front").each(function() {
@@ -101,8 +76,8 @@ $(document).ready(function() {
 			$("#front-menu").removeClass("mobile-opened");
 		}
 	});
+	
 	$("figure.presentation video").on("play",function(e) {
-		console.debug("Playing");
 		$(this).closest("figure.presentation").find("figcaption.overlay").slideUp();
 	});
 	$("figure.presentation video").on("pause", function(e) {

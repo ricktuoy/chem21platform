@@ -186,22 +186,7 @@ body.front #site-footer {
 	color: #595;
 }
 
-body.platon-use-slider #second-sidebar #front-menu {
-	position: fixed;
-	margin: 0;
-	bottom: 0;
-	width: 100%;
-	padding: 0;
-	border-top: 1px solid black;
-}
 
-body.platon-use-slider #second-sidebar {
-	min-height: 750px !important;
-}
-
-body.platon-use-slider #second-sidebar>ul li {
-	min-height: 750px !important;
-}
 
 body.platon-use-slider #second-sidebar #front-menu li {
 	width: 33.33333% !important;
@@ -907,9 +892,7 @@ ol.footnotes li {
 	display: none;
 }
 
-#front-menu {
-	display: none;
-}
+
 
 #second-sidebar {
 	padding-top: 10px;
@@ -1094,6 +1077,25 @@ p.cta {
 	padding: 0.5em;
 }
 
+p.attrib {
+	border: 1px solid #efefef;
+	background-color: #fafafa;
+	padding: 0.5em;
+	font-size: 1em !important;
+}
+
+p.attrib .rights_statement {
+	font-size: 0.85em;
+	margin-top: 0.5em;
+	padding: 0.05em 0;
+	display: block;
+	color: #888;
+	line-height: 1.25em;
+	width: 85%;
+	border-top: 1px dotted #efefef;
+	font-weight: normal;
+}
+
 @media screen and (max-width: 799px) {
 	#class_nav {
 		float: none;
@@ -1107,6 +1109,8 @@ p.cta {
 
 	#class_nav li {
 		color: #efefef !important;
+		background-color: transparent !important;
+		border: none;
 	}
 
 	#class_nav h3 {
@@ -1142,6 +1146,26 @@ p.cta {
 		left: 25px !important; 
 	}
 
+	body.platon-use-slider #second-sidebar #front-menu {
+		position: fixed;
+		margin: 0;
+		bottom: 0;
+		width: 100%;
+		padding: 0;
+		border-top: 1px solid black;
+	}
+
+	body.platon-use-slider #second-sidebar {
+		min-height: 750px !important;
+	}
+
+	body.platon-use-slider #second-sidebar>ul li {
+		min-height: 750px !important;
+	}
+
+	#front-menu {
+		display: none;
+	}
 
 	#quiz_progress {
 		margin: 0;
