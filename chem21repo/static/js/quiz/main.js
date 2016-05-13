@@ -174,25 +174,25 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 });
 
                 $q.find(".choice input").prop("disabled", true);
-                $q.find(".choice.chosen").closest("ul").before("<p>Your answer:</p>");
-
-                var $missed_resps = $q.find(".choice.unchosen.correct").detach();
-                var $other_wrong_resps = $q.find(".choice.unchosen").detach();
                 var $chosen = $q.find(".choice.chosen");
+                var $correct = $q.find(".choice.correct").detach();
+                var $incorrect = $q.find(".choice").detach();
+                console.debug($chosen);
 
-                $chosen.not(".correct").addClass("incorrect");
+
+                $chosen.not($correct).addClass("incorrect");
 
                 var $controls = $q.find(".controls");
 
 
-                if($missed_resps.length) {
-                    $controls.before($("<p>You missed the following correct response:</p><ul class=\"missed_correct\"></ul>"));
-                    $missed_resps.appendTo($q.find("ul.missed_correct"));
+                if($correct.length) {
+                    $controls.before($("<p>Correct responses:</p><ul class=\"all_correct\"></ul>"));
+                    $correct.appendTo($q.find("ul.all_correct"));
                 }
 
-                if($other_wrong_resps.length) {
-                    $controls.before($("<p>You were right not to select the following:</p><ul class=\"missed_incorrect\"></ul>"));
-                    $other_wrong_resps.appendTo($q.find("ul.missed_incorrect"));
+                if($incorrect.length) {
+                    $controls.before($("<p>Incorrect responses:</p><ul class=\"all_incorrect\"></ul>"));
+                    $incorrect.appendTo($q.find("ul.all_incorrect"));
                 }
 
  
@@ -211,7 +211,10 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     case 'multi':
                         // actual percentage
                         var num_choices = $q.find(".choice").length;
-                        var num_good = $chosen.filter(".correct").length + $other_wrong_resps.length;
+                        console.debug($q.find(".choice"));
+                        var num_good = $chosen.filter(".correct").length + $incorrect.not(".chosen").length;
+                        console.debug($chosen);
+                        console.debug($incorrect.not(".chosen"));
                         percentage_score = Math.round((num_good  / num_choices) * 100 );
                         break;
                 }

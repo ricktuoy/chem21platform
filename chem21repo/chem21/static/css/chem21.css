@@ -806,7 +806,6 @@ body.front #content .content .cobranding {
 	background-color: #e0e0e0;
 }
 
-.quiz_questions .question.marked.multi ul li.choice.correct.unchosen,
 .quiz_questions .question.marked ul li.choice.incorrect.chosen {
 	border-left: 3px solid #c00;
 
@@ -816,7 +815,6 @@ body.front #content .content .cobranding {
 	background-origin: content-box;
 }
 
-.quiz_questions .question.marked.multi ul li.choice.incorrect.unchosen,
 .quiz_questions .question.marked ul li.choice.correct.chosen {
 	border-left: 3px solid #0c0;
 	background-image: url("../img/correct.png");
