@@ -77,11 +77,11 @@ class ChoiceQuestionRender(QuestionRender):
         try:
             next_html = tpl % ("skip",
                                self.get_question_html_id(self.num),
-                               "Skip question")
+                               "Skip question &raquo;")
         except QuestionNotFoundError:
             next_html = tpl % ("skip",
                                "final",
-                               "Skip question")
+                               "Skip question &raquo;")
 
         if previous_html or next_html:
             return "<nav class=\"controls\">%s%s</nav>" % (

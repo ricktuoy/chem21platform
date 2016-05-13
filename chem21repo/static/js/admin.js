@@ -14,7 +14,7 @@ $(document).ready(function() {
 	function get_topic_menu_item(topic) {
 		return $("#front-menu li[data-topic=\""+topic+"\"]", "body.front");
 	}
-	function show_topic_menu(topic_el)  {
+	function show_topic_menu(topic_el) {
 		$("#front-menu li", "body.front").each(function() {
 			$(this).removeClass("hover");
 		});
@@ -32,7 +32,7 @@ $(document).ready(function() {
 	$("#front-menu", "body.front").on("click", "li a", function(e) {
 		var li = $(this).closest("li");
 		var menu = $(this).closest("#front-menu");
-		if(menu.hasClass("mobile-opened"))  { 
+		if(menu.hasClass("mobile-opened")) { 
 			e.preventDefault();
 			e.stopImmediatePropagation();
 			show_topic_menu(li);

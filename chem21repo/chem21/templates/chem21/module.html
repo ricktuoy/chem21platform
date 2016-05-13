@@ -9,7 +9,8 @@
 		{% ifequal module object %}
 			<li class="active">
 				{{ module.title }}
-				<div class="item-list"><ol class="active">
+				<div class="item-list">
+					<ol class="active">
 					{% include 'chem21/include/active_module_nav.html' with module=module %}
 					</ol>
 				</div>

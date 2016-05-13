@@ -18,6 +18,17 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             $("#quiz_progress nav, #end-nav").hide();
         }
 
+        $(".quiz_questions .choice").each(function() {
+            var $q = $(this).closest(".question");
+            if($q.hasClass("single")) {
+                var itype = "radio";
+            } else {
+                var itype = "checkbox";
+            }
+
+            $(this).prepend($("<input type=\""+itype+"\" name="+$q.data("id") + " value=\""+$(this).data("id")+"\" />"));
+        });
+
         $(".quiz_questions").on("responseAdd", ".question", function(e, source) {
             if($(this).closest(".quiz_questions").hasClass("marked")) {
                 return true;
@@ -56,6 +67,16 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     $(this).removeClass("unchosen");
                 }
             });
+
+            console.log($(this).data("id"));
+            console.log($("input[name="+$(this).data("id")+"]"));
+            console.log(d);
+            var keys = []
+            for (var key in d) {
+                keys.push(key);
+            }
+            $("input[name="+$(this).data("id")+"]").val(keys);
+            
             if($(this).hasClass("marked")) {
 
             } else {
@@ -65,12 +86,12 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 if(num_chosen > 0 && $skip_c.length) {
                     $skip_c.removeClass("skip");
                     $skip_c.addClass("next");
-                    $skip_c.html("Mark question");
+                    $skip_c.html("Submit &raquo;");
                 }
                 if(num_chosen == 0 && $next_c.length) {
                     $next_c.removeClass("next");
                     $next_c.addClass("skip");
-                    $next_c.html("Skip question")
+                    $next_c.html("Skip question &raquo;");
                 }
             }
         });
@@ -146,28 +167,42 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 }
                 var answer_texts = [];
                 var $title = $("h3", $q).first();
-                $title.html("Answers: " + $title.html());
-                $q.find(".choice").addClass("incorrect");
+                
                 $.each(question.correct, function(i, rId) {
                     var $c = $q.find(".choice[data-id=\""+rId+"\"]");
-                    $c.removeClass("incorrect");
                     $c.addClass("correct");
-                    answer_texts.push($c.html());
                 });
-                var chosen_texts = $q.find(".choice.chosen").map(function() {
-                    return $(this).html();
-                }).get();
-                var $scores = $("<div class=\"answers\" />"); 
-                var $question_score = $q.find(".final_score");
-                $scores.append("<p><span class=\"label\">Correct answers:</span> "+answer_texts.join("; ")+".</p>");
-                if(!$q.data("skipped")) {
-                    $scores.append("<p><span class=\"label\">Your answers:</span> "+chosen_texts.join("; ")+".</p>");
+
+                $q.find(".choice input").prop("disabled", true);
+                $q.find(".choice.chosen").closest("ul").before("<p>Your answer:</p>");
+
+                var $missed_resps = $q.find(".choice.unchosen.correct").detach();
+                var $other_wrong_resps = $q.find(".choice.unchosen").detach();
+                var $chosen = $q.find(".choice.chosen");
+
+                $chosen.not(".correct").addClass("incorrect");
+
+                var $controls = $q.find(".controls");
+
+
+                if($missed_resps.length) {
+                    $controls.before($("<p>You missed the following correct response:</p><ul class=\"missed_correct\"></ul>"));
+                    $missed_resps.appendTo($q.find("ul.missed_correct"));
                 }
+
+                if($other_wrong_resps.length) {
+                    $controls.before($("<p>You were right not to select the following:</p><ul class=\"missed_incorrect\"></ul>"));
+                    $other_wrong_resps.appendTo($q.find("ul.missed_incorrect"));
+                }
+
+ 
+                var $question_score = $q.find(".final_score");
+                
                 var percentage_score = 0;
                 switch($q.data("type")) {
                     case 'single':
                         // right or wrong
-                        var num_good = $q.find(".choice.correct.chosen").length;
+                        var num_good = $chosen.filter(".correct").length;
                         if(num_good) {
                             percentage_score = 100;
                         }
@@ -176,17 +211,17 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     case 'multi':
                         // actual percentage
                         var num_choices = $q.find(".choice").length;
-                        var num_good = $q.find(".choice.incorrect.unchosen, .choice.correct.chosen").length;
+                        var num_good = $chosen.filter(".correct").length + $other_wrong_resps.length;
                         percentage_score = Math.round((num_good  / num_choices) * 100 );
                         break;
                 }
                 
                 var skipped_msg = "";
-                var $controls = $q.find(".controls");
+                
                 var $next = $controls.find(".skip, .next");
                     $next.removeClass("skip");
                     $next.addClass("next");
-                    $next.html("Continue quiz");
+                    $next.html("Continue quiz &raquo;");
                 
 
                 if($q.data("skipped")) {
@@ -197,7 +232,6 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
 
                 $q.data("possible_score", 100);
                 $q.data("actual_score", percentage_score);
-                $controls.before($scores);
 
                 $q.find(".help").hide();
                 
@@ -207,7 +241,6 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     var $cont = $q.find(".controls a.next");
                     $cont.hide();
                 }
-
 
                 if(question.discussion) {
                     var $discussion = $("<div class=\"discussion\" />");
