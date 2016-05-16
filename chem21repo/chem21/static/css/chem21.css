@@ -35,6 +35,9 @@
 	height: 58px;
 }
 
+body.front .row {
+	overflow: visible;
+}
 
 
 
@@ -1082,10 +1085,25 @@ p.attrib .rights_statement {
 		position: absolute;
 		color: black;
 		right: 0;
-		top: -60px;
+		top: -58px;
 		width: 65%;
-		line-height: 1.3em;
-		z-index: 9999 !important
+		line-height: 1em;
+		font-size: 1.3em;
+		font-weight: bold;
+		z-index: 9999 !important;
+		text-shadow: none;
+		color: #444;
+	}
+
+
+body.front #second-sidebar #front-menu li a {
+    color: #eee;
+    text-decoration: none;
+}
+
+	body.front li .content .intro {
+		font-size: 0.97em;
+		line-height: 1.05em;
 	}
 
 	.quiz_questions .question ul li.choice {
