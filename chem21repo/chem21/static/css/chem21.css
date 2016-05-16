@@ -1146,6 +1146,13 @@ p.attrib .rights_statement {
 
 @media screen and (min-width: 800px) {
 
+	#site-header {
+		height: 65px !important;
+	}
+	body.front #site-header {
+		height: 95px !important;
+	}
+
 	body.front #logo {
 	top: -3px !important;
 }
