@@ -217,12 +217,7 @@ body.platon-use-slider #second-sidebar #front-menu li a:hover {
 	color: #3edd42;
 }
 
-body.platon-use-slider #second-sidebar #front-menu li img {
-	width: 45%;
-	display: block;
-	margin: 0 auto 0.8em auto;
-	border: 8px solid black;
-}
+
 
 #front-menu li img {
 	max-width: 100%;
@@ -1097,49 +1092,28 @@ p.attrib .rights_statement {
 	border-top: 1px dotted #efefef;
 	font-weight: normal;
 }
-bor
+
 @media screen and (max-width: 799px) {
 
 	.quiz_questions .question ul li.choice {
 		font-size: 0.75em;
 		line-height: 1.1em;
 	}
-	#class_nav {
-		float: none;
+
+	body.platon-use-slider #second-sidebar #front-menu li img {
+		width: 80%;
+		display: block;
+		margin: 0 auto 0.8em auto;
+	}
+
+	body.platon-use-slider #second-sidebar #front-menu {
+		margin: 0;
+		bottom: 0;
 		width: 100%;
-		box-shadow: none;
-		background-color: #333;
-		border: 0;
-		padding: 0 !important;
-
-	}
-
-	#class_nav li {
-		color: #efefef !important;
-		background-color: transparent !important;
-		border: none;
-	}
-
-	#class_nav h3 {
-		padding: 0.1em 0.5em;
-		border-top: 1px solid #888;
-		border-bottom: 1px solid #888;
-		background-color: #444;
-		color: #fafafa;
-	}
-
-	#class_nav a {
-		color: #eee;
-	}
-	
-	#class_nav .item-list {
-		padding-left: 1em;
-		padding-bottom: 1em;
-	}
-
-	#class_nav .item-list .item-list .item-list {
 		padding: 0;
+		border-top: 1px solid black;
 	}
+
 
 	#give_feedback {
 		display: none;
@@ -1151,10 +1125,10 @@ bor
 @media screen and (min-width: 800px) {
 
 	#class_nav {
-
 		width: 24%;
 		float: left;
 	}
+	
 	#logo {
 		left: 25px !important; 
 	}
@@ -1166,6 +1140,12 @@ bor
 		width: 100%;
 		padding: 0;
 		border-top: 1px solid black;
+	}
+	body.platon-use-slider #second-sidebar #front-menu li img {
+		width: 45%;
+		display: block;
+		margin: 0 auto 0.8em auto;
+		border: 8px solid black;
 	}
 
 	body.platon-use-slider #second-sidebar {
