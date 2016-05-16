@@ -1081,6 +1081,10 @@ p.attrib .rights_statement {
 
 @media screen and (max-width: 799px) {
 
+	.cobranding img {
+		width: 14%;
+	}
+
 	body.front ul.slides li .content h2 {
 		position: absolute;
 		color: black;
@@ -1095,15 +1099,22 @@ p.attrib .rights_statement {
 		color: #444;
 	}
 
+	body.front #second-sidebar #front-menu li a {
+	    color: #eee;
+	    text-decoration: none;
+	}
 
-body.front #second-sidebar #front-menu li a {
-    color: #eee;
-    text-decoration: none;
-}
+	body.front #front-menu .topic_title {
+		background-color: #111;
+		display: block;
+		width: 90%;
+		margin: 0 4%;
+		padding: 0.8em 1%;
+	}
 
 	body.front li .content .intro {
-		font-size: 0.97em;
-		line-height: 1.05em;
+		font-size: 1em;
+		line-height: 1.1em;
 	}
 
 	.quiz_questions .question ul li.choice {

@@ -24,34 +24,23 @@ $(document).ready(function() {
 		topic.show();
 		$("#front-back","body.front").fadeIn();
 	}
-	$("#front-menu", "body.front").on("mouseenter", "li", function(e) {
-		if(!$("#front-menu").hasClass("mobile-opened"))  {  
-			show_topic_menu($(this));
+
+	function is_mobile_view() {
+		if($(window).width() < 800) {
+			return true;
 		}
-	});
-	$("#front-menu", "body.front").on("click", "li a", function(e) {
-		var li = $(this).closest("li");
-		var menu = $(this).closest("#front-menu");
-		if(menu.hasClass("mobile-opened")) { 
-			e.preventDefault();
-			e.stopImmediatePropagation();
-			show_topic_menu(li);
+		return false;
+	}
+	$("#front-menu", "body.front").on("mouseenter", "li", function(e) {
+		if(!$("#front-menu").hasClass("mobile-opened") && !is_mobile_view())  {  
+			show_topic_menu($(this));
 		}
 	});
 
 	$("#menu-toggle-link").on("click", function(e) {
 		e.preventDefault();
 		e.stopImmediatePropagation();
-		if($("body").hasClass("front")) {
-			var menu = $("#front-menu");
-			if(!menu.hasClass("mobile-opened")) {
-				menu.addClass("mobile-opened");
-				menu.slideDown();
-			} else {
-				menu.removeClass("mobile-opened");
-				menu.slideUp();
-			}
-		} else {
+		if(!$("body").hasClass("front")) {
 			var nav = $("#class_nav");
 			if(!nav.hasClass("mobile-opened")) {
 				nav.addClass("mobile-opened");

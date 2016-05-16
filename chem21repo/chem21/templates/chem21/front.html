@@ -85,7 +85,7 @@
             <img src="{% if topic.icon %}{% version topic.icon 'medium' %}
             {% else %}
               {% static "img/logo_square.jpg" %}
-            {% endif %}" alt="{{ topic.title }}" />{{ topic.title }}</a></li>
+            {% endif %}" alt="{{ topic.title }}" /><span class="topic_title">{{ topic.title }}</span></a></li>
           {% endfor %}
         </ul>      
       </div>
