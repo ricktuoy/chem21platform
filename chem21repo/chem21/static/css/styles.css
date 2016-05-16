@@ -1861,14 +1861,10 @@ body.platon-use-slider #second-sidebar {
 body.platon-use-slider #second-sidebar ul.slides {
     margin: 0;
     padding: 0;
-    overflow: hidden;
     width: 100%
 }
 body.platon-use-slider #second-sidebar ul.slides>li {
     list-style: none;
-    left: 0 !important;
-    position: absolute !important;
-    min-height: 600px;
     overflow-y: scroll;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -1883,9 +1879,7 @@ body.platon-use-slider #second-sidebar ul.slides>li::-webkit-scrollbar {
     display: none
 }
 body.platon-use-slider #second-sidebar ul.slides>li .content {
-    top: 3%;
-    margin-top: -30px;
-    position: absolute;
+
     padding-left: 30%;
     padding-right: 30%;
     color: white;
@@ -5475,14 +5469,10 @@ body.platon-use-slider #second-sidebar {
 body.platon-use-slider #second-sidebar ul.slides {
     margin: 0;
     padding: 0;
-    overflow: hidden;
     width: 100%
 }
 body.platon-use-slider #second-sidebar ul.slides>li {
     list-style: none;
-    left: 0 !important;
-    position: absolute !important;
-    min-height: 600px;
     overflow-y: scroll;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -5497,9 +5487,6 @@ body.platon-use-slider #second-sidebar ul.slides>li::-webkit-scrollbar {
     display: none
 }
 body.platon-use-slider #second-sidebar ul.slides>li .content {
-    top: 5%;
-    margin-top: -30px;
-    position: absolute;
     padding-left: 30%;
     padding-right: 30%;
     color: white;
@@ -5598,7 +5585,7 @@ body.platon-use-slider #second-sidebar .slider-footer .slider-counter .top {
     background-color: #f8f7f5;
     padding-top: 1.5em;
     padding-bottom: 1em;
-    min-height: 600px
+    min-height: 600px;
 }
 @media screen and (max-width: 800px) {
     body:not(.platon-use-slider) #first-sidebar.collapsed,
