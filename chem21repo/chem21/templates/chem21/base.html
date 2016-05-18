@@ -17,6 +17,8 @@
   {% endif %}
 
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
+
+    <link type="text/css" rel="stylesheet" href="{% static "js/lib/jquery.mobile/jquery.mobile-1.4.5.css" %}" />
     <link type="text/css" rel="stylesheet" href="{% static "css/hacks.css" %}" />
     <link type="text/css" rel="stylesheet" href="{% static "css/reset.css" %}" />
   <link type="text/css" rel="stylesheet" href="{% static "css/styles.css" %}?008" />
@@ -24,7 +26,7 @@
     <link type="text/css" rel="stylesheet" href="{% static "css/opigno_lms.css" %}" />
     <link type="text/css" rel="stylesheet" href="{% static "css/chem21.css" %}?016" />
     {% if not staticgenerator %}
-<link type="text/css" rel="stylesheet" href="{% static "css/admin.css" %}?003" />
+      <link type="text/css" rel="stylesheet" href="{% static "css/admin.css" %}?003" />
     {% endif %}
 
   {% endblock %}
@@ -45,7 +47,7 @@
     <a href="#main-content" class="element-invisible element-focusable">Skip to main content</a>
   </div>
   {% block header %}
-  <header id="site-header">
+  <header id="site-header" data-role="header">
     <div class="row">
       <div class="col col-2-out-of-2 col-4-out-of-4 col-6-out-of-6 header-user-tools">
         <a href="{% url "front" %}" id="logo"><img src="{% static 'img/logo.png' %}" alt="CHEM21"></a>
@@ -71,7 +73,7 @@
     </div>
   </header>
   {% endblock %}
-    <div id="site-content">
+    <div id="site-content" data-role="page">
     <div class="row">
   {% block content %}
      

@@ -1,6 +1,7 @@
 {% extends 'chem21/base_inner.html' %}
 {% load tokens %}
 {% load quiz %}
+{% load responsive %}
 {% load video %}
 {% load admin_urls %}
 {% load static from staticfiles %}
@@ -108,7 +109,7 @@
 		{% endblock progress_title %}
 	{% endif %}
 	{% if tokens_replaced %}
-		{{ tokens_replaced|safe }}
+		{{ tokens_replaced|responsivise|safe }}
 	{% endif %}
 	{% block post_text %}
 	{% if not object.get_text and object.video %}

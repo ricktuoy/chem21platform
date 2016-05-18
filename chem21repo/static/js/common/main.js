@@ -1,4 +1,4 @@
-define(["jquery","jquery.colorbox","flow_chart","quiz","jquery.throttle-debounce"], function($) {
+define(["jquery","jquery.mobile","jquery.colorbox","flow_chart","quiz","jquery.throttle-debounce"], function($) {
     $(function() {
         /*
         $("#class_nav").listPositionFix();
@@ -8,6 +8,8 @@ define(["jquery","jquery.colorbox","flow_chart","quiz","jquery.throttle-debounce
 
         $(window).resize($.debounce(15, resize_callback));
         */
+        console.log($.mobile === undefined && 'undefined!');
+        console.log($.mobile);
         $("aside figure a, figure.inline a").not($(".admin_tools a")).colorbox({
         	scalePhotos: true,
         	maxWidth: "95%",

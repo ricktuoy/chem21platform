@@ -65,6 +65,7 @@
      */
     skipDirOptimize: true,
     paths: {
+        "jquery.mobile": "jquery.mobile/jquery.mobile-1.4.5",
         "quiz": "../quiz",
         "file_listing": "../file_listing",
         "list_fix": "../list-fix",
