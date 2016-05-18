@@ -47,7 +47,7 @@
     <a href="#main-content" class="element-invisible element-focusable">Skip to main content</a>
   </div>
   {% block header %}
-  <header id="site-header" data-role="header">
+  <header id="site-header">
     <div class="row">
       <div class="col col-2-out-of-2 col-4-out-of-4 col-6-out-of-6 header-user-tools">
         <a href="{% url "front" %}" id="logo"><img src="{% static 'img/logo.png' %}" alt="CHEM21"></a>
@@ -73,7 +73,7 @@
     </div>
   </header>
   {% endblock %}
-    <div id="site-content" data-role="page">
+    <div id="site-content">
     <div class="row">
   {% block content %}
      
