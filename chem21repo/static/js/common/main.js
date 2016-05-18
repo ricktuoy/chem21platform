@@ -1,4 +1,4 @@
-define(["jquery","jquery.mobile","jquery.colorbox","flow_chart","quiz","jquery.throttle-debounce"], function($) {
+define(["jquery","jquery.mobile.config","jquery.mobile","jquery.colorbox","flow_chart","quiz","jquery.throttle-debounce"], function($) {
     $(function() {
         /*
         $("#class_nav").listPositionFix();

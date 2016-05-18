@@ -8,7 +8,8 @@ requirejs.config({
     "shim": {
         'jquery.colorbox': ['jquery'],
         'jquery.throttle-debounce': ['jquery'],
-        'jquery.mobile': ['jquery']
+        "jquery.mobile.config": ["jquery"],
+        'jquery.mobile': ['jquery','jquery.mobile.config']
     }
 });
 // Load the main app module to start the app
