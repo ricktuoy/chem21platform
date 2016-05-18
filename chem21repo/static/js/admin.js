@@ -3,8 +3,8 @@ $(document).ready(function() {
 		var from_url = $(this).data("fromUrlEdit");
 		var return_on_save = {url: window.location.pathname, fromUrl:from_url};
     	$.cookie("admin_save_redirect", JSON.stringify(return_on_save), { path: '/' });
-    	window.location = url;
-    	return false;
+    	//window.location = url;
+    	//return false;
 	});
 	$("a.embed").gdocsViewer({width: "100%", height: 500});
 	$("a.embed").hide();
