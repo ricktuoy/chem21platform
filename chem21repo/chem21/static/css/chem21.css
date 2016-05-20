@@ -78,6 +78,46 @@ body.front #site-header .mobile-link-icon {
 	display: none;
 }
 
+.ui-btn {
+	font-family: inherit;
+	font-weight: inherit;
+}
+
+legend {
+	text-shadow: none;
+}
+
+
+.ui-page-theme-a a {
+	font-weight: inherit;
+}
+
+.ui-page-theme-a {
+	text-shadow: none;
+}
+
+.marked_choices .ui-state-disabled {
+	opacity: 0.7;
+}
+
+.marked_choices fieldset.ui-controlgroup {
+	margin-top: 1.5em;
+}
+
+.marked_choices fieldset legend {
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+.marked_choices fieldset.all_incorrect legend {
+	background-color: #900;
+}
+
+.marked_choices .ui-controlgroup-label {
+	margin-top: 0;
+}
+
+.marked_choices fieldset.all_
 
 /************* Slide images ****************/
 
@@ -442,8 +482,8 @@ body.front #content .content .cobranding {
 	font-weight: bold;
 	color: #555;
 }
-#class_nav a {
-	color: #151;
+#class_nav a, #breadcrumb a, #site-content a {
+	color: #181;
 }
 
 
@@ -700,8 +740,8 @@ body.front #content .content .cobranding {
 	font-size: 1.1em;
 }
 
-.quiz_questions .controls a,
-.quiz_questions a.submit,
+#site-content .quiz_questions .controls a,
+#site-content .quiz_questions a.submit,
 #end-nav a {
 	background-color: #ffef33;
 	padding: 1%;
@@ -714,8 +754,8 @@ body.front #content .content .cobranding {
 	
 }
 
-.quiz_questions .controls a:hover,
-.quiz_questions a.submit:hover,
+#site-content .quiz_questions .controls a:hover,
+#site-content .quiz_questions a.submit:hover,
 #end-nav a:hover  {
 	background-color: #ffef99;
 
@@ -724,7 +764,7 @@ body.front #content .content .cobranding {
 
 
 
-.quiz_questions .controls .previous,
+#site-content .quiz_questions .controls a.previous,
 #end-nav a.prev {
 	width: 40%;
 	margin: 0;
@@ -734,16 +774,16 @@ body.front #content .content .cobranding {
 }
 
 
-.quiz_questions .controls a.previous:hover,
+#site-content .quiz_questions .controls a.previous:hover,
 #end-nav a.prev:hover {
 	background-color: #888;
 }
 
 #content .quiz_questions p.quiz_total {
-	font-size: 2.4em;
+	font-size: 2em;
 	margin-bottom: 1em;
-	border: 1px solid #0c0;
-	padding: 0.6em;
+	border-bottom: 1px solid #ddd;
+	padding: 0.3em;
 }
 
 .quiz_questions .question .controls .skip, 
@@ -791,17 +831,18 @@ body.front #content .content .cobranding {
 	background-color: #e0e0e0;
 }
 
-.quiz_questions .question.marked ul li.choice.incorrect.chosen {
-	border-left: 3px solid #c00;
+.quiz_questions .question label {
+	font-weight: normal;
+}
 
+.quiz_questions .marked_choices .all_incorrect .chosen label {
 	background-image: url("../img/incorrect.png");
 	background-repeat: no-repeat;
 	background-position: right;
 	background-origin: content-box;
 }
 
-.quiz_questions .question.marked ul li.choice.correct.chosen {
-	border-left: 3px solid #0c0;
+.quiz_questions .marked_choices .all_correct .chosen label {
 	background-image: url("../img/correct.png");
 	background-repeat: no-repeat;
 	background-position: right;
@@ -828,13 +869,14 @@ body.front #content .content .cobranding {
 	margin-bottom: 0;
 }
 
-#content .quiz_questions .question p.help {
-	font-size: 0.8em;
+#content .quiz_questions .question legend.help {
+	font-size: 0.9em;
 	font-style: italic;
 	background-color: #e9e9e9;
 	padding: 0.3em;
 	margin-top: 0;
 	border-left: 4px solid #ddd;
+	color: #333;
 }
 
 .quiz_questions .question .final_score {
@@ -1167,6 +1209,7 @@ body.front #site-content {
 	margin-top: 95px;
 }
 
+	#site-content .quiz_questions .controls a.previous,
 	#end-nav a.prev {
 		width: 20%;
 	}

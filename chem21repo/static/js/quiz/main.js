@@ -1,7 +1,46 @@
 define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"], function($) {
     $(function() {
         $.fn.reduce = [].reduce;
+        $.fn._quiz_choice_class = function() {
+            if(!this.length) {
+                return false;
+            }
+            var tp = this.data("type");
+            var cls = false;
+            switch(tp) {
+                case "single":
+                    cls = ".ui-radio"
+                    break;
+                case "multi":
+                    cls = ".ui-checkbox"
+                    break;
+            }
+            return cls;
+        };
 
+        $.fn.quiz_find_choices = function() {
+            var cls = this._quiz_choice_class();
+            if(!cls)  {
+                return $();
+            }
+            return this.find(cls);
+        };
+
+        $.fn.quiz_closest_choice = function() {
+            var cls = this._quiz_choice_class();
+            if(!cls) {
+                return $();
+            }
+            return this.closest(cls);
+        };
+
+        $.fn.quiz_get_choice = function(id) {
+            var cls = this._quiz_choice_class();
+            if(!cls) {
+                return $();
+            }
+            return this.find(cls).has("input[data-id=\""+id+"\"]");
+        };
         $(".quiz_questions .question").each(function() {
             $(this).addClass($(this).data("type"));
         });
@@ -18,71 +57,14 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             $("#quiz_progress nav, #end-nav").hide();
         }
 
-        $(".quiz_questions .choice").each(function() {
-            var $q = $(this).closest(".question");
-            if($q.hasClass("single")) {
-                var itype = "radio";
-            } else {
-                var itype = "checkbox";
-            }
-
-            $(this).prepend($("<input type=\""+itype+"\" name="+$q.data("id") + " value=\""+$(this).data("id")+"\" />"));
-        });
-
-        $(".quiz_questions").on("responseAdd", ".question", function(e, source) {
-            if($(this).closest(".quiz_questions").hasClass("marked")) {
-                return true;
-            }
-            var d = $(this).data("response");
-            var id = source.data("id");
-            if(typeof(d)=="undefined") {
-                d = {};
-            }
-            if(!(id in d)) {
-                d[id] = true;
-                $(this).data("response", d);
-            }
-            $(this).trigger("refreshResponses");
-        });
-
-        $(".quiz_questions").on("responseRemove", ".question", function(e, source) {
-            if($(this).closest(".quiz_questions").hasClass("marked")) {
-                return true;
-            }
-            var d = $(this).data("response");
-            var id = source.data("id");
-            delete d[id];
-            $(this).data("response", d);
-            $(this).trigger("refreshResponses");
-        });
-
-        $(".quiz_questions").on("refreshResponses", ".question", function() {
-            var d = $(this).data("response");
-            var choices = $(this).find(".choice");
-            choices.addClass("unchosen");
-            choices.removeClass("chosen");
-            choices.each(function() {
-                if($(this).data("id") in d) {
-                    $(this).addClass("chosen");
-                    $(this).removeClass("unchosen");
-                }
-            });
-
-            console.log($(this).data("id"));
-            console.log($("input[name="+$(this).data("id")+"]"));
-            console.log(d);
-            var keys = []
-            for (var key in d) {
-                keys.push(key);
-            }
-            $("input[name="+$(this).data("id")+"]").val(keys);
-            
-            if($(this).hasClass("marked")) {
+        $(".quiz_questions").on("change", ".question input", function() {
+            var $question = $(this).closest(".question");
+            if($question.hasClass("marked")) {
 
             } else {
-                var num_chosen = Object.keys(d).length;
-                var $skip_c = $(this).find(".controls a.skip");
-                var $next_c = $(this).find(".controls a.next");
+                var num_chosen = $question.quiz_find_choices().has("input:checked").length;
+                var $skip_c = $question.find(".controls a.skip");
+                var $next_c = $question.find(".controls a.next");
                 if(num_chosen > 0 && $skip_c.length) {
                     $skip_c.removeClass("skip");
                     $skip_c.addClass("next");
@@ -116,23 +98,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             $(this).find(".question").hide();
             dest.show();
         });
-
-        $(".quiz_questions").on("click", ".question.marked .choice", function(e) {
-            e.stopImmediatePropagation();
-        });
-
-        $(".quiz_questions").on("click", ".question[data-type=\"single\"] .choice", function() {
-            $(this).closest(".question").trigger("responseClear"); 
-        });
-
-        $(".quiz_questions").on("click", ".question .choice", function() {
-            if($(this).hasClass("chosen")) {
-                $(this).closest(".question").trigger("responseRemove", [$(this)] );
-            } else {
-                $(this).closest(".question").trigger("responseAdd", [$(this)] );
-            }
-        });
-
+        
         $(".quiz_questions").on("click", ".question .controls a.skip", function() {
             var $skip = $(this);
             $(this).closest(".question").data("skipped", true);
@@ -161,41 +127,40 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             }
             var $quiz = $(this).closest(".quiz_questions");
             var $q = $(this);
+
             var processor = function(question) {
                 if($q.data("skipped")) {
-                    $q.find("choice").removeClass("unchosen").removeClass("chosen").addClass("skipped");
+                    $q.quiz_find_choices().removeClass("unchosen").removeClass("chosen").addClass("skipped");
                 }
                 var answer_texts = [];
                 var $title = $("h3", $q).first();
                 
                 $.each(question.correct, function(i, rId) {
-                    var $c = $q.find(".choice[data-id=\""+rId+"\"]");
+                    var $c = $q.quiz_get_choice(rId);
                     $c.addClass("correct");
                 });
-
-                $q.find(".choice input").prop("disabled", true);
-                var $chosen = $q.find(".choice.chosen");
-                var $correct = $q.find(".choice.correct").detach();
-                var $incorrect = $q.find(".choice").detach();
-                console.debug($chosen);
-
-
+                var $choices = $q.quiz_find_choices();
+                $choices.find("input").prop("disabled", true)
+                var $chosen = $choices.has("input:checked");
+                $chosen.addClass("chosen");
+                var $correct = $choices.filter(".correct").detach();
+                var $incorrect = $choices.not(".correct").detach();
+                
                 $chosen.not($correct).addClass("incorrect");
 
                 var $controls = $q.find(".controls");
-
-
+                $controls.before($("<div class=\"marked_choices\"></div>"));
+                var $marked_choices = $q.find(".marked_choices");
                 if($correct.length) {
-                    $controls.before($("<p>Correct responses:</p><ul class=\"all_correct\"></ul>"));
-                    $correct.appendTo($q.find("ul.all_correct"));
+                    var $correct_choice_container = $("<fieldset class=\"all_correct\" data-role=\"controlgroup\"><legend>Correct responses</legend></fieldset>")
+                    $correct_choice_container.appendTo($marked_choices).append($correct);
                 }
-
                 if($incorrect.length) {
-                    $controls.before($("<p>Incorrect responses:</p><ul class=\"all_incorrect\"></ul>"));
-                    $incorrect.appendTo($q.find("ul.all_incorrect"));
+                    var $incorrect_choice_container = $("<fieldset class=\"all_incorrect\" data-role=\"controlgroup\"><legend>Incorrect responses</legend></fieldset>");
+                    $incorrect_choice_container.appendTo($marked_choices).append($incorrect);
                 }
+                $marked_choices.enhanceWithin();
 
- 
                 var $question_score = $q.find(".final_score");
                 
                 var percentage_score = 0;
@@ -210,11 +175,8 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
 
                     case 'multi':
                         // actual percentage
-                        var num_choices = $q.find(".choice").length;
-                        console.debug($q.find(".choice"));
-                        var num_good = $chosen.filter(".correct").length + $incorrect.not(".chosen").length;
-                        console.debug($chosen);
-                        console.debug($incorrect.not(".chosen"));
+                        var num_choices = $choices.length;
+                        var num_good = $chosen.filter(".correct").length + $incorrect.not($chosen).length;
                         percentage_score = Math.round((num_good  / num_choices) * 100 );
                         break;
                 }
@@ -249,9 +211,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     var $discussion = $("<div class=\"discussion\" />");
                     $discussion.html(question.discussion);
                     $question_score.after($discussion);
-                    // $controls.detach().insertAfter($discussion);
                 } else {
-                    // $controls.detach().insertAfter($question_score);
                 }
 
                 $q.addClass("marked");

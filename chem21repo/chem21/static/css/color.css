@@ -208,11 +208,11 @@ legend {
     background: #4da14f;
 }
 
-a {
-    color: #3e7342;
+a, .ui-page-theme-a a {
+    color: #3ebb42;
 }
 
-a:hover {
+a:hover, .ui-page-theme-a a:hover {
     color: #4da14f;
 }
 

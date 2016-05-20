@@ -97,7 +97,7 @@ class ChoiceQuestionRender(QuestionRender):
 
     def render_help_text(self):
         if self.help_text:
-            return "<p class=\"help\">%s</p>" % self.help_text
+            return "<legend class=\"help\">%s</legend>" % self.help_text
         else:
             return ""
 
@@ -105,13 +105,12 @@ class ChoiceQuestionRender(QuestionRender):
         return "<p class=\"final_score\"></p>"
 
     def render(self):
-        return "<div class=\"question\" id=\"question_%s\"" % self.id + \
-            "data-id=\"%s\" data-type=\"%s\">\n" % (
-                self.id, self.question_type) + \
-            self.render_question_text() + \
+        return "<div data-enhance=\"true\" class=\"question ui-field-contain\" id=\"question_%s\" " % self.id + \
+            "data-id=\"%s\" data-type=\"%s\">%s%s<fieldset data-role=\"controlgroup\">\n" % (
+                self.id, self.question_type, self.render_question_text(), self.render_score()) + \
             self.render_help_text() + \
-            self.render_score() + \
             self.render_choices() + \
+            "</fieldset>" + \
             self.render_navigation() + \
             self.render_submit() + \
             "<div class=\"clear\">&nbsp;</div>" + \
@@ -140,22 +139,22 @@ class DragChoiceQuestionRender(ChoiceQuestionRender):
 
 class TextChoiceQuestionRender(ChoiceQuestionRender):
     def render_choice(self, choice):
-        return "<li data-id=\"%s\" class=\"choice\">%s</li>" % (
-            choice['id'], choice['text']
+        ref = "q%sr%s" % (self.id, choice['id'])
+        return "<input type=\"%s\" data-id=\"%s\" name=\"%s\" id=\"%s\" class=\"choice\"><label for=\"%s\">%s</label>" % (
+            self.widget_type, choice['id'], ref, ref, ref, choice['text']
         )
 
     def render_choices(self):
-        return "<ul>\n" + \
-            super(TextChoiceQuestionRender, self).render_choices() + \
-            "</ul>\n"
+        return super(TextChoiceQuestionRender, self).render_choices() +"\n"
 
 
 class MultiChoiceQuestionRender(TextChoiceQuestionRender):
     help_text = "Select all that apply"
+    widget_type = "checkbox"
 
 
 class SingleChoiceQuestionRender(TextChoiceQuestionRender):
-    pass
+    widget_type = "radio"
 
 
 QuestionRenderDispatch = {
