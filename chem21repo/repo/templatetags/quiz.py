@@ -141,7 +141,7 @@ class TextChoiceQuestionRender(ChoiceQuestionRender):
     def render_choice(self, choice):
         ref = "q%sr%s" % (self.id, choice['id'])
         return "<input type=\"%s\" data-id=\"%s\" name=\"%s\" id=\"%s\" class=\"choice\"><label for=\"%s\">%s</label>" % (
-            self.widget_type, choice['id'], ref, ref, ref, choice['text']
+            self.widget_type, choice['id'], self.id, ref, ref, choice['text']
         )
 
     def render_choices(self):
