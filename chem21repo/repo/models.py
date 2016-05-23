@@ -1123,6 +1123,7 @@ class UniqueFile(OrderedModel, DrupalModel):
     authors = models.ManyToManyField(Author, blank=True)
     description = mceModels.HTMLField(null=True, blank=True, default="")
     molecule = models.ForeignKey(Molecule, null=True, related_name='related_files')
+    youtube_id = models.CharField(max_length=50, null=True, blank=True)
 
 
     def __unicode__(self):
@@ -1136,14 +1137,23 @@ class UniqueFile(OrderedModel, DrupalModel):
     @property
     def render_type(self):
         if self.type == "video":
-            return "html5"
+            if self.youtube_id:
+                return "youtube"
+            else:
+                return "html5"
+        return None
 
     @property
     def render_args(self):
         if self.type == "video":
-            return {'url':self.url, 
+            ctx = {'url':self.url, 
                     'byline': self.author_string ,
                     'description': self.description.replace("<p>","").replace("</p>","")}
+            if self.render_type=="youtube":
+                ctx['remote_id'] = self.youtube_id
+                ctx['remote_url'] = "https://www.youtube.com/watch?v=%s" % self.youtube_id
+            return ctx
+        return None
     
 
     @property
