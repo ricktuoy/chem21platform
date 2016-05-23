@@ -8,15 +8,17 @@ define(["jquery","jquery.mobile.config","jquery.mobile","jquery.colorbox","flow_
 
         $(window).resize($.debounce(15, resize_callback));
         */
-        console.log($.mobile === undefined && 'undefined!');
-        console.log($.mobile);
-        $("aside figure a, figure.inline a").not($(".admin_tools a")).colorbox({
+
+        $("aside figure a, figure.inline a").not($(".admin_tools a, .youtube a")).colorbox({
         	scalePhotos: true,
         	maxWidth: "95%",
         	maxHeight: "100%",
             onComplete: function() {
                 $(this).colorbox.resize();
             }
+        });
+        $("aside figure.youtube a, figure.inline.youtube a").not($(".admin_tools a")).colorbox({
+            iframe:true, innerWidth:640, innerHeight:390
         });
     });
 });
