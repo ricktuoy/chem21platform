@@ -4,7 +4,7 @@
 // except 'app' ones, 
 requirejs.config({
     "baseUrl": "/static/js/lib",
-    "urlArgs": "bust=008",
+    "urlArgs": "bust=009",
     "shim": {
         'jquery.colorbox': ['jquery'],
         'jquery.throttle-debounce': ['jquery'],
