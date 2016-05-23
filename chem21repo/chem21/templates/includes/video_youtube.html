@@ -1,0 +1,18 @@
+<figure class="presentation" data-remote-id="{{ remote_id}}" class="youtube">
+<a href="{{ remote_url }}" title="{{ title }}">
+<img class="thumbnail" src="http://i1.ytimg.com/vi/{{ remote_id }}/mqdefault.jpg" />
+</a>
+<figcaption class="overlay">
+	Presentation by <span class="byline">{{ byline }}</span></figcaption>
+</figcaption>
+{% if description %}
+<figcaption class="description">
+{{ description|safe }}
+</figcaption>
+{% endif %}
+{% if tools %}
+<figcaption class="admin_tools">
+<a class="download" href="{{ url }}" download> Download</a> | <a class="replace" href="#">Replace</a>
+</figcaption>
+{% endif %}
+</figure>
