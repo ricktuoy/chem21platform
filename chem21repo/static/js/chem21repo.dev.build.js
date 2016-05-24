@@ -77,6 +77,7 @@
         "front_admin": "../front-admin",
         "select_bibliotag": "../../tiny_mce/plugins/bibliotag/js/select_bibliotag",
         "select_figuretag": "../../tiny_mce/plugins/figuretag/js/select_figuretag",
-        "select_linktag": "../../tiny_mce/plugins/linktag/js/select_linktag"
+        "select_linktag": "../../tiny_mce/plugins/linktag/js/select_linktag",
+        "uri_js": "uri.js/src"
     },
 })

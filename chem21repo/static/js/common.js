@@ -9,7 +9,8 @@ requirejs.config({
         'jquery.colorbox': ['jquery'],
         'jquery.throttle-debounce': ['jquery'],
         "jquery.mobile.config": ["jquery"],
-        'jquery.mobile': ['jquery','jquery.mobile.config']
+        'jquery.mobile': ['jquery','jquery.mobile.config'],
+        "uri_js/jquery.URI": ['jquery', 'URI']
     }
 });
 // Load the main app module to start the app

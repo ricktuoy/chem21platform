@@ -8,12 +8,15 @@ $(document).ready(function() {
 	});
 	$("a.embed").gdocsViewer({width: "100%", height: 500});
 	$("a.embed").hide();
+	
 	function get_topic_panel(topic) {
 		return $(".topic[data-topic=\""+topic+"\"]", "body.front");
 	}
+
 	function get_topic_menu_item(topic) {
 		return $("#front-menu li[data-topic=\""+topic+"\"]", "body.front");
 	}
+
 	function show_topic_menu(topic_el) {
 		$("#front-menu li", "body.front").each(function() {
 			$(this).removeClass("hover");

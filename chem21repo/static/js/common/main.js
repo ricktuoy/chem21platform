@@ -1,4 +1,4 @@
-define(["jquery","jquery.mobile.config","jquery.mobile","jquery.colorbox","flow_chart","quiz","jquery.throttle-debounce"], function($) {
+define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jquery.colorbox","flow_chart","quiz","jquery.throttle-debounce"], function($) {
     $(function() {
         /*
         $("#class_nav").listPositionFix();
@@ -17,8 +17,30 @@ define(["jquery","jquery.mobile.config","jquery.mobile","jquery.colorbox","flow_
                 $(this).colorbox.resize();
             }
         });
-        $("aside figure.youtube a, figure.inline.youtube a").not($(".admin_tools a")).colorbox({
-            iframe:true, innerWidth:640, innerHeight:390
+        $("aside figure.youtube a, figure.inline.youtube a").not($(".admin_tools a"))
+            .on("click", function() {
+                var ww = $(window).width();
+                var vq = "";
+                if(ww>1200) {
+                    vq = "hd1080";
+                } else if (ww>1000) {
+                    vq = "hd720";
+                } else if (ww>800) {
+                    vq = "large";
+                } else if (ww>600) {
+                    vq = "medium";
+                } else {
+                    vq = "small";
+                }
+                $(this).uri().setSearch("vq", vq);
+
+                $.colorbox({
+                    iframe:true, 
+                    innerWidth:"90%", 
+                    innerHeight:"90%", 
+                    href: $(this).attr("href")
+                });
+                return false;
         });
     });
 });
