@@ -884,6 +884,7 @@ class GoogleServiceMixin(object):
             pass
         self._flow = Flow(settings.GOOGLE_OAUTH2_KEY, settings.GOOGLE_OAUTH2_SECRET, 
             scope=self.get_google_scope(),
+            approval_prompt="force",
             redirect_uri=self.request.build_absolute_uri(reverse("google-service-oauth2-return")))
         return self._flow
 
@@ -982,6 +983,7 @@ class GoogleServiceOAuth2ReturnView(GoogleServiceMixin, View):
         credential = self.flow.step2_exchange(request.REQUEST)
         storage = Storage(CredentialsModel, 'id', request.user, 'credential')
         storage.put(credential)
+
         return HttpResponseRedirect(request.session.get(self.return_path_session_key,"/"))
 
 
