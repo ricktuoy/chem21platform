@@ -1,4 +1,5 @@
 BeautifulSoup==3.2.1
+beautifulsoup4==4.4.1
 boto==2.38.0
 dj-database-url==0.3.0
 dj-static==0.0.6
@@ -15,16 +16,20 @@ django-revproxy==0.9.10
 -e git+https://github.com/ricktaylord/django-static-generator.git@8ac91e1a73456b5927186983051c12fcf2c01539#egg=django_staticgenerator-master
 -e hg+https://ricktaylord@bitbucket.org/david/django-storages@f153a70ba254dc129d9403546809a02256ef75b5#egg=django_storages-dev
 django-tinymce==2.2.0
--e git+https://github.com/ricktaylord/django-tinymce-biblio.git#egg=django_tinymce_biblio
--e git+https://github.com/ricktaylord/django-tinymce-figures.git#egg=django_tinymce_figuretag
--e git+https://github.com/ricktaylord/django-tinymce-links.git#egg=django_tinymce_links
+-e git+https://github.com/ricktaylord/django-tinymce-biblio.git@6afd67a579e2d0cf2bcb9fa140c3b13b5d8ed17d#egg=django_tinymce_biblio-master
+-e git+https://github.com/ricktaylord/django-tinymce-figures.git@7b5d20492700a6564286c91a703133196d3f1925#egg=django_tinymce_figuretag-master
+-e git+https://github.com/ricktaylord/django-tinymce-links.git@d020c3267b7e70b7284fb50dd9b6d543cfd2edac#egg=django_tinymce_links-master
 django-toolbelt==0.0.1
+google-api-python-client==1.5.1
 gunicorn==19.3.0
 html2text==2016.1.8
 httplib2==0.9.2
+oauth2client==2.1.0
 oauthlib==1.0.3
 Pillow==3.0.0
 psycopg2==2.6.1
+pyasn1==0.1.9
+pyasn1-modules==0.0.8
 PyJWT==1.4.0
 python-magic==0.4.11
 python-openid==2.2.5
@@ -33,10 +38,13 @@ pytz==2015.4
 -e git+https://github.com/bernii/querystring-parser.git@6bd45faa359516c19fdd76c4396c160f0ee67da6#egg=querystring_parser-master
 requests==2.8.1
 requests-oauthlib==0.6.0
+rsa==3.4.2
 sh==1.11
+simplejson==3.8.2
 six==1.10.0
 sqlparse==0.1.18
 static3==0.6.1
+uritemplate==0.6
 urllib3==1.10.1
 waitress==0.8.9
 wheel==0.24.0
