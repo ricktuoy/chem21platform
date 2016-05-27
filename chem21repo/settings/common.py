@@ -34,6 +34,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'chem21repo.middleware.C21ReturnURIMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -139,10 +140,9 @@ AUTHENTICATION_BACKENDS = (
     'social.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend'
 )
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get(
+GOOGLE_OAUTH2_KEY = SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get(
     "SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", "")
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get(
+GOOGLE_OAUTH2_SECRET = SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get(
     "SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", "")
 
 LOGIN_URL = '/login/google-oauth2/'

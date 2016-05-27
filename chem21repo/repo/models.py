@@ -28,7 +28,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes import generic
 from StringIO import StringIO
+from django.contrib.auth.models import User
+from oauth2client.contrib.django_orm import CredentialsField
 
+class CredentialsModel(models.Model):
+  id = models.ForeignKey(User, primary_key=True)
+  credential = CredentialsField()
 
 class Biblio(models.Model):
     citekey = models.CharField(max_length=300, unique=True)
@@ -482,6 +487,11 @@ class DrupalModel(models.Model):
     @property
     def new_children(self):
         return self.children.filter(remote_id__isnull=True)
+
+    @property
+    def learning_object_type(self):
+        return type(self).__name__.lower()
+    
 
     def __init__(self, *args, **kwargs):
         r = super(DrupalModel, self).__init__(*args, **kwargs)

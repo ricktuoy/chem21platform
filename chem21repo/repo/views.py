@@ -4,6 +4,12 @@ import os
 import json
 import hashlib
 import mimetypes
+import httplib2
+import httplib
+
+from apiclient.discovery import build
+from apiclient.errors import HttpError as GoogleHttpError
+from apiclient.http import MediaIoBaseUpload as GoogleMediaIoBaseUpload
 
 from .models import Lesson
 from .models import Module
@@ -13,19 +19,24 @@ from .models import UniqueFile
 from .models import UniqueFilesofModule
 from .models import TextVersion
 from .models import Molecule
+from .models import CredentialsModel
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
+from bs4 import BeautifulSoup
+from django.core.files.storage import DefaultStorage
 from django.core.files.storage import default_storage
 from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Prefetch
-from django.http import Http404, HttpResponseBadRequest, HttpResponseServerError
+from django.http import Http404, HttpResponseBadRequest, HttpResponseServerError, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import View
 from django.views.generic import DetailView
 from django.views.generic import TemplateView
 from django.views.generic import ListView
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from querystring_parser import parser
 from chem21repo.api_clients import RESTError, RESTAuthError, C21RESTRequests
@@ -34,6 +45,12 @@ from revproxy.views import ProxyView
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
+from oauth2client.contrib.django_orm import Storage
+from oauth2client.client import OAuth2WebServerFlow as Flow
+from oauth2client.contrib import xsrfutil
+
+
+
 import magic
 # Create your views here.
 
@@ -610,6 +627,8 @@ class MolUploadHandle(object):
                 pass
         return JSONFileObjectWrapper(name = name, url=mol.mol_def)
 
+
+
 class JSONFileObjectWrapper(object):
     def __init__(self, name, url):
         self.name = name
@@ -668,6 +687,7 @@ class MediaUploadView(JQueryFileHandleView):
     def post(self, request, *args, **kwargs):
         self.urlkwargs = kwargs
         kwargs.update(self.get_post_dict_from_request(request))
+
 
         return super(MediaUploadView, self).post(request, *args, **kwargs)
             
@@ -782,14 +802,10 @@ class MoleculeListView(LoginRequiredMixin, JSONView):
     def get_context_data(self, **kwargs):
         return [{'pk':m.pk, 'name':unicode(m), 'mol':m.mol_def} for m in Molecule.objects.all()]
 
-class MoleculeAttachView(LoginRequiredMixin, View):
-    @staticmethod
-    def error_response(e=""):
-        return JsonResponse({'error': e}, status=500)
-    def post(self, *args, **kwargs):
+class LearningObjectRelationMixin(object):
+    def get_learning_object(self, *args, **kwargs):
         t = kwargs['type']
         tpk = kwargs['tpk']
-        mpk = kwargs['mpk']
         try:
             model = ContentType.objects.get(
                 app_label="repo",
@@ -800,6 +816,17 @@ class MoleculeAttachView(LoginRequiredMixin, View):
             inst = model.objects.get(pk=tpk)
         except model.DoesNotExist:
             return self.error_response("Object %s with id %d not found" % (t, tpk))
+        return inst
+
+
+
+class MoleculeAttachView(LoginRequiredMixin, LearningObjectRelationMixin, View):
+    @staticmethod
+    def error_response(e=""):
+        return JsonResponse({'error': e}, status=500)
+    def post(self, *args, **kwargs):
+        mpk = kwargs['mpk']
+        inst = self.get_learning_object(*args, **kwargs)
         try:
             molinst = Molecule.objects.get(pk=mpk)
         except Molecule.DoesNotExist:
@@ -828,6 +855,229 @@ class FileLinkGetView(LoginRequiredMixin, JSONView):
         kwargs['safe'] = False
         return super(FileLinkGetView, self).render_to_response(
             *args, **kwargs)
+
+class GoogleOAuth2RedirectRequired(Exception):
+    def __init__(self, url):
+        self.url = url
+    def __str__(self):
+        return self.url
+
+class GoogleUploadError(Exception):
+    pass
+
+class GoogleServiceMixin(object):
+    # Always retry when these exceptions are raised.
+    RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
+      httplib.IncompleteRead, httplib.ImproperConnectionState,
+      httplib.CannotSendRequest, httplib.CannotSendHeader,
+      httplib.ResponseNotReady, httplib.BadStatusLine)
+
+    # Always retry when an apiclient.errors.HttpError with one of these status
+    # codes is raised.
+    RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
+    MAX_RETRIES = 10
+    @property
+    def flow(self):
+        try:
+            return self._flow
+        except AttributeError:
+            pass
+        self._flow = Flow(settings.GOOGLE_OAUTH2_KEY, settings.GOOGLE_OAUTH2_SECRET, 
+            scope=self.get_google_scope(),
+            redirect_uri=self.request.build_absolute_uri(reverse("google-service-oauth2-return")))
+        return self._flow
+
+    def get_google_scope(self):
+        try:
+            return self.request.session["google_service_scope"]
+        except KeyError:
+            self.request.session["google_service_scope"] = self.google_scope
+            return self.google_scope
+
+
+    @property
+    def storage(self):
+        try:
+            return self._storage
+        except AttributeError:
+            pass
+        self._storage = Storage(CredentialsModel, 'id', self.request.user.pk, 'credential')
+        return self._storage
+
+    @property
+    def credential(self):
+        try:
+            return self._credential
+        except AttributeError:
+            pass
+        self._credential = self.storage.get()
+        return self._credential
+
+    @property
+    def return_path_session_key(self):
+        return "google_oauth_return_path"
+    
+
+    def get_service(self, request):
+        self.request = request
+        try:
+            return self._service
+        except AttributeError:
+            pass
+        if self.credential is None or self.credential.invalid == True:    
+            self.flow.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
+                                                       self.request.user)
+            self.request.session[self.return_path_session_key] = self.request.path
+            authorize_url = self.flow.step1_get_authorize_url()
+            raise GoogleOAuth2RedirectRequired(authorize_url)
+        else:
+            http = httplib2.Http()
+            http = self.credential.authorize(http)
+            return build(self.google_service_name, self.google_api_version, http=http)
+
+    # This method implements an exponential backoff strategy to resume a
+    # failed upload.
+    # from https://developers.google.com/youtube/v3/guides/uploading_a_video#Sample_Code
+    def resumable_upload(self, insert_request):
+
+      httplib2.RETRIES = 1
+      response = None
+      error = None
+      retry = 0
+      while response is None:
+        try:
+          status, response = insert_request.next_chunk()
+          if 'id' in response:
+            return response
+          else:
+            raise GoogleUploadError("The upload failed with an unexpected response: %s" % response)
+        except GoogleHttpError, e:
+          if e.resp.status in self.RETRIABLE_STATUS_CODES:
+            error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
+                                                                 e.content)
+          else:
+            raise
+        except self.RETRIABLE_EXCEPTIONS, e:
+          error = "A retriable error occurred: %s" % e
+
+        if error is not None:
+          retry += 1
+          if retry > self.MAX_RETRIES:
+            raise GoogleUploadError("The upload failed after %d attempts: %s" % (self.MAX_RETRIES, response))
+
+          max_sleep = 2 ** retry
+          sleep_seconds = random.random() * max_sleep
+          time.sleep(sleep_seconds)
+
+class YouTubeServiceMixin(GoogleServiceMixin):
+    google_scope = "https://www.googleapis.com/auth/youtube.upload"
+    google_service_name = "youtube"
+    google_api_version = "v3"
+
+class GoogleServiceOAuth2ReturnView(GoogleServiceMixin, View):
+    def get(self, request, *args, **kwargs):
+        if not xsrfutil.validate_token(settings.SECRET_KEY, str(request.REQUEST['state']),
+                                 request.user):
+            return  HttpResponseBadRequest("ERROR: XSRF fail. %s %s %s" % (str(request.REQUEST['state']), settings.SECRET_KEY, request.user))
+        credential = self.flow.step2_exchange(request.REQUEST)
+        storage = Storage(CredentialsModel, 'id', request.user, 'credential')
+        storage.put(credential)
+        return HttpResponseRedirect(request.session.get(self.return_path_session_key,"/"))
+
+
+class PushVideoToYouTubeView(LoginRequiredMixin, 
+                         YouTubeServiceMixin, 
+                         LearningObjectRelationMixin, 
+                         View):
+    @staticmethod
+    def error_response(e=""):
+        return JsonResponse({'error': e}, status=500)
+   
+    # from https://developers.google.com/youtube/v3/guides/uploading_a_video#Sample_Code
+    def initialize_upload(self, youtube, fh, **options):
+
+      try:
+        tags = options['keywords'].split(",")
+      except KeyError:
+        try:
+            tags = options['tags']
+        except KeyError:
+            tags = None
+
+      body=dict(
+        snippet=dict(
+          title=options['title'],
+          description=options['description'],
+          tags=tags,
+          categoryId=options['categoryId']
+        ),
+        status=dict(
+          privacyStatus=options['privacyStatus']
+        )
+      )
+
+      # Call the API's videos.insert method to create and upload the video.
+      insert_request = youtube.videos().insert(
+        part=",".join(body.keys()),
+        body=body,
+        # The chunksize parameter specifies the size of each chunk of data, in
+        # bytes, that will be uploaded at a time. Set a higher value for
+        # reliable connections as fewer chunks lead to faster uploads. Set a lower
+        # value for better recovery on less reliable connections.
+        #
+        # Setting "chunksize" equal to -1 in the code below means that the entire
+        # file will be uploaded in a single HTTP request. (If the upload fails,
+        # it will still be retried where it left off.) This is usually a best
+        # practice, but if you're using Python older than 2.6 or if you're
+        # running on App Engine, you should set the chunksize to something like
+        # 1024 * 1024 (1 megabyte).
+        media_body=GoogleMediaIoBaseUpload(fh, mimetype=options['mimetype'], chunksize=-1, resumable=True)
+      )
+
+      response = self.resumable_upload(insert_request)
+      return response
+
+
+
+    def get(self, request, *args, **kwargs):
+        try:
+            youtube = self.get_service(request)
+        except GoogleOAuth2RedirectRequired, e:
+            return HttpResponseRedirect(e.url)
+        ret_uri = request.session.get("return_uri", "/")
+        vpk = kwargs['vpk']
+        lobj = self.get_learning_object(*args, **kwargs)
+        try:
+            fileinst = UniqueFile.objects.get(pk=vpk)
+        except UniqueFile.DoesNotExist:
+            return self.error_response("Unique file with id %d not found" % vpk)
+        if fileinst.type != "video":
+            return self.error_response("File %s is not a video" % fileinst.name )
+        if fileinst.youtube_id:
+            return self.error_response("File %s has already been uploaded to YouTube (ID: %s)" % (fileinst.name, fileinst))
+        # we have a video to upload.
+        # see See https://developers.google.com/youtube/v3/docs/videoCategories/list for possible categoryId
+
+        with DefaultStorage().open(fileinst.get_file_relative_url()) as fh:
+            try:
+                response = self.initialize_upload(youtube, fh,
+                    title = lobj.title,
+                    description = BeautifulSoup(lobj.text).get_text(), # strip HTML tags nicely
+                    mimetype = fileinst.get_mime_type(),
+                    tags = [mod.title for mod in lobj.modules.all()],
+                    categoryId = 27, # =="Education"
+                    privacyStatus = "unlisted", # alternatively "public", "private"
+                    )
+            except GoogleUploadError, e:
+                messages.error(request, str(e))
+                return HttpResponseRedirect(ret_uri)
+        messages.success(request, "Video successfully uploaded: %s" % response['id'])
+        fileinst.youtube_id = response['id']
+        fileinst.save()
+        return HttpResponseRedirect(ret_uri)
+
+
+
 
 
 class StructureGetView(LoginRequiredMixin, JSONView):

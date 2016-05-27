@@ -33,6 +33,13 @@ class C21AdminMiddleware(object):
             pass
         return response
 
+class C21ReturnURIMiddleware(object):
+    def process_request(self, request):
+        previous_uri = request.session.get("current_uri","/")
+        request.session['previous_uri'] = previous_uri
+        request.session['current_uri'] = request.path
+        return None 
+
 
 class C21StaticGenMiddleware(object):
     def process_template_response(self, request, response):

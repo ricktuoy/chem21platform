@@ -83,6 +83,11 @@
 {% if object.video %}
 	<a class="btn btn-success admin-edit" href="{% url opts.uniquefile|admin_urlname:'change' object.video.pk %}"
 	data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">Edit video attributes</a>
+	{% if not object.youtube_id %}
+		<a class="btn btn-success admin-edit" 
+		   href="{% url 'youtube_upload' vpk=object.video.pk type=object.learning_object_type tpk=object.pk %}">
+		 Upload video to Youtube</a>
+	{% endif %}
 {% endif %}
 	</form>
 	{% fileupload_form "media_upload" %}
