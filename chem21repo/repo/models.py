@@ -1377,6 +1377,11 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     child_attr_name = "lessons"
 
     @property
+    def modules(self):
+        return [ self, ]
+    
+
+    @property
     def first_question(self):
         try:
             return self._first_question
@@ -1746,6 +1751,13 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
         h5p_resources='h5p_resource_dict',
         json_content='json_content'
     )
+
+    @property
+    def modules(self):
+        modules = []
+        for lesson in self.lessons:
+            modules += list(lesson.modules)
+        return list(set(modules))
 
     def get_last_display_child(self):
         return None

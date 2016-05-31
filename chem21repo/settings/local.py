@@ -30,6 +30,7 @@ DATABASES = {
         'PASSWORD': '9chard87'
     }
 }
+
 SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 if DEBUG_TOOLBAR:

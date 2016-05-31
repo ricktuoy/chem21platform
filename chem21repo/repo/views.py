@@ -884,7 +884,7 @@ class GoogleServiceMixin(object):
             pass
         self._flow = Flow(settings.GOOGLE_OAUTH2_KEY, settings.GOOGLE_OAUTH2_SECRET, 
             scope=self.get_google_scope(),
-            approval_prompt="force",
+            approval_prompt="force" ,
             redirect_uri=self.request.build_absolute_uri(reverse("google-service-oauth2-return")))
         return self._flow
 
@@ -1060,13 +1060,18 @@ class PushVideoToYouTubeView(LoginRequiredMixin,
         # we have a video to upload.
         # see See https://developers.google.com/youtube/v3/docs/videoCategories/list for possible categoryId
 
+        try:
+            tags = [mod.title for mod in lobj.modules.all()]
+        except AttributeError:
+            tags = [mod.title for mod in lobj.modules]
         with DefaultStorage().open(fileinst.get_file_relative_url()) as fh:
+
             try:
                 response = self.initialize_upload(youtube, fh,
                     title = lobj.title,
                     description = BeautifulSoup(lobj.text).get_text(), # strip HTML tags nicely
                     mimetype = fileinst.get_mime_type(),
-                    tags = [mod.title for mod in lobj.modules.all()],
+                    tags = tags,
                     categoryId = 27, # =="Education"
                     privacyStatus = "unlisted", # alternatively "public", "private"
                     )
