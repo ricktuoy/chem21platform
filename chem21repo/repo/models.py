@@ -1755,8 +1755,8 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     @property
     def modules(self):
         modules = []
-        for lesson in self.lessons:
-            modules += list(lesson.modules)
+        for lesson in self.lessons.all():
+            modules += list(lesson.modules.all())
         return list(set(modules))
 
     def get_last_display_child(self):
