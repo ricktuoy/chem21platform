@@ -1,9 +1,12 @@
 <figure class="presentation youtube" data-remote-id="{{ remote_id}}">
 <a href="{{ remote_url }}" title="{{ title }}">
-<img class="thumbnail" src="http://i1.ytimg.com/vi/{{ remote_id }}/hqdefault.jpg" />
+<img class="thumbnail" src="{{ front_slide_url }}" />
 </a>
-<figcaption class="overlay">
-	Presentation by <span class="byline">{{ byline }}</span></figcaption>
+<figcaption class="headers">
+<div class="chem21">CHEM21 eLearning Programme</div>
+<div class="module_title">{{ module_title }}</div>
+<div class="title">{{ title }}</div>
+<div class="authors">{{ authors }}</div>
 </figcaption>
 {% if description %}
 <figcaption class="description">

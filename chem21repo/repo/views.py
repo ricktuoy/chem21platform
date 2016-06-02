@@ -806,6 +806,7 @@ class LearningObjectRelationMixin(object):
     def get_learning_object(self, *args, **kwargs):
         t = kwargs['type']
         tpk = kwargs['tpk']
+        self.learning_object_type = t
         try:
             model = ContentType.objects.get(
                 app_label="repo",
@@ -1082,9 +1083,6 @@ class PushVideoToYouTubeView(LoginRequiredMixin,
         fileinst.youtube_id = response['id']
         fileinst.save()
         return HttpResponseRedirect(ret_uri)
-
-
-
 
 
 class StructureGetView(LoginRequiredMixin, JSONView):

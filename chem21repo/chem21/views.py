@@ -171,5 +171,9 @@ class LessonView(LearningView):
 
 class ModuleView(LearningView):
     template_name = "chem21/module.html"
-    model = Module#
+    model = Module
     name = "module"
+
+
+
+

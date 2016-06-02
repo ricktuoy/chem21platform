@@ -5,6 +5,7 @@ import base64
 import mimetypes
 import difflib
 import html2text
+import logging
 
 import tinymce.models as mceModels
 
@@ -28,8 +29,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes import generic
 from StringIO import StringIO
+from io import BytesIO
 from django.contrib.auth.models import User
 from oauth2client.contrib.django_orm import CredentialsField
+from PIL import Image
 
 class CredentialsModel(models.Model):
   id = models.ForeignKey(User, primary_key=True)
@@ -1165,6 +1168,51 @@ class UniqueFile(OrderedModel, DrupalModel):
             return ctx
         return None
     
+    def get_video_slide_url(self, container_obj, lobj):
+        if not self.type == "video":
+            return None
+
+        path = self._gen_video_slide_path(container_obj, lobj)
+        #if not UniqueFile.storage.exists(path):
+        sstorage = get_storage_class(settings.STATICFILES_STORAGE)()
+        return sstorage.url("slide_template.jpg")
+        with sstorage.open(settings.STATIC_ROOT +
+                          "front-slide-template.eps", 'rt') as ps_file:
+            data = ps_file.read()
+        """
+        data = data.replace("(1)", "(%s)" % container_obj.title)
+        data = data.replace("(2)", "(%s)" % lobj.title)
+        data = data.replace("(3)", "(%s)" % self.author_string)
+        """
+        data = data.replace("(1)", "(%s)" % "T")
+        data = data.replace("(2)", "(%s)" % "U")
+        data = data.replace("(3)", "(%s)" % "VS")
+
+        #fh = StringIO()
+        with UniqueFile.storage.open(self._gen_video_slide_path_eps(container_obj, lobj), "wb") as fh:
+            fh.write(data.encode("utf-8"))
+        output = BytesIO()
+        fh = BytesIO(data.encode("utf-8"))
+        #fh.write(data)
+        fh.seek(0)
+
+        with Image.open(fh) as image:
+            #logging.debug((image.format, image.size, image.mode))
+            #with UniqueFile.storage.open(path, "rw") as output:
+            image.save(output, format="JPEG")
+
+        fh.close()
+        output.seek(0)
+        with UniqueFile.storage.open(path, "wb") as remote:
+            remote.write(output.read())
+
+
+        return UniqueFile.storage.url(path)
+
+
+
+
+
 
     @property
     def _stripped_ext(self):
@@ -1176,6 +1224,13 @@ class UniqueFile(OrderedModel, DrupalModel):
     @property
     def url(self):
         return settings.S3_URL+"/media/"+self.get_file_relative_url()
+
+    def _gen_video_slide_path(self, container_obj, lobj):
+        return "front_slides/%s/%s/%s.jpg" % (container_obj.slug, lobj.slug, self.checksum)
+
+    def _gen_video_slide_path_eps(self, container_obj, lobj):
+        return "front_slides/%s/%s/%s.eps" % (container_obj.slug, lobj.slug, self.checksum)
+
 
     def get_absolute_url(self):
         if self.type == "video":
@@ -1295,10 +1350,12 @@ class UniqueFile(OrderedModel, DrupalModel):
         'file', C21RESTRequests(),
         filesize='size', id='remote_id',
         filename='filename', file='base64_file')
+"""
 try:
     UniqueFile.storage = get_storage_class(settings.SHARED_DRIVE_STORAGE)()
 except AttributeError:
-    UniqueFile.storage = DefaultStorage()
+"""
+UniqueFile.storage = DefaultStorage()
 
 
 class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):

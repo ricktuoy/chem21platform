@@ -32,6 +32,17 @@ class PlaceVideoNode(template.Node):
         vid_template = template.loader.get_template("includes/video_%s.html" % video.render_type)
         vid_cxt = video.render_args
         vid_cxt['tools'] = not context.get('staticgenerator', False)
+        if video.render_type=="youtube":
+            obj = context['object']
+            try:
+                par = obj.get_parent()
+            except:
+                par = None
+            vid_cxt['front_slide_url'] = video.get_video_slide_url(par, obj) 
+            vid_cxt['module_title'] = par.title
+            vid_cxt['title'] = obj.title
+            vid_cxt['authors'] = video.author_string
+
         vid_html = vid_template.render(vid_cxt)
         if num_blocks > 0:
             # display as an aside

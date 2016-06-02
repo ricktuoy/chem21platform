@@ -17,16 +17,18 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
                 $(this).colorbox.resize();
             }
         });
-        $("aside figure.youtube a, figure.inline.youtube a").not($(".admin_tools a"))
+        $("aside figure.youtube a, figure.inline.youtube a, figure.inline.youtube .headers, aside figure.youtube .headers").not($(".admin_tools a"))
             .on("click", function() {
                 $("#popcorn_holder").remove();
-                $(this).children().hide();
-                $(this).append("<div id=\"popcorn_holder\"><div id=\"popcorn_video\"></div><div id=\"popcorn_footnote\"></div></div>");
-                $popcorn_holder=$(this).find("#popcorn_holder");
+                var $fig = $(this).closest("figure");
+                var $a = $fig.find("a");
+                var $headers = $fig.find(".headers");
+                $a.children().fadeOut();
+                $headers.fadeOut();
+                $a.append("<div id=\"popcorn_holder\"><div id=\"popcorn_video\"></div><div id=\"popcorn_footnote\"></div></div>");
+                $popcorn_holder=$a.find("#popcorn_holder");
 
-                var ww = $(this).closest("figure").width();
-                console.debug(ww);
-                console.debug($(this).closest("figure"));
+                var ww = $fig.width();
                 var vq = "";
                 if(ww>1400) {
                     ph = 1080;
@@ -50,15 +52,16 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
                 //$(this).uri().setSearch("vq", vq);
                 var pop = Popcorn.smart(
                    '#popcorn_video',
-                   $(this).attr("href") );
-                 // add a footnote at 2 seconds, and remove it at 6 seconds
+                   $a.attr("href") );
+
+                 /* add a footnote at 2 seconds, and remove it at 6 seconds
                  pop.footnote({
                    start: 2,
                    end: 6,
                    text: "Pop!",
                    target: "popcorn_footnote"
                 });
-                 /*
+                 
                 $.colorbox({
                     iframe:true, 
                     innerWidth:"90%", 
