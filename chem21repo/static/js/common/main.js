@@ -17,58 +17,54 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
                 $(this).colorbox.resize();
             }
         });
-        $("aside figure.youtube a, figure.inline.youtube a, figure.inline.youtube .headers, aside figure.youtube .headers").not($(".admin_tools a"))
-            .on("click", function() {
+
+
+        $("aside figure.youtube, figure.inline.youtube")
+            .on("click",".action_overlay", function() {
                 $("#popcorn_holder").remove();
                 var $fig = $(this).closest("figure");
-                var $a = $fig.find("a");
-                var $headers = $fig.find(".headers");
-                $a.children().fadeOut();
-                $headers.fadeOut();
-                $a.append("<div id=\"popcorn_holder\"><div id=\"popcorn_video\"></div><div id=\"popcorn_footnote\"></div></div>");
-                $popcorn_holder=$a.find("#popcorn_holder");
-
-                var ww = $fig.width();
-                var vq = "";
-                if(ww>1400) {
-                    ph = 1080;
-                    pw = 1440;
-                } else if (ww>960) {
-                    ph = 720;
-                    pw = 960;
-                } else if (ww>640) {
-                    ph = 480;
-                    pw = 640;
-                } else if (ww>480) {
-                    ph = 360;
-                    pw = 480;
-                } else {
-                    ph = 240;
-                    pw= 320;
+                var $a = $fig.find("a.youtube");
+                var $replace = $a.children("img");
+                var $headers = $fig.find(".headers:visible");
+                var $disclaimer = $fig.find(".disclaimer:visible");
+                var $loader = $fig.find(".loader");
+                var show_loader = function() {
+                    $loader.show();
                 }
-                $popcorn_holder.height(ph);
-                $popcorn_holder.find("#popcorn_video").height(ph);
-
-                //$(this).uri().setSearch("vq", vq);
+                $headers.fadeOut(show_loader);
+                $disclaimer.fadeOut(show_loader);
+                $a.append("<div id=\"popcorn_holder\"><div id=\"popcorn_video\"></div><div id=\"popcorn_footnote\"></div></div>");
+                $popcorn_holder = $a.find( "#popcorn_holder" );
+                $vid = $popcorn_holder.find( "#popcorn_video" );
+                $vid.height( ($vid.width() / 4) * 3 );
                 var pop = Popcorn.smart(
-                   '#popcorn_video',
-                   $a.attr("href") );
-
-                 /* add a footnote at 2 seconds, and remove it at 6 seconds
-                 pop.footnote({
-                   start: 2,
-                   end: 6,
-                   text: "Pop!",
-                   target: "popcorn_footnote"
+                       '#popcorn_video',
+                       $a.attr("href") );
+                $popcorn_holder.hide();
+                $fig.find(".action_overlay").fadeOut();
+                pop.on("playing", function(evt) {
+                    $loader.fadeOut();
+                    $replace.hide();
+                    $loader.hide();
+                    $popcorn_holder.fadeIn();
                 });
-                 
-                $.colorbox({
-                    iframe:true, 
-                    innerWidth:"90%", 
-                    innerHeight:"90%", 
-                    href: $(this).attr("href")
-                }); */
+                pop.on("ended", function(evt) {
+                    var $disclaimer = $fig.find(".disclaimer");
+                    $fig.find(".action_overlay.repeat").fadeIn();
+                    $popcorn_holder.hide();
+                    $replace.fadeIn();
+                    $disclaimer.fadeIn();
+                });
                 return false;
-        });
+            });
+        $("aside figure.youtube, figure.inline.youtube")
+            .on({"mouseenter": function() {
+                    $(this).animate({"background-color":"white", "opacity": 0.6});
+                },
+                "mouseleave": function() {
+                    $(this).animate({"background-color":"transparent", "opacity": 0.1})     
+                }
+            }, ".action_overlay");
+
     });
 });

@@ -134,6 +134,7 @@ legend {
 
 
 
+
 .content .field.field-name-field-slide-image blockquote {
 	margin: 0;
 	max-width: 300px;
@@ -996,19 +997,72 @@ figure.presentation figcaption.overlay {
 	box-shadow: 2px 2px 15px #aaa;
 }
 
+figure.presentation .loader {
+	display: none;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	text-align: center;
+	width: 100%;
+}
+
 figure.presentation figcaption.headers {
 	position: absolute;
 	color: #222;
 	width: 100%;
 	left: 0;
-	top: 125px;
+	top: 50%;
+	transform: translateY(-50%);
 	text-align: center;
 	font-family: "Calibri", "Source Sans Pro", sans-serif;
 	cursor: pointer;
 }
 
+figure.presentation .video_wrapper {
+	position: relative;
+}
+
+figure.presentation .disclaimer {
+	display: none;
+	position: absolute;
+	width: 90%;
+	padding: 0 5%;
+	text-align: center;
+	bottom: 15%;
+	max-height:  65%;
+	overflow-y: auto;
+}
+
+#content figure.presentation .disclaimer p {
+	font-size: 0.75em;
+	cursor: pointer;
+}
+
+#content figure.presentation .action_overlay {
+	cursor: pointer;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	opacity: 0.1;
+	background-color: transparent;
+	background-position: center;
+	background-repeat: no-repeat;
+	top: 0;
+	left: 0;
+	z-index: 99999;
+}
+
+#content figure.presentation .action_overlay.play {
+	background-image: url('../img/play.png');
+}
+
+#content figure.presentation .action_overlay.repeat {
+	background-image: url('../img/repeat.png');
+	display: none;
+}
+
 figure.presentation figcaption.headers .chem21 {
-	font-size: 1.6em;
+	font-size: 1.3em;
 	color: #282;
 	font-weight: bold;
 	margin: 0;
@@ -1017,7 +1071,7 @@ figure.presentation figcaption.headers .chem21 {
 }
 
 figure.presentation figcaption.headers .module_title {
-	font-size: 1.6em;
+	font-size: 1.3em;
 	font-weight: normal;
 	margin: 0;
 	padding: 0;
@@ -1027,12 +1081,12 @@ figure.presentation figcaption.headers .module_title {
 
 figure.presentation figcaption.headers .title,
 figure.presentation figcaption.headers .authors {
-	font-size: 1.15em;
+	font-size: 1.05em;
 	font-weight: normal;
 	padding: 0;
 	margin: 0;
 	color: #777;
-	line-height: 1.2em;
+	line-height: 1.1em;
 }
 figure.presentation figcaption.headers .title {
 	margin-top: 1.5em;
@@ -1240,18 +1294,18 @@ p.attrib .rights_statement {
 	}
 
 	body.front #logo {
-	top: -3px !important;
-}
+		top: -3px !important;
+	}
 
-body.front #logo img {
-	height: 115px;
-	width: auto;
-}
+	body.front #logo img {
+		height: 115px;
+		width: auto;
+	}
 
 
-body.front #site-content {
-	margin-top: 95px;
-}
+	body.front #site-content {
+		margin-top: 95px;
+	}
 
 	#site-content .quiz_questions .controls a.previous,
 	#end-nav a.prev {
@@ -1267,17 +1321,7 @@ body.front #site-content {
 		float: left;
 	}
 
-	#content aside {
-	width: 40%;
-	float: right;
-	}
 
-	#content aside.half {
-		width: 50%;
-	}
-	#content aside.wide {
-		width: 66%;
-	}
 
 	#logo {
 		left: 25px !important; 
@@ -1416,22 +1460,47 @@ body.front #site-content {
 	}
 }
 
+@media screen and (min-width: 1000px) {
+	#content aside {
+		width: 40%;
+		float: right;
+	}
+
+	#content aside.half {
+		width: 50%;
+	}
+	#content aside.wide {
+		width: 66%;
+	}
+}
+
 @media screen and (min-width: 1400px) {
 	#logo {
 		left: 35px !important; 
 	}
 
-body.front #second-sidebar ul.slides > li .content {
-		font-size: 1.3em;
-		width: 50%;
-		margin: 0 25% 0 25%;
-		padding: 0;
+	body.front #second-sidebar ul.slides > li .content {
+			font-size: 1.3em;
+			width: 50%;
+			margin: 0 25% 0 25%;
+			padding: 0;
+		}
+	body.front #second-sidebar ul.slides > li .content h2 {
+		font-size: 2em;
 	}
-body.front #second-sidebar ul.slides > li .content h2 {
-	font-size: 2em;
-}
 	body.front li .content .intro {
 		margin: 0 1%;
+	}
+
+
+	figure.presentation figcaption.headers .chem21,
+	figure.presentation figcaption.headers .module_title {
+		font-size: 1.6em;
+	}
+
+	figure.presentation figcaption.headers .title,
+	figure.presentation figcaption.headers .authors {
+		font-size: 1.2em;
 	}
 }
 
