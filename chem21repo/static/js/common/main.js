@@ -40,6 +40,7 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
                 var pop = Popcorn.smart(
                        '#popcorn_video',
                        $a.attr("href") );
+                pop.media.preload="none";
                 $popcorn_holder.hide();
                 $fig.find(".action_overlay").fadeOut();
                 pop.on("playing", function(evt) {
