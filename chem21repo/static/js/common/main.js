@@ -19,9 +19,38 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
         });
 
 
+        $("aside figure.youtube, figure.inline.youtube").each(function() {
+            var $fig = $(this).closest("figure");
+            var $a = $fig.find("a.youtube");
+            var $replace = $a.children("img");
+            $a.append("<div id=\"popcorn_holder\"><div id=\"popcorn_video\"></div><div id=\"popcorn_footnote\"></div></div>");
+
+            var $popcorn_holder = $a.find( "#popcorn_holder" );
+            
+            var $vid = $popcorn_holder.find( "#popcorn_video" );
+            $vid.height( ($vid.width() / 4) * 3 );
+            var $loader = $fig.find(".loader");
+            var pop = Popcorn.smart(
+                '#popcorn_video',
+                $a.attr("href") );
+            pop.media.preload="none";
+            pop.on("playing", function(evt) {
+                $loader.hide();
+            });
+            pop.on("ended", function(evt) {
+                console.log("Ended.");
+                var $popcorn_holder = $a.find( "#popcorn_holder" );
+                var $disclaimer = $fig.find(".disclaimer");
+                $fig.find(".action_overlay.repeat").fadeIn();
+                $popcorn_holder.hide();
+                $replace.fadeIn();
+                $disclaimer.fadeIn();
+            });
+            $popcorn_holder.hide();
+            $popcorn_holder.data("popcorn-object", pop);
+        });
         $("aside figure.youtube, figure.inline.youtube")
             .on("click",".action_overlay", function() {
-                $("#popcorn_holder").remove();
                 var $fig = $(this).closest("figure");
                 var $a = $fig.find("a.youtube");
                 var $replace = $a.children("img");
@@ -29,34 +58,27 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
                 var $disclaimer = $fig.find(".disclaimer:visible");
                 var $loader = $fig.find(".loader");
                 var show_loader = function() {
+                    console.log("Show loader callback");
                     $loader.show();
-                }
-                $headers.fadeOut(show_loader);
-                $disclaimer.fadeOut(show_loader);
-                $a.append("<div id=\"popcorn_holder\"><div id=\"popcorn_video\"></div><div id=\"popcorn_footnote\"></div></div>");
-                $popcorn_holder = $a.find( "#popcorn_holder" );
-                $vid = $popcorn_holder.find( "#popcorn_video" );
-                $vid.height( ($vid.width() / 4) * 3 );
-                var pop = Popcorn.smart(
-                       '#popcorn_video',
-                       $a.attr("href") );
-                $popcorn_holder.hide();
-                $fig.find(".action_overlay").fadeOut();
-                pop.on("playing", function(evt) {
+                };
+                var play = function() {
+                    console.log("Play callback");
+                    var $popcorn_holder = $a.find( "#popcorn_holder" );
+
+                    var $loader = $fig.find(".loader");
+                    $popcorn_holder.show();
+                    var pop = $popcorn_holder.data("popcorn-object");
                     $loader.fadeOut();
                     $replace.hide();
-                    $loader.hide();
-                    $popcorn_holder.fadeIn();
-                });
-                pop.on("ended", function(evt) {
-                    var $disclaimer = $fig.find(".disclaimer");
-                    $fig.find(".action_overlay.repeat").fadeIn();
-                    $popcorn_holder.hide();
-                    $replace.fadeIn();
-                    $disclaimer.fadeIn();
-                });
+                    console.log(pop);
+                    pop.play();
+                    $fig.find(".action_overlay").fadeOut();
+                    console.log("End play callback");
+                };
+                $headers.fadeOut(play);
+                $disclaimer.fadeOut(play);
                 return false;
-            });
+           });
         $("aside figure.youtube, figure.inline.youtube")
             .on({"mouseenter": function() {
                     $(this).animate({"background-color":"white", "opacity": 0.6});
