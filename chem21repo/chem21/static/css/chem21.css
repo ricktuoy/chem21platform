@@ -692,6 +692,10 @@ body.front #content .content .cobranding {
         max-width: 100% !important;
 }
 
+#popcorn_video video {
+	width: 100%;
+}
+
 
 /***************** QUIZZES *****************/
 .quiz_questions .question {

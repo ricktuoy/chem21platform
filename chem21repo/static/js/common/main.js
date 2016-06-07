@@ -24,20 +24,16 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
             var $a = $fig.find("a.youtube");
             var $replace = $a.children("img");
             $a.append("<div id=\"popcorn_holder\"><div id=\"popcorn_video\"></div><div id=\"popcorn_footnote\"></div></div>");
-
             var $popcorn_holder = $a.find( "#popcorn_holder" );
-            
             var $vid = $popcorn_holder.find( "#popcorn_video" );
             $vid.height( ($vid.width() / 4) * 3 );
             var $loader = $fig.find(".loader");
-            var wrapper = Popcorn.HTMLYouTubeVideoElement('#popcorn_video');
-            wrapper.src = $a.attr("href") ;
-            var pop = Popcorn(wrapper);
+            var pop = Popcorn.smart('#popcorn_video', $a.attr("href")) ;            
+            $popcorn_holder.find("video").prop("controls", true);
             pop.on("playing", function(evt) {
                 $loader.hide();
             });
             pop.on("ended", function(evt) {
-                console.log("Ended.");
                 var $popcorn_holder = $a.find( "#popcorn_holder" );
                 var $disclaimer = $fig.find(".disclaimer");
                 $fig.find(".action_overlay.repeat").fadeIn();
@@ -48,6 +44,11 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
             $popcorn_holder.hide();
             $popcorn_holder.data("popcorn-object", pop);
         });
+
+        $("aside figure.youtube a.youtube, figure.inline.youtube a.youtube")
+            .on("click", function() {
+                return false;
+            });
         $("aside figure.youtube, figure.inline.youtube")
             .on("click",".action_overlay", function() {
                 var $fig = $(this).closest("figure");
@@ -56,20 +57,16 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
                 var $headers = $fig.find(".headers:visible");
                 var $disclaimer = $fig.find(".disclaimer:visible");
                 var $loader = $fig.find(".loader");
-                
                 var play = function() {
-                    console.log("Play callback");
                     var $popcorn_holder = $a.find( "#popcorn_holder" );
-
                     var $loader = $fig.find(".loader");
                     $popcorn_holder.show();
                     var pop = $popcorn_holder.data("popcorn-object");
                     $loader.fadeOut();
                     $replace.hide();
-                    console.log(pop);
+                    pop.currentTime(0);
                     pop.play();
                     $fig.find(".action_overlay").fadeOut();
-                    console.log("End play callback");
                 };
                 $headers.fadeOut(play);
                 $disclaimer.fadeOut(play);

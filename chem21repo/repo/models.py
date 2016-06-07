@@ -1159,12 +1159,15 @@ class UniqueFile(OrderedModel, DrupalModel):
     @property
     def render_args(self):
         if self.type == "video":
-            ctx = {'url':self.url, 
+            ctx = {'url':self.url,
                     'byline': self.author_string ,
                     'description': self.description.replace("<p>","").replace("</p>","")}
             if self.render_type=="youtube":
                 ctx['remote_id'] = self.youtube_id
                 ctx['remote_url'] = "https://www.youtube.com/watch?v=%s&controls=1&preload=none" % self.youtube_id
+            else:
+                ctx['remote_url'] = self.url
+                
             return ctx
         return None
     
