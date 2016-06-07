@@ -1164,7 +1164,7 @@ class UniqueFile(OrderedModel, DrupalModel):
                     'description': self.description.replace("<p>","").replace("</p>","")}
             if self.render_type=="youtube":
                 ctx['remote_id'] = self.youtube_id
-                ctx['remote_url'] = "http://www.youtube.com/watch?v=%s&controls=1&rel=0" % self.youtube_id
+                ctx['remote_url'] = "https://www.youtube.com/watch?v=%s&controls=1&preload=none" % self.youtube_id
             return ctx
         return None
     

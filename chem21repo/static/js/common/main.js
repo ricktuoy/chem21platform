@@ -30,10 +30,9 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
             var $vid = $popcorn_holder.find( "#popcorn_video" );
             $vid.height( ($vid.width() / 4) * 3 );
             var $loader = $fig.find(".loader");
-            var pop = Popcorn.smart(
-                '#popcorn_video',
-                $a.attr("href") );
-            pop.media.preload="none";
+            var wrapper = Popcorn.HTMLYouTubeVideoElement('#popcorn_video');
+            wrapper.src = $a.attr("href") ;
+            var pop = Popcorn(wrapper);
             pop.on("playing", function(evt) {
                 $loader.hide();
             });
