@@ -56,9 +56,7 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
                 var $headers = $fig.find(".headers:visible");
                 var $disclaimer = $fig.find(".disclaimer:visible");
                 var $loader = $fig.find(".loader");
-                var show_loader = function() {
-                    console.log("Show loader callback");
-                    $loader.show();
+                
                 var play = function() {
                     console.log("Play callback");
                     var $popcorn_holder = $a.find( "#popcorn_holder" );
