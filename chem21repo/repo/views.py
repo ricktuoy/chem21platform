@@ -1066,11 +1066,14 @@ class PushVideoToYouTubeView(LoginRequiredMixin,
         except AttributeError:
             tags = [mod.title for mod in lobj.modules]
         with DefaultStorage().open(fileinst.get_file_relative_url()) as fh:
-
+            try:
+                desc = BeautifulSoup(lobj.text).get_text()
+            except:
+                desc = ""
             try:
                 response = self.initialize_upload(youtube, fh,
                     title = lobj.title,
-                    description = BeautifulSoup(lobj.text).get_text(), # strip HTML tags nicely
+                    description = desc, # strip HTML tags nicely
                     mimetype = fileinst.get_mime_type(),
                     tags = tags,
                     categoryId = 27, # =="Education"

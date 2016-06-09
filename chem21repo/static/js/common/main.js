@@ -28,7 +28,7 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
             var $vid = $popcorn_holder.find( "#popcorn_video" );
             $vid.height( ($vid.width() / 4) * 3 );
             var $loader = $fig.find(".loader");
-            var pop = Popcorn.smart('#popcorn_video', $a.attr("href")) ;            
+            var pop = Popcorn.smart('#popcorn_video', $a.attr("href"));            
             $popcorn_holder.find("video").prop("controls", true);
             pop.on("playing", function(evt) {
                 $loader.hide();
@@ -49,6 +49,7 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
             .on("click", function() {
                 return false;
             });
+
         $("aside figure.youtube, figure.inline.youtube")
             .on("click",".action_overlay", function() {
                 var $fig = $(this).closest("figure");
@@ -71,7 +72,8 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
                 $headers.fadeOut(play);
                 $disclaimer.fadeOut(play);
                 return false;
-           });
+            });
+
         $("aside figure.youtube, figure.inline.youtube")
             .on({"mouseenter": function() {
                     $(this).animate({"background-color":"white", "opacity": 0.6});
