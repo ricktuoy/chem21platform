@@ -4,7 +4,7 @@
 // except 'app' ones, 
 requirejs.config({
     "baseUrl": "/static/js/lib",
-    "urlArgs": "bust=004",
+    "urlArgs": "bust=005",
 });
 // Load the main app module to start the app
 requirejs(["../front-admin/main"]);
