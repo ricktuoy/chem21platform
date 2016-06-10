@@ -3,7 +3,7 @@ define(["jquery"], function($) {
 
 	$(".reaction-discovery .description td").hide();
 	$(".reaction-discovery .outcome td").hide();
-	$(".reaction-discovery .choice td").hide();
+	$(".reaction-discovery tbody").hide();
 
 	function show_next_reaction(el) {
 		var react = el.closest(".reaction-discovery");
@@ -11,18 +11,19 @@ define(["jquery"], function($) {
 		var fail = false;
 		tabs.each(function() {
 			var selected = $(this).find(".choice .selected");
-			console.debug(selected);
+			console.log(selected);
 			if(!selected.length || selected.hasClass("bad")) {
+				console.log("BAD");
 				fail = true;
 			}
 		});
-		if(!fail) {
 		react.nextAll(".reaction-discovery").hide();
-		var next = react.nextAll(".reaction-discovery:first");
+		if(!fail) {
+			
+			var next = react.nextAll(".reaction-discovery:first");
 
-		next.show();
-		$(document).scrollTop( react.offset().top ); 
-		}
+			next.show();
+		} 
 	}
 	$(".reaction-discovery thead").click(function() {
 		if($(this).hasClass("open")) {
@@ -48,29 +49,28 @@ define(["jquery"], function($) {
 		$choice.fadeIn(100);
 		$(this).addClass("open");
 	});
-	$(".reaction-discovery .choice .good").click(function() {
+
+	$(".reaction-discovery .choice td").on("click", function() {
 		var tab = $(this).closest("table");
+		tab.find(".outcome").show();
+		tab.find(".outcome td").show();
 		tab.find(".selected").removeClass("selected");
 		$(this).addClass("selected");
-		//TODO: deselect all other selected.
 		show_next_reaction($(this));
 		tab.find(".outcome td").css("visibility","hidden");
+	});
+
+	$(".reaction-discovery .choice .good").on("click", function() {
+		var tab = $(this).closest("table");
 		tab.find(".outcome .success").css("visibility", "visible").fadeIn(100).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);;
 	});
-	$(".reaction-discovery .choice .ok").click(function() {
+	$(".reaction-discovery .choice .ok").on("click", function() {
 		var tab = $(this).closest("table");
-		tab.find(".selected").removeClass("selected");
-		$(this).addClass("selected");
-		show_next_reaction($(this));
-		tab.find(".outcome td").css("visibility","hidden");
 		tab.find(".outcome .amend").css("visibility", "visible").fadeIn(100).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);;
 	});
-	$(".reaction-discovery .choice .bad").click(function() {
+	$(".reaction-discovery .choice .bad").on("click", function() {
 		var tab = $(this).closest("table");
-		tab.find(".selected").removeClass("selected");
-		tab.find(".outcome td").css("visibility","hidden");
 		tab.find(".outcome .fail").css("visibility", "visible").fadeIn(100).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);;
-		$(this).addClass("selected");
 	});
 
 });

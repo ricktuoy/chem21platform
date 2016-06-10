@@ -555,6 +555,11 @@ body.front #content .content .cobranding {
 	margin-top: 1em;
 }
 
+.reaction-discovery .flow-chart tr.intro td {
+	background-color: #ddd;
+	font-size: 0.85em;
+}
+
 .reaction-discovery .flow-chart tr th {
 	background-color: #776;
 	font-weight: bold;
@@ -573,17 +578,6 @@ body.front #content .content .cobranding {
 	font-color: white;
 }
 
-.reaction-discovery .flow-chart .outcome .success {
-	background-color: #5a5;
-}
-
-.reaction-discovery .flow-chart .outcome .amend {
-	background-color: #55b;
-}
-
-.reaction-discovery .flow-chart .outcome .fail {
-	background-color: #a55;
-}
 
 .reaction-discovery .choice td {
 	cursor:pointer;
@@ -598,11 +592,13 @@ body.front #content .content .cobranding {
 }
 
 .reaction-discovery .outcome .amend {
-	background-color: #77c;
+	background-color: #bbf;
 }
 
 .reaction-discovery .outcome .fail {
-	background-color: #c77;
+	background-color: #f44;
+	color: white;
+	font-weight: bold;
 }
 
 .reaction-discovery th {
