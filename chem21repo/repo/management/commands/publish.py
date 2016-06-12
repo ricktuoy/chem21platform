@@ -30,9 +30,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options['front']:
-            paths = frozenset(['/', '/about/'])
+            paths = frozenset(['/', '/about/', '/legal/'])
         else:
-            paths = frozenset(['/about/'])
+            paths = frozenset(['/about/', '/legal/'])
         if options['id']:
             ct = ContentType.objects.get(app_label="repo", model=options['type'])
             obj = ct.get_object_for_this_type(pk=options['id'])

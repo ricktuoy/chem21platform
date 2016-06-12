@@ -17,6 +17,19 @@
     float: left; width: 350px; margin-left: 300px; line-height: 1em; margin-top: 10px; font-size: 3em; color: red; display:none;
 }
 
+body .cc_container {
+	font-family: "Source Sans Pro", sans-serif;
+	color: #ddd;
+	text-shadow: none;
+	bottom: 50%;
+	line-height: 1.1em;
+	transform: translateY(-50%);
+}
+
+body .cc_container .cc_logo {
+	display: none;
+}
+
 #logo {
 	left: 0px !important; 
 	top: -7px !important;

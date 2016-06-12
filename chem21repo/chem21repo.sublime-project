@@ -42,6 +42,9 @@
 		},
 		{
 			"path": "repo\\templates"
+		},
+		{
+			"path": "chem21/static"
 		}
 	]
 }
