@@ -22,13 +22,19 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
         $("aside figure.youtube, figure.inline.youtube").each(function() {
             var $fig = $(this).closest("figure");
             var $a = $fig.find("a.youtube");
+            var href = $a.attr("href");
             var $replace = $a.children("img");
+            $a.after("<div class=\"youtube\"></div>");
+            $div = $fig.find("div.youtube");
+            $div.append($a.children());
+            $a.remove();
+            $a = $div;
             $a.append("<div id=\"popcorn_holder\"><div id=\"popcorn_video\"></div><div id=\"popcorn_footnote\"></div></div>");
             var $popcorn_holder = $a.find( "#popcorn_holder" );
             var $vid = $popcorn_holder.find( "#popcorn_video" );
             $vid.height( ($vid.width() / 4) * 3 );
             var $loader = $fig.find(".loader");
-            var pop = Popcorn.smart('#popcorn_video', $a.attr("href"));            
+            var pop = Popcorn.smart('#popcorn_video', href);          
             $popcorn_holder.find("video").prop("controls", true);
             pop.on("playing", function(evt) {
                 $loader.hide();
@@ -45,15 +51,10 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
             $popcorn_holder.data("popcorn-object", pop);
         });
 
-        $("aside figure.youtube a.youtube, figure.inline.youtube a.youtube")
-            .on("click", function() {
-                return false;
-            });
-
         $("aside figure.youtube, figure.inline.youtube")
             .on("click",".action_overlay", function() {
                 var $fig = $(this).closest("figure");
-                var $a = $fig.find("a.youtube");
+                var $a = $fig.find(".youtube");
                 var $replace = $a.children("img");
                 var $headers = $fig.find(".headers:visible");
                 var $disclaimer = $fig.find(".disclaimer:visible");
