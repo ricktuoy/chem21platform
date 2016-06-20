@@ -9,6 +9,7 @@ dj-database-url==0.3.0
 dj-static==0.0.6
 Django==1.8
 -e git+https://github.com/ricktaylord/django-cached-s3-storage.git@aafe927913d7bb854b21825282a86c1062ff1815#egg=django_cachedS3_storage-master
+django-choices==1.4.3
 django-debug-panel==0.8.2
 django-debug-toolbar==1.4
 -e git+https://github.com/ricktaylord/django-filebrowser.git@56f9f2ebf089a3d16f2dff77ea237fc2325fad8f#egg=django_filebrowser-master

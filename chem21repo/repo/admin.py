@@ -101,6 +101,11 @@ create_admin(
     fields=["title", "type", "youtube_id", "remote_path", 
             'authors', 'description'])
 
+create_admin(
+    model=PresentationAction,
+    hidden_fields=['presentation', ],
+    fields=["start", "end", "action_type", "text", "biblio", "image"] )     
+
 for md in [Question, UniqueFile, Author,
            LearningTemplate, Molecule,
            Event, Lesson, FileLink, Module,

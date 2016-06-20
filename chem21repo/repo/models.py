@@ -33,6 +33,10 @@ from io import BytesIO
 from django.contrib.auth.models import User
 from oauth2client.contrib.django_orm import CredentialsField
 from PIL import Image
+from djchoices import ChoiceItem, DjangoChoices
+
+
+
 
 class CredentialsModel(models.Model):
   id = models.ForeignKey(User, primary_key=True)
@@ -84,6 +88,8 @@ class Biblio(models.Model):
             except Biblio.DoesNotExist:
                 return False
         return self.footnote_html
+
+
 
 
 class BaseModel(models.Model):
@@ -1361,6 +1367,61 @@ except AttributeError:
 UniqueFile.storage = DefaultStorage()
 
 
+class PresentationAction(models.Model):
+
+    class ActionType(DjangoChoices):
+        Footnote = ChoiceItem("F")
+        Image = ChoiceItem("I")
+        Biblio = ChoiceItem("B")
+
+    def _base_json(self):
+        return {'start': self.start, 'end': self.end, 'type': self.action_type}
+
+    class JSONEncoder():
+        def __init__(self, action_type):
+            self.as_json = getattr(self, 
+                action_type+"_json", 
+                PresentationAction._base_json)
+
+        @staticmethod
+        def F_json(obj):
+            return PresentationAction._base_json(obj) + {
+                    'text': obj.text
+                }
+
+        @staticmethod
+        def I_json(obj):
+            out = PresentationAction._base_json(obj) + {
+                    'src': obj.image.get_absolute_url()
+                }
+            if obj.link:
+                out['href'] = obj.link
+            if obj.text:
+                out['text'] = obj.text
+            return out
+
+        @staticmethod
+        def B_json(obj):
+            return PresentationAction._base_json(obj) + {
+                    'text': obj.biblio.get_inline_html()
+                }
+
+    start = models.IntegerField()
+    end = models.IntegerField()
+    text = mceModels.HTMLField(null=True, blank=True, default="")
+    presentation = models.ForeignKey(UniqueFile, related_name="actions")
+    biblio = models.ForeignKey(Biblio, null=True)
+    image = models.ForeignKey(UniqueFile, 
+        null=True, 
+        related_name="actions_of_image")
+    action_type = models.CharField(max_length=1,
+                        choices=ActionType.choices,
+                        validators=[ActionType.validator, ])
+
+    def as_json(self):
+        return PresentationAction.JSONEncoder(
+            self.action_type).as_json(self)
+
 class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     objects = OrderedDrupalManager()
     name = models.CharField(max_length=200)
@@ -1370,8 +1431,6 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     child_attr_name = "modules"
     text = mceModels.HTMLField(null=True, blank=True, default="")
     icon = FileBrowseField(max_length=500, null=True)
-
-
 
     def get_siblings(self):
         return Topic.objects.filter(code="XXX")
