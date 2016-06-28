@@ -21,25 +21,27 @@ def register_modeladmin(fn):
             newmodel = type(name, (model,), attrs)
         else:
             newmodel = model
-        logging.debug("Registering model %s" % name)
         admin.site.register(newmodel, modeladmin)
         return (newmodel, modeladmin)
     return wrapper
 
 
 @register_modeladmin
-def create_admin(model, fields, name="", hidden_fields=[], ):
+def create_admin(model, fields, name="", hidden_fields=[], form=None, base_admin=None):
     themodel = model
     thefields = fields
+    
+    if not form:    
+        class Meta:
+            model = themodel
+            fields = thefields + hidden_fields
+        attrs = {}
+        attrs['__module__'] = ''
+        attrs['Meta'] = Meta
 
-    class Meta:
-        model = themodel
-        fields = thefields + hidden_fields
-    attrs = {}
-    attrs['__module__'] = ''
-    attrs['Meta'] = Meta
-
-    newform = type("NewForm", (forms.ModelForm,), attrs)
+        newform = type("NewForm", (forms.ModelForm,), attrs)
+    else:
+        newform = form
 
     for k in hidden_fields:
         newform.declared_fields[k] = newform.base_fields[k]
@@ -49,16 +51,27 @@ def create_admin(model, fields, name="", hidden_fields=[], ):
                        forms.models.ModelMultipleChoiceField)):
             newform.declared_fields[k].widget = forms.MultipleHiddenInput()
         else:
-            pass
-            #newform.declared_fields[k].widget = forms.HiddenInput()
+            newform.declared_fields[k].widget = forms.HiddenInput()
         newform.declared_fields[k].label = str(
             type(newform.declared_fields[k]))
 
+    def _save_callback(self, request, obj, form, change):
+        obj.user = request.user
+        obj.save()
     class NewAdmin(admin.ModelAdmin):
         form = newform
-        def save_model(self, request, obj, form, change):
-            obj.user = request.user
-            obj.save()
+        class Media:
+            js = [
+                '/static/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
+                '/static/js/tinymce_setup.js',
+            ]
+
+    if not base_admin:
+        final_admin = NewAdmin
+    else:
+        final_admin = base_admin
+
+    final_admin.save_model = getattr(final_admin, "save_model", final_admin)
 
     return {'modeladmin': NewAdmin,
             'model': themodel,
@@ -83,28 +96,34 @@ create_admin(
     fields=['name', 'code', 'text'],
     hidden_fields=['topic', ],
 )
-create_admin(model=Topic, fields=['name', 'text','icon' ])
-
-
+create_admin(
+    model=Topic, 
+    fields=['name', 'text','icon' ]
+)
 create_admin(
     model=Question,
     hidden_fields=['lessons', ],
     fields=["title", 'text', 'byline'])
-
 create_admin(
     model=Lesson,
     hidden_fields=['modules', ],
     fields=["title", "text"])
-
 create_admin(
     model=UniqueFile,
     fields=["title", "type", "youtube_id", "remote_path", 
             'authors', 'description'])
 
+class PresentationActionAdmin(admin.ModelAdmin):
+    raw_id_fields = ('biblio',)
+    autocomplete_lookup_fields = {
+        'fk': ['biblio',],
+    }
+
 create_admin(
     model=PresentationAction,
     hidden_fields=['presentation', ],
-    fields=["start", "end", "action_type", "text", "biblio", "image"] )     
+    fields=["start", "end", "biblio"],
+    base_admin=PresentationActionAdmin)
 
 for md in [Question, UniqueFile, Author,
            LearningTemplate, Molecule,

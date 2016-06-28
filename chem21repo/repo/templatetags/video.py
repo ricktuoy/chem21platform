@@ -41,7 +41,6 @@ class PlaceVideoNode(template.Node):
         vid_cxt['module_title'] = par.title
         vid_cxt['title'] = obj.title
         vid_cxt['authors'] = video.author_string
-
         vid_html = vid_template.render(vid_cxt)
         if num_blocks > 0:
             # display as an aside
@@ -54,7 +53,6 @@ class PlaceVideoNode(template.Node):
         else:
             context['video'] = vid_html
         return ""
-
 
 @register.tag(name="get_video")
 def do_try_inset_video(parser, token):

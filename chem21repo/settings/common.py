@@ -4,7 +4,7 @@ from django.utils.crypto import get_random_string
 # Application definition
 
 INSTALLED_APPS = (
-    'grappelli',
+    'grappelli',    
     'filebrowser',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -17,7 +17,6 @@ INSTALLED_APPS = (
     'require',
     'cachedS3',
     'querystring_parser',
-    'tinymce',
     'revproxy',
     'bibliotag',
     'figuretag',
@@ -125,16 +124,6 @@ CHEM21_PLATFORM_REST_API_URL = '/rest'
 CHEM21_PLATFORM_API_USER = 'admin'
 CHEM21_PLATFORM_API_PWD = '9chard87'
 
-TINYMCE_DEFAULT_CONFIG = {
-    'plugins': "table,spellchecker,paste,searchreplace,bibliotag,figuretag,linktag",
-    'cleanup_on_startup': True,
-    'custom_undo_redo_levels': 10,
-    'theme': "advanced",
-    'theme_advanced_buttons1': "bold,italic,underline,linktag,link,unlink,bullist,undo,code,bibliotag,figuretag",
-    'theme_advanced_buttons2': "",
-    'theme_advanced_buttons3': ""
-}
-TINYMCE_SPELLCHECKER = True
 
 AUTHENTICATION_BACKENDS = (
     'social.backends.google.GoogleOAuth2',

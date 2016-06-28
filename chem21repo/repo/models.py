@@ -7,7 +7,6 @@ import difflib
 import html2text
 import logging
 
-import tinymce.models as mceModels
 
 from abc import ABCMeta
 from abc import abstractmethod
@@ -33,9 +32,7 @@ from io import BytesIO
 from django.contrib.auth.models import User
 from oauth2client.contrib.django_orm import CredentialsField
 from PIL import Image
-from djchoices import ChoiceItem, DjangoChoices
-
-
+from djchoices import DjangoChoices, ChoiceItem
 
 
 class CredentialsModel(models.Model):
@@ -61,11 +58,13 @@ class Biblio(models.Model):
             ret = api.get_endnode_html(self.citekey)
             self.inline_html = ret[0]['html']
             self.footnote_html = self.inline_html
+            self.title = ret[0]['value']
             self.save()
         except IndexError:
             self.unknown = True
             self.inline_html = ""
             self.footnote_html = ""
+            self.title = ""
             self.save()
             raise Biblio.DoesNotExist("Unknown reference: '%s'." % self.citekey)
 
@@ -88,6 +87,13 @@ class Biblio(models.Model):
             except Biblio.DoesNotExist:
                 return False
         return self.footnote_html
+
+    @staticmethod
+    def autocomplete_search_fields():
+        return ("title__icontains", )
+
+    def __unicode__(self):
+        return self.citekey+": "+self.title
 
 
 
@@ -1140,7 +1146,7 @@ class UniqueFile(OrderedModel, DrupalModel):
     remote_path = models.CharField(max_length=255, null=True, blank=True)
     remote_id = models.IntegerField(null=True, db_index=True)
     authors = models.ManyToManyField(Author, blank=True)
-    description = mceModels.HTMLField(null=True, blank=True, default="")
+    description = models.TextField(null=True, blank=True, default="")
     molecule = models.ForeignKey(Molecule, null=True, related_name='related_files')
     youtube_id = models.CharField(max_length=50, null=True, blank=True)
 
@@ -1408,15 +1414,17 @@ class PresentationAction(models.Model):
 
     start = models.IntegerField()
     end = models.IntegerField()
-    text = mceModels.HTMLField(null=True, blank=True, default="")
+    text = models.TextField(null=True, blank=True, default="")
     presentation = models.ForeignKey(UniqueFile, related_name="actions")
-    biblio = models.ForeignKey(Biblio, null=True)
+    biblio = models.ForeignKey(Biblio, null=True, blank=True)
     image = models.ForeignKey(UniqueFile, 
         null=True, 
+        blank=True,
         related_name="actions_of_image")
     action_type = models.CharField(max_length=1,
                         choices=ActionType.choices,
                         validators=[ActionType.validator, ])
+
 
     def as_json(self):
         return PresentationAction.JSONEncoder(
@@ -1429,7 +1437,7 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     code = models.CharField(max_length=10, unique=True)
     remote_id = models.IntegerField(null=True, db_index=True)
     child_attr_name = "modules"
-    text = mceModels.HTMLField(null=True, blank=True, default="")
+    text = models.TextField(null=True, blank=True, default="")
     icon = FileBrowseField(max_length=500, null=True)
 
     def get_siblings(self):
@@ -1490,7 +1498,7 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
                                    through='UniqueFilesofModule',
                                    related_name="modules")
     remote_id = models.IntegerField(null=True, db_index=True)
-    text = mceModels.HTMLField(null=True, blank=True, default="")
+    text = models.TextField(null=True, blank=True, default="")
     is_question = models.BooleanField(default=False)
     _child_orders = {}
     child_attr_name = "lessons"
@@ -1717,7 +1725,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
     title = models.CharField(max_length=100, blank=True, default="")
     slug = models.CharField(max_length=100, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
-    text = mceModels.HTMLField(null=True, blank=True, default="")
+    text = models.TextField(null=True, blank=True, default="")
     _child_orders = {}
     child_attr_name = "questions"
     is_question = models.BooleanField(default=False)
@@ -1856,8 +1864,8 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
     files = models.ManyToManyField(UniqueFile, related_name="questions")
-    text = mceModels.HTMLField(null=True, blank=True, default="")
-    byline = mceModels.HTMLField(null=True, blank=True, default="")
+    text = models.TextField(null=True, blank=True, default="")
+    byline = models.TextField(null=True, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
     lessons = models.ManyToManyField(Lesson, related_name="questions")
     child_attr_name = "files"

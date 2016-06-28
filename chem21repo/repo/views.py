@@ -20,6 +20,7 @@ from .models import UniqueFilesofModule
 from .models import TextVersion
 from .models import Molecule
 from .models import CredentialsModel
+from .models import Biblio
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
@@ -48,9 +49,6 @@ from django.core.files.base import ContentFile
 from oauth2client.contrib.django_orm import Storage
 from oauth2client.client import OAuth2WebServerFlow as Flow
 from oauth2client.contrib import xsrfutil
-
-
-
 import magic
 # Create your views here.
 

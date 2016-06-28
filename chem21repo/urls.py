@@ -25,7 +25,6 @@ from chem21.views import *
 urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
     url(r'^filebrowser/', include(fbsite.urls)),
-    url(r'^tinymce/', include('tinymce.urls')),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^listing/$', HomePageView.as_view()),
@@ -102,7 +101,7 @@ urlpatterns = [
     url(r'^(?P<topic_slug>[^/]*)/(?P<module_slug>[^/]*)/(?P<lesson_slug>[^/]*)/(?P<slug>[^/]*)/$',
         QuestionView.as_view(), name="question_detail"),
     url(r'complete/google-service-oauth2', GoogleServiceOAuth2ReturnView.as_view(), name="google-service-oauth2-return"),
-    url(r'files/upload/youtube/(?P<type>[^/]+)/(?P<tpk>[0-9]+)/(?P<vpk>[0-9]+)/$', PushVideoToYouTubeView.as_view(), name="youtube_upload")
+    url(r'files/upload/youtube/(?P<type>[^/]+)/(?P<tpk>[0-9]+)/(?P<vpk>[0-9]+)/$', PushVideoToYouTubeView.as_view(), name="youtube_upload"),
 
 ]
 
