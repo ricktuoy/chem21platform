@@ -365,6 +365,9 @@ body.front #front-back a {
 
 .cobranding img#imi_logo  {
 	float: left;
+	width: 40%;
+	max-width: 220px;
+	margin-top: 5px;
 } 
 
 body.front #content .content .cobranding {
