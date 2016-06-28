@@ -62,8 +62,8 @@ def create_admin(model, fields, name="", hidden_fields=[], form=None, base_admin
         form = newform
         class Media:
             js = [
-                '/static/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
-                '/static/js/tinymce_setup.js',
+                '/s3/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
+                '/s3/js/tinymce_setup.js',
             ]
 
     if not base_admin:
