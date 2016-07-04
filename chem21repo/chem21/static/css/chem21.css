@@ -1035,12 +1035,13 @@ figure.presentation .disclaimer {
 #content figure.presentation #popcorn_footnote {
 	position: absolute;
 	width: 84%;
-	bottom: 10%;
+	bottom: 25%;
 	margin: 0 8%;
 	background-color: #222;
 	color: white;
 	opacity: 0.85;
 }
+
 #content figure.presentation #popcorn_footnote p {
 	margin: 0.1em 0.5em;
 }

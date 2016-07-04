@@ -37,7 +37,6 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
             var $loader = $fig.find(".loader");
             var pop = Popcorn.smart('#popcorn_video', href);
             var parsedCallback = function () {
-                console.log("PARSED.");
             }  
             pop.parseJSON(timeline_url, parsedCallback);
             $popcorn_holder.find("video").prop("controls", true);

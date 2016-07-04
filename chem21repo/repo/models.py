@@ -1400,7 +1400,7 @@ class PresentationAction(models.Model):
                     'text': obj.text,
                     'target': 'popcorn_footnote'
                 })
-            return out
+            return {'footnote': out, }
 
         @staticmethod
         def I_json(obj):
@@ -1413,16 +1413,16 @@ class PresentationAction(models.Model):
                 out['href'] = obj.link
             if obj.text:
                 out['text'] = obj.text
-            return out
+            return {'image': out, }
 
         @staticmethod
         def B_json(obj):
             out = PresentationAction._base_json(obj) 
             out.update({
-                    'text': obj.biblio.get_inline_html(),
+                    'text': "<p>"+obj.biblio.get_inline_html()+"</p>",
                     'target': 'popcorn_footnote'
                 })
-            return out
+            return {'footnote': out, }
 
     start = models.IntegerField()
     end = models.IntegerField()
@@ -1439,10 +1439,9 @@ class PresentationAction(models.Model):
                         validators=[ActionType.validator, ], default="F")
 
     def as_json(self):
-        return { self.ActionType.values[self.action_type].lower(): 
-                    PresentationAction.JSONEncoder(
+        return PresentationAction.JSONEncoder(
                         self.action_type).as_json(self)
-                }
+                
 
 class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     objects = OrderedDrupalManager()
