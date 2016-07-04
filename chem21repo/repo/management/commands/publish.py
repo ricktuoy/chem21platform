@@ -1,7 +1,7 @@
 from chem21repo.storage import S3StaticFileSystem
 from staticgenerator import StaticGenerator
 from django.contrib.contenttypes.models import ContentType
-from chem21repo.repo.models import Question, Lesson, Module, Topic
+from chem21repo.repo.models import Question, Lesson, Module, Topic, PresentationAction
 from django.core.management.base import BaseCommand
 from django.core.urlresolvers import reverse
 
@@ -42,6 +42,12 @@ class Command(BaseCommand):
             for klass in lobj_classes:
                 for lobj in klass.objects.all():
                     paths |= frozenset(lobj.get_url_list())
+
+        paths |= frozenset([reverse(
+            "video_timeline", kwargs={"pk": timeline.presentation.pk, }) \
+                for timeline in PresentationAction.objects.all()])
+
+
 
         gen = StaticGenerator(*list(paths), fs=S3StaticFileSystem())
         gen.publish()
