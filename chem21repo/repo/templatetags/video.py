@@ -11,6 +11,7 @@ from chem21repo.repo.models import Module
 from chem21repo.repo.models import Question
 from chem21repo.repo.models import Topic
 from chem21repo.repo.models import UniqueFile
+from django.core.urlresolvers import reverse
 from django import template
 from django.template.loader import get_template
 from BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
@@ -41,6 +42,7 @@ class PlaceVideoNode(template.Node):
         vid_cxt['module_title'] = par.title
         vid_cxt['title'] = obj.title
         vid_cxt['authors'] = video.author_string
+        vid_cxt['timeline_url'] = reverse("video_timeline", kwargs={'pk':video.pk})
         vid_html = vid_template.render(vid_cxt)
         if num_blocks > 0:
             # display as an aside

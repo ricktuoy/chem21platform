@@ -90,7 +90,7 @@ class Biblio(models.Model):
 
     @staticmethod
     def autocomplete_search_fields():
-        return ("title__icontains", )
+        return ("id__iexact", "title__icontains", )
 
     def __unicode__(self):
         return self.citekey+": "+self.title
@@ -1172,16 +1172,20 @@ class UniqueFile(OrderedModel, DrupalModel):
     def render_args(self):
         if self.type == "video":
             ctx = {'url':self.url,
+                    'remote_url':self.get_remote_url(),
                     'byline': self.author_string ,
                     'description': self.description.replace("<p>","").replace("</p>","")}
             if self.render_type=="youtube":
                 ctx['remote_id'] = self.youtube_id
-                ctx['remote_url'] = "https://www.youtube.com/watch?v=%s&controls=1&preload=none" % self.youtube_id
-            else:
-                ctx['remote_url'] = self.url
-                
             return ctx
         return None
+
+    def get_remote_url(self):
+        if self.type == "video":
+            if self.render_type == "youtube":
+                return "https://www.youtube.com/watch?v=%s&controls=1&preload=none" % self.youtube_id
+        return self.url
+
     
     def get_video_slide_url(self, container_obj, lobj):
         if not self.type == "video":
@@ -1381,25 +1385,30 @@ class PresentationAction(models.Model):
         Biblio = ChoiceItem("B")
 
     def _base_json(self):
-        return {'start': self.start, 'end': self.end, 'type': self.action_type}
+        return {'start': self.start, 'end': self.end}
 
     class JSONEncoder():
         def __init__(self, action_type):
             self.as_json = getattr(self, 
                 action_type+"_json", 
                 PresentationAction._base_json)
-
+        
         @staticmethod
         def F_json(obj):
-            return PresentationAction._base_json(obj) + {
-                    'text': obj.text
-                }
+            out = PresentationAction._base_json(obj) 
+            out.update({
+                    'text': obj.text,
+                    'target': 'popcorn_footnote'
+                })
+            return out
 
         @staticmethod
         def I_json(obj):
-            out = PresentationAction._base_json(obj) + {
-                    'src': obj.image.get_absolute_url()
-                }
+            out = PresentationAction._base_json(obj) 
+            out.update({
+                    'src': obj.image.get_absolute_url(),
+                    'target': 'popcorn-image'
+                })
             if obj.link:
                 out['href'] = obj.link
             if obj.text:
@@ -1408,27 +1417,32 @@ class PresentationAction(models.Model):
 
         @staticmethod
         def B_json(obj):
-            return PresentationAction._base_json(obj) + {
-                    'text': obj.biblio.get_inline_html()
-                }
+            out = PresentationAction._base_json(obj) 
+            out.update({
+                    'text': obj.biblio.get_inline_html(),
+                    'target': 'popcorn_footnote'
+                })
+            return out
 
     start = models.IntegerField()
     end = models.IntegerField()
     text = models.TextField(null=True, blank=True, default="")
     presentation = models.ForeignKey(UniqueFile, related_name="actions")
     biblio = models.ForeignKey(Biblio, null=True, blank=True)
-    image = models.ForeignKey(UniqueFile, 
-        null=True, 
+    image = models.ForeignKey(UniqueFile,
+        null=True,
         blank=True,
         related_name="actions_of_image")
+
     action_type = models.CharField(max_length=1,
                         choices=ActionType.choices,
-                        validators=[ActionType.validator, ])
-
+                        validators=[ActionType.validator, ], default="F")
 
     def as_json(self):
-        return PresentationAction.JSONEncoder(
-            self.action_type).as_json(self)
+        return { self.ActionType.values[self.action_type].lower(): 
+                    PresentationAction.JSONEncoder(
+                        self.action_type).as_json(self)
+                }
 
 class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     objects = OrderedDrupalManager()

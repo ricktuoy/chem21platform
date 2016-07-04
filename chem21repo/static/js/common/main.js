@@ -23,6 +23,7 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
             var $fig = $(this).closest("figure");
             var $a = $fig.find("a.youtube");
             var href = $a.attr("href");
+            var timeline_url = $a.data("timelineSources");
             var $replace = $a.children("img");
             $a.after("<div class=\"youtube\"></div>");
             $div = $fig.find("div.youtube");
@@ -34,7 +35,11 @@ define(["jquery","jquery.mobile.config","uri_js/jquery.URI","jquery.mobile","jqu
             var $vid = $popcorn_holder.find( "#popcorn_video" );
             $vid.height( ($vid.width() / 4) * 3 );
             var $loader = $fig.find(".loader");
-            var pop = Popcorn.smart('#popcorn_video', href);          
+            var pop = Popcorn.smart('#popcorn_video', href);
+            var parsedCallback = function () {
+                console.log("PARSED.");
+            }  
+            pop.parseJSON(timeline_url, parsedCallback);
             $popcorn_holder.find("video").prop("controls", true);
             pop.on("playing", function(evt) {
                 $loader.hide();

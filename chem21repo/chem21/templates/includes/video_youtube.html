@@ -1,7 +1,7 @@
 {% load static %}
 <figure class="presentation youtube" data-remote-id="{{ remote_id}}">
 <div class="video_wrapper">
-<a class="youtube" href="{{ remote_url }}" title="{{ title }}">
+<a class="youtube" href="{{ remote_url }}" title="{{ title }}" data-timeline-sources = "{{ timeline_url }}">
 <img class="thumbnail" src="{{ front_slide_url }}" />
 </a>
 <div class="loader">
@@ -28,6 +28,10 @@ The views expressed in regards to education and training materials represent the
 <figcaption class="description">
 {{ description|safe }}
 </figcaption>
+<div class="">
+</div>
+<div class="">
+</div>
 {% endif %}
 {% if tools %}
 <figcaption class="admin_tools">

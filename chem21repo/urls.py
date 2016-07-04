@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^listing/$', HomePageView.as_view()),
     url(r'^video/(?P<checksum>[^/]+)[/]?$',
         VideoView.as_view(), name="video_detail"),
+    url(r'^video_timeline/(?P<pk>[0-9]+).json', VideoTimelineView.as_view(), name="video_timeline"),
     url(r'^source_file/move/(?P<from_id>[0-9]+)/(?P<to_id>[0-9]+)[/]?$',
         SourceFileMoveView.as_view(), name="source_file_move"),
     url(r'^cut_file/move/(?P<from_id>[0-9]+)/(?P<to_id>[0-9]+)[/]?$',

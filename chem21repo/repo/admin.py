@@ -38,13 +38,16 @@ def create_admin(model, fields, name="", hidden_fields=[], form=None, base_admin
         attrs = {}
         attrs['__module__'] = ''
         attrs['Meta'] = Meta
-
         newform = type("NewForm", (forms.ModelForm,), attrs)
     else:
         newform = form
 
+    
     for k in hidden_fields:
-        newform.declared_fields[k] = newform.base_fields[k]
+        try:
+            newform.declared_fields[k] = newform.base_fields[k]
+        except:
+            raise Exception((themodel, Exception(newform.base_fields),))
         del newform.base_fields[k]
         if isinstance(newform.declared_fields[k],
                       (forms.MultipleChoiceField,
@@ -58,22 +61,21 @@ def create_admin(model, fields, name="", hidden_fields=[], form=None, base_admin
     def _save_callback(self, request, obj, form, change):
         obj.user = request.user
         obj.save()
-    class NewAdmin(admin.ModelAdmin):
-        form = newform
+        
+    if not base_admin:
         class Media:
             js = [
                 '/s3/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
                 '/s3/js/tinymce_setup.js',
             ]
-
-    if not base_admin:
-        final_admin = NewAdmin
+        final_admin = type("NewAdmin", (admin.ModelAdmin,), {'__module__': '', 'Media': Media})
     else:
         final_admin = base_admin
 
-    final_admin.save_model = getattr(final_admin, "save_model", final_admin)
+    final_admin.save_model = getattr(final_admin, "save_model", _save_callback)
+    final_admin.form = newform
 
-    return {'modeladmin': NewAdmin,
+    return {'modeladmin': final_admin,
             'model': themodel,
             'name': str(themodel._meta.verbose_name +
                         "-" + name)
@@ -96,6 +98,12 @@ create_admin(
     fields=['name', 'code', 'text'],
     hidden_fields=['topic', ],
 )
+
+create_admin(
+    model=Biblio,
+    fields=['title', 'citekey'],
+)
+
 create_admin(
     model=Topic, 
     fields=['name', 'text','icon' ]
@@ -116,17 +124,22 @@ create_admin(
 class PresentationActionAdmin(admin.ModelAdmin):
     raw_id_fields = ('biblio',)
     autocomplete_lookup_fields = {
-        'fk': ['biblio',],
+        'fk': ['biblio'],
     }
+    class Media:
+        js = [
+           '/s3/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
+           '/s3/js/tinymce_setup.js',
+        ]
 
 create_admin(
     model=PresentationAction,
     hidden_fields=['presentation', ],
-    fields=["start", "end", "biblio"],
+    fields=["start", "end", "action_type", "biblio", "image", "text", ],
     base_admin=PresentationActionAdmin)
 
 for md in [Question, UniqueFile, Author,
            LearningTemplate, Molecule,
            Event, Lesson, FileLink, Module,
-           UniqueFilesofModule, CredentialsModel]:
+           UniqueFilesofModule, CredentialsModel, Biblio]:
     create_power_admin(md)

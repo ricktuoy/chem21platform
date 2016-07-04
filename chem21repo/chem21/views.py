@@ -3,15 +3,89 @@ from chem21repo.repo.models import Module
 from chem21repo.repo.models import Question
 from chem21repo.repo.models import Topic
 from chem21repo.repo.models import UniqueFile
+from chem21repo.repo.models import PresentationAction
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
+from django.views.generic import TemplateView
 from django.contrib.contenttypes.models import ContentType
+from django.http import JsonResponse
 from abc import abstractmethod
 from abc import abstractproperty
 from abc import ABCMeta
 import hashlib
+
+
+class JSONResponseMixin:
+
+    """
+    A mixin that can be used to render a JSON response.
+    """
+
+    @property
+    def error(self):
+        return self._error
+
+    @error.setter
+    def error(self, ev):
+        tr = traceback.format_exc()
+        try:
+            e, status = ev
+        except ValueError:
+            e = ev
+            status = 400
+        self._error = {'message': str(e), 'stacktrace': tr}
+        self._error_status = status
+
+    @property
+    def status_code(self):
+        return self._error_status
+
+    def render_to_json_response(self, context, **response_kwargs):
+        """
+        Returns a JSON response, transforming 'context' to make the payload.
+        """
+        if hasattr(self, "error") and self.error:
+            context['error'] = self.error
+            response_kwargs['status'] = self.status_code
+        return JsonResponse(
+            self.get_data(context),
+            **response_kwargs
+        )
+
+    def get_data(self, context):
+        """
+        Returns an object that will be serialized as JSON by json.dumps().
+        """
+        return context
+
+
+class JSONView(JSONResponseMixin, TemplateView):
+
+    def render_to_response(self, context, **response_kwargs):
+        try:
+            response_kwargs['safe'] = self.__class__.safe
+        except AttributeError:
+            pass
+        return self.render_to_json_response(context, **response_kwargs)
+
+
+
+class VideoTimelineView(JSONView):
+    def get_context_data(self, *args, **kwargs):
+        pk = kwargs['pk']
+        vid = get_object_or_404(UniqueFile, pk=pk)
+        timeline = vid.actions
+        return {
+            'title': vid.title,
+            'remote': vid.get_remote_url(),
+            'data': [ a.as_json() for a in timeline.all() ]
+        } 
+# TODO: turn this into a URL then add it to 
+# the vars passed to video token
+
+
 
 
 class LearningView(DetailView):
@@ -71,7 +145,7 @@ class LearningView(DetailView):
                                  Opt(v.app_label, v.model))
                                 for k, v in
                                 ContentType.objects.get_for_models(
-            Module, Topic, Lesson, Question, UniqueFile,
+            Module, Topic, Lesson, Question, UniqueFile, PresentationAction,
             for_concrete_models=False).iteritems()])
         context['opts']['current'] = context['opts'][ContentType.objects.get_for_model(obj).model.replace(" ","")]
 
