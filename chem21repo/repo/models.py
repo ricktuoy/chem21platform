@@ -247,6 +247,16 @@ EventUnicodeMixin = UnicodeMixinFactory(("name", "date"))
 EventUnicodeMixin.__name__ = "EventUnicodeMixin"
 
 
+class Author(BaseModel, AuthorUnicodeMixin):
+    full_name = models.CharField(max_length=200, unique=True)
+    role = models.CharField(max_length=200, null=True, blank=True)
+
+    def __unicode__(self):
+        if self.role:
+            return "%s, %s" % (self.full_name, self.role)
+        else:
+            return self.full_name
+
 class DrupalManager(models.Manager):
 
     def get_or_pull(self, *args, **kwargs):
@@ -272,6 +282,8 @@ class DrupalModel(models.Model):
     quiz_name = models.CharField(max_length=100, blank=True, null=True)
     template = models.ForeignKey(LearningTemplate, null=True, blank=True)
     archived = models.BooleanField(default=False)
+    attribution = models.ForeignKey(Author, blank=True, null=True)
+    show_attribution = models.BooleanField(default=False, null=True, blank=True)
 
     @property
     def quiz(self):
@@ -1107,15 +1119,7 @@ class Status(BaseModel, NameUnicodeMixin):
     name = models.CharField(max_length=200)
 
 
-class Author(BaseModel, AuthorUnicodeMixin):
-    full_name = models.CharField(max_length=200, unique=True)
-    role = models.CharField(max_length=200, null=True, blank=True)
 
-    def __unicode__(self):
-        if self.role:
-            return "%s, %s" % (self.full_name, self.role)
-        else:
-            return self.full_name
 
 class Molecule(models.Model):
     name = models.CharField(max_length=100, null=True, unique=True)
