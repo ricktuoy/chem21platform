@@ -1080,6 +1080,24 @@ def save_order(sender, instance, raw, **kwargs):
                 instance.order = sender.objects.new_order_val # insert at end
             except:
                 pass
+    if not(isinstance(instance, Lesson) \
+            or isinstance(instance, Topic) or isinstance(instance, Module)):
+        return
+    if instance.children.all().count() == 0:
+        name = instance.title
+        instance.is_question = True
+        if isinstance(instance, Lesson):
+            new_child = Question(title=name)
+        elif isinstance(instance, Topic):
+            new_child = Module(name=name)
+        elif isinstance(instance, Module):
+            new_child = Lesson(title=name)
+        new_child.save()
+        instance.children.add(new_child)
+        instance.save()
+
+
+
 
 
 @receiver(models.signals.post_save, dispatch_uid="save_text_version")
@@ -1131,12 +1149,9 @@ def save_m2m_order(sender, instance, action,
                reverse, model, pk_set, **kwargs):
     if not (isinstance(instance, Question) or isinstance(instance, Lesson) \
             or isinstance(instance, Topic) or isinstance(instance, Module)):
-        #logging.debug("Not saving the order, wrong type so fuck you.")
         return
     if action != "post_add":
-        #logging.debug("This is not post add")
         return
-    logging.debug("Trying to save m2m order")
     if not reverse:
         children = [instance, ]
         parents = list(model.objects.filter(pk__in=pk_set))
@@ -1147,10 +1162,7 @@ def save_m2m_order(sender, instance, action,
         parents = [instance, ]
         parent_model = instance.__class__
         child_model = model
-    logging.debug("Children: %s" % repr(children))
-    logging.debug("Parents: %s" % repr(parents))
     for c in children:
-        logging.debug("Child order %s" % repr(c.order))
         if not c.order:
             c.order = 0
             for p in parents:
@@ -1160,7 +1172,6 @@ def save_m2m_order(sender, instance, action,
                 if new_order > c.order:
                     c.order = new_order
             c.save()
-
 
 
 class Event(BaseModel, EventUnicodeMixin):
