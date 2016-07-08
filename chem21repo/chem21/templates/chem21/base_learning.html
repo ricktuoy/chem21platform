@@ -79,6 +79,13 @@
 		<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
 		data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
 		Edit</a>
+
+{% endif %}
+
+{% if opts.child %}
+		<a class="btn btn-success admin-add" href="{% url opts.child|admin_urlname:'add' %}?{{ opts.child.parent_fieldname }}={{object.pk}}"
+		data-from-url-edit="{% url opts.child|admin_urlname:'changelist' %}">
+		Add child page</a>
 {% endif %}
 {% if object.video %}
 	<a class="btn btn-success admin-edit" href="{% url opts.uniquefile|admin_urlname:'change' object.video.pk %}"

@@ -96,9 +96,10 @@ class LearningView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         class Opt(object):
-            def __init__(self, label, name):
+            def __init__(self, label, name, parent_fieldname):
                 self.app_label = label
                 self.model_name = name
+                self.parent_fieldname = parent_fieldname
 
         context = super(LearningView, self).get_context_data(**kwargs)
 
@@ -141,13 +142,18 @@ class LearningView(DetailView):
         except AttributeError:
             pass
         context['breadcrumbs'] = obj.get_ancestors()
-        context['opts'] = dict([(v.model.replace(" ", ""),
-                                 Opt(v.app_label, v.model))
-                                for k, v in
-                                ContentType.objects.get_for_models(
-            Module, Topic, Lesson, Question, UniqueFile, PresentationAction,
-            for_concrete_models=False).iteritems()])
+        models =  [Module, Topic, Lesson, Question, UniqueFile, PresentationAction]
+        cts = ContentType.objects.get_for_models(*models, for_concrete_models=False)
+
+        context['opts'] = dict([(ct.model.replace(" ", ""),
+                                Opt(ct.app_label, ct.model, getattr(m,'get_parent_fieldname', None)))
+                                for m, ct in
+                                cts.iteritems()])
         context['opts']['current'] = context['opts'][ContentType.objects.get_for_model(obj).model.replace(" ","")]
+        try:
+            context['opts']['child'] = context['opts'][obj.get_child_classname()]
+        except AttributeError:
+            pass
 
         nxt = obj.get_next_object()
         prev = obj.get_previous_object()

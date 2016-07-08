@@ -37,6 +37,10 @@ define(["jquery","jquery.fileupload","common"], function($) {
         }).prop('disabled', !$.support.fileInput)
             .parent().addClass($.support.fileInput ? undefined : 'disabled');
 
+        $('#djDebug').on('mouseover', 'a', function() {
+            $(this).removeClass('ui-link');
+        });
+
         
     });
 });

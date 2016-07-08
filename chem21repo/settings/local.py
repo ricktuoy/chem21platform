@@ -2,7 +2,7 @@ from common import *
 import os
 DEBUG = True
 TEMPLATE_DEBUG = True
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = True
 
 STATIC_ROOT = BASE_DIR + '/../static/'
 STATIC_URL = "/static/"

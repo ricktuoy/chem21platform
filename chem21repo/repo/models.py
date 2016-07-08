@@ -33,6 +33,7 @@ from django.contrib.auth.models import User
 from oauth2client.contrib.django_orm import CredentialsField
 from PIL import Image
 from djchoices import DjangoChoices, ChoiceItem
+from django.db.models import Max
 
 
 class CredentialsModel(models.Model):
@@ -257,6 +258,13 @@ class Author(BaseModel, AuthorUnicodeMixin):
         else:
             return self.full_name
 
+class AttributionMixin(BaseModel):
+    attribution = models.ForeignKey(Author, blank=True, null=True)
+    show_attribution = models.BooleanField(default=False)
+    class Meta:
+        abstract = True
+    
+
 class DrupalManager(models.Manager):
 
     def get_or_pull(self, *args, **kwargs):
@@ -282,8 +290,7 @@ class DrupalModel(models.Model):
     quiz_name = models.CharField(max_length=100, blank=True, null=True)
     template = models.ForeignKey(LearningTemplate, null=True, blank=True)
     archived = models.BooleanField(default=False)
-    attribution = models.ForeignKey(Author, blank=True, null=True)
-    show_attribution = models.BooleanField(default=False, null=True, blank=True)
+
 
     @property
     def quiz(self):
@@ -550,6 +557,10 @@ class OrderedManagerBase:
     def order_queryset(self):
         return None
 
+    @property
+    def new_order_val(self):
+        return self.order_queryset().aggregate(Max('order'))['order__max'] + 1
+
     def flag_dirty(self):
         return None
 
@@ -724,6 +735,9 @@ class OrderedManager(models.Manager, OrderedManagerBase):
 
     def get_queryset(self):
         return super(OrderedManager, self).get_queryset()
+
+
+
 
 
 class OrderedDrupalManager(OrderedManager, DrupalManager):
@@ -1050,11 +1064,22 @@ def generate_dirty_record(sender,
         # instance.drupal.mark_fields_changed(instance.drupal.fields)
 
 @receiver(models.signals.pre_save)
-def save_slug(sender, instance, **kwargs):
+def save_slug_and_order(sender, instance, **kwargs):
     if isinstance(instance, Question) or isinstance(instance, Lesson) \
             or isinstance(instance, Topic) or isinstance(instance, Module):
         if not instance.slug:
             instance.slug = slugify(instance.title)
+        
+            
+
+@receiver(models.signals.post_save, dispatch_uid="save_order")
+def save_order(sender, instance, raw, **kwargs):
+    if isinstance(instance, OrderedModel):
+        if not instance.order:
+            try:
+                instance.order = sender.objects.new_order_val # insert at end
+            except:
+                pass
 
 
 @receiver(models.signals.post_save, dispatch_uid="save_text_version")
@@ -1070,6 +1095,7 @@ def save_text_version(sender, instance, raw, **kwargs):
             return
         if not raw and hasattr(instance, "user"):
             TextVersion.objects.create_for_object(instance)
+
 
 
 @receiver(models.signals.m2m_changed)
@@ -1099,6 +1125,42 @@ def generate_dirty_m2m_record(sender, instance, action,
                 p.save(update_fields=["dirty", ])
         except:
             pass
+
+@receiver(models.signals.m2m_changed)
+def save_m2m_order(sender, instance, action,
+               reverse, model, pk_set, **kwargs):
+    if not (isinstance(instance, Question) or isinstance(instance, Lesson) \
+            or isinstance(instance, Topic) or isinstance(instance, Module)):
+        #logging.debug("Not saving the order, wrong type so fuck you.")
+        return
+    if action != "post_add":
+        #logging.debug("This is not post add")
+        return
+    logging.debug("Trying to save m2m order")
+    if not reverse:
+        children = [instance, ]
+        parents = list(model.objects.filter(pk__in=pk_set))
+        parent_model = model
+        child_model = instance.__class__
+    else:
+        children = list(model.objects.filter(pk__in=pk_set))
+        parents = [instance, ]
+        parent_model = instance.__class__
+        child_model = model
+    logging.debug("Children: %s" % repr(children))
+    logging.debug("Parents: %s" % repr(parents))
+    for c in children:
+        logging.debug("Child order %s" % repr(c.order))
+        if not c.order:
+            c.order = 0
+            for p in parents:
+                child_model.objects.set_m2m_key_value(p.pk)
+                new_order = child_model.objects.new_order_val
+                logging.debug(new_order)
+                if new_order > c.order:
+                    c.order = new_order
+            c.save()
+
 
 
 class Event(BaseModel, EventUnicodeMixin):
@@ -1447,7 +1509,7 @@ class PresentationAction(models.Model):
                         self.action_type).as_json(self)
                 
 
-class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
+class Topic(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
     objects = OrderedDrupalManager()
     name = models.CharField(max_length=200)
     slug = models.CharField(max_length=200, null=True, blank=True)
@@ -1456,6 +1518,10 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     child_attr_name = "modules"
     text = models.TextField(null=True, blank=True, default="")
     icon = FileBrowseField(max_length=500, null=True)
+
+    @classmethod
+    def get_child_classname(kls):
+        return "module"
 
     def get_siblings(self):
         return Topic.objects.filter(code="XXX")
@@ -1504,7 +1570,7 @@ class Topic(OrderedModel, DrupalModel, NameUnicodeMixin):
     def get_url_list(self):
         return [self.get_absolute_url(), ]
 
-class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
+class Module(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
     objects = OrderedDrupalManager()
     name = models.CharField(max_length=200)
     slug = models.CharField(max_length=100, blank=True, default="")
@@ -1519,6 +1585,14 @@ class Module(OrderedModel, DrupalModel, NameUnicodeMixin):
     is_question = models.BooleanField(default=False)
     _child_orders = {}
     child_attr_name = "lessons"
+
+    @classmethod
+    def get_child_classname(kls):
+        return "lesson"
+
+    @classmethod
+    def get_parent_fieldname(kls):
+        return "topic"
 
     @property
     def modules(self):
@@ -1736,7 +1810,7 @@ class SlidesInPresentationVersion(OrderedModel):
         index_together = ('presentation', 'slide')
 
 
-class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
+class Lesson(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
     objects = LessonsInModuleManager()
     modules = models.ManyToManyField(Module, related_name="lessons")
     title = models.CharField(max_length=100, blank=True, default="")
@@ -1753,6 +1827,14 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
         title='title', id='remote_id',
         question_orders='child_orders',
     )
+
+    @classmethod
+    def get_child_classname(kls):
+        return "question"
+
+    @classmethod
+    def get_parent_fieldname(kls):
+        return "modules"
 
     @property
     def first_question(self):
@@ -1874,7 +1956,7 @@ class Lesson(OrderedModel, DrupalModel, TitleUnicodeMixin):
         return urls
 
 
-class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
+class Question(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
     objects = QuestionsInLessonManager()
     title = models.CharField(max_length=100, blank=True, default="")
     slug = models.CharField(max_length=100, blank=True, default="")
@@ -1902,6 +1984,10 @@ class Question(OrderedModel, DrupalModel, TitleUnicodeMixin):
         for lesson in self.lessons.all():
             modules += list(lesson.modules.all())
         return list(set(modules))
+
+    @classmethod
+    def get_parent_fieldname(kls):
+        return "lessons"
 
     def get_last_display_child(self):
         return None
