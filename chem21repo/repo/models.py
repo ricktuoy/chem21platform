@@ -525,7 +525,6 @@ class DrupalModel(models.Model):
     @property
     def learning_object_type(self):
         return type(self).__name__.lower()
-    
 
     def __init__(self, *args, **kwargs):
         r = super(DrupalModel, self).__init__(*args, **kwargs)
@@ -1064,7 +1063,7 @@ def generate_dirty_record(sender,
         # instance.drupal.mark_fields_changed(instance.drupal.fields)
 
 @receiver(models.signals.pre_save)
-def save_slug_and_order(sender, instance, **kwargs):
+def save_slug(sender, instance, **kwargs):
     if isinstance(instance, Question) or isinstance(instance, Lesson) \
             or isinstance(instance, Topic) or isinstance(instance, Module):
         if not instance.slug:
@@ -1072,14 +1071,18 @@ def save_slug_and_order(sender, instance, **kwargs):
         
             
 
-@receiver(models.signals.post_save, dispatch_uid="save_order")
+@receiver(models.signals.pre_save, dispatch_uid="save_order")
 def save_order(sender, instance, raw, **kwargs):
     if isinstance(instance, OrderedModel):
         if not instance.order:
             try:
                 instance.order = sender.objects.new_order_val # insert at end
-            except:
-                pass
+            except Exception, e:
+                logging.debug(type(e))
+                logging.debug(e)
+
+@receiver(models.signals.post_save, dispatch_uid="create_child")
+def create_child(sender, instance, raw, **kwargs):
     if not(isinstance(instance, Lesson) \
             or isinstance(instance, Topic) or isinstance(instance, Module)):
         return

@@ -13,8 +13,8 @@
 		{% if module.dummy %}
 			{% include 'chem21/include/active_module_nav.html' with module=module %}
 		{% else %}
-		<li>
-			<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
+		<li data-lo-type="module" data-lo-pk="{{ module.pk }}">
+			<a  href="{{ module.get_absolute_url }}">{{ module.name }}</a>
 		</li>
 		{% endif %}
 	{% endfor %}

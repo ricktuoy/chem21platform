@@ -1,7 +1,7 @@
 					{% for lesson in module.ordered_lessons|dictsort:"order" %}
 						{% if not module.is_question or forloop.counter0 %}
 							{% ifequal lesson current_lesson %}
-								<li class="active">
+								<li data-lo-type="lesson" data-lo-pk="{{ lesson.pk }}" class="active">
 									{% if current_question %}
 										
 										{% if lesson.text or perms.repo.change_lesson %}
@@ -18,16 +18,16 @@
 									{% for question in lesson.ordered_questions|dictsort:"order" %}
 										{% if not lesson.is_question or forloop.counter0 %}
 											{% ifequal question current_question %}
-												<li class="active">{{ question.get_title }}</li>
+												<li data-lo-type="question" data-lo-pk="{{ question.pk }}" class="active">{{ question.get_title }}</li>
 											{% else %}
-												<li><a href="{% url 'question_detail' topic_slug=class_tree.slug module_slug=module.slug lesson_slug=lesson.slug slug=question.slug %}">{{ question.get_title }}</a></li>
+												<li data-lo-type="question" data-lo-pk="{{ question.pk }}"><a href="{% url 'question_detail' topic_slug=class_tree.slug module_slug=module.slug lesson_slug=lesson.slug slug=question.slug %}">{{ question.get_title }}</a></li>
 												
 											{% endifequal %}
 										{% endif %}
 									{% endfor %}
 								</ol></li>
 							{% else %}
-								<li><a href="{% url 'lesson_detail' topic_slug=class_tree.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.get_title }}</a></li>				
+								<li data-lo-type="lesson" data-lo-pk="{{ lesson.pk }}"><a href="{% url 'lesson_detail' topic_slug=class_tree.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.get_title }}</a></li>				
 							{% endifequal %}
 						{% endif %}
 					{% endfor %}

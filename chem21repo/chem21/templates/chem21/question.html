@@ -13,7 +13,7 @@
 				{% if module.dummy %}
 					{% include 'chem21/include/active_module_nav.html' with module=module current_question=object %}
 				{% else %}
-				<li class="active">
+				<li data-lo-type="module" data-lo-pk="{{ module.pk }}" class="active">
 					{% if module.text|striptags or perms.repo.change_module %}
 					<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
 				{% else %}
@@ -30,7 +30,7 @@
 			{% if module.dummy %}
 				{% include 'chem21/include/active_module_nav.html' with module=module current_question=object %}
 			{% else %}
-			<li>
+			<li data-lo-type="module" data-lo-pk="{{ module.pk }}">
 				<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
 			</li>
 			{% endif %}
