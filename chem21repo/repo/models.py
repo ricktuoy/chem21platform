@@ -1073,6 +1073,9 @@ def save_slug(sender, instance, **kwargs):
 
 @receiver(models.signals.pre_save, dispatch_uid="save_order")
 def save_order(sender, instance, raw, **kwargs):
+    if not(isinstance(instance, Lesson) \
+        or isinstance(instance, Topic) or isinstance(instance, Module)):
+        return
     if isinstance(instance, OrderedModel):
         if not instance.order:
             try:
@@ -1168,13 +1171,16 @@ def save_m2m_order(sender, instance, action,
     for c in children:
         if not c.order:
             c.order = 0
+            child_model.objects._current_element = c
             for p in parents:
                 child_model.objects.set_m2m_key_value(p.pk)
                 new_order = child_model.objects.new_order_val
                 logging.debug(new_order)
                 if new_order > c.order:
                     c.order = new_order
+            child_model.objects._ensure_order_consistent()
             c.save()
+
 
 
 class Event(BaseModel, EventUnicodeMixin):
