@@ -78,6 +78,11 @@
         "select_bibliotag": "../../tiny_mce/plugins/bibliotag/js/select_bibliotag",
         "select_figuretag": "../../tiny_mce/plugins/figuretag/js/select_figuretag",
         "select_linktag": "../../tiny_mce/plugins/linktag/js/select_linktag",
-        "uri_js": "uri.js/src"
+        "uri_js": "uri.js/src",
+        "jsCurry": "jscurry-0.4.1",
+        "jquery.math": "jqmath-0.4.4" 
     },
+    shim: {
+        "jquery.math": ['jquery','jsCurry']
+    }
 })
