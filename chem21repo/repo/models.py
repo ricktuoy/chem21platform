@@ -1102,10 +1102,6 @@ def create_child(sender, instance, raw, **kwargs):
         instance.children.add(new_child)
         instance.save()
 
-
-
-
-
 @receiver(models.signals.post_save, dispatch_uid="save_text_version")
 def save_text_version(sender, instance, raw, **kwargs):
     if isinstance(instance, DrupalModel) \
@@ -1119,8 +1115,6 @@ def save_text_version(sender, instance, raw, **kwargs):
             return
         if not raw and hasattr(instance, "user"):
             TextVersion.objects.create_for_object(instance)
-
-
 
 @receiver(models.signals.m2m_changed)
 def generate_dirty_m2m_record(sender, instance, action,
@@ -1180,8 +1174,6 @@ def save_m2m_order(sender, instance, action,
                     c.order = new_order
             child_model.objects._ensure_order_consistent()
             c.save()
-
-
 
 class Event(BaseModel, EventUnicodeMixin):
     name = models.CharField(max_length=100)

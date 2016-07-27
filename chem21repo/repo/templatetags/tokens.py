@@ -315,22 +315,20 @@ class FigureGroupTagProcessor(ContextProcessorMixin, TagProcessor):
         if not t:
             t = "figure"
         try:
-            class_set = set(args[1].split(" "))
-            classes = " " + args[1]
+            class_set = frozenset(args[1].split(" "))
         except IndexError:
-            classes = ""
-            class_set = set([])
-        if not classes:
-            classes = ""
-            class_Set = set([])
+            class_set = frozenset([])
+        classes = " ".join(class_set | frozenset(["inline"]) )
         self.replace_caption_html(t)
         self.inc_count(t)
-        self.inner_text = "<figure class=\"inline%s\">%s</figure>" % (
+        self.inner_text = "<figure class=\"%s\">%s</figure>" % (
             classes, self.inner_text)
         if "aside" in class_set:
-            self.asides.append(self.inner_text)
-            return ""
-        
+            if not "inline" in class_set:
+                self.asides.append(self.inner_text)
+                return ""
+            else:
+                self.inner_text = "<aside>%s</aside>" % self.inner_text    
         return self.inner_text
 
     def get_asides_html(self):

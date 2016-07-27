@@ -14,14 +14,14 @@ django-choices==1.4.3
 django-debug-panel==0.8.2
 django-debug-toolbar==1.4
 -e git+https://github.com/ricktaylord/django-filebrowser.git@56f9f2ebf089a3d16f2dff77ea237fc2325fad8f#egg=django_filebrowser
-django-grappelli==2.6.5
+django-grappelli==2.8.1
 django-herokuapp==0.9.20
 django-require==1.0.8
 django-require-s3==1.0.0
 django-revproxy==0.9.10
 -e git+https://github.com/ricktaylord/django-static-generator.git@8ac91e1a73456b5927186983051c12fcf2c01539#egg=django_staticgenerator
 -e hg+https://ricktaylord@bitbucket.org/david/django-storages@f153a70ba254dc129d9403546809a02256ef75b5#egg=django_storages
-django-tinymce==2.2.0
+django-tinymce==2.3.0
 -e git+https://github.com/ricktaylord/django-tinymce-biblio.git@6afd67a579e2d0cf2bcb9fa140c3b13b5d8ed17d#egg=django_tinymce_biblio
 -e git+https://github.com/ricktaylord/django-tinymce-figures.git@7b5d20492700a6564286c91a703133196d3f1925#egg=django_tinymce_figuretag
 -e git+https://github.com/ricktaylord/django-tinymce-links.git@d020c3267b7e70b7284fb50dd9b6d543cfd2edac#egg=django_tinymce_links
