@@ -1457,6 +1457,7 @@ p.attrib .rights_statement {
 	#content aside {
 		width: 40%;
 		float: right;
+		clear: right;
 	}
 
 	#content aside.half {
