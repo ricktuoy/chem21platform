@@ -742,6 +742,23 @@ body.front #content .content .cobranding {
 	display: inline-block;
 }
 
+.quiz_questions .quote {
+	font-weight: normal;
+	font-size: 0.8em;
+}
+
+.quiz_questions .gap {
+	width: 4em;
+	border-bottom: 1px solid #222;
+	display: inline-block;
+	text-align: center;
+}
+
+.quiz_questions .gap.current {
+	font-weight: bold;
+	color: #700;
+}
+
 
 .quiz_questions .controls a,
 .quiz_questions a.submit {
