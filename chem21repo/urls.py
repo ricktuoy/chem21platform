@@ -51,7 +51,7 @@ urlpatterns = [
         FileRemoveView.as_view(), name="file_remove"),
     url(r'^file/delete/(?P<id>[0-9]+)/(?P<parent_id>[0-9]+)[/]?$',
         FileDeleteView.as_view(), name="file_delete"),
-    url(r'^upload_media/(?P<type>[^/]*)[/]?(?P<pk>[0-9]*)[/]?$', 
+    url(r'^upload_media/(?P<type>[^/]*)/(?P<pk>[0-9]*)[/]?$', 
         MediaUploadView.as_view(), 
         name="media_upload"),
     url(r'^endnote/upload/$', EndnoteUploadView.as_view(),

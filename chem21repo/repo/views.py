@@ -673,6 +673,7 @@ class MediaUploadView(JQueryFileHandleView):
         o = super(MediaUploadView,self).get_return_values()
         o['content_type'] = self.content_type
         o['handler'] = unicode(self.handle_cls)
+        o['pk'] = self.file_obj.pk
         return o
 
     def get_post_dict_from_request(self, request):
@@ -748,7 +749,7 @@ class MediaUploadView(JQueryFileHandleView):
         try:
             fo = self.handle.process(f, lobj=self.learning_object, **kwargs)
         except Exception as e:
-            self.errors.append(str(e))
+            self.errors.append((str(e), str(self.handle), traceback.format_exc()))
             self.file_obj = JSONFileObjectWrapper(name = "", url ="" )
             return
         self.file_obj = fo

@@ -11,37 +11,14 @@ from chem21repo.repo.models import Module
 from chem21repo.repo.models import Question
 from chem21repo.repo.models import Topic
 from chem21repo.repo.models import UniqueFile
+from chem21repo.repo.tokens import *
 from django import template
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 
 register = template.Library()
 
 
-class BaseProcessor:
-    __metaclass__ = ABCMeta
-    openchar = "\["
-    closechar = "\]"
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-    @abstractproperty
-    def pattern(self):
-        return None
-
-    @abstractmethod
-    def repl_function(self, match):
-        return None
-
-    def apply(self, st):
-        self.full_text = st
-        return self.pattern.sub(self.repl_function, st)
-
-class ContextProcessorMixin(object):
-    def __init__(self, *args, **kwargs):
-        self.context = kwargs.get("context", {})
-        self.request = self.context.get("request", None)
-        super(ContextProcessorMixin,self).__init__(*args, **kwargs)
 
 class FigureRefProcessor(ContextProcessorMixin, BaseProcessor):
     @property
@@ -55,6 +32,7 @@ class FigureRefProcessor(ContextProcessorMixin, BaseProcessor):
             return self._pattern
     def repl_function(self, match):
         return "<span class=\"figure_ref\">%s</span>" % match.group()
+
 
 class TokenProcessor(BaseProcessor):
     __metaclass__ = ABCMeta
@@ -266,7 +244,7 @@ class FigCaptionTagProcessor(ContextProcessorMixin, TagProcessor):
         return "<figcaption>%s</figcaption>" % st
 
 
-class FigureGroupTagProcessor(ContextProcessorMixin, TagProcessor):
+class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcessor):
     tag_name = "figgroup"
 
     def __init__(self, *args, **kwargs):
@@ -292,6 +270,14 @@ class FigureGroupTagProcessor(ContextProcessorMixin, TagProcessor):
     def get_type(self):
         t = "figure"
         return t
+
+    def block_tool_handle_html(self):
+        return "[+Fig]"
+
+    @property
+    def block_tool_name(self):
+        return "figure"
+
 
     def replace_caption_html(self, t):
         figtitle = "<span class=\"figure_name\">%s %d</span>" % (
@@ -470,10 +456,20 @@ class ReplaceTokensNode(template.Node):
             'figgroup':FigureGroupTagProcessor(context=context),
             'figcaption':FigCaptionTagProcessor(context=context),
             }
+        decruft = re.compile(
+                r'<div class="token"><!--token-->(.*?)<!--endtoken--></div>',
+                re.DOTALL)
+
+        txt = decruft.sub(lambda match: match.group(1), txt)
         proc_order = ['ibib','bib','ilink','rsc','attrib','cta','green',
                       'figref','figure','figgroup','figcaption',]
         for key in proc_order:
             txt = processors[key].apply(txt)
+            if context['user'].is_authenticated() and ('staticgenerator' not in context or not context['staticgenerator']):
+                try:
+                    txt = processors[key].apply_block_tool(txt)
+                except AttributeError, e:
+                    pass
         context['footnotes_html'] = processors['bib'].get_footnotes_html()
         asides_html = processors['figgroup'].get_asides_html()
         asides_html = processors['figcaption'].apply(asides_html)

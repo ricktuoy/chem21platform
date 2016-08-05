@@ -24,7 +24,8 @@
                   {name: 'mol_menu_admin'},
                   {name: 'select_bibliotag'},
                   {name: 'select_figuretag'},
-                  {name: 'select_linktag'}],
+                  {name: 'select_linktag'},
+                  {name: 'admin_fileupload'}],
     /*
      * Allow CSS optimizations. Allowed values:
      * - "standard": @import inlining, comment removal and line returns.
@@ -80,7 +81,8 @@
         "select_linktag": "../../tiny_mce/plugins/linktag/js/select_linktag",
         "uri_js": "uri.js/src",
         "jsCurry": "jscurry-0.4.1",
-        "jquery.math": "jqmath-0.4.4" 
+        "jquery.math": "jqmath-0.4.4" ,
+        "admin_fileupload": "../admin-fileupload"
     },
     shim: {
         "jquery.math": ['jquery','jsCurry']

@@ -77,6 +77,7 @@ tinyMCE.init({
     // customize your content ...
     // content_css : "css/example.css",
     
+    content_css : '/s3/css/combined.css',
     // Theme Advanced
 
 

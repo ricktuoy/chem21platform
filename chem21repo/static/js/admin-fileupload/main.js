@@ -1,4 +1,4 @@
-define(["jquery","jquery.fileupload","common"], function($) {
+define(["jquery","jquery.fileupload","jquery.cookie"], function($) {
     $(function() {
         var csrftoken = $.cookie('csrftoken');
         function csrfSafeMethod(method) {
@@ -21,9 +21,9 @@ define(["jquery","jquery.fileupload","common"], function($) {
             done: function (e, data) {
                 var that=this;
                 $.each(data.result, function (index, file) {
-                    var para = $('<a />').attr("href",file.url).text(file.name);
-                    para.wrap($("<li />"));
-                    $(that).closest(".fileupload_wrapper").find('.files').append(para);
+                    $('#id_media')
+                        .append($('<option>', { value : file.pk })
+                        .text(file.name)); 
                     $(that).closest(".fileupload_wrapper").find(".progress").hide();
                 });
             },

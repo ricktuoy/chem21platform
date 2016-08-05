@@ -96,9 +96,6 @@ class Biblio(models.Model):
     def __unicode__(self):
         return self.citekey+": "+self.title
 
-
-
-
 class BaseModel(models.Model):
     class Meta:
         abstract = True
@@ -558,7 +555,10 @@ class OrderedManagerBase:
 
     @property
     def new_order_val(self):
-        return self.order_queryset().aggregate(Max('order'))['order__max'] + 1
+        max_order = self.order_queryset().aggregate(Max('order'))['order__max']
+        if not max_order:
+            max_order = 0
+        return max_order + 1
 
     def flag_dirty(self):
         return None
@@ -1303,7 +1303,6 @@ class UniqueFile(OrderedModel, DrupalModel):
         with UniqueFile.storage.open(path, "wb") as remote:
             remote.write(output.read())
 
-
         return UniqueFile.storage.url(path)
 
 
@@ -1989,6 +1988,11 @@ class Question(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
         h5p_resources='h5p_resource_dict',
         json_content='json_content'
     )
+
+    @property
+    def first_question(self):
+        return self
+    
 
     @property
     def modules(self):

@@ -1,14 +1,15 @@
-<form class="fileupload" style="display:inline" id="{{ id }}">
+<div class="fileupload_wrapper">
 	    <span class="btn btn-success fileinput-button">
 	        <i class="glyphicon glyphicon-plus"></i>
 	        <span>{{ button_caption }}</span>
 	        <!-- The file input field used as target for the file upload widget -->
-	        <input class="fileupload" type="file" name="files[]" multiple>
+	        <input class="fileupload" id="{{ id }}" type="file" name="files[]" multiple {% if target_pk %}
+	 data-url="{% url "media_upload" type="question" pk=target_pk %}"{% endif %}>
 	    </span>
-		    <!-- The global progress bar -->
-		    <div class="progress">
-		        <div class="progress-bar progress-bar-success"></div>
-		    </div>
-		    <!-- The container for the uploaded files -->
-		    <ul class="files"></ul>
-</form>
+	    <!-- The global progress bar -->
+	    <div class="progress">
+	        <div class="progress-bar progress-bar-success"></div>
+	    </div>
+	    <!-- The container for the uploaded files -->
+	    <ul class="files"></ul>
+</div>
