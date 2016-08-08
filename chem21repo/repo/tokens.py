@@ -42,9 +42,6 @@ class HTMLBlockProcessor(object):
             i_match = kls.get_match(source, number - 1)
             return source[:i_match.end()] + render + source[i_match.end():] 
             
-
-
-
     @classmethod
     def append_to_all(kls, source, render_fn):
         def sub_callback(match):
@@ -59,6 +56,7 @@ class HTMLBlockProcessor(object):
 
 
 class BaseProcessor:
+
     __metaclass__ = ABCMeta
     openchar = "\["
     closechar = "\]"
@@ -70,6 +68,16 @@ class BaseProcessor:
 
     def match_as_token(self, match, para, token):
         return Token.from_match(question, para, match)
+
+    def get_inner_tag_pattern(self, name, inpattern):
+        return r'%s%s[:]?(?P<%s_args>.*?)%s%s%s\/%s%s' % (
+                    self.openchar, name, name, self.closechar, inpattern,
+                    self.openchar, name, self.closechar)
+
+    def get_inner_token_pattern(self, name):
+        return r'%s%s(?P<%s_args>.*?)%s' % (self.openchar,
+                                  name, name,
+                                  self.closechar)
 
     @abstractproperty
     def pattern(self):
@@ -91,12 +99,12 @@ class BaseProcessor:
             prev_end = m.end()
             yield (para, self.match_as_token(match = m, question = None, para=para_count))
 
-    def tokens(self, st):
+    def token_matches(self, st):
         try:
             return self._tokens
         except AttributeError:
             self.full_text = st
-            self._tokens = dict(self._token_generator(self.pattern.finditer(st)))
+            self._tokens = list(self.pattern.finditer(st))
             return self._tokens
 
 
@@ -104,10 +112,12 @@ class BlockToolMixin(object):
  
     def apply_block_tool(self, st):
         self.full_text = st
+        
         try:
             obj = self.context['object']
         except KeyError:
-            return st        
+            return st      
+
         def render_tool(count, ref):
             url = reverse("admin:repo_question_addtoken", 
                 args = [obj.first_question.pk,
@@ -130,6 +140,7 @@ class ContextProcessorMixin(object):
 
 
 class FigureTokenForm(forms.Form):
+
     figure_type = forms.CharField(label = "Type of figure", help_text="e.g. Figure/Scheme/Table (defaults to Figure)", required=False)
     caption = forms.CharField(label = "Caption", max_length = 200, required=False)
     media = forms.MultipleChoiceField(label = "Files", choices = []) # choices are defined on init
@@ -165,7 +176,16 @@ class BaseToken(object):
         self.question.text = fn(self.question.text, html, para)
 
     def get_html(self, txt):
-        return "<div class=\"token\"><!--token-->" + txt + "<!--endtoken--></div>"
+        return "<div class=\"token\"><!--token-->" + txt \
+            + "<!--endtoken--></div>"
+
+    def get(self, para, question, order=1):
+        p_match = self.processor.get_match(question.text, para)
+
+
+
+
+
 
 
 class FigureToken(BaseToken):
@@ -175,6 +195,7 @@ class FigureToken(BaseToken):
             question=question, 
             processor=processor, 
             above=True)
+        self.token_processor = FigureGroupProcessor()
     
     def form(self, *args, **kwargs):
         return FigureTokenForm(self.question, *args, **kwargs)
@@ -208,6 +229,8 @@ class FigureToken(BaseToken):
             "".join(group_content) + txt))
 
 
+
+
 class Token(object):
 
     @classmethod
@@ -222,3 +245,9 @@ class Token(object):
         token_class = kls.class_from_name(tp)
         return token_class(para=para, question=question,
                            *args, **kwargs)
+
+    @classmethod
+    def get(kls, tp, para, question, order):
+        token_class = kls.class_from_name(tp)
+        return token_class.get(para=para, question=question, 
+            order=order)

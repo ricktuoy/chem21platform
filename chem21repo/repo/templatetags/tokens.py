@@ -41,6 +41,11 @@ class TokenProcessor(BaseProcessor):
     def token_name(self):
         return None
 
+    @property
+    def name(self):
+        logging.debug(self.token_name)
+        return self.token_name
+
     @abstractmethod
     def token_function(*args):
         return None
@@ -51,14 +56,16 @@ class TokenProcessor(BaseProcessor):
             return self._pattern
         except AttributeError:
             self._pattern = re.compile(
-                r'%s%s(.*?)%s' % (self.openchar,
+                r'%s%s(?P<%s_args>.*?)%s' % (self.openchar,
                                   self.token_name,
+                                  self.name,
                                   self.closechar),
                 re.DOTALL)
             return self._pattern
 
     def repl_function(self, match):
-        args = match.group(1).split(":")
+        args = match.group(self.name+"_args").split(":")
+        logging.debug(args)
         return self.token_function(*args[1:])
 
 class TagProcessor(BaseProcessor):
@@ -69,24 +76,49 @@ class TagProcessor(BaseProcessor):
         return None
 
     @property
+    def name(self):
+        return self.tag_name
+
+    def get_simple_tag_pattern(self):
+        return self.get_inner_tag_pattern(self.name, '(?P<content>.*?)')
+
+    def get_complex_tag_pattern(self):
+        return None
+
+    def create_token(self, question, para=None):
+        name = self.tag_name
+        return Token.create(name, question, para)
+        
+    def create_token_from_match(self, question, match, para=None):
+        token = self.create_token(self, question, para)
+        token.update(content = match.group('content'))
+
+    @property
     def pattern(self):
         try:
-            return self._pattern
+            return self._simple_pattern
         except AttributeError:
-            self._pattern = re.compile(
-                r'%s%s[:]?(.*?)%s(.*?)%s\/%s%s' % (
-                    self.openchar, self.tag_name, self.closechar,
-                    self.openchar, self.tag_name, self.closechar),
+            self._simple_pattern = re.compile(self.get_simple_tag_pattern(),
                 re.DOTALL)
-            return self._pattern
+            return self._simple_pattern
+
+    @property
+    def complex_pattern(self):
+        try:
+            return self._complex_pattern
+        except AttributeError:
+            self._complex_pattern = re.compile(self.get_complex_tag_pattern(),
+                re.DOTALL)
+            return self._complex_pattern
+    
 
     @abstractmethod
     def tag_function(self, st, *args):
         return None
 
     def repl_function(self, match):
-        args = match.group(1).split(":")
-        return self.tag_function(match.group(2), *args)
+        args = match.group(self.name+"_args").split(":")
+        return self.tag_function(match.group('content'), *args)
 
 class AttributionProcessor(ContextProcessorMixin, TagProcessor):
     tag_name="attrib"
@@ -282,13 +314,11 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
     def replace_caption_html(self, t):
         figtitle = "<span class=\"figure_name\">%s %d</span>" % (
             t.capitalize(), self.get_count(t))
-        logging.debug(self.inner_text)
         (self.inner_text, nsubs) = re.subn(
             r"\[figcaption\](.*?)\[\/figcaption\]",
             lambda m: "[figcaption]%s: %s[/figcaption]" % (figtitle, m.group(1)),
             self.inner_text
         )
-        logging.debug(nsubs)
         if not nsubs:
             self.inner_text += "[figcaption]%s[/figcaption]" % figtitle
 
@@ -315,6 +345,7 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
                 return ""
             else:
                 self.inner_text = "<aside>%s</aside>" % self.inner_text    
+        
         return self.inner_text
 
     def get_asides_html(self):
@@ -408,6 +439,11 @@ class ILinkTagProcessor(ContextProcessorMixin, LinkMixin, TagProcessor):
         return "<a class=\"internal\" href=\"%s\">%s</a>" % (
             obj.get_absolute_url(), st)
 
+class HideProcessor(ContextProcessorMixin, TagProcessor):
+    tag_name = "hide"
+    def tag_function(self, st, *args):
+        return "<div class=\"hide_solution\">%s</div>" % st
+
 
 class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
     token_name = "figure"
@@ -455,6 +491,7 @@ class ReplaceTokensNode(template.Node):
             'figure':FigureTokenProcessor(context=context),
             'figgroup':FigureGroupTagProcessor(context=context),
             'figcaption':FigCaptionTagProcessor(context=context),
+            'hide':HideProcessor(context=context),
             }
         decruft = re.compile(
                 r'<div class="token"><!--token-->(.*?)<!--endtoken--></div>',

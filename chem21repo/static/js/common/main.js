@@ -19,6 +19,26 @@ define(["jquery","jquery.mobile.config","jquery.math","uri_js/jquery.URI","jquer
         });
 
 
+        $("div.hide_function").each(function() {
+            $(this).after("<a href=\"#\" class=\"hide_solution\">Reveal</a>");
+            $(this).hide();
+        });
+
+        $("#content", "a.hide_solution", "click", function(event) {
+            $visible = $(this).prev(":visible");
+            $hidden = $(this).prev(":hidden");
+            if($visible.length)  {
+                $visible.hide();
+                $(this).html("Reveal");
+            } else {
+                $hidden.show();
+                $(this).html("Hide");
+            }
+            event.preventDefault();
+            return false;
+        });
+
+
         $("aside figure.youtube, figure.inline.youtube").each(function() {
             var $fig = $(this).closest("figure");
             var $a = $fig.find("a.youtube");
