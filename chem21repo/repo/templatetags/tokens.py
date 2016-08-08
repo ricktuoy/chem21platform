@@ -439,7 +439,7 @@ class ILinkTagProcessor(ContextProcessorMixin, LinkMixin, TagProcessor):
         return "<a class=\"internal\" href=\"%s\">%s</a>" % (
             obj.get_absolute_url(), st)
 
-class HideProcessor(ContextProcessorMixin, TagProcessor):
+class HideTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "hide"
     def tag_function(self, st, *args):
         return "<div class=\"hide_solution\">%s</div>" % st
@@ -491,14 +491,14 @@ class ReplaceTokensNode(template.Node):
             'figure':FigureTokenProcessor(context=context),
             'figgroup':FigureGroupTagProcessor(context=context),
             'figcaption':FigCaptionTagProcessor(context=context),
-            'hide':HideProcessor(context=context),
+            'hide':HideTagProcessor(context=context),
             }
         decruft = re.compile(
                 r'<div class="token"><!--token-->(.*?)<!--endtoken--></div>',
                 re.DOTALL)
 
         txt = decruft.sub(lambda match: match.group(1), txt)
-        proc_order = ['ibib','bib','ilink','rsc','attrib','cta','green',
+        proc_order = ['hide','ibib','bib','ilink','rsc','attrib','cta','green',
                       'figref','figure','figgroup','figcaption',]
         for key in proc_order:
             txt = processors[key].apply(txt)
