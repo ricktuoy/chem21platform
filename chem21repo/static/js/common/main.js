@@ -19,20 +19,23 @@ define(["jquery","jquery.mobile.config","jquery.math","uri_js/jquery.URI","jquer
         });
 
 
-        $("div.hide_function").each(function() {
+        $("div.hide_solution").each(function() {
             $(this).after("<a href=\"#\" class=\"hide_solution\">Reveal</a>");
             $(this).hide();
         });
 
-        $("#content", "a.hide_solution", "click", function(event) {
-            $visible = $(this).prev(":visible");
-            $hidden = $(this).prev(":hidden");
+        $("#content").on("click", "a.hide_solution", function(event) {
+            var $visible = $(this).prev(":visible");
+            var $hidden = $(this).prev(":hidden");
+
             if($visible.length)  {
                 $visible.hide();
                 $(this).html("Reveal");
+                $(this).removeClass("shown");
             } else {
                 $hidden.show();
                 $(this).html("Hide");
+                $(this).addClass("shown");
             }
             event.preventDefault();
             return false;

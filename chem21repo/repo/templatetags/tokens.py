@@ -441,8 +441,11 @@ class ILinkTagProcessor(ContextProcessorMixin, LinkMixin, TagProcessor):
 
 class HideTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "hide"
+
+    def get_simple_tag_pattern(self):
+        return "<p>%s</p>" % super(HideTagProcessor, self).get_simple_tag_pattern()
     def tag_function(self, st, *args):
-        return "<div class=\"hide_solution\">%s</div>" % st
+        return "<div class=\"hide_solution\"><p>%s</p></div>" % st
 
 
 class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
