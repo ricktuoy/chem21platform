@@ -4,6 +4,7 @@ boto==2.38.0
 cairocffi==0.7.2
 CairoSVG==1.0.20
 cffi==1.6.0
+citeproc-py==0.3.0
 cssselect==0.9.1
 dj-database-url==0.3.0
 dj-static==0.0.6
@@ -26,6 +27,7 @@ django-tinymce==2.3.0
 -e git+https://github.com/ricktaylord/django-tinymce-figures.git@7b5d20492700a6564286c91a703133196d3f1925#egg=django_tinymce_figuretag
 -e git+https://github.com/ricktaylord/django-tinymce-links.git@d020c3267b7e70b7284fb50dd9b6d543cfd2edac#egg=django_tinymce_links
 django-toolbelt==0.0.1
+django-widget-tweaks==1.4.1
 google-api-python-client==1.5.1
 gunicorn==19.3.0
 html2text==2016.1.8
