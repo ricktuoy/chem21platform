@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="en-GB">
+  <info>
+    <title>Royal Society of Chemistry</title>
+    <id>http://www.zotero.org/styles/royal-society-of-chemistry</id>
+    <link href="http://www.zotero.org/styles/royal-society-of-chemistry" rel="self"/>
+    <link href="http://www.rsc.org/images/Author_guidelines_tcm18-186308.pdf" rel="documentation"/>
+    <link href="http://www.rsc.org/Publishing/Journals/guidelines/AuthorGuidelines/JournalPolicy/index.asp" rel="documentation"/>
+    <author>
+      <name>Julian Onions</name>
+      <email>julian.onions@gmail.com</email>
+    </author>
+    <contributor>
+      <name>Ivan Bushmarinov</name>
+      <email>ib@ineos.ac.ru</email>
+    </contributor>
+    <category citation-format="numeric"/>
+    <category field="chemistry"/>
+    <summary>The Royal Society of Chemistry journal style.</summary>
+    <updated>2014-12-05T04:18:39+00:00</updated>
+    <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
+  </info>
+  <macro name="volume2">
+    <text variable="volume" prefix="vol. "/>
+  </macro>
+  <macro name="pages-simple">
+    <text variable="page"/>
+  </macro>
+  <macro name="editor">
+    <names variable="editor">
+      <name initialize-with=". " and="text" delimiter=", " delimiter-precedes-last="never"/>
+      <label form="short" suffix=" " text-case="capitalize-first"/>
+    </names>
+  </macro>
+  <macro name="editor2">
+    <names prefix=" (ed. " suffix=") " variable="editor">
+      <name initialize-with=". " and="text" delimiter=", " delimiter-precedes-last="never"/>
+    </names>
+  </macro>
+  <macro name="container-simple">
+    <text variable="container-title" form="short" font-style="italic"/>
+  </macro>
+  <macro name="author">
+    <choose>
+      <if type="patent">
+        <group delimiter=", ">
+          <choose>
+            <if variable="authority">
+              <text variable="authority"/>
+            </if>
+            <else>
+              <text variable="publisher"/>
+            </else>
+          </choose>
+          <text variable="number"/>
+        </group>
+      </if>
+      <else>
+        <names variable="author">
+          <name initialize-with=". " and="text" delimiter=", " delimiter-precedes-last="never"/>
+        </names>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title">
+    <choose>
+      <if type="bill book graphic legal_case legislation motion_picture report song" match="any">
+        <text variable="title" font-style="italic"/>
+      </if>
+      <else>
+        <group delimiter=" ">
+          <text variable="title"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <macro name="volume">
+    <text variable="volume"/>
+  </macro>
+  <macro name="publisher">
+    <group delimiter=", ">
+      <text variable="publisher"/>
+      <text variable="publisher-place"/>
+    </group>
+  </macro>
+  <macro name="pages">
+    <label variable="page" form="short" suffix=" "/>
+    <text variable="page"/>
+  </macro>
+  <macro name="book-container">
+    <group delimiter=", ">
+      <group delimiter=" ">
+        <text term="in"/>
+        <text variable="container-title" font-style="italic"/>
+      </group>
+      <text macro="editor"/>
+    </group>
+    <text value="}}"/>
+  </macro>
+  <macro name="issued">
+    <date variable="issued" delimiter=" ">
+      <date-part name="year"/>
+    </date>
+  </macro>
+  <macro name="edition">
+    <text value="{{edition:"/>
+    <choose>
+      <if is-numeric="edition">
+        <group delimiter=" ">
+          <number variable="edition" form="ordinal"/>
+          <text value="edn" suffix="."/>
+        </group>
+      </if>
+      <else>
+        <text variable="edition" suffix="."/>
+      </else>
+    </choose>
+  </macro>
+<macro name="chapter">
+    <choose>
+      <if is-numeric="chapter-number">
+        <group delimiter=" ">
+          <text value="ch" suffix="."/>
+          <number variable="chapter-number"/>
+        </group>
+      </if>
+      <else>
+        <text variable="chapter-number" suffix="."/>
+      </else>
+    </choose>
+</macro>
+  <macro name="access">
+     <text value="Last accessed" suffix=": "/>
+     <group delimiter=", ">
+        <text variable="number"/>
+        <text variable="volume"/>
+     </group>
+  </macro>
+  <citation collapse="citation-number">
+    <sort>
+      <key variable="citation-number"/>
+    </sort>
+    <layout delimiter="," vertical-align="sup">
+      <text variable="citation-number"/>
+    </layout>
+  </citation>
+  <bibliography second-field-align="flush" entry-spacing="0">
+    <layout suffix=".">
+      <text macro="author" prefix="{{authors:" suffix="}}, "/>
+      <choose>
+        <if type="thesis">
+          <group delimiter=", ">
+            <text variable="genre" prefix="{{genre:" suffix="}}"/>
+            <text variable="publisher" prefix="{{publisher:" suffix="}}"/>
+            <text macro="issued" prefix="{{issued:" suffix="}}"/>
+          </group>
+        </if>
+	    <else-if type="book">
+	        <text macro="title" prefix="{{title:" suffix="}},"/>
+            <text macro="container-simple" prefix="{{series:" suffix="}},"/>
+            <text macro="editor2" prefix="{{editor:" suffix="}},"/>
+            <text macro="volume2" suffix=","/>
+	        <group delimiter=", ">
+            
+            <text macro="publisher" prefix="{{publisher:" suffix="}}"/>
+            <text macro="edition" prefix="{{edition:" suffix="}}"/>
+            <text macro="issued" prefix="{{issued:" suffix="}}"/>
+           </group>
+	    </else-if>
+        <else-if type="bill graphic legal_case legislation motion_picture report song" match="any">
+          <text macro="title" prefix="{{title:" suffix="}}, "/>
+          <group delimiter=", ">
+            <text macro="publisher" prefix="{{publisher:" suffix="}}"/>
+            <text macro="edition" prefix="{{edition:" suffix="}}"/>
+            <text macro="issued" prefix="{{issued:" suffix="}}"/>
+          </group>
+        </else-if>
+        <else-if type="chapter paper-conference" match="any">
+          <text macro="title" prefix="{{title:" suffix="}}, "/>
+          <group delimiter=", ">
+            <text macro="book-container" prefix="{{book:" suffix="}}"/>
+            <text macro="publisher" prefix="{{publisher:" suffix="}}"/>
+            <text macro="edition" prefix="{{edition:" suffix="}}"/>
+            <text macro="issued" prefix="{{issued:" suffix="}}"/>
+			      <text macro="chapter" prefix="{{chapter:" suffix="}}"/>
+            <text macro="volume" prefix="{{volume:" suffix="}}"/>
+            <text macro="pages" prefix="{{page:" suffix="}}"/>
+          </group>
+        </else-if>
+        <else-if type="article-journal">
+          <text macro="title" prefix="{{title:" suffix="}}, "/>
+          <group delimiter=", ">
+            <text macro="container-simple" prefix="{{journal:" suffix="}}"/>
+            <text macro="issued" prefix="{{issued:" suffix="}}"/>
+            <text macro="volume" prefix="{{volume:" suffix="}}"/>
+            <text macro="pages-simple" prefix="{{pages:" suffix="}}"/>
+          </group>
+        </else-if>
+        <else-if type="webpage">
+            <text macro="title" prefix="{{title:" suffix="}} "/>
+            <text macro="access" prefix=" {{access:(" suffix=")}}"/>
+        </else-if>
+        <else>
+          <text macro="title" suffix=", "/>
+          <group delimiter=", ">
+            <text macro="container-simple" prefix="{{journal:" suffix="}}"/>
+            <text macro="issued" prefix="{{issued:" suffix="}}"/>
+            <text macro="volume" prefix="{{volume:" suffix="}}"/>
+            <text macro="pages-simple" prefix="{{pages:" suffix="}}"/>
+          </group>
+        </else>
+      </choose>
+    </layout>
+  </bibliography>
+</style>

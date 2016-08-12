@@ -87,6 +87,19 @@ body.front #site-header .mobile-link-icon {
 	display: none;
 }
 
+#site-header div#admin_site_links {
+	float:right;
+	margin-right: 1.5em;
+	font-size: 1.3em;
+	border: 1px solid #bbb;
+	padding: 0.5em;
+	background-color: #999;
+}
+
+#site-header div#admin_site_links .fileupload_wrapper {
+	display: none;
+}
+
 .ui-btn {
 	font-family: inherit;
 	font-weight: inherit;

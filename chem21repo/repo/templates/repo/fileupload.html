@@ -3,7 +3,7 @@
 	        <i class="glyphicon glyphicon-plus"></i>
 	        <span>{{ button_caption }}</span>
 	        <!-- The file input field used as target for the file upload widget -->
-	        <input class="fileupload" id="{{ id }}" type="file" name="files[]" multiple {% if target_pk %}
+	        <input class="fileupload" id="{{ id }}" type="file" name="files[]" multiple {% if upload_url %}data-url="{{ upload_url }}" {% elif target_pk %}
 	 data-url="{% url "media_upload" type="question" pk=target_pk %}"{% endif %}>
 	    </span>
 	    <!-- The global progress bar -->

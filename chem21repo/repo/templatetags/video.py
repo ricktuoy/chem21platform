@@ -32,15 +32,20 @@ class PlaceVideoNode(template.Node):
         num_blocks = len(els)
         vid_template = template.loader.get_template("includes/video_youtube.html")
         vid_cxt = video.render_args
-        vid_cxt['tools'] = not context.get('staticgenerator', False)
+        request = context['request']
+
+        vid_cxt['tools'] = not context.get('staticgenerator', False) and request.user.is_authenticated()
         obj = context['object']
         try:
             par = obj.get_parent()
         except:
             par = None
+        vid_cxt['vid_pk'] = video.pk
         vid_cxt['front_slide_url'] = video.get_video_slide_url(par, obj) 
         vid_cxt['module_title'] = par.title
         vid_cxt['title'] = obj.title
+        vid_cxt['lobj_pk'] = obj.pk
+        vid_cxt['lobj_type'] = obj.learning_object_type
         vid_cxt['authors'] = video.author_string
         vid_cxt['timeline_url'] = reverse("video_timeline", kwargs={'pk':video.pk})
         vid_html = vid_template.render(vid_cxt)

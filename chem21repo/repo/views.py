@@ -1,15 +1,20 @@
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import logging
 import traceback
 import os
+import re
 import json
 import hashlib
 import mimetypes
 import httplib2
 import httplib
 
+
 from apiclient.discovery import build
 from apiclient.errors import HttpError as GoogleHttpError
 from apiclient.http import MediaIoBaseUpload as GoogleMediaIoBaseUpload
+
 
 from .models import Lesson
 from .models import Module
@@ -247,6 +252,7 @@ class MoveViewBase:
             from_el)
 
         parent_id = kwargs.get('parent_id', None)
+        
         if "to_id" not in kwargs or kwargs['to_id'] == "0":
             # no dest id or dest id==0 then move element to top
             context['new_order'] = 1
@@ -254,6 +260,7 @@ class MoveViewBase:
                 'message'] = self.orderable_manager.move_to_top(
                     from_el, parent_id)
             return context
+
         try:
             # get dest element
             to_el = self.orderable_manager.get(id=kwargs['to_id'])
@@ -263,9 +270,11 @@ class MoveViewBase:
             context['message'] = "Destination %s not found." % (
                 self.orderable_model._meta.verbose_name.title(),)
             return context
+
         context['new_order'] = self.orderable_manager.get_order_value(to_el)
         context['success'], context[
             'message'] = self.orderable_manager.move(from_el, to_el, parent_id)
+        
         return context
 
 
@@ -644,6 +653,72 @@ class JSONUploadHandle(MediaUploadHandle):
             lobj.quiz_name = qparse.name
             lobj.save()
         return JSONFileObjectWrapper(name = "Quiz questions: %s" % qparse.name, url = default_storage.url(dest_questions))
+
+
+class BibTeXUploadView(JQueryFileHandleView):
+    class Fail(Exception):
+        pass
+    def deleteurl(self):
+        return None
+    def fileurl(self):
+        return None
+
+    def fail(self, message):
+        try:
+            self.errors.append(message)
+        except AttributeError:
+            self.errors = [message,]
+    def fail_except(self, e):
+        self.fail((str(e), traceback.format_exc()))
+    def fail_unless(self, test, message="Error."):
+        if not test:
+            self.fail(message)
+            raise self.Fail
+
+    def get_return_values(self):
+        return {'name': self.filename,
+                'bibliography': self.bibliography,
+                'raw': self.raw,
+                #'skipped': self.skipped,
+                #'created': self.created_bibs, 
+                #'modified': self.modified_bibs
+                }
+
+   
+    def process_file(self, f, k, *args, **kwargs):
+        from .bibtex import BibTeXParsing
+
+        self._f = f
+        self.errors=[]
+        self.created_bibs=[]
+        self.modified_bibs=[]
+        self.skipped=[]
+        self.bibliography = []
+
+        bib_source, raw = BibTeXParsing.get_bib_source(f)
+        self.raw = raw
+        self.bib_source = bib_source
+        bibliography, ref_order = BibTeXParsing.get_bibliography_ordered(bib_source)
+        bib_rendered = bibliography.bibliography()
+
+        for k in ref_order:
+            entry = bib_source[k]
+            bibitem = bib_rendered.pop(0)
+
+            issn, doi, url = BibTeXParsing.get_issn_doi_url(entry)
+            defaults = {'bibkey': k,
+                        'html': BibTeXParsing.get_html_from_bibref(unicode(bibitem), url)}
+            
+            if issn and doi:
+                defaults['ISSN'] = issn
+            if doi:
+                crargs = {'DOI': doi, 'defaults': defaults}
+            elif issn:
+                crargs = {'ISSN': issn, 'defaults': defaults}
+            else:
+                del defaults['bibkey']
+                crargs = {'bibkey': k, 'defaults': defaults}
+            self.bibliography.append(crargs)
 
 
 class MediaUploadView(JQueryFileHandleView):

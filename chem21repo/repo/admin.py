@@ -1,4 +1,5 @@
 from .models import *
+from .views import BibTeXUploadView
 from django.contrib import admin
 from django import forms
 import logging
@@ -8,6 +9,7 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.shortcuts import render
 from chem21repo.repo.tokens import Token
+
 import urllib
 
 def register_modeladmin(fn):
@@ -104,9 +106,31 @@ create_admin(
     hidden_fields=['topic', ],
 )
 
+
+
+class BiblioAdmin(admin.ModelAdmin):
+    def get_urls(self):
+        from django.conf.urls import patterns
+        from django.conf.urls import url
+        urls = super(BiblioAdmin, self).get_urls()
+        my_urls = [
+            url(r'^biblio/import_references[/]?$',
+                self.admin_site.admin_view(BibTeXUploadView.as_view()),
+                name='repo_biblio_importreferences'
+                ),
+        ]
+        return my_urls + urls
+
+    class Media:
+        js = [
+           '/s3/grappelli/tinymce/jscripts/tiny_mce/tiny_mce.js',
+           '/s3/js/tinymce_setup.js',
+        ]
+
 create_admin(
     model=Biblio,
     fields=['title', 'citekey'],
+    base_admin=BiblioAdmin
 )
 
 create_admin(

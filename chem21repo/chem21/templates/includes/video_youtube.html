@@ -1,4 +1,5 @@
 {% load static %}
+{% load admin_urls %}
 <figure class="presentation youtube" data-remote-id="{{ remote_id}}">
 <div class="video_wrapper">
 <a class="youtube" href="{{ remote_url }}" title="{{ title }}" data-timeline-sources = "{{ timeline_url }}">
@@ -35,7 +36,18 @@ The views expressed in regards to education and training materials represent the
 {% endif %}
 {% if tools %}
 <figcaption class="admin_tools">
-<a class="download" href="{{ url }}" download> Download</a> | <a class="replace" href="#">Replace</a>
+<a class="download" href="{{ url }}" download> Download</a>
+ | <a class="replace" href="#">Replace</a>
+	{% if not object.youtube_id %}|
+		<a class="yt_upload" 
+		   href="{% url 'youtube_upload' vpk=vid_pk type=lobj_type tpk=lobj_pk %}">
+		 Upload to Youtube</a>
+	{% endif %}
+<br />
+	<a class="manage_popups" href="{% url 'admin:repo_presentationaction_changelist' %}?presentation={{ vid_pk }}">Manage popups</a> |
+	<a class="add_popup" href="{% url 'admin:repo_presentationaction_add' %}?presentation={{ vid_pk }}">Add popup</a>  <br />
+	<a class="edit" href="{% url 'admin:repo_uniquefile_change' vid_pk %}">Settings</a> 
+
 </figcaption>
 {% endif %}
 </figure>

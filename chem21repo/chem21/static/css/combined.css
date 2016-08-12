@@ -1,0 +1,24 @@
+@import url("hacks.css");
+@import url("reset.css");
+@import url("styles.css");
+@import url("color.css");
+@import url("opigno_lms.css");
+@import url("chem21.css");
+
+div.token {
+	background-color: #444;
+	text-indent: -9999px;
+	width: 100%;
+	height: 18px;
+
+}
+
+div.token::before {
+	content: "Inline media";
+	color: #fff;
+	float: left;
+	font-size: 10px;
+	line-height: 16px;
+	margin: 0;
+	text-indent: 0;
+}

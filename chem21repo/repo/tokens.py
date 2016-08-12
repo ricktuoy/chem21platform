@@ -109,7 +109,7 @@ class BaseProcessor:
 
 
 class BlockToolMixin(object):
- 
+
     def apply_block_tool(self, st):
         self.full_text = st
         

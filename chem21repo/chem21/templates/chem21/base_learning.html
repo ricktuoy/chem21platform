@@ -8,6 +8,7 @@
 {% load require %}
 {% load fileupload %}
   {% block styles %}
+
 {{ block.super }}
 <link type="text/css" rel="stylesheet" href="{% static "js/lib/colorbox/jquery.colorbox.css" %}" />
 <link type="text/css" rel="stylesheet" href="{% static "css/jquery.math.css" %}" />
@@ -30,6 +31,16 @@
 {% endblock %}
 {% block title %}{{ object.title }} :: CHEM21 learning platform{% endblock %}
 {% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
+{% block site_tools %}
+{% if request.user.is_authenticated %}
+  <div id="admin_site_links">
+  
+  <a href="#" id="import_references_trigger">Import references</a>
+  {% url 'admin:repo_biblio_importreferences' as references_url %}
+  {% fileupload_form "import_references" caption="Choose RIS file" upload_url=references_url %}
+  </div>
+{% endif %}
+{% endblock %}
 {% block content %}
 {% block sidebar_1 %}
 <div id="first-sidebar" class="collapsed col col-2-out-of-2 col-1-out-of-4 col-1-out-of-6">
@@ -75,11 +86,11 @@
 {% if object.is_question %}
 		<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
 		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
-		Edit</a>
+		Edit text</a>
 {% else %}
 		<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
 		data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
-		Edit</a>
+		Edit text</a>
 
 {% endif %}
 
@@ -88,19 +99,9 @@
 		data-from-url-edit="{% url opts.child|admin_urlname:'changelist' %}">
 		Add child page</a>
 {% endif %}
-{% if object.video %}
-	<a class="btn btn-success admin-edit" href="{% url opts.uniquefile|admin_urlname:'change' object.video.pk %}"
-	data-from-url-edit="{% url opts.uniquefile|admin_urlname:'changelist' %}">Edit video attributes</a>
-	<a class="btn btn-success admin-edit" href="{% url opts.presentationaction|admin_urlname:'changelist' %}?presentation={{ object.video.pk }}">Edit video popups</a>
-	{% if not object.youtube_id %}
-		<a class="btn btn-success admin-edit" 
-		   href="{% url 'youtube_upload' vpk=object.video.pk type=object.learning_object_type tpk=object.pk %}">
-		 Upload video to Youtube</a>
-	{% endif %}
-{% endif %}
+
 	</form>
-	{% fileupload_form "media_upload" learning_reference_pk learning_reference_type  %}
-	    <!-- The fileinput-button span is used to style the file input field as button -->
+	
 	    
 {% endif %}
 {% endblock %}

@@ -38,6 +38,9 @@ class C21AdminMiddleware(object):
         
 
     def process_response(self, request, response):
+        if not hasattr(request, 'session'):
+            return response
+            
         if "admin_stage" not in request.session or request.session['admin_stage'] != self.ADMIN_STAGE_COMPLETE:
             return response
 

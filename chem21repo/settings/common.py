@@ -125,6 +125,10 @@ CHEM21_PLATFORM_REST_API_URL = '/rest'
 CHEM21_PLATFORM_API_USER = 'admin'
 CHEM21_PLATFORM_API_PWD = '9chard87'
 
+CITEPROC_DEFAULT_STYLE = "royal-society-of-chemistry"
+
+CITEPROC_CSL_PATH = os.path.join(BASE_DIR, 'csl')
+CITEPROC_DEFAULT_STYLE_PATH = os.path.join(CITEPROC_CSL_PATH, CITEPROC_DEFAULT_STYLE+".csl")
 
 AUTHENTICATION_BACKENDS = (
     'social.backends.google.GoogleOAuth2',
@@ -138,6 +142,7 @@ GOOGLE_OAUTH2_SECRET = SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get(
 LOGIN_URL = '/login/google-oauth2/'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_ERROR_URL = '/login-error/'
+
 
 SERIALIZATION_MODULES = {
     'json': 'chem21repo.serializers.json',

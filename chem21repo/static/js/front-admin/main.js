@@ -15,11 +15,19 @@ define(["jquery","jquery.fileupload","common"], function($) {
         $(".progress, .files").hide();
         $(".progress").width("100%");
 
+        $("#site-header").on("click", "#import_references_trigger", function(e) {
+            e.preventDefault();
+            $(this).hide();
+            $(this).next(".fileupload_wrapper").fadeIn();
+        });
+
         $('input.fileupload').fileupload({
-            url: undefined, // use form action
+            
             dataType: 'json',
             done: function (e, data) {
                 var that=this;
+                console.debug("Done upload");
+                console.debug(that);
                 $.each(data.result, function (index, file) {
                     var para = $('<a />').attr("href",file.url).text(file.name);
                     para.wrap($("<li />"));
@@ -28,9 +36,11 @@ define(["jquery","jquery.fileupload","common"], function($) {
                 });
             },
             progressall: function (e, data) {
-                $(this).closest(".fileupload_wrapper").find(".progress, .files").show();
+                var that=this;
+                console.debug(that);
+                $(that).closest(".fileupload_wrapper").find(".progress, .files").show();
                 var progress = parseInt(data.loaded / data.total * 100, 10);
-                $(this).closest(".fileupload_wrapper").find(".progress-bar-success").width(progress+"%");
+                $(that).closest(".fileupload_wrapper").find(".progress-bar-success").width(progress+"%");
             }
         });
 
