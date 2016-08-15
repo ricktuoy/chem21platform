@@ -42,6 +42,8 @@ class CredentialsModel(models.Model):
 
 class Biblio(models.Model):
     citekey = models.CharField(max_length=300, unique=True)
+    DOI = models.CharField(max_length=300, unique=True, null=True, blank=True)
+    bibkey = models.CharField(max_length=300, unique=True, null=True, blank=True)
     title = models.CharField(max_length=500, blank=True, default="")
     display_string = models.CharField(max_length=1000, blank=True, default="")
     inline_html = models.TextField(null=True, blank=True)
@@ -937,9 +939,7 @@ class DrupalConnector(object):
 
     @needs_node
     def pull(self):
-
         old_node = self.generate_node_from_parent()
-
         self.api.pull(self.node)
         # if isinstance(self.parent, UniqueFile):
         #    raise Exception(str(self.node))

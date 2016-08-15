@@ -44,6 +44,7 @@ from django.views.generic import TemplateView
 from django.views.generic import ListView
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.db import IntegrityError
 from querystring_parser import parser
 from chem21repo.api_clients import RESTError, RESTAuthError, C21RESTRequests
 from django.contrib.auth.decorators import login_required
@@ -677,11 +678,11 @@ class BibTeXUploadView(JQueryFileHandleView):
 
     def get_return_values(self):
         return {'name': self.filename,
-                'bibliography': self.bibliography,
-                'raw': self.raw,
-                #'skipped': self.skipped,
-                #'created': self.created_bibs, 
-                #'modified': self.modified_bibs
+                #'bibliography': self.bibliography,
+                #'raw': self.raw,
+                'skipped': self.skipped,
+                'created': self.created_bibs, 
+                'modified': self.modified_bibs
                 }
 
    
@@ -695,8 +696,9 @@ class BibTeXUploadView(JQueryFileHandleView):
         self.skipped=[]
         self.bibliography = []
 
-        bib_source, raw = BibTeXParsing.get_bib_source(f)
+        raw = BibTeXParsing.get_bib_raw(f)
         self.raw = raw
+        bib_source = BibTeXParsing.get_bib_source(raw)
         self.bib_source = bib_source
         bibliography, ref_order = BibTeXParsing.get_bibliography_ordered(bib_source)
         bib_rendered = bibliography.bibliography()
@@ -705,20 +707,43 @@ class BibTeXUploadView(JQueryFileHandleView):
             entry = bib_source[k]
             bibitem = bib_rendered.pop(0)
 
-            issn, doi, url = BibTeXParsing.get_issn_doi_url(entry)
+            doi, url = BibTeXParsing.get_doi_url(entry)
+            html = BibTeXParsing.get_html_from_bibref(unicode(bibitem), url)
             defaults = {'bibkey': k,
-                        'html': BibTeXParsing.get_html_from_bibref(unicode(bibitem), url)}
-            
-            if issn and doi:
-                defaults['ISSN'] = issn
+                        'inline_html': html,
+                        'footnote_html': html}
+            if 'title' in entry:
+                defaults['title'] = unicode(entry['title'])
+
             if doi:
+                defaults['citekey'] = doi
                 crargs = {'DOI': doi, 'defaults': defaults}
-            elif issn:
-                crargs = {'ISSN': issn, 'defaults': defaults}
             else:
                 del defaults['bibkey']
+                defaults['citekey'] = k
                 crargs = {'bibkey': k, 'defaults': defaults}
-            self.bibliography.append(crargs)
+            try:
+                bib, created = Biblio.objects.get_or_create(**crargs)
+            except IntegrityError:
+                self.skipped.append((repr(bib), created, crargs))
+                
+            if created:
+                self.created_bibs.append(repr(bib)) 
+            else:
+                del defaults['citekey']
+                for k,v in defaults.iteritems():
+                    setattr(bib, k, v)
+                try:
+                    bib.save()
+                except IntegrityError:
+                    self.skipped.append((repr(bib), created, crargs))
+                self.modified_bibs.append(repr(bib))
+
+
+
+
+
+
 
 
 class MediaUploadView(JQueryFileHandleView):

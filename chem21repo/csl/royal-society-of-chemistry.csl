@@ -103,7 +103,6 @@
     </date>
   </macro>
   <macro name="edition">
-    <text value="{{edition:"/>
     <choose>
       <if is-numeric="edition">
         <group delimiter=" ">
@@ -130,11 +129,11 @@
     </choose>
 </macro>
   <macro name="access">
-     <text value="Last accessed" suffix=": "/>
-     <group delimiter=", ">
-        <text variable="number"/>
-        <text variable="volume"/>
-     </group>
+    <text value="Last accessed" suffix=": "/>
+    <date variable="accessed" delimiter=" ">
+      <date-part name="month"/>
+      <date-part name="year"/>
+    </date>
   </macro>
   <citation collapse="citation-number">
     <sort>

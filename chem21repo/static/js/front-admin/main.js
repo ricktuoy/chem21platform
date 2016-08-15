@@ -1,4 +1,8 @@
 define(["jquery","jquery.fileupload","common"], function($) {
+    String.prototype.format = function () {
+      var args = arguments;
+      return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
+    };
     $(function() {
         var csrftoken = $.cookie('csrftoken');
         function csrfSafeMethod(method) {
@@ -20,14 +24,10 @@ define(["jquery","jquery.fileupload","common"], function($) {
             $(this).hide();
             $(this).next(".fileupload_wrapper").fadeIn();
         });
-
         $('input.fileupload').fileupload({
-            
             dataType: 'json',
             done: function (e, data) {
                 var that=this;
-                console.debug("Done upload");
-                console.debug(that);
                 $.each(data.result, function (index, file) {
                     var para = $('<a />').attr("href",file.url).text(file.name);
                     para.wrap($("<li />"));
@@ -37,11 +37,25 @@ define(["jquery","jquery.fileupload","common"], function($) {
             },
             progressall: function (e, data) {
                 var that=this;
-                console.debug(that);
                 $(that).closest(".fileupload_wrapper").find(".progress, .files").show();
                 var progress = parseInt(data.loaded / data.total * 100, 10);
                 $(that).closest(".fileupload_wrapper").find(".progress-bar-success").width(progress+"%");
             }
+        });
+
+        $("#site-header").on("fileuploaddone", "#import_references", function(e, data) {
+            var that=this;
+            var html = $("<ul></ul>").addClass("messages");
+            $.each(data.result, function (index, file) {
+                //console.debug(file);
+                var mod = file.modified.length;
+                var cre = file.created.length;
+                var message = 'Processed file {0}: created {1} references and modified {2}.'.format(
+                    file.name, cre, mod);
+                var message_html = $("<li></li>").text(message).addClass("success");
+                html.append(message_html);
+            });
+            $("#admin_tools").before(html);
         });
 
         $('#djDebug').on('mouseover', 'a', function() {

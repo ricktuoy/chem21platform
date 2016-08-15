@@ -37,7 +37,7 @@
   
   <a href="#" id="import_references_trigger">Import references</a>
   {% url 'admin:repo_biblio_importreferences' as references_url %}
-  {% fileupload_form "import_references" caption="Choose RIS file" upload_url=references_url %}
+  {% fileupload_form "import_references" caption="Upload BibTeX (.bib) file" upload_url=references_url %}
   </div>
 {% endif %}
 {% endblock %}
