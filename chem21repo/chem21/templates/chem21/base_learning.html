@@ -34,7 +34,6 @@
 {% block site_tools %}
 {% if request.user.is_authenticated %}
   <div id="admin_site_links">
-  
   <a href="#" id="import_references_trigger">Import references</a>
   {% url 'admin:repo_biblio_importreferences' as references_url %}
   {% fileupload_form "import_references" caption="Upload BibTeX (.bib) file" upload_url=references_url %}
@@ -93,6 +92,7 @@
 		Edit text</a>
 
 {% endif %}
+		<a id="gpicker_trigger" class="btn btn-success admin-edit" href="{% url 'admin:repo_question_loadgdoc' tpk=learning_reference_pk file_id='yermum' %}">Load from GDoc</a>
 
 {% if opts.child %}
 		<a class="btn btn-success admin-add" href="{% url opts.child|admin_urlname:'add' %}?{{ opts.child.parent_fieldname }}={{object.pk}}"

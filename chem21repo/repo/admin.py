@@ -1,5 +1,5 @@
 from .models import *
-from .views import BibTeXUploadView
+from .views import BibTeXUploadView, LoadFromGDocView
 from django.contrib import admin
 from django import forms
 import logging
@@ -174,6 +174,10 @@ class QuestionAdmin(admin.ModelAdmin):
             url(r'^add_token/([0-9]+)/([0-9]+)/(.*)$',
                 self.admin_site.admin_view(self.add_token),
                 name='repo_question_addtoken'
+                ),
+            url(r'^load_gdoc/(?P<tpk>[0-9]+)/(?P<file_id>.*)[/]?$',
+                self.admin_site.admin_view(LoadFromGDocView.as_view()),
+                name='repo_question_loadgdoc'
                 ),
         ]
         return my_urls + urls

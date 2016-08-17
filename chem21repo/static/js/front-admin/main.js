@@ -1,4 +1,4 @@
-define(["jquery","jquery.fileupload","common"], function($) {
+define(["google_picker","jquery","jquery.fileupload","common"], function(GPicker, $) {
     String.prototype.format = function () {
       var args = arguments;
       return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
@@ -63,4 +63,7 @@ define(["jquery","jquery.fileupload","common"], function($) {
         });
 
     });
+    return {
+        Picker:GPicker
+    }
 });

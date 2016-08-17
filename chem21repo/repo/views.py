@@ -62,6 +62,22 @@ import magic
 class S3ProxyView(ProxyView):
     upstream = settings.S3_URL
 
+class LearningObjectRelationMixin(object):
+    def get_learning_object(self, *args, **kwargs):
+        t = kwargs['type']
+        tpk = kwargs['tpk']
+        self.learning_object_type = t
+        try:
+            model = ContentType.objects.get(
+                app_label="repo",
+                model=t).model_class()
+        except ContentType.DoesNotExist:
+            return self.error_response("Learning object of type %s not found" % t)
+        try:
+            inst = model.objects.get(pk=tpk)
+        except model.DoesNotExist:
+            return self.error_response("Object %s with id %d not found" % (t, tpk))
+        return inst
 
 class LoginRequiredMixin(object):
     @classmethod
@@ -745,7 +761,6 @@ class BibTeXUploadView(JQueryFileHandleView):
 
 
 
-
 class MediaUploadView(JQueryFileHandleView):
 
     content_type_handle_map = {
@@ -901,22 +916,6 @@ class MoleculeListView(LoginRequiredMixin, JSONView):
     def get_context_data(self, **kwargs):
         return [{'pk':m.pk, 'name':unicode(m), 'mol':m.mol_def} for m in Molecule.objects.all()]
 
-class LearningObjectRelationMixin(object):
-    def get_learning_object(self, *args, **kwargs):
-        t = kwargs['type']
-        tpk = kwargs['tpk']
-        self.learning_object_type = t
-        try:
-            model = ContentType.objects.get(
-                app_label="repo",
-                model=t).model_class()
-        except ContentType.DoesNotExist:
-            return self.error_response("Learning object of type %s not found" % t)
-        try:
-            inst = model.objects.get(pk=tpk)
-        except model.DoesNotExist:
-            return self.error_response("Object %s with id %d not found" % (t, tpk))
-        return inst
 
 
 
@@ -1075,6 +1074,11 @@ class YouTubeServiceMixin(GoogleServiceMixin):
     google_service_name = "youtube"
     google_api_version = "v3"
 
+class DriveServiceMixin(GoogleServiceMixin):
+    google_scope = "https://www.googleapis.com/auth/drive.metadata.readonly"
+    google_service_name = "drive"
+    google_api_version = "v3"
+
 class GoogleServiceOAuth2ReturnView(GoogleServiceMixin, View):
     def get(self, request, *args, **kwargs):
         if not xsrfutil.validate_token(settings.SECRET_KEY, str(request.REQUEST['state']),
@@ -1086,6 +1090,35 @@ class GoogleServiceOAuth2ReturnView(GoogleServiceMixin, View):
 
         return HttpResponseRedirect(request.session.get(self.return_path_session_key,"/"))
 
+class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRelationMixin, View):
+
+    @staticmethod
+    def get_gdoc_html(drive, file_id):
+        html = drive.files().export(fileId=file_id, mimeType='text/html').execute()
+        soup = BeautifulSoup(html)
+        body = soup.body
+        spans = body.find_all("span")
+        for span in spans:
+            span.unwrap()
+        # kill all spans
+        html = body.prettify()
+        html = re.sub(r"\<body.*?\>","", html)
+        return html.replace("</body>","")
+
+    def get(self, request, *args, **kwargs):
+        try:
+            drive = self.get_service(request)
+        except GoogleOAuth2RedirectRequired, e:
+            return HttpResponseRedirect(e.url)
+        kwargs['type'] = "question"
+        ret_uri = request.session.get("return_uri", "/")
+        page = self.get_learning_object(*args, **kwargs)
+        file_id = kwargs['file_id']
+        html = self.get_gdoc_html(drive, file_id)
+        page.content = html
+        page.save()
+        messages.success(request, "Page text successfully replaced.")
+        return HttpResponseRedirect(ret_uri)
 
 class PushVideoToYouTubeView(LoginRequiredMixin, 
                          YouTubeServiceMixin, 

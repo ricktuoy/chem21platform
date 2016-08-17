@@ -19,7 +19,6 @@ from django.core.urlresolvers import reverse
 register = template.Library()
 
 
-
 class FigureRefProcessor(ContextProcessorMixin, BaseProcessor):
     @property
     def pattern(self):
@@ -43,7 +42,6 @@ class TokenProcessor(BaseProcessor):
 
     @property
     def name(self):
-        logging.debug(self.token_name)
         return self.token_name
 
     @abstractmethod
@@ -125,6 +123,31 @@ class AttributionProcessor(ContextProcessorMixin, TagProcessor):
     def tag_function(self, st, *args):
         html = "<p class=\"attrib\">%s</p>" % st
         return html
+
+
+class BibTeXCiteProcessor(ContextProcessorMixin, BaseProcessor):
+    openchar = "\\cite\{"
+    closechar = "\}"
+    name = u"bibcite"
+    @property
+    def pattern(self):
+        try:
+            return self._pattern
+        except AttributeError:
+            self._pattern = re.compile(
+                r'%s(?P<bibkey>.*?)%s' % (self.openchar,
+                                  self.closechar),
+                re.DOTALL)
+            return self._pattern
+
+    def repl_function(self, match):
+        bibkey = match.group('bibkey').lower()
+        try:
+            bib = Biblio.objects.get(bibkey=bibkey)
+        except Biblio.DoesNotExist:
+            bib = Biblio(bibkey=bibkey, citekey=bibkey)
+            bib.save()
+        return "[bib]%s[/bib]" % bib.citekey
 
 
 class RSCRightsProcessor(ContextProcessorMixin, TagProcessor):
@@ -483,6 +506,7 @@ class ReplaceTokensNode(template.Node):
         txt = self.text.resolve(context)
         request = context['request']
         processors = {
+            'bibtex':BibTeXCiteProcessor(context=context),
             'ibib':BiblioInlineTagProcessor(context=context),
             'bib':BiblioTagProcessor(context=context),
             'ilink':ILinkTagProcessor(context=context),
@@ -501,7 +525,7 @@ class ReplaceTokensNode(template.Node):
                 re.DOTALL)
 
         txt = decruft.sub(lambda match: match.group(1), txt)
-        proc_order = ['hide','ibib','bib','ilink','rsc','attrib','cta','green',
+        proc_order = ['hide','bibtex','ibib','bib','ilink','rsc','attrib','cta','green',
                       'figref','figure','figgroup','figcaption',]
         for key in proc_order:
             txt = processors[key].apply(txt)
