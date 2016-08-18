@@ -15,6 +15,7 @@ from chem21repo.repo.tokens import *
 from django import template
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.db import IntegrityError
 
 register = template.Library()
 
