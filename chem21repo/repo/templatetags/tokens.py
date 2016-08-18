@@ -144,8 +144,13 @@ class BibTeXCiteProcessor(ContextProcessorMixin, BaseProcessor):
         try:
             bib = Biblio.objects.get(bibkey=bibkey)
         except Biblio.DoesNotExist:
-            bib = Biblio(bibkey=bibkey, citekey=bibkey)
-            bib.save()
+            try:
+                bib = Biblio(bibkey=bibkey, citekey=bibkey)
+                bib.save()
+            except IntegrityError:
+                bib = Biblio.objects.get(citekey=bibkey)
+                bib.bibkey=bibkey
+                bib.save()
         return "[bib]%s[/bib]" % bib.citekey
 
 
