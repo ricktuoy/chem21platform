@@ -983,7 +983,8 @@ class GoogleServiceMixin(object):
             pass
         self._flow = Flow(settings.GOOGLE_OAUTH2_KEY, settings.GOOGLE_OAUTH2_SECRET, 
             scope=self.get_google_scope(),
-            approval_prompt="force" ,
+            prompt="consent",
+            access_type="offline",
             redirect_uri=self.request.build_absolute_uri(reverse("google-service-oauth2-return")))
         return self._flow
 
@@ -1001,7 +1002,7 @@ class GoogleServiceMixin(object):
             return self._storage
         except AttributeError:
             pass
-        self._storage = Storage(CredentialsModel, 'id', self.request.user.pk, 'credential')
+        self._storage = Storage(CredentialsModel, 'id', self.request.user, 'credential')
         return self._storage
 
     @property
@@ -1075,7 +1076,7 @@ class YouTubeServiceMixin(GoogleServiceMixin):
     google_api_version = "v3"
 
 class DriveServiceMixin(GoogleServiceMixin):
-    google_scope = "https://www.googleapis.com/auth/drive.metadata.readonly"
+    google_scope = "https://www.googleapis.com/auth/drive.readonly"
     google_service_name = "drive"
     google_api_version = "v3"
 
@@ -1097,10 +1098,57 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
         html = drive.files().export(fileId=file_id, mimeType='text/html').execute()
         soup = BeautifulSoup(html)
         body = soup.body
+        # kill all spans
         spans = body.find_all("span")
         for span in spans:
+            try:
+                style = span['style']
+            except KeyError:
+                span.unwrap()
+                continue    
+            weight_match = re.search(r'font-weight:(\d*)', style)
+            try:
+                weight = int(weight_match.group(1))
+            except AttributeError:
+                weight = 400
+            is_italic = (style.find("italic") != -1)
+            if weight > 400 and is_italic:
+                span['style'] = "font-weight:%d; font-style:italic;" % weight
+                continue
+            elif weight > 400:
+                span['style'] = "font-weight: %d;" % weight
+                continue
+            elif style and is_italic:
+                span['style'] = "font-style: italic;"
+                continue
             span.unwrap()
-        # kill all spans
+
+        for el in body.descendants:
+            if el.name == "span":
+                continue
+            try:
+                del el['style']
+            except (KeyError, TypeError):
+                pass
+        
+        tables = body.find_all("table")
+        for table in tables:
+            if not table.thead:
+                if table.tbody:
+                    tbody = table.tbody
+                    tr = table.tbody.tr
+                    thead = tr.extract()
+                else:
+                    tbody = soup.new_tag("tbody")
+                    tr = table.tr
+                    thead = tr.extract()
+                    for row in table("tr"):
+                        tbody.append(row.extract())
+                    table.append(tbody)
+                tbody.insert_before(thead)
+                for el in thead("td"):
+                    el.name = "th"
+                thead.wrap(soup.new_tag("thead"))
         html = body.prettify()
         html = re.sub(r"\<body.*?\>","", html)
         return html.replace("</body>","")
@@ -1115,7 +1163,7 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
         page = self.get_learning_object(*args, **kwargs)
         file_id = kwargs['file_id']
         html = self.get_gdoc_html(drive, file_id)
-        page.content = html
+        page.text = html
         page.save()
         messages.success(request, "Page text successfully replaced.")
         return HttpResponseRedirect(ret_uri)

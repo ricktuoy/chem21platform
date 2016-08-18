@@ -63,7 +63,6 @@ class TokenProcessor(BaseProcessor):
 
     def repl_function(self, match):
         args = match.group(self.name+"_args").split(":")
-        logging.debug(args)
         return self.token_function(*args[1:])
 
 class TagProcessor(BaseProcessor):
@@ -466,7 +465,7 @@ class HideTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "hide"
 
     def get_simple_tag_pattern(self):
-        return "<p>%s</p>" % super(HideTagProcessor, self).get_simple_tag_pattern()
+        return "<p>\s*%s\s*</p>" % super(HideTagProcessor, self).get_simple_tag_pattern()
     def tag_function(self, st, *args):
         return "<div class=\"hide_solution\"><p>%s</p></div>" % st
 
