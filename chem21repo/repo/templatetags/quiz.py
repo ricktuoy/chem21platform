@@ -6,6 +6,8 @@ import json
 
 register = template.Library()
 
+class QuestionNotFoundError(Exception):
+    pass
 
 class QuestionRender:
     __metaclass__ = ABCMeta
@@ -13,40 +15,6 @@ class QuestionRender:
     @abstractmethod
     def render(self):
         pass
-
-
-class QuestionNotFoundError(Exception):
-    pass
-
-
-class ChoiceQuestionRender(QuestionRender):
-    __metaclass__ = ABCMeta
-
-    @property
-    def help_text(self):
-        return ""
-
-    @property
-    def question_type(self):
-        return self.type
-
-    def __init__(self, *args, **kwargs):
-        question = kwargs['question']
-        self.choices = question['responses']
-        self.id = question['id']
-        self.text = question['text']
-        self.type = question['type']
-        self.questions = kwargs['questions']
-        self.num = kwargs['num']
-
-    @abstractmethod
-    def render_choice(self, choice):
-        pass
-
-    def render_choices(self):
-        return "\n".join(
-            [self.render_choice(choice)
-             for choice in self.choices])
 
     def render_question_text(self):
         return "<h3>%s</h3>\n" % self.text
@@ -96,13 +64,65 @@ class ChoiceQuestionRender(QuestionRender):
             return ""
 
     def render_help_text(self):
-        if self.help_text:
-            return "<legend class=\"help\">%s</legend>" % self.help_text
+        if self.get_help_text():
+            return "<legend class=\"help\">%s</legend>" % self.get_help_text()
         else:
             return ""
 
+    def get_help_text(self):
+        return self.help_text
+
     def render_score(self):
         return "<p class=\"final_score\"></p>"
+
+class NumericQuestionRender(QuestionRender):
+    def __init__(self, *args, **kwargs):
+        question = kwargs['question']
+        self.id = question['id']
+        self.text = question['text']
+        self.questions = kwargs['questions']
+        self.help_text = kwargs.get('help_text', "")
+        self.num = kwargs['num']
+        self.question_type = "numeric"
+
+    def render(self):
+        return "<div class=\"question\" id=\"question_%s\" " % self.id + \
+            "data-id=\"%s\" data-type=\"%s\">%s%s<fieldset data-role=\"controlgroup\">\n<input type=\"number\" name=\"%s\" />" % (
+                self.id, self.question_type, self.render_question_text(), self.render_score(), self.id) + \
+            self.render_help_text() + \
+            "</fieldset>" + \
+            self.render_navigation() + \
+            self.render_submit() + \
+            "<div class=\"clear\">&nbsp;</div>" + \
+            "</div>"
+
+class ChoiceQuestionRender(QuestionRender):
+    __metaclass__ = ABCMeta
+
+    @property
+    def question_type(self):
+        return self.type
+
+    def __init__(self, *args, **kwargs):
+        question = kwargs['question']
+        self.choices = question['responses']
+        self.id = question['id']
+        self.text = question['text']
+        self.type = question['type']
+        self.questions = kwargs['questions']
+        self.num = kwargs['num']
+        self.help_text = kwargs.get('help_text', "")
+
+    @abstractmethod
+    def render_choice(self, choice):
+        pass
+
+    def render_choices(self):
+        return "\n".join(
+            [self.render_choice(choice)
+             for choice in self.choices])
+
+
 
     def render(self):
         return "<div data-enhance=\"true\" class=\"question ui-field-contain\" id=\"question_%s\" " % self.id + \
@@ -140,17 +160,24 @@ class DragChoiceQuestionRender(ChoiceQuestionRender):
 class TextChoiceQuestionRender(ChoiceQuestionRender):
     def render_choice(self, choice):
         ref = "q%sr%s" % (self.id, choice['id'])
-        return "<input type=\"%s\" data-id=\"%s\" name=\"%s\" id=\"%s\" class=\"choice\"><label for=\"%s\">%s</label>" % (
-            self.widget_type, choice['id'], self.id, ref, ref, choice['text']
+        return "<input type=\"%s\" value=\"%s\" data-id=\"%s\" name=\"%s\" id=\"%s\" class=\"choice\"><label for=\"%s\">%s</label>" % (
+            self.widget_type, choice['id'], choice['id'], self.id, ref, ref, choice['text']
         )
 
     def render_choices(self):
         return super(TextChoiceQuestionRender, self).render_choices() +"\n"
 
 
+
 class MultiChoiceQuestionRender(TextChoiceQuestionRender):
-    help_text = "Select all that apply"
+    #help_text = "Select all that apply"
     widget_type = "checkbox"
+
+    def get_help_text(self):
+        if not self.help_text:
+            return "Select all that apply"
+        else:
+            return self.help_text
 
 
 class SingleChoiceQuestionRender(TextChoiceQuestionRender):
@@ -160,7 +187,8 @@ class SingleChoiceQuestionRender(TextChoiceQuestionRender):
 QuestionRenderDispatch = {
     'default': SingleChoiceQuestionRender,
     'multi': MultiChoiceQuestionRender,
-    'single': SingleChoiceQuestionRender
+    'single': SingleChoiceQuestionRender,
+    'numeric': NumericQuestionRender
 }
 
 
@@ -172,15 +200,17 @@ class RenderQuizNode(template.Node):
     def question_file_path(cls, n):
         return "quiz/" + n + "_questions.json"
 
+    @classmethod
     def answer_file_path(cls, n):
         return "quiz/" + n + "_answers.json"
 
     def render(self, context):
         quiz_name = self.text.resolve(context)
-        with default_storage.open(
-                self.question_file_path(quiz_name),
-                "r") as f:
-            quiz = json.load(f)
+        try:
+            with default_storage.open(self.question_file_path(quiz_name),"r") as f:    
+                quiz = json.load(f)
+        except IOError:
+            return "<p>Quiz file not found.</p>"
         json_url = default_storage.url(self.answer_file_path(quiz_name))
         return "<div class=\"quiz_questions\" data-id=\"%s\"" % quiz['id'] + \
             " data-answers-json-url=\"%s\">%s</div>" % (
@@ -195,6 +225,69 @@ class RenderQuizNode(template.Node):
                 )
         )
 
+class RenderGuideToolNode(template.Node):
+    def __init__(self, text_field):
+        self.text = template.Variable(text_field)
+    
+    @classmethod
+    def guide_file_path(cls, n):
+        return "guides/" + n + ".json"
+
+
+    def render(self, context):
+        guide_name = self.text.resolve(context)
+        try:
+            with default_storage.open(
+                self.guide_file_path(guide_name),
+                "r") as f:
+                guide = json.load(f)
+        except IOError:
+            return "Tool file not found: %s" % self.guide_file_path(guide_name)
+
+        def alt_render_nav(self):
+            tpl = "<a class=\"%s\" href=\"#%s\">%s</a>"
+            try:
+                previous_html = tpl % ("prev",
+                                       self.get_question_html_id(self.num - 2),
+                                       "Previous")
+            except QuestionNotFoundError:
+                previous_html = ""
+
+            try:
+                next_html = tpl % ("next",
+                                   self.get_question_html_id(self.num),
+                                   "Next question &raquo;")
+            except QuestionNotFoundError:
+                next_html = ""
+
+            if previous_html or next_html:
+                return "<nav class=\"controls\">%s%s</nav>" % (
+                    previous_html, next_html)
+            else:
+                return ""
+
+        def alt_render_submit(self): 
+            if self.is_final_question():
+                return "<a href=\"#she_scores\" class=\"submit\">Show scores</a>"
+            else:
+                return ""
+
+        html = ""
+        for i, question in zip(range(1, len(guide['data']) + 1), guide['data']):
+            cls = QuestionRenderDispatch[question.get("type", "default")]
+            cls.render_navigation = alt_render_nav
+            cls.render_submit = alt_render_submit
+            html += "<p>%d of %d</p>" % (i, len(guide['data']))
+            html += cls(question=question,
+                        questions=guide['data'],
+                        num=i).render() + "\n"
+        html += "<div id=\"she_scores\"> </div>"
+
+        return "<div class=\"guide\" data-id=\"%s\"" % guide['id'] + \
+            ">%s</div>" % html
+
+
+
 
 @register.tag(name="render_quiz")
 def do_render_quiz(parser, token):
@@ -206,3 +299,14 @@ def do_render_quiz(parser, token):
                 0]
         )
     return RenderQuizNode(text_field)
+
+@register.tag(name="render_guide_tool")
+def do_render_guide_tool(parser, token):
+    try:
+        tag_name, text_field = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires exactly one argument" % token.contents.split()[
+                0]
+        )
+    return RenderGuideToolNode(text_field)   

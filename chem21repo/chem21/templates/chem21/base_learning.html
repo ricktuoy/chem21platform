@@ -86,19 +86,24 @@
 		<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
 		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
 		Edit text</a>
+
 {% else %}
 		<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
 		data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
 		Edit text</a>
-
 {% endif %}
+
+		{% url 'media_upload' pk=learning_reference_pk type=learning_reference_type as media_url %}
 		<a id="gpicker_trigger" class="btn btn-success admin-edit" href="{% url 'admin:repo_question_loadgdoc' tpk=learning_reference_pk file_id='yermum' %}">Load from GDoc</a>
 
-{% if opts.child %}
+		
+
+	{% if opts.child %}
 		<a class="btn btn-success admin-add" href="{% url opts.child|admin_urlname:'add' %}?{{ opts.child.parent_fieldname }}={{object.pk}}"
 		data-from-url-edit="{% url opts.child|admin_urlname:'changelist' %}">
 		Add child page</a>
-{% endif %}
+	{% endif %}
+	{% fileupload_form "upload_json" caption="Upload quiz/guide" upload_url=media_url %}
 
 	</form>
 	
@@ -134,7 +139,9 @@
 		{{ video|safe }}
 	{% endif %}
 	{% if object.has_quiz %}
+		{% block interactive %}
 		{% render_quiz object.quiz %}
+		{% endblock %}
 	{% endif %}
 	{% if object.pdf %}
 	<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>

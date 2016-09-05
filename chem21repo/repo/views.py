@@ -592,8 +592,6 @@ class JQueryFileHandleView(LoginRequiredMixin, View):
 
 
 class MediaUploadHandle(object):
-
-     
     def process(self, f, lobj=None, **kwargs):
         m = hashlib.md5()
         
@@ -662,14 +660,25 @@ class JSONFileObjectWrapper(object):
 class JSONUploadHandle(MediaUploadHandle):
     def process(self, f, lobj=None, **kwargs):
         try:
-            qparse = QuizParser(f)
-        except QuizValidationError, e:    
-            return super(JSONUploadHandle, self).process(f, lobj=lobj, **kwargs)
-        dest_questions, dest_answers = qparse.save()
+            parser = QuizParser(f)
+        except QuizValidationError, e:
+            try:
+                parser = GuideToolParser(f)
+            except GuideToolValidationError, e:
+                raise e
+                return super(JSONUploadHandle, self).process(f, lobj=lobj, **kwargs)
+        outcome = parser.save()
         if lobj:
-            lobj.quiz_name = qparse.name
+            lobj.quiz_name = parser.name
+            if isinstance(parser, GuideToolParser):
+                try:
+                    tpl = LearningTemplate.objects.get(name="guide_detail")
+                    lobj.template = tpl
+                except LearningTemplate.DoesNotExist:
+                    raise AJAXError("No 'guide_detail' template registered")
             lobj.save()
-        return JSONFileObjectWrapper(name = "Quiz questions: %s" % qparse.name, url = default_storage.url(dest_questions))
+        return JSONFileObjectWrapper(name = "%s: %s" % (parser.human_type_name, parser.name), 
+            url = default_storage.url(outcome))
 
 
 class BibTeXUploadView(JQueryFileHandleView):
@@ -788,7 +797,7 @@ class MediaUploadView(JQueryFileHandleView):
         o = super(MediaUploadView,self).get_return_values()
         o['content_type'] = self.content_type
         o['handler'] = unicode(self.handle_cls)
-        o['pk'] = self.file_obj.pk
+        #o['pk'] = self.file_obj.pk
         return o
 
     def get_post_dict_from_request(self, request):
@@ -1347,42 +1356,49 @@ class StripRemoteIdView(BatchProcessView):
                 error.append(str(e))
         return (success, error)
 
-class QuizValidationError(Exception):
+class JSONObjectValidationError(Exception):
     pass
 
-class QuizParser(object):
+class QuizValidationError(JSONObjectValidationError):
+    pass
 
-    def __init__(self, bstring):
-        try:
-            self.data = json.load(bstring)
-        except Exception as e:
-            return self.error_response("%s" % (str(e)))
-            self.data = json.loads(bstring)
+class GuideToolValidationError(JSONObjectValidationError):
+    pass
+
+class JSONObjectParser(object):
+    def __init__(self, f):
+        f.seek(0)
+        dat = f.read()
+        self.data = json.loads(dat)
         self.validate()
-
-    def error_response(self, text):
-        raise QuizValidationError(text)
 
     def validate(self):
         data = self.data
-
         try:
-            t = data['quiz_object']
+            t = data[self.type_name]
         except KeyError:
-            return self.error_response("Not a quiz_object")
-
-        if t != "questions_answers":
-            return self.error_response(
-                "Not questions and answers; cannot import")
+            return self.error_response("Not a %s" % self.human_type_name)
 
         try:
             self.name = data['id']
         except KeyError:
-            return self.error_response("Quiz object has no id")
+            return self.error_response("%s object has no id" % self.human_type_name)
+        return t
+    
 
+class QuizParser(JSONObjectParser):
+    type_name = "quiz_object"
+    human_type_name = "quiz"
+    def error_response(self, text):
+        raise QuizValidationError(text)
 
+    def validate(self):
+        t = super(QuizParser, self).validate()
 
-        return True
+        if t != "questions_answers":
+            return self.error_response(
+                "Not questions and answers; cannot import")
+        return t
 
     def save(self):
 
@@ -1419,9 +1435,33 @@ class QuizParser(object):
 
         return (dest_questions, dest_answers)
 
+class GuideToolParser(JSONObjectParser):
+    type_name = "guide_tool_object"
+    human_type_name = "Guide tool"
 
-class ImportQuizView(CSRFExemptMixin, JSONView):
+    def error_response(self, text):
+        raise GuideToolValidationError(text)
 
+    def save(self):
+        data = self.data
+        dest = "guides/%s.json" % self.name
+        out_data = []
+        k_set = set(['id','type','text','help_text','responses'])
+        for el in data['data']:
+            row = dict([(k, el[k]) for k in k_set if k in el])
+            out_data.append(row)
+        out = data.copy()
+        out['data'] = out_data
+        f = ContentFile(json.dumps(out))
+        default_storage.save(dest, f)
+
+        return dest 
+
+class ImportJSONObjectError(Exception):
+    pass
+
+class ImportJSONObjectView(CSRFExemptMixin, JSONView):
+    
     def populate_post_dict(self):
         try:
             return self._post_dict
@@ -1432,6 +1472,29 @@ class ImportQuizView(CSRFExemptMixin, JSONView):
     def error_response(self, error=""):
         return JsonResponse({'error': error}, status=500)
 
+
+
+    def success_response(self, outcome):
+        return JsonResponse({'success': 'Saved to %s' % 
+            default_storage.url(outcome)})
+
+    def get_learning_object(self, kwargs):
+        try:
+            self.model = ContentType.objects.get(
+                app_label="repo",
+                model=kwargs['object_name']).model_class()
+        except ContentType.DoesNotExist:
+            raise ImportJSONObjectError("Unknown learning object type")
+
+        try:
+            self.attach_to = model.objects.get(pk=kwargs['id'])
+        except model.DoesNotExist:
+            raise ImportJSONObjectError("Cannot find learning object")
+        return self.attach_to
+
+    def amend_learning_object(self, lobj, parse):
+        lobj.save()
+
     def post(self, request, *args, **kwargs):
         self.request = request
         self.errors = []
@@ -1440,38 +1503,39 @@ class ImportQuizView(CSRFExemptMixin, JSONView):
         self.populate_post_dict()
 
         try:
-            qparse = QuizParser(self.request.body)
-        except QuizValidationError, e:
+            attach_to = self.get_learning_object()
+        except ImportJSONObjectError, e:
             return self.error_response(e.message)
 
         try:
-            self.model = ContentType.objects.get(
-                app_label="repo",
-                model=kwargs['object_name']).model_class()
-        except ContentType.DoesNotExist:
-            return self.error_response("Unknown learning object type")
+            parsed = self.parser(self.request.body)
+        except JSONObjectValidationError, e:
+            return self.error_response(e.message)
+        self.amend_learning_object(attach_to, parsed)
+        save_outcome = parsed.save()
+        return self.success_response(save_outcome)
 
-        try:
-            self.attach_to = model.objects.get(pk=kwargs['id'])
-        except model.DoesNotExist:
-            return self.error_response("Cannot find learning object")
+class ImportQuizView(ImportJSONObjectView):
+    parser = QuizParser
 
-        dest_questions, dest_answers = qparse.save()
+    def amend_learning_object(self, lobj, parse):
+        lobj.quiz_name = parse.name
+        super(ImportQuizView, self).amend_learning_object(lobj, parse)
 
-        attach_to.quiz_name = qparse.name
-        attach_to.save()
-
+    def success_response(self, outcome):
+        dest_questions, dest_answers = outcome
         return JsonResponse(
             {'success': 'Saved to %s, %s' % (
                 default_storage.url(dest_questions),
                 default_storage.url(dest_answers))},
             status=200)
 
+class ImportGuideToolView(ImportJSONObjectView):
+    parser = GuideToolParser
 
 
 
 class AddFileView(BatchProcessView):
-
     def post(self, request, *args, **kwargs):
         if kwargs['target_type'] != "question":
             return JsonResponse(

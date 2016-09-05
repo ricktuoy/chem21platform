@@ -150,10 +150,9 @@ class BibTeXCiteProcessor(ContextProcessorMixin, BaseProcessor):
                 bib.save()
             except IntegrityError:
                 bib = Biblio.objects.get(citekey=bibkey)
-                bib.bibkey=bibkey
+                bib.bibkey = bibkey
                 bib.save()
         return "[bib]%s[/bib]" % bib.citekey
-
 
 class RSCRightsProcessor(ContextProcessorMixin, TagProcessor):
     tag_name="rsc"
@@ -196,8 +195,6 @@ class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
             html = "Unknown reference."
         return "<li id=\"citekey_%d\">%s</li>" % (
             id, html)
-
-
 
     def get_footnotes_html(self):
         return "\n".join(
@@ -295,7 +292,6 @@ class GreenPrincipleTokenProcessor(ContextProcessorMixin, TokenProcessor):
                 num_list = range(1, 12)
         self.context['pre_content'] = self.context.get('pre_content', "") + self.build_html(num_list)
         return ""
-
 
 class FigCaptionTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "figcaption"

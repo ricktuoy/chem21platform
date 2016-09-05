@@ -48,7 +48,6 @@ class Biblio(models.Model):
     display_string = models.CharField(max_length=1000, blank=True, default="")
     inline_html = models.TextField(null=True, blank=True)
     footnote_html = models.TextField(null=True, blank=True)
-
     unknown = models.BooleanField(default=False)
 
     def bust(self):
@@ -1993,7 +1992,6 @@ class Question(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
     def first_question(self):
         return self
     
-
     @property
     def modules(self):
         modules = []

@@ -79,6 +79,8 @@ urlpatterns = [
         MoleculeAttachView.as_view()),
     url(r'^quiz/import/(?P<object_name>.+)/(?P<id>[0-9]+)/$',
     	ImportQuizView.as_view(), name="quiz_import"),
+    url(r'^guide/import/(?P<object_name>.+)/(?P<id>[0-9]+)/$',
+        ImportGuideToolView.as_view(), name="quiz_import"),
     url(r'version/(?P<pk>[0-9]+)[/]?$', TextVersionView.as_view(),
         name="version"),
     url('', include('social.apps.django_app.urls', namespace='social')),
@@ -102,7 +104,8 @@ urlpatterns = [
     url(r'^(?P<topic_slug>[^/]*)/(?P<module_slug>[^/]*)/(?P<lesson_slug>[^/]*)/(?P<slug>[^/]*)/$',
         QuestionView.as_view(), name="question_detail"),
     url(r'complete/google-service-oauth2', GoogleServiceOAuth2ReturnView.as_view(), name="google-service-oauth2-return"),
-    url(r'files/upload/youtube/(?P<type>[^/]+)/(?P<tpk>[0-9]+)/(?P<vpk>[0-9]+)/$', PushVideoToYouTubeView.as_view(), name="youtube_upload"),
+    url(r'files/upload/youtube/(?P<type>[^/]+)/(?P<tpk>[0-9]+)/(?P<vpk>[0-9]+)/$', PushVideoToYouTubeView.as_view(), 
+        name="youtube_upload"),
 
 ]
 

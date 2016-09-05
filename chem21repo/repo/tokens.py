@@ -195,7 +195,7 @@ class FigureToken(BaseToken):
             question=question, 
             processor=processor, 
             above=True)
-        self.token_processor = FigureGroupProcessor()
+        #self.token_processor = FigureGroupTagProcessor()
     
     def form(self, *args, **kwargs):
         return FigureTokenForm(self.question, *args, **kwargs)
