@@ -178,7 +178,6 @@ define([], function() {
             this.ether_explosive_peroxide = this.score("ether_explosive_peroxide", res_cb);
 
             var symbol_cb = function(val) {
-                console.debug(val);
                 if(!val) {
                     return [0, 1, 0];
                 }

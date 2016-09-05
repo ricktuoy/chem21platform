@@ -277,7 +277,6 @@ class RenderGuideToolNode(template.Node):
             cls = QuestionRenderDispatch[question.get("type", "default")]
             cls.render_navigation = alt_render_nav
             cls.render_submit = alt_render_submit
-            html += "<p>%d of %d</p>" % (i, len(guide['data']))
             html += cls(question=question,
                         questions=guide['data'],
                         num=i).render() + "\n"

@@ -26,6 +26,7 @@ from .models import TextVersion
 from .models import Molecule
 from .models import CredentialsModel
 from .models import Biblio
+from .models import LearningTemplate
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
