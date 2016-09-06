@@ -42,10 +42,11 @@ define([], function() {
         }
 
         this.next = function(scores) {
+            var is_symbol = /^symbol_.*$/.test(id);
             var id = this.current_id();
             if(id == "symbol_1" && scores.has_score(id) && scores.H[id]) {
                this.skip(4);
-            } else if(id.startsWith("symbol") && id != "symbol_4" && scores.has_score(id)) {
+            } else if(is_symbol && id != "symbol_4" && scores.has_score(id)) {
                this.skip(2); 
             } else {
                this.skip(1);
