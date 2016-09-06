@@ -758,7 +758,7 @@ class BibTeXUploadView(JQueryFileHandleView):
                         defaults['citekey'] = doi
                         created = False
                     except Biblio.DoesNotExist:
-                        bib = Biblio.object.get(citekey=doi)
+                        bib = Biblio.objects.get(citekey=doi)
                         defaults['DOI'] = doi
                         defaults['bibkey'] = k
                         created = False
