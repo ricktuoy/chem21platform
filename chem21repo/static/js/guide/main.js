@@ -13,24 +13,7 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
         if($(".guide").length) {
             $("#quiz_progress nav, #end-nav").hide();
         }
-        /*
-        $(".guide").on("change", ".question input, .question select", function() {
-            var route = get_route();
-            var $quiz = $(".guide");
-            var $question = $(this).closest(".question");
-            console.debug($question);
-            console.debug("change");
-            if(!$question.hasClass("single")) {
-                return true;
-            }
-            if(route.at_final()) {
-                $quiz.trigger("mark");
-            } else {
-                $question.trigger("mark_and_move", [false])
-            }
-            return true;
-        });
-        */
+
 
         $(".guide").on("click", ".question .controls a", function() {
             var $question = $(this).closest(".question");
@@ -78,12 +61,22 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             $quiz.data("SEH_route", route);
         }
 
+        function mark_question($q, val) {
+            var scores = get_scores();
+            var store_val_fn = scores[$q.data("id")];
+            store_val_fn(val);
+            store_scores(scores);
+            return scores;
+        }
+
         $(".guide").on("mark_and_move", ".question", function(e, go_back) {
             // save scores
             e.stopImmediatePropagation();
-            var scores = get_scores();
+            var $error = $(this).nextAll(".error").eq(0);
+            $error.empty();
             var $q = $(this);
             var $field = $q.find("input");
+
             if($field.length > 1) {
                 //choices!
                 var val = $field.filter(":checked").val();
@@ -93,34 +86,37 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
                 $field = $q.find("select");
                 var val = $field.val();
             }
-            console.debug(val);
-            if(val == "" || val == false) {
+
+            if((val == "" || val == false) && !go_back) {
+                // show error 
+                var error_msg = $("<p>Please answer this before proceeding.</p>");
+                $error.eq(0).append(error_msg);
                 return false;
             }
-
+            
             if(val == "y") {
                 val = true;
             }
-
             if(val =="n") {
                 val = false;
             }
-            var store_val_fn = scores[$q.data("id")];
-            store_val_fn(val);
+
+            if(!go_back) {
+                var scores = mark_question($q, val);
+            } else {
+                var scores = get_scores();
+            }
 
             var route = get_route();
-
             if(go_back) {
                 route.prev(scores);
             } else {
                 route.next(scores);
             }
-
             var $next_q = route.get_question();
             $(".guide .question").hide();
             $next_q.show();
             store_route(route);
-            store_scores(scores);
             return true;
         });
 
@@ -134,7 +130,6 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             var h_class = scores.get_H_band();
             var e = scores.get_E();
             var e_class = scores.get_E_band();
-            console.debug([s, s_class, e, e_class, h, h_class, scores.get_default_ranking(), scores.get_default_ranking_band()]);
 
             var $score_s = $("<div id=\"score_s\" />");
             var $score_h = $("<div id=\"score_h\" />");

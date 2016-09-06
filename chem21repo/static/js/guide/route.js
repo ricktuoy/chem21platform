@@ -11,7 +11,6 @@ define([], function() {
             } else if (this.pos < 0) {
                 this.pos = 0;
             }
-            console.debug(this.pos);
         };
 
 
@@ -35,7 +34,6 @@ define([], function() {
         };
 
         this.get_question = function() {
-            console.debug(this.pos);
             return this.$questions.eq(this.pos);
         }
 
@@ -45,15 +43,12 @@ define([], function() {
 
         this.next = function(scores) {
             var id = this.current_id();
-            console.debug(id);
-            console.debug(scores.H);
             if(id == "symbol_1" && scores.has_score(id) && scores.H[id]) {
                this.skip(4);
             } else if(id.startsWith("symbol") && id != "symbol_4" && scores.has_score(id)) {
                this.skip(2); 
             } else {
                this.skip(1);
-               console.debug(this.current_id());
             }
         };
 

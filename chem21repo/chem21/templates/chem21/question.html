@@ -14,12 +14,12 @@
 					{% include 'chem21/include/active_module_nav.html' with module=module current_question=object %}
 				{% else %}
 				<li data-lo-type="module" data-lo-pk="{{ module.pk }}" class="active">
-					{% if module.text|striptags or perms.repo.change_module %}
+				{% if module.text|striptags or perms.repo.change_module %}
 					<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
 				{% else %}
-				{{ module.name }}
+					{{ module.name }}
 				{% endif %}
-					<div class="item-list">
+				<div class="item-list">
 					<ol class="active">
 						{% include 'chem21/include/active_module_nav.html' with module=module current_question=object %}
 					</ol>

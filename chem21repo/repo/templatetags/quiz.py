@@ -280,6 +280,7 @@ class RenderGuideToolNode(template.Node):
             html += cls(question=question,
                         questions=guide['data'],
                         num=i).render() + "\n"
+            html += "<div class=\"error\"></div>"
         html += "<div id=\"she_scores\"> </div>"
 
         return "<div class=\"guide\" data-id=\"%s\"" % guide['id'] + \

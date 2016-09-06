@@ -55,7 +55,6 @@ define([], function() {
             }
             
             this.get_H = function() {
-                console.debug(this);
                 var cH = this.H['boiling_point'];
                 var max = 0;
                 for (var k in this.H) {
