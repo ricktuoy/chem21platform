@@ -777,6 +777,7 @@ class BibTeXUploadView(JQueryFileHandleView):
                 #del defaults['citekey']
                 for k,v in defaults.iteritems():
                     setattr(bib, k, v)
+                bib.unknown = False
                 try:
                     bib.save()
                 except IntegrityError:
