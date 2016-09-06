@@ -751,12 +751,30 @@ class BibTeXUploadView(JQueryFileHandleView):
             try:
                 bib, created = Biblio.objects.get_or_create(**crargs)
             except IntegrityError:
-                self.skipped.append((repr(bib), created, crargs))
+                if doi:
+                    try:
+                        bib = Biblio.objects.get(bibkey=k)
+                        defaults['DOI'] = doi
+                        defaults['citekey'] = doi
+                        created = False
+                    except Biblio.DoesNotExist:
+                        bib = Biblio.object.get(citekey=doi)
+                        defaults['DOI'] = doi
+                        defaults['bibkey'] = k
+                        created = False
+                else:
+                    try:
+                        bib = Biblio.objects.get(citekey=k)
+                        defaults['bibkey'] = k
+                        created = False
+                    except Biblio.DoesNotExist:
+                        raise Exception("Unknown integrity error when trying to create biblio")
+                #self.skipped.append((repr(bib), created, crargs))
                 
             if created:
                 self.created_bibs.append(repr(bib)) 
             else:
-                del defaults['citekey']
+                #del defaults['citekey']
                 for k,v in defaults.iteritems():
                     setattr(bib, k, v)
                 try:
