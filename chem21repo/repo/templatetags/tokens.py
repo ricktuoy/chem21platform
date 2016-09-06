@@ -16,6 +16,7 @@ from django import template
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
+from django.contrib.staticfiles.templatetags.staticfiles import static
 
 register = template.Library()
 
@@ -123,6 +124,8 @@ class AttributionProcessor(ContextProcessorMixin, TagProcessor):
     def tag_function(self, st, *args):
         html = "<p class=\"attrib\">%s</p>" % st
         return html
+
+
 
 
 class BibTeXCiteProcessor(ContextProcessorMixin, BaseProcessor):
@@ -292,6 +295,18 @@ class GreenPrincipleTokenProcessor(ContextProcessorMixin, TokenProcessor):
                 num_list = range(1, 12)
         self.context['pre_content'] = self.context.get('pre_content', "") + self.build_html(num_list)
         return ""
+
+class GHSStatementProcessor(ContextProcessorMixin, TokenProcessor):
+    token_name = "GHS_statement"
+    def token_function(self, *args):
+        try:
+            num = args[0]
+        except IndexError:
+            return
+        symbol_name = "symbol"
+        url = static("img/ghs/symbol_%s.png" % num)
+        return "<img src=\"%s\" alt=\"GHS symbol: %s\" class=\"ghs_symbol\" />" % (
+            url, symbol_name)
 
 class FigCaptionTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "figcaption"
@@ -520,6 +535,7 @@ class ReplaceTokensNode(template.Node):
             'figgroup':FigureGroupTagProcessor(context=context),
             'figcaption':FigCaptionTagProcessor(context=context),
             'hide':HideTagProcessor(context=context),
+            'GHS_statement':GHSStatementProcessor(context=context)
             }
         decruft = re.compile(
                 r'<div class="token"><!--token-->(.*?)<!--endtoken--></div>',
@@ -527,7 +543,7 @@ class ReplaceTokensNode(template.Node):
 
         txt = decruft.sub(lambda match: match.group(1), txt)
         proc_order = ['hide','bibtex','ibib','bib','ilink','rsc','attrib','cta','green',
-                      'figref','figure','figgroup','figcaption',]
+                      'figref','figure','figgroup','figcaption','GHS_statement']
         for key in proc_order:
             txt = processors[key].apply(txt)
             if context['user'].is_authenticated() and ('staticgenerator' not in context or not context['staticgenerator']):

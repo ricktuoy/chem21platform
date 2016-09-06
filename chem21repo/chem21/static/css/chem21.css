@@ -1248,6 +1248,35 @@ figure.presentation figcaption.overlay .byline {
 	text-align: center;
 }
 
+table.she_scores .bad {
+	background-color: red;
+	color: white;
+}
+table.she_scores .ok {
+	background-color: yellow;
+	color: #222;
+}
+table.she_scores .good {
+	background-color: green;
+	color: white;
+}
+
+img.ghs_symbol {
+	height: 35px;
+	width: auto;
+	border: 1px solid #bbb;
+}
+
+#content table.she_scores .bad p {
+	color: white;
+}
+#content table.she_scores .ok p {
+	color: #222;
+}
+#content table.she_scores .good p {
+	color: white;
+}
+
 
 #content #score_s p, #content #score_h p, #content #score_e p, #content #default_ranking p {
 	font-size: 2.4em;

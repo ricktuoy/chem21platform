@@ -2,6 +2,7 @@ from django import template
 from django.core.files.storage import default_storage
 from abc import ABCMeta
 from abc import abstractmethod
+from .tokens import GHSStatementProcessor
 import json
 
 register = template.Library()
@@ -273,6 +274,7 @@ class RenderGuideToolNode(template.Node):
                 return ""
 
         html = ""
+
         for i, question in zip(range(1, len(guide['data']) + 1), guide['data']):
             cls = QuestionRenderDispatch[question.get("type", "default")]
             cls.render_navigation = alt_render_nav
@@ -281,8 +283,9 @@ class RenderGuideToolNode(template.Node):
                         questions=guide['data'],
                         num=i).render() + "\n"
             html += "<div class=\"error\"></div>"
-        html += "<div id=\"she_scores\"> </div>"
 
+        html += "<div id=\"she_scores\"> </div>"
+        html = GHSStatementProcessor(context=context).apply(html)
         return "<div class=\"guide\" data-id=\"%s\"" % guide['id'] + \
             ">%s</div>" % html
 
