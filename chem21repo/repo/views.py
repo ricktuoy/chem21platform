@@ -1141,16 +1141,21 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
             except AttributeError:
                 weight = 400
             is_italic = (style.find("italic") != -1)
-            if weight > 400 and is_italic:
-                span['style'] = "font-weight:%d; font-style:italic;" % weight
-                continue
-            elif weight > 400:
-                span['style'] = "font-weight: %d;" % weight
-                continue
-            elif style and is_italic:
-                span['style'] = "font-style: italic;"
-                continue
-            span.unwrap()
+            is_sub = (style.find("sub") != -1)
+            is_super = (style.find("super") != -1)
+            styles = []
+            if is_sub:
+                styles.append("vertical-align:sub")
+            elif is_super:
+                styles.append("vertical-align:super")
+            if weight > 400:
+                styles.append("font-weight:%d" % weight)
+            if is_italic:
+                styles.append("font-style:italic")
+            if len(styles):
+                span['style'] = "; ".join(styles)
+            else:
+                span.unwrap()
 
         for el in body.descendants:
             if el.name == "span":
