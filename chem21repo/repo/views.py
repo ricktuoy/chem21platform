@@ -1146,8 +1146,10 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
             styles = []
             if is_sub:
                 styles.append("vertical-align:sub")
+                styles.append("font-size: 70%;")
             elif is_super:
                 styles.append("vertical-align:super")
+                styles.append("font-size: 70%;")
             if weight > 400:
                 styles.append("font-weight:%d" % weight)
             if is_italic:
