@@ -7,7 +7,9 @@ define([], function() {
             this.update = function(name, vals) {
                 this.S[name] = vals[0];
                 this.H[name] = vals[1];
-                this.E[name] = vals[2]
+                this.E[name] = vals[2];
+                console.debug("Saving scores.");
+                console.debug(vals);
             }
             this.score = function(name, cb) {
                 var cum_scores = this;
@@ -19,6 +21,14 @@ define([], function() {
                     cum_scores.update(name, scores);
                 };
             };
+
+            this.pretty = function() {
+                var out = "";
+                for(var k in this.S) {
+                    out += "Q" + k+": S" + this.S[k] + "H: " + this.H[k] + "E: " + this.E[k]+"\n";
+                }
+                return out;
+            }
 
             this.has_score = function(name) {
                 if((name in this.S && this.S[name]) || 

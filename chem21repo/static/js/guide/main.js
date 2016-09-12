@@ -65,7 +65,6 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             var scores = get_scores();
             var store_val_fn = scores[$q.data("id")];
             store_val_fn(val);
-            store_scores(scores);
             return scores;
         }
 
@@ -109,13 +108,21 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
 
             var route = get_route();
             if(go_back) {
-                route.prev(scores);
+                var skipped_ids = route.prev(scores);
             } else {
-                route.next(scores);
+                var skipped_ids = route.next(scores);
             }
+            // wipe skipped values.
+            if(skipped_ids.length > 0) {
+                for (var i = 0; i < skipped_ids.length; i++) {
+                    scores.update( skipped_ids[i], [0,0,0]);
+                }
+            }
+            store_scores(scores);
             var $next_q = route.get_question();
             $(".guide .question").hide();
             $next_q.show();
+            console.debug(scores.pretty());
             store_route(route);
             return true;
         });

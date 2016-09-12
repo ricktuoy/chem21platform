@@ -5,12 +5,34 @@ define([], function() {
         this.pos = 0;
 
         this.skip = function(n) {
+            var from_pos = this.pos;
             this.pos += n;
             if (this.pos >= this.$questions.length) {
                 this.pos = this.$questions.length - 1;
             } else if (this.pos < 0) {
                 this.pos = 0;
             }
+            for(p = from_pos; p <= this.pos; p++) {
+
+            }
+            var skipped_ids = [];
+            if( from_pos > this.pos ) {
+                var to_pos = from_pos;
+                var from_pos = this.pos;       
+            } else {
+                var to_pos = this.pos;
+            }
+            if( n != 1 && n != -1 ) {
+                $to_wipe = this.$questions.slice(from_pos, to_pos);
+                $to_wipe.each(i, function() {
+                    var $q = $(this);
+                    var id = $q.data("id");
+                    skipped_ids.push(id);
+                });
+            }
+            console.debug("Skipped over:");
+            console.debug(skipped_ids);
+            return skipped_ids;
         };
 
 
@@ -42,15 +64,19 @@ define([], function() {
         }
 
         this.next = function(scores) {
-            var is_symbol = /^symbol_.*$/.test(id);
             var id = this.current_id();
-            if(id == "symbol_1" && scores.has_score(id) && scores.H[id]) {
-               this.skip(4);
-            } else if(is_symbol && id != "symbol_4" && scores.has_score(id)) {
-               this.skip(2); 
-            } else {
-               this.skip(1);
+            var is_symbol = /^symbol_.*$/.test(id);
+            if(is_symbol) {
+                console.debug("Detected as a symbol.");
             }
+            if(id == "symbol_1" && scores.has_score(id) && scores.H[id]) {
+               var skipped = this.skip(4);
+            } else if(is_symbol && id != "symbol_4" && scores.has_score(id)) {
+               var skipped = this.skip(2); 
+            } else {
+               var skipped = this.skip(1);
+            }
+            return skipped;
         };
 
         this.prev = function(scores) {
