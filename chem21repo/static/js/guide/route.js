@@ -18,13 +18,14 @@ define([], function() {
             var skipped_ids = [];
             if( from_pos > this.pos ) {
                 var to_pos = from_pos;
-                var from_pos = this.pos;       
+                from_pos = this.pos + 1;      
             } else {
                 var to_pos = this.pos;
+                from_pos++;
             }
             if( n != 1 && n != -1 ) {
                 $to_wipe = this.$questions.slice(from_pos, to_pos);
-                $to_wipe.each(i, function() {
+                $to_wipe.each(function() {
                     var $q = $(this);
                     var id = $q.data("id");
                     skipped_ids.push(id);
@@ -98,14 +99,13 @@ define([], function() {
             }
             if(prev_id != "" && scores.has_score(prev_id)) {
                 if (id=="symbol_2") {
-                    this.skip(-4);
+                    return this.skip(-4);
                 }
                 else {
-                    this.skip(-2);
+                    return this.skip(-2);
                 }
-                return
             }
-            this.skip(-1);
+            return this.skip(-1);
         }
     };
     return Route;

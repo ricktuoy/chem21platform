@@ -31,6 +31,10 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             $(this).closest(".guide").trigger("mark");
         });
 
+        $(".guide".on("click", ".reset", function() {
+            $(this)
+        });
+
         function get_scores() {
             $quiz = $(".guide");
             var s = $quiz.data("SEH_scores");
