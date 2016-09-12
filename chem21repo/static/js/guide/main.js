@@ -28,12 +28,10 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
         });
 
         $(".guide").on("click", ".submit", function() {
+
             $(this).closest(".guide").trigger("mark");
         });
 
-        $(".guide".on("click", ".reset", function() {
-            $(this)
-        });
 
         function get_scores() {
             $quiz = $(".guide");
@@ -49,6 +47,15 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             $quiz = $(".guide");
             $quiz.data("SEH_scores", scores);
         }
+
+        $(".guide").on("click", ".reset", function() {
+            scores = get_scores();
+            $(".guide").find("form").trigger("reset");
+            scores.reset();
+            store_scores(scores);
+        });
+
+
 
         function get_route() {
             $quiz = $(".guide");
@@ -119,6 +126,8 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             // wipe skipped values.
             if(skipped_ids.length > 0) {
                 for (var i = 0; i < skipped_ids.length; i++) {
+                    console.debug("Wiping: ");
+                    console.debug(skipped_ids[i]);
                     scores.update( skipped_ids[i], [0,0,0]);
                 }
             }
@@ -126,14 +135,22 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             var $next_q = route.get_question();
             $(".guide .question").hide();
             $next_q.show();
-            console.debug(scores.pretty());
             store_route(route);
             return true;
         });
 
         $(".guide").on("mark", function() {
             var $quiz = $(this);
-            var scores = get_scores();          
+            var scores = get_scores();
+            var $reach = $("#question_reach");
+            var $field = $reach.find("input");
+            var val = $field.filter(":checked").val();
+            if(val=="y") {
+                val = true;
+            } else {
+                val = false;
+            }
+            mark_question($reach, val);          
             var $questions = $quiz.find(".question");
             var s = scores.get_S();
             var s_class = scores.get_S_band();
@@ -164,19 +181,23 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
 
             var $ranking = $("<div id=\"default_ranking\" />");
             var $p = $("<p />").html(scores.get_default_ranking());
-            var $he = $("<h3 />").html("Ranking");
+            var $he = $("<h3 />").html("Default ranking");
             $ranking.append($he);
             $ranking.append($p);
             $ranking.addClass(scores.get_default_ranking_band());
             
             var $scores = $quiz.find("#she_scores");
+            var $reset = $("<a href=\"#\" class=\"reset\">Rank another solvent</a>");
             $scores.empty();
 
             $scores.append($score_s);
             $scores.append($score_h);
             $scores.append($score_e);
             $scores.append($ranking);
-            
+
+            $scores.append($reset);
+           
+
             if($scores.filter(":visible").length == 0) {  
                 $scores.slideDown();
             } 

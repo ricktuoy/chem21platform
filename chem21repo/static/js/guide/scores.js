@@ -9,8 +9,15 @@ define([], function() {
                 this.H[name] = vals[1];
                 this.E[name] = vals[2];
                 console.debug("Saving scores.");
+                console.debug(name);
                 console.debug(vals);
             }
+
+            this.reset = function() {
+                this.S = {};
+                this.H = {};
+                this.E = {};
+            };
             this.score = function(name, cb) {
                 var cum_scores = this;
                 return function(val) {
@@ -67,6 +74,7 @@ define([], function() {
             this.get_H = function() {
                 var cH = this.H['boiling_point'];
                 var max = 0;
+                console.debug("calc health");
                 for (var k in this.H) {
                     if (k != "boiling_point") {
                         var t = this.H[k];
@@ -74,7 +82,10 @@ define([], function() {
                             max = t;
                         }
                     }
+                    console.debug(k+": "+this.H[k]);
                 }
+                console.debug("total");
+                console.debug(cH+max);
                 return cH + max;
             };
             this.get_H_band = function() {
@@ -195,8 +206,21 @@ define([], function() {
             this.symbol_1 = this.score("symbol_1", symbol_cb);
             this.symbol_2 = this.score("symbol_2", symbol_cb);
             this.symbol_3 = this.score("symbol_3", symbol_cb);
-            this.symbol_4 = this.score("symbol_4", symbol_cb);
-            this.symbol_5 = this.score("symbol_5", symbol_cb);
+
+            this.symbol_4 = this.score("symbol_4", function(val) {
+                if(val) {
+                    return [0,2,0];
+                } else {
+                    return [0,1,0];
+                }
+            });
+
+
+            this.symbol_5 = this.score("symbol_5", function(val) {
+                if(!val) {
+                    return [0,0,1];
+                }
+            });
 
             this.h340 = this.score("h340", function(val) {
                     if(val) {
@@ -248,9 +272,9 @@ define([], function() {
 
             this.h400 = this.score("h400", function(val) {
                     if(val) {
-                        return [0, 0, 5];
-                    } else {
                         return [0, 0, 7];
+                    } else {
+                        return [0, 0, 5];
                     }
             });
 

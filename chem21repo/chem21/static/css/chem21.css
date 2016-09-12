@@ -817,7 +817,8 @@ body.front #content .content .cobranding {
 #site-content .guide .controls a,
 #site-content .quiz_questions a.submit,
 #site-content .guide a.submit,
-#end-nav a {
+#end-nav a,
+#she_scores .reset {
 	background-color: #ffef33;
 	padding: 1%;
 	color: black;
@@ -833,7 +834,8 @@ body.front #content .content .cobranding {
 #site-content .guide .controls a:hover,
 #site-content .quiz_questions a.submit:hover,
 #site-content .guide a.submit:hover,
-#end-nav a:hover  {
+#end-nav a:hover,
+#she_scores .reset:hover  {
 	background-color: #ffef99;
 
 }
@@ -869,7 +871,8 @@ body.front #content .content .cobranding {
 .quiz_questions .question .controls .next,
 .guide .question .controls .next,
 .quiz_questions .question a.submit,
-.guide .question a.submit, {
+.guide .question a.submit,
+#she_scores .reset {
 	width: 30%;
 	text-align: center;
 	margin: 0 10%;	
@@ -892,7 +895,8 @@ body.front #content .content .cobranding {
 .quiz_questions .question:first-child .controls .next,
 .guide .question:first-child .controls .next,
 .quiz_questions .question:first-child a.submit,
-.guide .question:first-child a.submit {
+.guide .question:first-child a.submit,
+#she_scores .reset {
 	width: 30%;
 	float: none;
 	text-align: center;
@@ -1211,8 +1215,8 @@ figure.presentation figcaption.overlay .byline {
 	box-shadow: 1px 1px 8px #ddd;
 	background-color: white;
 	display: inline-block;
-
 }
+
 
 #she_scores h3 {
 	text-transform: uppercase;
