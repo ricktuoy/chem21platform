@@ -378,7 +378,7 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
             t.capitalize(), self.get_count(t))
         for match in re.finditer(self.caption_regex, self.inner_text):
             self.inner_text = self.inner_text.replace(match.group(0), "")
-            matches.append("%s%s: %s%s" % (self.start_caption_tag, figtitle, m.group(1), self.end_caption_tag))
+            matches.append("%s%s: %s%s" % (self.start_caption_tag, figtitle, match.group(1), self.end_caption_tag))
         if len(matches):
             repl = "".join(matches)
         else:
