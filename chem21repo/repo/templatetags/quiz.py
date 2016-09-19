@@ -82,7 +82,7 @@ class NumericQuestionRender(QuestionRender):
         self.id = question['id']
         self.text = question['text']
         self.questions = kwargs['questions']
-        self.help_text = kwargs.get('help_text', "")
+        self.help_text = question.get('help_text', "")
         self.num = kwargs['num']
         self.question_type = "numeric"
 
@@ -112,7 +112,7 @@ class ChoiceQuestionRender(QuestionRender):
         self.type = question['type']
         self.questions = kwargs['questions']
         self.num = kwargs['num']
-        self.help_text = kwargs.get('help_text', "")
+        self.help_text = question.get('help_text', "")
 
     @abstractmethod
     def render_choice(self, choice):
