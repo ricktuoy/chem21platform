@@ -28,7 +28,7 @@ class FigureRefProcessor(ContextProcessorMixin, BaseProcessor):
             return self._pattern
         except AttributeError:
             self._pattern = re.compile(
-                r'(figure|Figure|scheme|Scheme|table|Table)\s+[0-9]+',
+                r'(example|Example|figure|Figure|scheme|Scheme|table|Table)\s+[0-9]+',
                 re.DOTALL)
             return self._pattern
     def repl_function(self, match):
@@ -314,6 +314,12 @@ class FigCaptionTagProcessor(ContextProcessorMixin, TagProcessor):
     def tag_function(self, st, *args):
         return "<figcaption>%s</figcaption>" % st
 
+class TableCaptionTagProcessor(ContextProcessorMixin, TagProcessor):
+    tag_name = "tabcaption"
+
+    def tag_function(self, st, *args):
+        return "<caption>%s</caption>" % st
+
 
 class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcessor):
     tag_name = "figgroup"
@@ -349,17 +355,39 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
     def block_tool_name(self):
         return "figure"
 
+    @property
+    def caption_regex(self):
+        return r"\[figcaption\](.*?)\[\/figcaption\]"
 
+    """
     def replace_caption_html(self, t):
         figtitle = "<span class=\"figure_name\">%s %d</span>" % (
             t.capitalize(), self.get_count(t))
+
         (self.inner_text, nsubs) = re.subn(
-            r"\[figcaption\](.*?)\[\/figcaption\]",
-            lambda m: "[figcaption]%s: %s[/figcaption]" % (figtitle, m.group(1)),
+            self.caption_regex,
+            lambda m: "%s%s: %s%s" % (self.start_caption_tag, figtitle, m.group(1), self.end_caption_tag),
             self.inner_text
         )
         if not nsubs:
-            self.inner_text += "[figcaption]%s[/figcaption]" % figtitle
+            self.inner_text += "%s%s%s" % (self.start_caption_tag, figtitle, self.end_caption_tag)
+    """
+    def replace_caption_html(self, t):
+        matches = []
+        figtitle = "<span class=\"figure_name\">%s %d</span>" % (
+            t.capitalize(), self.get_count(t))
+        for match in re.finditer(self.caption_regex, self.inner_text):
+            self.inner_text = self.inner_text.replace(match.group(0), "")
+            matches.append("%s%s: %s%s" % (self.start_caption_tag, figtitle, m.group(1), self.end_caption_tag))
+        if len(matches):
+            repl = "".join(matches)
+        else:
+            repl = "%s%s%s" % (self.start_caption_tag, figtitle, self.end_caption_tag)
+        if t == "table":
+            self.inner_text = re.sub(r"<table(.*?)>", "\g<0>%s" % repl, self.inner_text)
+        else:
+            self.inner_text += repl
+
 
     def tag_function(self, st, *args):
         self.inner_text = st
@@ -373,18 +401,25 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
             class_set = frozenset(args[1].split(" "))
         except IndexError:
             class_set = frozenset([])
+        if t != "table":
+            self.start_caption_tag = "[figcaption]"
+            self.end_caption_tag = "[/figcaption]"
+        else:
+            self.start_caption_tag = "<caption>"
+            self.end_caption_tag = "</caption>"
         classes = " ".join(class_set | frozenset(["inline"]) )
         self.replace_caption_html(t)
         self.inc_count(t)
-        self.inner_text = "<figure class=\"%s\">%s</figure>" % (
-            classes, self.inner_text)
-        if "aside" in class_set:
-            if not "inline" in class_set:
-                self.asides.append(self.inner_text)
-                return ""
-            else:
-                self.inner_text = "<aside>%s</aside>" % self.inner_text    
-        
+
+        if t != "table":
+            self.inner_text = "<figure class=\"%s\">%s</figure>" % (
+                classes, self.inner_text)
+            if "aside" in class_set:
+                if not "inline" in class_set:
+                    self.asides.append(self.inner_text)
+                    return ""
+                else:
+                    self.inner_text = "<aside>%s</aside>" % self.inner_text    
         return self.inner_text
 
     def get_asides_html(self):
@@ -534,6 +569,7 @@ class ReplaceTokensNode(template.Node):
             'figure':FigureTokenProcessor(context=context),
             'figgroup':FigureGroupTagProcessor(context=context),
             'figcaption':FigCaptionTagProcessor(context=context),
+            'tabcaption':TableCaptionTagProcessor(context=context),
             'hide':HideTagProcessor(context=context),
             'GHS_statement':GHSStatementProcessor(context=context)
             }
@@ -543,7 +579,7 @@ class ReplaceTokensNode(template.Node):
 
         txt = decruft.sub(lambda match: match.group(1), txt)
         proc_order = ['hide','bibtex','ibib','bib','ilink','rsc','attrib','cta','green',
-                      'figref','figure','figgroup','figcaption','GHS_statement']
+                      'figref','figure','figgroup','figcaption','tabcaption','GHS_statement']
         for key in proc_order:
             txt = processors[key].apply(txt)
             if context['user'].is_authenticated() and ('staticgenerator' not in context or not context['staticgenerator']):
