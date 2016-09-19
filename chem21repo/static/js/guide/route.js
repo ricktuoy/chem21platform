@@ -4,6 +4,10 @@ define([], function() {
         this.$questions = $quiz.find(".question");
         this.pos = 0;
 
+        this.reset = function() {
+            this.pos = 0;
+        }
+
         this.skip = function(n) {
             var from_pos = this.pos;
             this.pos += n;
@@ -31,8 +35,6 @@ define([], function() {
                     skipped_ids.push(id);
                 });
             }
-            console.debug("Skipped over:");
-            console.debug(skipped_ids);
             return skipped_ids;
         };
 
@@ -71,7 +73,13 @@ define([], function() {
                 console.debug("Detected as a symbol.");
             }
             if(id == "symbol_1" && scores.has_score(id) && scores.H[id]) {
+               var skipped = this.skip(5);
+            } else if (id == "h340" && scores.has_score(id) && scores.H[id] > 2) {
                var skipped = this.skip(4);
+            } else if (id == "h341" && scores.has_score(id) && scores.H[id] > 2) {
+                var skipped = this.skip(3);
+            } else if (id == "h370" && scores.has_score(id) && scores.H[id] > 2) {
+                var skipped = this.skip(2);
             } else if(is_symbol && id != "symbol_4" && scores.has_score(id)) {
                var skipped = this.skip(2); 
             } else {
@@ -99,10 +107,23 @@ define([], function() {
             }
             if(prev_id != "" && scores.has_score(prev_id)) {
                 if (id=="symbol_2") {
-                    return this.skip(-4);
+                    return this.skip(-5);
                 }
                 else {
                     return this.skip(-2);
+                }
+            }
+            if(id=="symbol_2") {
+                if(scores.has_score("h334")) {
+                    return this.skip(-1);
+                } else if (scores.has_score("h370")) {
+                    return this.skip(-2);
+                } else if (scores.has_score("h341")) {
+                    return this.skip(-3);
+                } else if (scores.has_score("h340")) {
+                    return this.skip(-4);
+                } else {
+                    console.debug("Error: routing makes no sense. no scores for H statements or symbol 1.")
                 }
             }
             return this.skip(-1);

@@ -8,9 +8,6 @@ define([], function() {
                 this.S[name] = vals[0];
                 this.H[name] = vals[1];
                 this.E[name] = vals[2];
-                console.debug("Saving scores.");
-                console.debug(name);
-                console.debug(vals);
             }
 
             this.reset = function() {
@@ -74,7 +71,6 @@ define([], function() {
             this.get_H = function() {
                 var cH = this.H['boiling_point'];
                 var max = 0;
-                console.debug("calc health");
                 for (var k in this.H) {
                     if (k != "boiling_point") {
                         var t = this.H[k];
@@ -82,15 +78,12 @@ define([], function() {
                             max = t;
                         }
                     }
-                    console.debug(k+": "+this.H[k]);
                 }
-                console.debug("total");
-                console.debug(cH+max);
                 return cH + max;
             };
             this.get_H_band = function() {
                 return get_band(this.get_H());
-            }
+            };
 
 
             this.get_E = function() {
@@ -106,7 +99,7 @@ define([], function() {
 
             this.get_E_band = function() {
                 return get_band(this.get_E());
-            }
+            };
 
 
             this.get_default_ranking = function() {
@@ -146,7 +139,7 @@ define([], function() {
                     case "Recommended":
                         return "good";
                 }
-            }
+            };
 
             this.boiling_point = this.score("boiling_point", function(val) {
                 // H: =IF(B2<=85,1,0)
@@ -193,7 +186,7 @@ define([], function() {
                 if(val) {
                     return [1, 0, 0];
                 }
-            }
+            };
             this.resistivity = this.score("resistivity", res_cb);
             this.ether_explosive_peroxide = this.score("ether_explosive_peroxide", res_cb);
 
@@ -236,6 +229,14 @@ define([], function() {
                     } else {
                         return [0, 2, 0];
                     }
+            });
+
+            this.h370 = this.score("h370", function(val) {
+                if(val) {
+                    return [0, 6, 0];
+                } else {
+                    return [0, 2, 0];
+                }
             });
 
             this.h334 = this.score("h334", function(val) {

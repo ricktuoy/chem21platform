@@ -10,10 +10,10 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
 
         $(".guide").addClass("unmarked");
 
-        if($(".guide").length) {
+        if($(".guide").length > 0) {
+            
             $("#quiz_progress nav, #end-nav").hide();
         }
-
 
         $(".guide").on("click", ".question .controls a", function() {
             var $question = $(this).closest(".question");
@@ -23,7 +23,6 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             } else {
                 var go_back = false;
             }
-
             $question.trigger("mark_and_move", [go_back])
         });
 
@@ -31,7 +30,6 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
 
             $(this).closest(".guide").trigger("mark");
         });
-
 
         function get_scores() {
             $quiz = $(".guide");
@@ -48,11 +46,20 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             $quiz.data("SEH_scores", scores);
         }
 
-        $(".guide").on("click", ".reset", function() {
+        $(".guide").on("click", ".reset", function(e) {
+            e.preventDefault();
             scores = get_scores();
             $(".guide").find("form").trigger("reset");
             scores.reset();
             store_scores(scores);
+            route = get_route();
+            route.reset();
+            var $next_q = route.get_question();
+            $(".guide .question").hide();
+            $next_q.show();
+            store_route(route);
+            var $scores = $quiz.find("#she_scores");
+            $scores.slideUp();
         });
 
 

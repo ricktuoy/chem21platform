@@ -287,7 +287,7 @@ class RenderGuideToolNode(template.Node):
         html += "<div id=\"she_scores\"> </div>"
         html = GHSStatementProcessor(context=context).apply(html)
         return "<div class=\"guide\" data-id=\"%s\"" % guide['id'] + \
-            ">%s</div>" % html
+            "><form>%s</form></div>" % html
 
 
 
