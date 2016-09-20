@@ -1162,6 +1162,37 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
         for el in body.descendants:
             if el.name == "span":
                 continue
+            if el.name == "td":
+                td = el
+                try:
+                    style = td['style']
+                except KeyError:
+                    continue
+                colour_match = re.search(r'background-color:\s*#([0-9A-Fa-f]+)', style)
+                try:
+                    colour = colour_match.group(1)
+                    logging.debug(colour)
+                except AttributeError:
+                    colour = None
+                cls = None
+                if colour == "c00000":
+                    cls = "vbad"
+                elif colour == "ff0000":
+                    cls = "bad"
+                elif colour == "ffff00":
+                    cls = "ok"
+                elif colour == "66ff66":
+                    cls = "good"
+                del td['style']
+                logging.debug(cls)
+                if cls:
+                    ptab = td.find_parent("table")
+                    tab_class = set(ptab.get('class', []))
+                    tab_class.add("ranking")
+                    tab_class = list(tab_class)
+                    ptab['class'] = tab_class
+                    td['class'] = td.get('class', []) + [cls,]
+                continue
             try:
                 del el['style']
             except (KeyError, TypeError):
@@ -1184,7 +1215,10 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
                 tbody.insert_before(thead)
                 for el in thead("td"):
                     el.name = "th"
-                thead.wrap(soup.new_tag("thead"))
+                thead.wrap(soup.new_tag("thead"))        
+
+
+
         html = body.prettify()
         html = re.sub(r"\<body.*?\>","", html)
         return html.replace("</body>","")
