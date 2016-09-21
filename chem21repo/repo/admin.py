@@ -259,6 +259,6 @@ create_admin(
 
 for md in [Question, UniqueFile, Author,
            LearningTemplate, Molecule,
-           Event, Lesson, FileLink, Module,
+           Event, Lesson, FileLink, Module, Topic,
            UniqueFilesofModule, CredentialsModel, Biblio]:
     create_power_admin(md)

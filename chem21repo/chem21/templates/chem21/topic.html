@@ -22,10 +22,3 @@
 	<div class="clear">&nbsp;</div>
 </div>  
 {% endblock %}
-{% block admin_tools %}
-{% if perms.repo.change_topic %}
-<a class="admin-edit" href="{% url opts.topic|admin_urlname:'change' object.pk %}"
-		data-from-url-edit="{% url opts.topic|admin_urlname:'changelist' %}">
-		Edit</a> 
-{% endif %}
-{% endblock %}
