@@ -1177,11 +1177,11 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
                 cls = None
                 if colour == "c00000":
                     cls = "vbad"
-                elif colour == "ff0000":
+                elif colour == "ff0000" or colour == "#e5b9b7":
                     cls = "bad"
-                elif colour == "ffff00":
+                elif colour == "ffff00" or colour == "#ffffcc":
                     cls = "ok"
-                elif colour == "66ff66":
+                elif colour == "66ff66" or colour == "#92d050":
                     cls = "good"
                 del td['style']
                 logging.debug(cls)
