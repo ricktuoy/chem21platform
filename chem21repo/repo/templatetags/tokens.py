@@ -372,13 +372,28 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
         if not nsubs:
             self.inner_text += "%s%s%s" % (self.start_caption_tag, figtitle, self.end_caption_tag)
     """
+
+    def get_name(self, t):
+        return "%s %d" % (t.capitalize(), self.get_count(t))
+
+
     def replace_caption_html(self, t):
         matches = []
-        figtitle = "<span class=\"figure_name\">%s %d</span>" % (
-            t.capitalize(), self.get_count(t))
+        a_title = None
+        title_regex = r'(<a[^>]*?)title=\".*?\"'
+        figtitle = "<span class=\"figure_name\">%s</span>" % self.get_name(t)
         for match in re.finditer(self.caption_regex, self.inner_text):
             self.inner_text = self.inner_text.replace(match.group(0), "")
+            if not a_title:
+                a_title = "%s: %s" % (self.get_name(t), match.group(1))
             matches.append("%s%s: %s%s" % (self.start_caption_tag, figtitle, match.group(1), self.end_caption_tag))
+
+        logging.debug(self.inner_text)
+        logging.debug(a_title)
+        logging.debug(matches)
+        self.inner_text = re.sub(title_regex, "\g<1>title=\"%s\"" % a_title, self.inner_text)
+        #if a_title:
+        #    raise Exception
         if len(matches):
             repl = "".join(matches)
         else:
@@ -537,12 +552,13 @@ class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
                 alt = args[1]
             except IndexError:
                 alt = ""
+            title = ":".join(args[2:])
             if not fle:
                 messages.add_message(self.request, 
                     messages.ERROR, 
                     "[figure] token not valid: cannot find file object with this %s id: %s" % (where, args[0]) )
                 return ""
-            return "<a href=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (fle.url, fle.url, alt)
+            return "<a href=\"%s\" title=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (fle.url, title, fle.url, alt)
         messages.add_message(self.request, 
                 messages.ERROR, 
                 "[figure] token not valid: must be either [figure:show:xx] or [figure:local:xx]" % (where, args[0]))

@@ -1201,7 +1201,6 @@ figure.presentation figcaption.overlay .byline {
 }
 
 
-
 #content table td p {
     margin: 0;
 }
@@ -1330,12 +1329,68 @@ figure.inline {
 	clear:both;
 }
 
+
 figure.inline.twothirds {
 	width: 60%;
 }
 
 figure.inline img, figure.inline table {
 	max-width: 90%;
+}
+
+.thumb_figures {
+	clear: both;
+}
+
+.thumb_figures figure {
+	float: left;
+	min-width: 65px;
+	clear: none !important;
+}
+
+.thumb_figures.two figure {
+	width: 45%;
+	margin-left: 3%;
+}
+
+.thumb_figures.three figure {
+	width: 30%;
+	margin-left: 3%;
+}
+
+.thumb_figures.four figure {
+	width: 22%;
+	margin-left: 3%;
+}
+
+.thumb_figures.four figure figcaption,
+.thumb_figures.five figure figcaption,
+.thumb_figures.six figure figcaption,
+.thumb_figures.seven figure figcaption {
+	display: none;
+}
+
+.thumb_figures.five figure {
+	width: 16%;
+	margin-left: 3%;
+}
+
+.thumb_figures.six figure {
+	width: 13%;
+	margin-left: 3%;
+}
+.thumb_figures.seven figure {
+	width: 12%;
+	margin-left: 2%;
+}
+
+.thumb_figures.8 figure {
+	width: 11%;
+	margin-left: 1.5%;
+}
+
+.thumb_figures figure:first-child {
+	margin-left: 0 !important;
 }
 
 figure.inline table {
