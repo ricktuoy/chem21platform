@@ -66,12 +66,28 @@ define([], function() {
             return this.get_question().data("id");
         }
 
+        this.get_val = function(q_id) {
+            if(q_id) {
+                var $qn = this.$questions.filter('*[data-id="'+q_id+'"]');
+            } else {
+                var $qn = this.get_question();
+            }
+            var $field = $qn.find("input");
+            if($field.length > 1) {
+                //choices!
+                var val = $field.filter(":checked").val();
+            } else if($field.length == 1) {
+                var val = $field.val();
+            } else {
+                $field = $qn.find("select");
+                var val = $field.val();
+            }
+            return val;
+        }
+
         this.next = function(scores) {
             var id = this.current_id();
             var is_symbol = /^symbol_.*$/.test(id);
-            if(is_symbol) {
-                console.debug("Detected as a symbol.");
-            }
             if(id == "symbol_1" && scores.has_score(id) && scores.H[id]) {
                var skipped = this.skip(5);
             } else if (id == "h340" && scores.has_score(id) && scores.H[id] > 2) {
@@ -81,7 +97,9 @@ define([], function() {
             } else if (id == "h370" && scores.has_score(id) && scores.H[id] > 2) {
                 var skipped = this.skip(2);
             } else if(is_symbol && id != "symbol_4" && scores.has_score(id)) {
-               var skipped = this.skip(2); 
+               var skipped = this.skip(2);
+            } else if(id == "resistivity" && this.get_val("resistivity") != "dk") {
+                var skipped = this.skip(2);
             } else {
                var skipped = this.skip(1);
             }
@@ -104,6 +122,10 @@ define([], function() {
                 case "symbol_2":
                     prev_id = "symbol_1";
                     break;
+            }
+            var out = false;
+            if(id == "ether_explosive_peroxide" && this.get_val("resistivity") != "dk") {
+                return this.skip(-2);
             }
             if(prev_id != "" && scores.has_score(prev_id)) {
                 if (id=="symbol_2") {

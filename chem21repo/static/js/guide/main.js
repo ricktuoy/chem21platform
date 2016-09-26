@@ -10,11 +10,6 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
 
         $(".guide").addClass("unmarked");
 
-        if($(".guide").length > 0) {
-            
-            $("#quiz_progress nav, #end-nav").hide();
-        }
-
         $(".guide").on("click", ".question .controls a", function() {
             var $question = $(this).closest(".question");
             var route = get_route();
@@ -111,11 +106,16 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
                 return false;
             }
             
+            var dk = false; 
             if(val == "y") {
                 val = true;
             }
             if(val =="n") {
                 val = false;
+            }
+            if(val =="dk") {
+                val = false;
+                dk = true;
             }
 
             if(!go_back) {
@@ -130,14 +130,14 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             } else {
                 var skipped_ids = route.next(scores);
             }
+
             // wipe skipped values.
             if(skipped_ids.length > 0) {
                 for (var i = 0; i < skipped_ids.length; i++) {
-                    console.debug("Wiping: ");
-                    console.debug(skipped_ids[i]);
-                    scores.update( skipped_ids[i], [0,0,0]);
+                    scores.update( skipped_ids[i], [0, 0, 0]);
                 }
             }
+
             store_scores(scores);
             var $next_q = route.get_question();
             $(".guide .question").hide();

@@ -8,6 +8,8 @@ define([], function() {
                 this.S[name] = vals[0];
                 this.H[name] = vals[1];
                 this.E[name] = vals[2];
+                //console.debug("Updated "+name+":");
+                //console.debug(this.pretty(name));
             }
 
             this.reset = function() {
@@ -15,6 +17,7 @@ define([], function() {
                 this.H = {};
                 this.E = {};
             };
+
             this.score = function(name, cb) {
                 var cum_scores = this;
                 return function(val) {
@@ -26,10 +29,17 @@ define([], function() {
                 };
             };
 
-            this.pretty = function() {
+            this.pretty = function(q_id) {
+                var sc = this;
+                var render = function(k) {
+                    return k +": S" + sc.S[k] + "H: " + sc.H[k] + "E: " + sc.E[k]+"\n";
+                }
+                if(q_id) {
+                    return render(q_id);
+                }
                 var out = "";
                 for(var k in this.S) {
-                    out += "Q" + k+": S" + this.S[k] + "H: " + this.H[k] + "E: " + this.E[k]+"\n";
+                    out += render(k);
                 }
                 return out;
             }
@@ -187,7 +197,15 @@ define([], function() {
                     return [1, 0, 0];
                 }
             };
+
+            var res_cb_2 = function(val) {
+                if(!val) {
+                    return [1, 0, 0];
+                }
+            };
+
             this.resistivity = this.score("resistivity", res_cb);
+            this.resistivity_2 = this.score("resistivity_2", res_cb_2);
             this.ether_explosive_peroxide = this.score("ether_explosive_peroxide", res_cb);
 
             var symbol_cb = function(val) {

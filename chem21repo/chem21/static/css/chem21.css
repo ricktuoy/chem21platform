@@ -793,6 +793,12 @@ body.front #content .content .cobranding {
 	color: #700;
 }
 
+.guide {
+
+		background-color: #dfdfdf;
+		padding: 1em;
+		margin-bottom: 1em;
+}
 
 .quiz_questions .controls a,
 .guide .controls a

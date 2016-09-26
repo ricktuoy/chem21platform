@@ -4,7 +4,7 @@
 // except 'app' ones, 
 requirejs.config({
     "baseUrl": "/static/js/lib",
-    "urlArgs": "bust=005"
+    "urlArgs": "bust=007"
 });
 // Load the main app module to start the app
 requirejs(["../guide/main"]);
