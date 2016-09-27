@@ -18,6 +18,19 @@ define(["jquery","jquery.mobile.config","jquery.math","uri_js/jquery.URI","jquer
             }
         });
 
+        $("#site-header").on("mouseenter", "#feedback", function(event) {
+            $(this).addClass("hover");
+        });
+        $("#site-header").on("mouseleave", "#feedback", function(event) {
+            $(this).removeClass("hover");
+        });
+
+        $("#site-header").on("click", "#feedback", function(event) {
+            var url = $(this).find("a").attr("href");
+            var win = window.open(url, "_blank");
+            win.focus();
+        });
+
 
         $("div.hide_solution").each(function() {
             $(this).after("<a href=\"#\" class=\"hide_solution\">Reveal</a>");

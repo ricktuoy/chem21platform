@@ -1893,3 +1893,44 @@ ul.figure-menu li {
 		margin-top: 3em;
 	}
 }
+
+div#feedback {
+	display: block;
+	height: inherit;
+	position: relative;
+	background-color: transparent;
+	color: #222;
+	width: 15%;
+	min-width: 100px; 
+	float: right;
+	background-color: #eee;
+	opacity: 0.6;
+	cursor: pointer;
+}
+
+div#feedback div.wrap {
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+	text-transform: uppercase;
+	text-align: center;
+}
+
+div#feedback img {
+	vertical-align: middle;
+	margin-right: 0.5%;
+}
+div#feedback a {
+	color: black;
+	text-decoration: none;
+	vertical-align: middle;
+}
+
+div#feedback.hover {
+	background-color: white;
+}
+
+div#feedback.hover a {
+	color: #393;
+}
+

@@ -24,7 +24,7 @@
   <link type="text/css" rel="stylesheet" href="{% static "css/styles.css" %}?008" />
     <link type="text/css" rel="stylesheet" href="{% static "css/color.css" %}?003" />
     <link type="text/css" rel="stylesheet" href="{% static "css/opigno_lms.css" %}" />
-    <link type="text/css" rel="stylesheet" href="{% static "css/chem21.css" %}?020" />
+    <link type="text/css" rel="stylesheet" href="{% static "css/chem21.css" %}?021" />
     {% if not staticgenerator %}
       <link type="text/css" rel="stylesheet" href="{% static "css/admin.css" %}?003" />
     {% endif %}
@@ -78,6 +78,12 @@
         <div id="header-search">
           {{ search_form }}
         </div>
+        <div id="feedback">
+          <div class="wrap">
+          <img src="{% static "img/feedback.png" %}" alt="Feedback" />
+          <a href="https://www.surveymonkey.co.uk/r/HHBZNZ7" target="_blank">Provide feedback</a>
+          </div>
+        </div>
         {% if not staticgenerator %}
         <div id="header-login" class="hidden-mobile">
           <div class="link-block-user-login">
@@ -88,8 +94,9 @@
           {% endif %}
           </div>
         </div>
-
         {% endif %}
+
+
         {% endblock %}
         {% block site_tools %}
 
