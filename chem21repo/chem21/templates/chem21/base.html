@@ -78,12 +78,14 @@
         <div id="header-search">
           {{ search_form }}
         </div>
+        {% block feedback_link %}
         <div id="feedback">
           <div class="wrap">
           <img src="{% static "img/feedback.png" %}" alt="Feedback" />
           <a href="https://www.surveymonkey.co.uk/r/HHBZNZ7" target="_blank">Provide feedback</a>
           </div>
         </div>
+        {% endblock %}
         {% if not staticgenerator %}
         <div id="header-login" class="hidden-mobile">
           <div class="link-block-user-login">
