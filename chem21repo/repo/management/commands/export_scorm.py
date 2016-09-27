@@ -21,24 +21,39 @@ class Command(BaseCommand):
         parser.add_argument('id',
                     type=int)
 
+    def init_urls(self):
+        self.url_map = {}
+        self.urls = []
+
+    def store_url(self, name, url):
+        self.url_map[url] = name
+        self.urls.append(url)
+
+    @property
+    def url_xml_files(self):
+        return "\n".join(["<file href=\"%s\"/>" % u for u in self.urls])
+
     def handle(self, *args, **options):
         storage = get_storage_class(settings.STATICFILES_STORAGE)()
         ct = ContentType.objects.get(app_label="repo", model=options['type'])
         obj = ct.get_object_for_this_type(pk=options['id'])
+        machine_name = obj.slug
+        title = obj.title
         paths = []
         path_set = set([])
         circular = False
+        self.init_urls()
         while not circular and obj:
             new_path = obj.get_absolute_url()
             if new_path in path_set:
                 circular = True
-            path_set.add(new_path)
-            paths.append(new_path)
-            obj = obj.get_next_object()
+            else:
+                path_set.add(new_path)
+                paths.append(new_path)
+                obj = obj.get_next_object()
         if circular:
             print "Circular link path .. stopping here and writing"
             print "(returned to %s)" % new_path
-
         with storage.open("SCORM/scorm_template.zip") as f:
             dat = f.read()
         with tempfile.NamedTemporaryFile(delete=False) as f:
@@ -56,28 +71,30 @@ class Command(BaseCommand):
             zf.extractall()
         html_dir = os.path.join(scorm_d, "pages")
         os.chdir(html_dir)
-
         gen = StaticGenerator()
-        self.url_map = {}
         start = paths.pop(0)
         self.save_page(gen, "start", start)
-        self.url_map[start] = "start"
         end = paths.pop()
-        self.save_page(gen, "end", end)
-        self.url_map[end] = "end"
         i = 1
         for path in paths:
             nm = "page%d" % i
             self.save_page(gen, nm, path)
-            self.url_map[path] = nm
             i += 1
-
+        self.save_page(gen, "end", end)
         map_dir = os.path.join(scorm_d, "js", "src", "config")
         map_file = os.path.join(map_dir, "urlmap.js")
+        manifest_file = os.path.join(scorm_d, "imsmanifest.xml")
         with open(map_file,'w') as f:
             f.write("define(function() {\n\treturn ")
             f.write(json.dumps(self.url_map)+"\n")
             f.write("});")
+        with open(manifest_file,'r') as f:
+            manifest = f.read()
+        manifest = manifest.replace('%%TITLE%%', title)
+        manifest = manifest.replace('%%SHORT_NAME%%', machine_name)
+        manifest = manifest.replace('%%RESOURCES%%', self.url_xml_files)
+        with open(manifest_file, 'w') as f:
+            f.write(manifest)
         with zipfile.ZipFile(outzip,'w') as zf:
             for root, dirs, files in os.walk(scorm_d):
                 rel_root = root.replace(scorm_d,"")
@@ -95,3 +112,4 @@ class Command(BaseCommand):
         filename = os.path.join(os.getcwd(), name+".html")
         with open(filename, 'w') as f:
             f.write(content)
+        self.store_url(name, path)
