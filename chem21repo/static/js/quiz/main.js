@@ -145,6 +145,17 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 $chosen.addClass("chosen");
                 var $correct = $choices.filter(".correct").detach();
                 var $incorrect = $choices.not(".correct").detach();
+
+                if($q.hasClass("single")) {
+                    var responses = $chosen.first().find("input").val(); 
+                }
+
+                if($q.hasClass("multi")) {
+                    var responses = [];
+                    $chosen.each( function() {
+                        response.push($(this).find("input").val());
+                    });
+                }
                 
                 $chosen.not($correct).addClass("incorrect");
 
@@ -215,6 +226,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 }
 
                 $q.addClass("marked");
+                $q.trigger("marking-done", [responses]);
             }
             
             var qdef = $q.data("definition");
