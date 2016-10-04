@@ -1,4 +1,5 @@
 import logging
+import urllib
 from django import template
 from BeautifulSoup import BeautifulSoup
 register = template.Library()
@@ -18,6 +19,13 @@ def responsivise(txt):
     els = soup.findAll("a", recursive=True)
     for a in els:
         href = a.get('href', "")
-        href = href.replace("https://www.google.com/url?q=","")
+        ghref = href.replace("https://www.google.com/url?q=","")
+        if ghref != href:
+            href = ghref
+            try:
+                href, bobbins = href.split("&amp;", 1)
+                href = urllib.unquote(href)
+            except ValueError:
+                pass
         a['href'] = href
     return soup.prettify()
