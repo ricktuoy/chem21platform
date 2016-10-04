@@ -7,9 +7,7 @@ register = template.Library()
 def responsivise(txt):
     soup = BeautifulSoup(txt)
     els = soup.findAll("table", recursive=False)
-    logging.debug("Soup!")
     for tab in els:
-        logging.debug("Found tab")
     	cls = tab.get('class', [])
     	try:
         	tab['class'] = " ".join(cls + ['ui-responsive',])
@@ -17,4 +15,9 @@ def responsivise(txt):
         	tab['class'] = "%s ui-responsive" % cls
         tab['data-role'] = "table"
 
+    els = soup.findAll("a", recursive=True)
+    for a in els:
+        href = a.get('href', "")
+        href = href.replace("https://www.google.com/url?q=","")
+        a['href'] = href
     return soup.prettify()
