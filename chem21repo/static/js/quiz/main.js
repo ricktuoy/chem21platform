@@ -153,7 +153,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 if($q.hasClass("multi")) {
                     var responses = [];
                     $chosen.each( function() {
-                        response.push($(this).find("input").val());
+                        responses.push($(this).find("input").val());
                     });
                 }
                 

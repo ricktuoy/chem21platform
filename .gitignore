@@ -16,3 +16,4 @@ files_test
 chem21repo/local.wsgi
 *log*.txt
 *json
+chem21repo/static/SCORM/scorm_template.zip
