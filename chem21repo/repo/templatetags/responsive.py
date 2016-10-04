@@ -23,7 +23,7 @@ def responsivise(txt):
         if ghref != href:
             href = ghref
             try:
-                href, bobbins = href.split("&amp;", 1)
+                href, bobbins = href.split("&sa=", 1)
                 href = urllib.unquote(href)
             except ValueError:
                 pass
