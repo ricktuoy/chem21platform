@@ -24,10 +24,12 @@ class Command(BaseCommand):
     def init_urls(self):
         self.url_map = {}
         self.urls = []
+        self.pIds = []
 
     def store_url(self, name, url):
         self.url_map[url] = name
         self.urls.append(url)
+        self.pIds.append(name)
 
     @property
     def url_xml_files(self):
@@ -83,10 +85,15 @@ class Command(BaseCommand):
         self.save_page(gen, "end", end)
         map_dir = os.path.join(scorm_d, "js", "src", "config")
         map_file = os.path.join(map_dir, "urlmap.js")
+        order_file = os.path.join(map_dir, "pageorder.js")
         manifest_file = os.path.join(scorm_d, "imsmanifest.xml")
         with open(map_file,'w') as f:
             f.write("define(function() {\n\treturn ")
             f.write(json.dumps(self.url_map)+"\n")
+            f.write("});")
+        with open(order_file,'w') as f:
+            f.write("define(function() {\n\treturn ")
+            f.write(json.dumps(self.pIds)+"\n")
             f.write("});")
         with open(manifest_file,'r') as f:
             manifest = f.read()
