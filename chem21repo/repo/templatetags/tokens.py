@@ -193,6 +193,10 @@ class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
             except AttributeError:
                 pass
             html = "Unknown reference."
+        if self.context['user'].is_authenticated() and ('staticgenerator' not in self.context or not self.context['staticgenerator']):
+            url = reverse("admin:repo_biblio-power_change", 
+                args = [bib.pk,])
+            html += "<a href=\"%s\">%s</a>" % (url, "[edit]")
         return "<li id=\"citekey_%d\">%s</li>" % (
             id, html)
 
@@ -385,9 +389,6 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
                 a_title = "%s: %s" % (self.get_name(t), match.group(1))
             matches.append("%s%s: %s%s" % (self.start_caption_tag, figtitle, match.group(1), self.end_caption_tag))
 
-        logging.debug(self.inner_text)
-        logging.debug(a_title)
-        logging.debug(matches)
         self.inner_text = re.sub(title_regex, "\g<1>title=\"%s\"" % a_title, self.inner_text)
         #if a_title:
         #    raise Exception
