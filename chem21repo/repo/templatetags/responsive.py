@@ -8,7 +8,7 @@ register = template.Library()
 def responsivise(txt):
     #return txt
     soup = BeautifulSoup(txt)
-    els = soup.findAll("table", recursive=False)
+    els = soup.findAll("table", recursive=True)
     for tab in els:
     	cls = tab.get('class', [])
     	try:
