@@ -125,12 +125,9 @@ class AttributionProcessor(ContextProcessorMixin, TagProcessor):
         html = "<p class=\"attrib\">%s</p>" % st
         return html
 
-
-
-
 class BibTeXCiteProcessor(ContextProcessorMixin, BaseProcessor):
-    openchar = "\\cite\{"
-    closechar = "\}"
+    openchar = r"\\cite\{"
+    closechar = r"\}"
     name = u"bibcite"
     @property
     def pattern(self):

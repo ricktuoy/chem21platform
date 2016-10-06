@@ -6,6 +6,7 @@ register = template.Library()
 
 @register.filter
 def responsivise(txt):
+    #return txt
     soup = BeautifulSoup(txt)
     els = soup.findAll("table", recursive=False)
     for tab in els:
@@ -28,4 +29,4 @@ def responsivise(txt):
             except ValueError:
                 pass
         a['href'] = href
-    return soup.prettify()
+    return unicode(soup)

@@ -18,7 +18,6 @@ def register_modeladmin(fn):
         (model, modeladmin, name) = [iargs[name]
                                      for name in
                                      ('model', 'modeladmin', 'name')]
-
         class Meta:
             proxy = True
             app_label = model._meta.app_label
