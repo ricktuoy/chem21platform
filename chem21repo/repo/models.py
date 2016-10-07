@@ -2213,3 +2213,10 @@ class PresentationsInQuestion(OrderedModel):
     class Meta(OrderedModel.Meta):
         unique_together = ('question', 'presentation')
         index_together = ('question', 'presentation')
+
+
+class SCORMUserEvent(models.Model):
+    username = models.CharField(max_length = 10)
+    event = models.CharField(max_length = 20)
+    datetime = models.DateTimeField()
+    
