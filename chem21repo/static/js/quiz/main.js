@@ -243,7 +243,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 processor(qdef);
             }
 
-            e.stopImmediatePropagation();
+            e.stopPropagation();
         });
 
         $(".quiz_questions").on("mark", function() {
