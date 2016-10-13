@@ -145,17 +145,6 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 $chosen.addClass("chosen");
                 var $correct = $choices.filter(".correct").detach();
                 var $incorrect = $choices.not(".correct").detach();
-
-                if($q.hasClass("single")) {
-                    var responses = $chosen.first().find("input").val(); 
-                }
-
-                if($q.hasClass("multi")) {
-                    var responses = [];
-                    $chosen.each( function() {
-                        responses.push($(this).find("input").val());
-                    });
-                }
                 
                 $chosen.not($correct).addClass("incorrect");
 
@@ -182,6 +171,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                         if(num_good) {
                             percentage_score = 100;
                         }
+                        var responses = $chosen.first().find("input").val(); 
                         break;
 
                     case 'multi':
@@ -189,6 +179,10 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                         var num_choices = $choices.length;
                         var num_good = $chosen.filter(".correct").length + $incorrect.not($chosen).length;
                         percentage_score = Math.round((num_good  / num_choices) * 100 );
+                        var responses = [];
+                        $chosen.each( function() {
+                            responses.push($(this).find("input").val());
+                        });
                         break;
                 }
                 
@@ -232,7 +226,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             var qdef = $q.data("definition");
             if(typeof(qdef) == "undefined") {
                 var url = $quiz.data("answersJsonUrl");
-                $.getJSON(url, function(data) {
+                var out = $.getJSON(url, function(data) {
                     $.each(data.data, function(i, question) {
                         var $qq = $quiz.find(".question#question_"+question.id);
                         $qq.data("definition", question);
@@ -241,9 +235,11 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 });
             } else {
                 processor(qdef);
+                var out = true;
             }
 
             e.stopPropagation();
+            return out;
         });
 
         $(".quiz_questions").on("mark", function() {
