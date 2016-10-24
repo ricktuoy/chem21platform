@@ -123,7 +123,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
 
         $(".quiz_questions").on("mark", ".question", function(e) {
             if($(this).hasClass("marked")) {
-                return;
+                return false;
             }
             var $quiz = $(this).closest(".quiz_questions");
             var $q = $(this);
@@ -139,6 +139,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     var $c = $q.quiz_get_choice(rId);
                     $c.addClass("correct");
                 });
+
                 var $choices = $q.quiz_find_choices();
                 $choices.find("input").prop("disabled", true)
                 var $chosen = $choices.has("input:checked");
@@ -151,19 +152,23 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 var $controls = $q.find(".controls");
                 $controls.before($("<div class=\"marked_choices\"></div>"));
                 var $marked_choices = $q.find(".marked_choices");
+
                 if($correct.length) {
                     var $correct_choice_container = $("<fieldset class=\"all_correct\" data-role=\"controlgroup\"><legend>Correct responses</legend></fieldset>")
                     $correct_choice_container.appendTo($marked_choices).append($correct);
                 }
+
                 if($incorrect.length) {
                     var $incorrect_choice_container = $("<fieldset class=\"all_incorrect\" data-role=\"controlgroup\"><legend>Incorrect responses</legend></fieldset>");
                     $incorrect_choice_container.appendTo($marked_choices).append($incorrect);
                 }
+
                 $marked_choices.enhanceWithin();
 
                 var $question_score = $q.find(".final_score");
                 
                 var percentage_score = 0;
+
                 switch($q.data("type")) {
                     case 'single':
                         // right or wrong
@@ -197,6 +202,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 if($q.data("skipped")) {
                     skipped_msg = " (skipped).";
                 }
+                
                 $question_score.append("<span class=\"label\">Your question score: </span><span class=\"score\">" + 
                     percentage_score + "%" + skipped_msg + "</span>");
 

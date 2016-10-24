@@ -146,6 +146,10 @@ create_admin(
     fields=["title", "type", "youtube_id", "remote_path", 
             'authors', 'description'])
 
+create_admin(
+    model=GlossaryTerm,
+    fields=["name","description"])
+
 class PresentationActionAdmin(admin.ModelAdmin):
     raw_id_fields = ('biblio',)
     autocomplete_lookup_fields = {
