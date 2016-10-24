@@ -54,7 +54,6 @@ class Biblio(models.Model):
         self._get_html_from_drupal()
 
     def _get_html_from_drupal(self):
-
         try:
             api = C21RESTRequests()
             ret = api.get_endnode_html(self.citekey)
@@ -279,6 +278,8 @@ class LearningTemplate(models.Model):
     def __unicode__(self):
         return self.name
 
+class GlossaryTerm(models.Model):
+    name = models.CharField(max_length=100, unique=True, db_index=True)
 
 class DrupalModel(models.Model):
     dirty = models.TextField(default="[]")
@@ -1182,7 +1183,6 @@ class Event(BaseModel, EventUnicodeMixin):
     def description(self):
         return self.name + ": " + datetime.strftime(
             self.date, "%b %Y")
-
     class Meta:
         unique_together = (('name', 'date'),)
         index_together = (('name', 'date'),)
