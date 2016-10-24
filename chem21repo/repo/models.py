@@ -280,6 +280,7 @@ class LearningTemplate(models.Model):
 
 class GlossaryTerm(models.Model):
     name = models.CharField(max_length=100, unique=True, db_index=True)
+    description = models.TextField(default=[])
 
 class DrupalModel(models.Model):
     dirty = models.TextField(default="[]")
