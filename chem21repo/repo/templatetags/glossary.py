@@ -12,13 +12,13 @@ def glossarize(txt):
     repl_terms = set([])
     
     def sub_fn(match):
-        term = match.group(0).lower()
+        term = match.group(2).lower()
 
         if term not in repl_terms:
             repl_terms.add(term)
-            desc_markup = "<a class=\"glossary_term\" href=\"#\" title=\"%s\">%s</a>" % (terms[term], match.group(0))
+            desc_markup = "<a class=\"glossary_term\" href=\"#\" title=\"%s\">%s</a>" % (terms[term], match.group(2))
             repls.append(desc_markup)
-            return desc_markup
+            return "%s%s%s" % (match.group(1), desc_markup, match.group(3))
         else:
             return match.group(0)
     
@@ -29,7 +29,9 @@ def glossarize(txt):
 
     search_term = "|".join(re_terms)
     logging.debug(search_term)
-    txt = re.sub("(?<=\s|\>)%s(?=\s|\<)" % search_term, sub_fn, txt, flags=re.IGNORECASE)
+    span_1 = re.escape("<span style=\"font-weight: bold;\">")
+    span_2 = re.escape("</span>")
+    txt = re.sub("(%s\s*?)(%s)(\s*?%s)" % (span_1, search_term, span_2), sub_fn, txt, flags=re.IGNORECASE)
         
     """
     for term, desc in terms.iteritems():
