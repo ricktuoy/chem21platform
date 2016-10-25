@@ -28,7 +28,7 @@ def glossarize(txt):
 
     search_term = "|".join(re_terms)
     logging.debug(search_term)
-    txt = re.sub("(\<p\>.*?)(%s)(.*\<\/p\>)" % search_term, sub_fn, txt, flags=re.IGNORECASE)
+    txt = re.sub("(\<p\>.*)(%s)(.*\<\/p\>)" % search_term, sub_fn, txt, flags=re.IGNORECASE)
         
     """
     for term, desc in terms.iteritems():
