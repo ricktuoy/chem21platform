@@ -7,7 +7,13 @@ register = template.Library()
 
 @register.filter
 def glossarize(txt):
+
+    terms = {}
     for term in GlossaryTerm.objects.all():
-        desc = "<a class=\"glossary_term\" href=\"#\" title=\"%s\">\g<0></a>" % (term.description)
-        txt = re.sub(re.escape(term.name), desc, txt, count=1, flags=re.IGNORECASE)
+        txt = re.sub(re.escape(term.name), "[*[\g<0>]*]", txt, count=1, flags=re.IGNORECASE)
+        terms[term.name] = term.description
+
+    for term, desc in terms.iteritems():
+        desc_markup = "<a class=\"glossary_term\" href=\"#\" title=\"%s\">\g<1></a>" % (desc)
+        txt = re.sub("\[\*\[("+re.escape(term)+")\]\*\]", desc_markup, txt, count=1, flags=re.IGNORECASE)
     return txt
