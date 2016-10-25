@@ -10,7 +10,7 @@ def glossarize(txt):
 
     terms = {}
     for term in GlossaryTerm.objects.all():
-        txt = re.sub(re.escape(term.name), "[*[\g<0>]*]", txt, count=1, flags=re.IGNORECASE)
+        txt = re.sub("(\<p\>.*)("+re.escape(term.name)+")(.*\<\/p\>)", "\g<1>[*[\g<2>]*]\g<3>", txt, count=1, flags=re.IGNORECASE)
         terms[term.name] = term.description
 
     for term, desc in terms.iteritems():
