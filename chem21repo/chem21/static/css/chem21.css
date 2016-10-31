@@ -1256,8 +1256,16 @@ table.ranking td.bad {
 	background-color: #fa8072;
 }
 
+table.ranking td.quitebad {
+	background-color: #ffd78d;
+}
+
 table.ranking td.ok {
 	background-color: #ffc;
+}
+
+table.ranking td.quitegood {
+	background-color: #daffda;
 }
 
 table.ranking td.good {
