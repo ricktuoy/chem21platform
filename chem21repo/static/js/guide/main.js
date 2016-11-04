@@ -2,8 +2,43 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
     $(function() {
         $.fn.reduce = [].reduce;
 
+        $(".guide .question input.choice").each(function() {
+            var $new_div = $("<div />").addClass("choice").insertBefore($(this));
+            var $choice = $(this).add($(this).next("label"));
+            $new_div.append($choice);
+        });
+
         $(".guide .question").each(function() {
             $(this).addClass($(this).data("type"));
+        });
+
+
+
+        $(".guide").on("click", "div.choice", function(e) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            var $input = $(this).find("input.choice");
+            switch($input.attr("type")) {
+                case "radio":
+                    var prev = $input.prop("checked");
+                    $input.prop("checked", true);
+                    if(prev == false) {
+                        $input.trigger("change");
+                    }
+                    break;
+                case "checkbox":
+                    if($input.prop("checked")) {
+                        $input.prop("checked", false);
+                    } else {
+                        $input.prop("checked", true);
+                    }
+                    $input.trigger("change");
+                    break;
+            }
+        });
+
+        $(".guide").on("click", "input.choice", function(e) {
+            e.stopPropagation();
         });
 
         $(".guide .question").not(":first").hide();

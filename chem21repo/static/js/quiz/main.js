@@ -5,6 +5,8 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             if(!this.length) {
                 return false;
             }
+            return "div.choice";
+            /*
             var tp = this.data("type");
             var cls = false;
             switch(tp) {
@@ -16,7 +18,10 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     break;
             }
             return cls;
+            */
         };
+
+
 
         $.fn.quiz_find_choices = function() {
             var cls = this._quiz_choice_class();
@@ -43,6 +48,41 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
         };
         $(".quiz_questions .question").each(function() {
             $(this).addClass($(this).data("type"));
+        });
+
+        $(".quiz_questions .question input.choice").each(function() {
+            var $new_div = $("<div />").addClass("choice").insertBefore($(this));
+            var $choice = $(this).add($(this).next("label"));
+            $new_div.append($choice);
+        });
+
+
+        $(".quiz_questions").on("click", "div.choice", function(e) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            var $input = $(this).find("input.choice");
+            switch($input.attr("type")) {
+                case "radio":
+                    var prev = $input.prop("checked");
+                    $input.prop("checked", true);
+                    if(prev == false) {
+                        $input.trigger("change");
+                    }
+                    break;
+                case "checkbox":
+                    if($input.prop("checked")) {
+                        $input.prop("checked", false);
+                    } else {
+                        $input.prop("checked", true);
+                    }
+                    $input.trigger("change");
+                    break;
+            }
+        });
+
+
+        $(".quiz_questions").on("click", "input.choice", function(e) {
+            e.stopPropagation();
         });
 
         $(".quiz_questions .question").not(":first").hide();
@@ -163,7 +203,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                     $incorrect_choice_container.appendTo($marked_choices).append($incorrect);
                 }
 
-                $marked_choices.enhanceWithin();
+                //$marked_choices.enhanceWithin();
 
                 var $question_score = $q.find(".final_score");
                 

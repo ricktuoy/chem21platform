@@ -1,13 +1,55 @@
-define(["jquery","jquery.mobile.config","jquery.math","uri_js/jquery.URI","jquery.mobile","jquery.colorbox","flow_chart","quiz","guide","jquery.throttle-debounce", "popcorn", "glossary"], function($) {
+define(["jquery","jquery.mobile.config","jquery.math","uri_js/jquery.URI","jquery.colorbox","flow_chart","quiz","guide","jquery.throttle-debounce", "popcorn", "glossary"], function($) {
+    $.fn.extend({
+        scrollRight: function (val) {
+            if (val === undefined) {
+                return this[0].scrollWidth - (this[0].scrollLeft + this[0].clientWidth) + 1;
+            }
+            return this.scrollLeft(this[0].scrollWidth - this[0].clientWidth - val);
+        }
+    });
     $(function() {
-        /*
-        $("#class_nav").listPositionFix();
-        var resize_callback= function() {
-            $("#class_nav").listPositionFix();
+
+        var table_shadows_update = function($table) {
+            var $leftsh = $table.data("ui-responsive-left-shadow");
+            var $rightsh = $table.data("ui-responsive-right-shadow");
+            if($table.scrollLeft() == 0) {
+                $leftsh.hide();
+            } else {
+                $leftsh.show();
+            }
+            if($table.scrollRight() < 5) {
+                $rightsh.hide();
+            } else {
+                $rightsh.show();
+            }
         };
 
-        $(window).resize($.debounce(15, resize_callback));
-        */
+        var generate_responsive_table_shadows_cb = function() {
+            var $this = $(this);
+            var $wrap = $("<div />").addClass("ui-responsive-wrap");
+            var $leftsh = $("<div />").addClass("left-shadow");
+            var $rightsh = $("<div />").addClass("right-shadow");
+            var $shadows = $leftsh.add($rightsh);
+            $wrap.append($shadows);
+            $this.before($wrap);
+            $leftsh.after($this);
+            $(this).data("ui-responsive-left-shadow", $leftsh);
+            $(this).data("ui-responsive-right-shadow", $rightsh);
+            table_shadows_update($this);
+        }
+
+        $("#content table.ui-responsive").each(generate_responsive_table_shadows_cb);
+
+        $("#content table.ui-responsive").on("scroll", function() {
+            table_shadows_update($(this));
+        });
+
+        $(window).on("resize", function() {
+            $("#content table.ui-responsive").each(function() {
+                table_shadows_update($(this))
+            });
+        });
+
 
         $("aside figure a, figure.inline a").not($(".admin_tools a, .youtube a")).colorbox({
         	scalePhotos: true,
