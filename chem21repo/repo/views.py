@@ -918,7 +918,7 @@ class BiblioSearchView(LoginRequiredMixin, JSONView):
         result = Biblio.objects.filter(title__contains=kwargs['term'])
         out = []
         for bib in result:
-            out.append({'id': bib.id,
+            out.append({'id': bib.citekey,
                         'value': bib.title})
         return out
         
