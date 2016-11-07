@@ -913,6 +913,20 @@ class EndnoteUploadView(JQueryFileHandleView):
     def deleteurl(self):
         return ""
 
+class BiblioSearchView(LoginRequiredMixin, JSONView):
+    def get_context_data(self, **kwargs):
+        result = Biblio.objects.filter(title__contains=kwargs['term'])
+        out = []
+        for bib in result:
+            out.append({'id': bib.id,
+                        'value': bib.title})
+        return out
+        
+    def render_to_response(self, *args, **kwargs):
+        kwargs['safe'] = False
+        return super(BiblioSearchView, self).render_to_response(
+            *args, **kwargs)
+
 
 class EndnoteSearchView(LoginRequiredMixin, JSONView):
     def get_context_data(self, **kwargs):

@@ -122,7 +122,7 @@ legend {
 	opacity: 0.7;
 }
 
-.marked_choices fieldset.ui-controlgroup {
+.marked_choices fieldset {
 	margin-top: 1.5em;
 }
 
@@ -135,11 +135,10 @@ legend {
 	background-color: #900;
 }
 
-.marked_choices .ui-controlgroup-label {
+.marked_choices .choice label {
 	margin-top: 0;
 }
 
-.marked_choices fieldset.all_
 
 /************* Slide images ****************/
 
@@ -770,6 +769,43 @@ body.front #content .content .cobranding {
 	font-size: 0.9em;
 }
 
+.quiz_questions .question fieldset {
+	padding: 0.75em;
+}
+
+.quiz_questions .question div.choice,
+.guide .question div.choice {
+	padding: 0.25em;
+	background-color: #f0f0f0;
+	width: 90%;
+	border-bottom: 1px solid #dfdfdf;
+	line-height: 1.2em;
+	font-size: 0.85em;
+	padding: 0.5em 1em 0.5em 1em;
+	cursor: pointer;
+}
+
+.quiz_questions .question div.choice:hover,
+.guide .question div.choice:hover {
+	background-color: #ddd;
+}
+
+
+.quiz_questions .question div.choice input,
+.guide .question div.choice input {
+	margin: 0 0.3em 0 0;
+	vertical-align: middle;
+}
+
+.quiz_questions .question div.choice label,
+.guide .question div.choice label {
+	display:inline-block;
+	vertical-align: middle;
+	width: 90%;
+	padding: 0;
+	margin: 0;
+}
+
 .quiz_questions .question ul li input {
 	margin-right: 0.85em;
 	display: inline-block;
@@ -926,18 +962,22 @@ body.front #content .content .cobranding {
 	background-color: #e0e0e0;
 }
 
-.quiz_questions .question label {
+.quiz_questions .question label,
+.guide .question label {
 	font-weight: normal;
+	cursor: pointer;
 }
 
-.quiz_questions .marked_choices .all_incorrect .chosen label {
+
+
+.quiz_questions .marked_choices .all_incorrect .chosen {
 	background-image: url("../img/incorrect.png");
 	background-repeat: no-repeat;
 	background-position: right;
 	background-origin: content-box;
 }
 
-.quiz_questions .marked_choices .all_correct .chosen label {
+.quiz_questions .marked_choices .all_correct .chosen {
 	background-image: url("../img/correct.png");
 	background-repeat: no-repeat;
 	background-position: right;
@@ -1209,6 +1249,24 @@ figure.presentation figcaption.overlay .byline {
 
 #content table td p {
     margin: 0;
+    }
+
+
+.not-front #content table td p,
+.not-front #content table th p {
+	line-height: 1.2em;
+}
+
+#content table th p {
+	margin: 0;
+}
+
+#content table td {
+	padding: 0.3em;
+}
+
+#content table th {
+	padding: 0.3em;
 }
 
 #content dl dt {
@@ -1298,6 +1356,7 @@ img.ghs_symbol {
 	height: 35px;
 	width: auto;
 	border: 1px solid #bbb;
+	vertical-align: middle;
 }
 
 #content table.she_scores .bad p {
@@ -1942,3 +2001,129 @@ div#feedback.hover a {
 	color: #393;
 }
 
+/*!
+// CSS only Responsive Tables
+// http://dbushell.com/2016/03/04/css-only-responsive-tables/
+// by David Bushell
+*/
+table.ui-responsive {
+	width: 100%;
+	display: block;
+	vertical-align: top;
+	/*max-width: min-content;*/
+	overflow-x: auto;
+	overflow-y: hidden;
+	/*white-space: nowrap;*/
+	border-collapse: collapse;
+	border-spacing: 0;
+	margin:0;
+}
+
+
+div.ui-responsive-wrap {
+	display: block;
+	/*max-width: min-content;*/
+	position: relative;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+div.ui-responsive-wrap .right-shadow {
+	background-image: linear-gradient(to left, rgba(0,0,0, 0.1) 50%, rgba(0,0,0, 0) 100%);
+	background-repeat: no-repeat;
+	background-position: 100% 0;
+	background-size: 10px 100%;
+	position: absolute;
+	right: 0;
+	top: 0;
+	height: 100%;
+  	width: 20px;
+  	z-index: 150;
+  	overflow: hidden;
+}
+
+div.ui-responsive-wrap .left-shadow {
+	background-image: linear-gradient(to right, rgba(0,0,0, 0.1) 50%, rgba(0,0,0, 0) 100%);
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	background-size: 10px 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 20px;
+	z-index: 150;
+	overflow:hidden;
+}
+
+
+table.ui-responsive,
+table.ui-responsive--flip tbody {
+  -webkit-overflow-scrolling: touch;
+}
+
+table.ui-responsive--flip {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  overflow: hidden;
+  background: none;
+}
+
+table.ui-responsive--flip thead {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-shrink: 0;
+      -ms-flex-negative: 0;
+          flex-shrink: 0;
+  min-width: -webkit-min-content;
+  min-width: -moz-min-content;
+  min-width: min-content;
+}
+
+table.ui-responsive--flip tbody {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+table.ui-responsive--flip tr {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  min-width: -webkit-min-content;
+  min-width: -moz-min-content;
+  min-width: min-content;
+  -webkit-flex-shrink: 0;
+      -ms-flex-negative: 0;
+          flex-shrink: 0;
+}
+
+table.ui-responsive--flip td,
+table.ui-responsive--flip th {
+  display: block;
+}
+
+table.ui-responsive--flip td {
+  background-image: none !important;
+  border-left: 0;
+}
+
+table.ui-responsive--flip th:not(:last-child),
+table.ui-responsive--flip td:not(:last-child) {
+  border-bottom: 0;
+}

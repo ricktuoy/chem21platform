@@ -56,7 +56,7 @@ urlpatterns = [
         name="media_upload"),
     url(r'^endnote/upload/$', EndnoteUploadView.as_view(),
         name="endnote_upload"),
-    url(r'^endnote/search/(?P<term>.+)/$', EndnoteSearchView.as_view(),
+    url(r'^endnote/search/(?P<term>.+)/$', BiblioSearchView.as_view(),
         name="endnote_search"),
     url(r'^files/add/(?P<target_type>.+)/(?P<target_id>[0-9]+)/$',
         AddFileView.as_view(),
