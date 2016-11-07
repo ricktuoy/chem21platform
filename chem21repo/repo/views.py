@@ -915,7 +915,7 @@ class EndnoteUploadView(JQueryFileHandleView):
 
 class BiblioSearchView(LoginRequiredMixin, JSONView):
     def get_context_data(self, **kwargs):
-        result = Biblio.objects.filter(title__contains=kwargs['term'])
+        result = Biblio.objects.filter(title__icontains=kwargs['term'])
         out = []
         for bib in result:
             out.append({'id': bib.citekey,
