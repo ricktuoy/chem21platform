@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.template.defaultfilters import striptags
 
 register = template.Library()
 
@@ -388,7 +389,7 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
             if not a_title:
                 a_title = "%s: %s" % (self.get_name(t), match.group(1))
             matches.append("%s%s: %s%s" % (self.start_caption_tag, figtitle, match.group(1), self.end_caption_tag))
-
+        a_title = striptags(a_title)
         self.inner_text = re.sub(title_regex, "\g<1>title=\"%s\"" % a_title, self.inner_text)
         #if a_title:
         #    raise Exception
@@ -556,6 +557,8 @@ class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
                     messages.ERROR, 
                     "[figure] token not valid: cannot find file object with this %s id: %s" % (where, args[0]) )
                 return ""
+            title = striptags(title)
+            logging.debug("Here is title %s" % title)
             return "<a href=\"%s\" title=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (fle.url, title, fle.url, alt)
         messages.add_message(self.request, 
                 messages.ERROR, 
