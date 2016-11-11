@@ -322,7 +322,6 @@ class TableCaptionTagProcessor(ContextProcessorMixin, TagProcessor):
     def tag_function(self, st, *args):
         return "<caption>%s</caption>" % st
 
-
 class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcessor):
     tag_name = "figgroup"
 
@@ -361,23 +360,8 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
     def caption_regex(self):
         return r"\[figcaption\](.*?)\[\/figcaption\]"
 
-    """
-    def replace_caption_html(self, t):
-        figtitle = "<span class=\"figure_name\">%s %d</span>" % (
-            t.capitalize(), self.get_count(t))
-
-        (self.inner_text, nsubs) = re.subn(
-            self.caption_regex,
-            lambda m: "%s%s: %s%s" % (self.start_caption_tag, figtitle, m.group(1), self.end_caption_tag),
-            self.inner_text
-        )
-        if not nsubs:
-            self.inner_text += "%s%s%s" % (self.start_caption_tag, figtitle, self.end_caption_tag)
-    """
-
     def get_name(self, t):
         return "%s %d" % (t.capitalize(), self.get_count(t))
-
 
     def replace_caption_html(self, t):
         matches = []
@@ -388,11 +372,10 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
             self.inner_text = self.inner_text.replace(match.group(0), "")
             if not a_title:
                 a_title = "%s: %s" % (self.get_name(t), match.group(1))
-            matches.append("%s%s: %s%s" % (self.start_caption_tag, figtitle, match.group(1), self.end_caption_tag))
+            matches.append("%s%s: %s%s" % 
+                (self.start_caption_tag, figtitle, match.group(1), self.end_caption_tag))
         a_title = striptags(a_title)
         self.inner_text = re.sub(title_regex, "\g<1>title=\"%s\"" % a_title, self.inner_text)
-        #if a_title:
-        #    raise Exception
         if len(matches):
             repl = "".join(matches)
         else:
@@ -401,7 +384,6 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
             self.inner_text = re.sub(r"<table(.*?)>", "\g<0>%s" % repl, self.inner_text)
         else:
             self.inner_text += repl
-
 
     def tag_function(self, st, *args):
         self.inner_text = st
