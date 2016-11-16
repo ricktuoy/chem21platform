@@ -14,7 +14,7 @@ django-autocomplete-light==3.1.6
 django-choices==1.4.3
 django-debug-panel==0.8.2
 django-debug-toolbar==1.4
--e git+https://github.com/ricktaylord/django-filebrowser.git#egg=django_filebrowser
+django-filebrowser
 django-grappelli==2.8.1
 django-herokuapp==0.9.20
 django-require==1.0.8
