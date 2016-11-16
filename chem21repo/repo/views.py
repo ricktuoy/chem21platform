@@ -785,11 +785,6 @@ class BibTeXUploadView(JQueryFileHandleView):
                 self.modified_bibs.append(repr(bib))
 
 
-
-
-
-
-
 class MediaUploadView(JQueryFileHandleView):
 
     content_type_handle_map = {
@@ -817,7 +812,7 @@ class MediaUploadView(JQueryFileHandleView):
         o = super(MediaUploadView,self).get_return_values()
         o['content_type'] = self.content_type
         o['handler'] = unicode(self.handle_cls)
-        #o['pk'] = self.file_obj.pk
+        o['pk'] = self.file_obj.pk
         return o
 
     def get_post_dict_from_request(self, request):
@@ -830,8 +825,6 @@ class MediaUploadView(JQueryFileHandleView):
     def post(self, request, *args, **kwargs):
         self.urlkwargs = kwargs
         kwargs.update(self.get_post_dict_from_request(request))
-
-
         return super(MediaUploadView, self).post(request, *args, **kwargs)
             
     @property
