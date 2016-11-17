@@ -4,11 +4,12 @@
  {% load admin_urls %}
 {% block class_nav %}
 <div class="item-list">
+
 	<ol>
 	{% for module in class_tree.modules.all|dictsort:"order" %}
 		{% ifequal module object %}
 			<li data-lo-type="module" data-lo-pk="{{ module.pk }}" class="active">
-				{{ module.title }}
+				<a href="#">{{ module.title }}</a>
 				<div class="item-list">
 					<ol class="active">
 					{% include 'chem21/include/active_module_nav.html' with module=module %}

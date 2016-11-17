@@ -1,4 +1,4 @@
-define(["google_picker","jquery","jquery.fileupload","common"], function(GPicker, $) {
+define(["google_picker","jquery","jquery.fileupload","nav_reorder","common"], function(GPicker, $) {
     String.prototype.format = function () {
       var args = arguments;
       return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });

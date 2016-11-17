@@ -8,6 +8,7 @@
 {% endblock %}
 {% block class_nav %}
 <div class="item-list">
+
 	<ol>
 	{% for module in class_tree.modules.all|dictsort:"order" %}
 		{% if module.dummy %}

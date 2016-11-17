@@ -5,6 +5,7 @@
 {% block display_title %}{% if not current_module.dummy %}{{ current_module.topic.title }}: {% endif %}{% if current_module.dummy %}{{ current_module.topic.title }} {% else %} {{ current_module.title }} {% endif %}{% endblock %}
 {% block class_nav %}
 <div class="item-list">
+
 	<ol>
 	{% for module in class_tree.modules.all|dictsort:"order" %}
 		{% ifequal module current_module %}

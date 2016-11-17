@@ -29,7 +29,8 @@
                   {name: 'select_figuretag'},
                   {name: 'select_linktag'},
                   {name: 'admin_fileupload'},
-                  {name: 'google_picker'}],
+                  {name: 'google_picker'},
+                  {name: 'nav_reorder'}],
     /*
      * Allow CSS optimizations. Allowed values:
      * - "standard": @import inlining, comment removal and line returns.
@@ -90,7 +91,8 @@
         "uri_js": "uri.js/src",
         "jsCurry": "jscurry-0.4.1",
         "jquery.math": "jqmath-0.4.4" ,
-        "admin_fileupload": "../admin-fileupload"
+        "admin_fileupload": "../admin-fileupload",
+        "nav_reorder": "../nav-reorder"
     },
     shim: {
         "jquery.math": ['jquery','jsCurry']
