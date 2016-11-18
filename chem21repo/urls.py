@@ -54,6 +54,9 @@ urlpatterns = [
     url(r'^upload_media/(?P<type>[^/]*)/(?P<pk>[0-9]*)[/]?$', 
         MediaUploadView.as_view(), 
         name="media_upload"),
+    url(r'^detach_media/(?P<type>[^/]*)/(?P<tpk>[0-9]*)/(?P<fpk>[0-9]+)/?$',#
+        DetachMediaView.as_view(),
+        name="media_detach"),
     url(r'^endnote/upload/$', EndnoteUploadView.as_view(),
         name="endnote_upload"),
     url(r'^endnote/search/(?P<term>.+)/$', BiblioSearchView.as_view(),

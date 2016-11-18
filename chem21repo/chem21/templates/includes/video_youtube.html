@@ -47,6 +47,7 @@ The views expressed in regards to education and training materials represent the
 	<a class="manage_popups" href="{% url 'admin:repo_presentationaction_changelist' %}?presentation={{ vid_pk }}">Manage popups</a> |
 	<a class="add_popup" href="{% url 'admin:repo_presentationaction_add' %}?presentation={{ vid_pk }}">Add popup</a>  <br />
 	<a class="edit" href="{% url 'admin:repo_uniquefile_change' vid_pk %}">Settings</a> 
+	<a class="delete btn btn-success admin-delete" href="{{ remove_url }}">Remove</a>
 
 </figcaption>
 {% endif %}

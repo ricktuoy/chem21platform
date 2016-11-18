@@ -42,6 +42,7 @@ class PlaceVideoNode(template.Node):
             par = None
         vid_cxt['vid_pk'] = video.pk
         vid_cxt['front_slide_url'] = video.get_video_slide_url(par, obj) 
+        vid_cxt['remove_url'] = reverse("media_detach", kwargs={'type':obj.learning_object_type, 'tpk': obj.pk, 'fpk':video.pk})
         vid_cxt['module_title'] = par.title
         vid_cxt['title'] = obj.title
         vid_cxt['lobj_pk'] = obj.pk

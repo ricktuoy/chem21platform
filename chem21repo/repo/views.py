@@ -998,6 +998,22 @@ class FigureDeleteView(LoginRequiredMixin, LearningObjectRelationMixin, View):
         inst.save()
         return JsonResponse({'success':'Deleted figure'}, status=200)
 
+class DetachMediaView(LoginRequiredMixin, LearningObjectRelationMixin, View):
+    @staticmethod
+    def error_response(e=""):
+        return JsonResponse({'error': e}, status=400)
+    def get(self, *args, **kwargs):
+        inst = self.get_learning_object(*args, **kwargs)
+        file_pk = int(kwargs["fpk"])
+        fl = UniqueFile.objects.get(pk=file_pk)
+        try:
+            inst.files.remove(fl)
+        except AttributeError:
+            return error_response("Probably not a question node")
+        return JsonResponse({'success':'Removed media file'}, status=200)
+
+
+
 
 
 class FileLinkGetView(LoginRequiredMixin, JSONView):

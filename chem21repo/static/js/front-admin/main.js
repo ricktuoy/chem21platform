@@ -72,6 +72,9 @@ define(["google_picker","jquery","jquery.fileupload","nav_reorder","common"], fu
             $("#admin_tools").before(html);
         });
 
+        $("#content").on("fileuploaddone", "#upload_json", function(e, data) {
+            window.location.reload();
+        });
 
         $("a.delete-figure").on("click", function(e) {
             e.stopPropagation();
@@ -85,6 +88,17 @@ define(["google_picker","jquery","jquery.fileupload","nav_reorder","common"], fu
                 window.location.reload(true);
             });
         });
+
+        $(".presentation a.delete").on("click", function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            var url = $(this).attr("href");
+            $.getJSON(url, function() {
+                window.location.reload(true);
+            });
+        });
+
+        $("").on("click")
 
         $('#djDebug').on('mouseover', 'a', function() {
             $(this).removeClass('ui-link');
