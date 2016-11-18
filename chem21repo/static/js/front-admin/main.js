@@ -5,6 +5,20 @@ define(["google_picker","jquery","jquery.fileupload","nav_reorder","common"], fu
     };
     $(function() {
         var csrftoken = $.cookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+        var csrftoken = $.cookie('csrftoken');
         function csrfSafeMethod(method) {
             // these HTTP methods do not require CSRF protection
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -56,6 +70,20 @@ define(["google_picker","jquery","jquery.fileupload","nav_reorder","common"], fu
                 html.append(message_html);
             });
             $("#admin_tools").before(html);
+        });
+
+
+        $("a.delete-figure").on("click", function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            var num = $(this).data("figNum");
+            var url = "/figure/delete/{0}/{1}/{2}".format(
+                $("#learning_reference_type").val(), 
+                $("#learning_reference_pk").val(), 
+                num)
+            $.getJSON(url, function() {
+                window.location.reload(true);
+            });
         });
 
         $('#djDebug').on('mouseover', 'a', function() {

@@ -947,6 +947,8 @@ class FiguresGetView(LoginRequiredMixin, JSONView):
         return super(FiguresGetView, self).render_to_response(
             *args, **kwargs)
 
+
+
 class MoleculeListView(LoginRequiredMixin, JSONView):
     safe = False
     def get_context_data(self, **kwargs):
@@ -972,6 +974,29 @@ class MoleculeAttachView(LoginRequiredMixin, LearningObjectRelationMixin, View):
         except AttributeError:
             return self.error_response("Molecule cannot be attached to %s %s" % (t, unicode(inst)))
         return JsonResponse({'success': True}, status=200)
+
+class FigureDeleteView(LoginRequiredMixin, LearningObjectRelationMixin, View):
+    @staticmethod
+    def error_response(e=""):
+        return JsonResponse({'error': e}, status=500)
+
+    def get(self, *args, **kwargs):
+        inst = self.get_learning_object(*args, **kwargs)
+        num = int(kwargs["fNum"])
+        rx = re.compile(
+            r"(<div class=\"token\"><!--token-->)?\[figgroup:.*?\[\/figgroup\](<!--endtoken--></div>)?", 
+            re.DOTALL)
+        
+        def repl_fn(match):
+            repl_fn.inc = repl_fn.inc + 1
+            if repl_fn.inc == num:
+                return ""
+            return match.group(0)
+        repl_fn.inc = 0
+
+        inst.text = rx.sub(repl_fn, inst.text)
+        inst.save()
+        return JsonResponse({'success':'Deleted figure'}, status=200)
 
 
 

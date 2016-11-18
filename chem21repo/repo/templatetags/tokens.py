@@ -328,6 +328,7 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
     def __init__(self, *args, **kwargs):
         self.count = {}
         self.asides = []
+        self.total_count = 0
         return super(
             FigureGroupTagProcessor, self).__init__(
                 *args, **kwargs)
@@ -337,6 +338,7 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
             self.count[t] += 1
         except KeyError:
             self.count[t] = 1
+        self.total_count += 1
 
     def get_count(self, t):
         try:
@@ -385,6 +387,11 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
         else:
             self.inner_text += repl
 
+    def delete_tool(self):
+        if self.context['user'].is_authenticated():
+            return "<a data-fig-num=\"%s\" class=\"btn btn-success admin-delete delete-figure\">Delete figure</a>" % str(self.total_count)
+        return "" 
+
     def tag_function(self, st, *args):
         self.inner_text = st
         try:
@@ -408,8 +415,8 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
         self.inc_count(t)
 
         if t != "table":
-            self.inner_text = "<figure class=\"%s\">%s</figure>" % (
-                classes, self.inner_text)
+            self.inner_text = "<figure class=\"%s\">%s%s</figure>" % (
+                classes, self.inner_text, self.delete_tool())
             if "aside" in class_set:
                 if not "inline" in class_set:
                     self.asides.append(self.inner_text)

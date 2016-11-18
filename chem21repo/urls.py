@@ -81,6 +81,8 @@ urlpatterns = [
     	ImportQuizView.as_view(), name="quiz_import"),
     url(r'^guide/import/(?P<object_name>.+)/(?P<id>[0-9]+)/$',
         ImportGuideToolView.as_view(), name="quiz_import"),
+    url(r'^figure/delete/(?P<type>[^/]+)/(?P<tpk>[0-9]+)/(?P<fNum>[0-9]+)/?$',
+        FigureDeleteView.as_view(), name="figure_delete"),
     url(r'version/(?P<pk>[0-9]+)[/]?$', TextVersionView.as_view(),
         name="version"),
     url('', include('social.apps.django_app.urls', namespace='social')),
@@ -106,7 +108,6 @@ urlpatterns = [
     url(r'complete/google-service-oauth2', GoogleServiceOAuth2ReturnView.as_view(), name="google-service-oauth2-return"),
     url(r'files/upload/youtube/(?P<type>[^/]+)/(?P<tpk>[0-9]+)/(?P<vpk>[0-9]+)/$', PushVideoToYouTubeView.as_view(), 
         name="youtube_upload"),
-
 ]
 
 if settings.DEBUG:

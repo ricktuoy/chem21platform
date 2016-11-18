@@ -130,9 +130,11 @@
 			<div class="titles"><h1>{{ object.get_title }}</h1></div>
 		{% endblock progress_title %}
 	{% endif %}
+	<div id="content-body">
 	{% if tokens_replaced %}
 		{{ tokens_replaced|responsivise|glossarize|safe }}
 	{% endif %}
+	</div>
 	{% block post_text %}
 	{% if not object.get_text and object.video %}
 		{% get_video "" object.video %}
