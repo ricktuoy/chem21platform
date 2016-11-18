@@ -15,7 +15,7 @@ django-choices==1.4.3
 django-debug-panel==0.8.2
 django-debug-toolbar==1.4
 django-grappelli==2.8.1
--e git+https://github.com/ricktaylord/django-filebrowser.git@56f9f2ebf089a3d16f2dff77ea237fc2325fad8f#egg=django_filebrowser
+-e git+https://github.com/ricktaylord/django-filebrowser.git#egg=django_filebrowser
 django-herokuapp==0.9.20
 django-require==1.0.8
 django-require-s3==1.0.0
