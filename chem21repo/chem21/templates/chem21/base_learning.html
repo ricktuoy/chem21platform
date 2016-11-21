@@ -83,30 +83,15 @@
  	<form id="admin_tools">
  		<input type="hidden" id="learning_reference_type" value="{{ learning_reference_type }}" />
  		<input type="hidden" id="learning_reference_pk" value="{{ learning_reference_pk }}" />
- 	
-{% if object.is_question %}
-		<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
-		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
-		Edit text</a>
-
-{% else %}
-		<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
-		data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
-		Edit text</a>
-{% endif %}
-
-		{% url 'media_upload' pk=learning_reference_pk type=learning_reference_type as media_url %}
-		<a id="gpicker_trigger" class="btn btn-success admin-edit" href="{% url 'admin:repo_question_loadgdoc' tpk=learning_reference_pk file_id='yermum' %}">Load from GDoc</a>
-
-		
+ 
 
 	{% if opts.child %}
 		<a class="btn btn-success admin-add" href="{% url opts.child|admin_urlname:'add' %}?{{ opts.child.parent_fieldname }}={{object.pk}}"
 		data-from-url-edit="{% url opts.child|admin_urlname:'changelist' %}">
 		Add child page</a>
 	{% endif %}
-	{% fileupload_form "upload_json" caption="Upload quiz/guide" upload_url=media_url %}
 
+	{% fileupload_form "upload_json" caption="Upload quiz (.json) or video (.mp4)" upload_url=media_url %}
 	</form>
 	
 	    
@@ -130,6 +115,22 @@
 			<div class="titles"><h1>{{ object.get_title }}</h1></div>
 		{% endblock progress_title %}
 	{% endif %}
+		
+{% if object.is_question %}
+		<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
+		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
+		Edit text</a>
+
+{% else %}
+		<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
+		data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
+		Edit text</a>
+{% endif %}
+
+		{% url 'media_upload' pk=learning_reference_pk type=learning_reference_type as media_url %}
+		<a id="gpicker_trigger" class="btn btn-success admin-edit" href="{% url 'admin:repo_question_loadgdoc' tpk=learning_reference_pk file_id='yermum' %}">Load from GDoc</a>
+
+		
 	<div id="content-body">
 	{% if tokens_replaced %}
 		{{ tokens_replaced|responsivise|glossarize|safe }}

@@ -98,7 +98,8 @@ define(["google_picker","jquery","jquery.fileupload","nav_reorder","common"], fu
             });
         });
 
-        $("").on("click")
+        
+
 
         $('#djDebug').on('mouseover', 'a', function() {
             $(this).removeClass('ui-link');

@@ -263,7 +263,6 @@ class AttributionMixin(BaseModel):
     
 
 class DrupalManager(models.Manager):
-
     def get_or_pull(self, *args, **kwargs):
         try:
             return self.get(*args, **kwargs)
@@ -291,7 +290,6 @@ class DrupalModel(models.Model):
     template = models.ForeignKey(LearningTemplate, null=True, blank=True)
     archived = models.BooleanField(default=False)
 
-
     @property
     def quiz(self):
         try:
@@ -301,7 +299,6 @@ class DrupalModel(models.Model):
             pass
         if self.quiz_name:
             return self.quiz_name
-
 
     @property
     def has_quiz(self):
