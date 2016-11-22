@@ -595,8 +595,20 @@ body.front #content .content .cobranding {
 
 /**************** Sarah's Flow Chart of Joy *********/
 
+
+
 .reaction-discovery .flow-chart {
 	margin-top: 1em;
+	width: 100%;
+	margin-bottom: 1em;
+}
+
+.reaction-discovery thead {
+	width: 100%;
+}
+
+.reaction-discovery body {
+	width: 100%;
 }
 
 .reaction-discovery .flow-chart tr.intro td {

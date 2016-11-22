@@ -3,7 +3,7 @@ define(["jquery"], function($) {
 
 	$(".reaction-discovery .description td").hide();
 	$(".reaction-discovery .outcome td").hide();
-	$(".reaction-discovery tbody").hide();
+	$(".reaction-discovery tbody .outcome").hide();
 
 	function show_next_reaction(el) {
 		var react = el.closest(".reaction-discovery");

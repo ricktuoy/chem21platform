@@ -3,7 +3,7 @@ $(document).ready(function() {
 	$(".reaction-discovery .outcome td").css("visibility","hidden");
 	$(".reaction-discovery .intro").hide();
 	$(".reaction-discovery .choice td").show();
-	$(".reaction-discovery tbody tr").hide();
+	$(".reaction-discovery tbody tr.outcome").hide();
 
 	function show_next_reaction(el) {
 		var react = el.closest(".reaction-discovery");

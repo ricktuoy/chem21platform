@@ -1,4 +1,4 @@
-define(["jquery","jquery.mobile.config","jquery.math","uri_js/jquery.URI","jquery.colorbox","flow_chart","quiz","guide","jquery.throttle-debounce", "popcorn", "glossary"], function($) {
+define(["jquery","jquery.math","uri_js/jquery.URI","jquery.colorbox","flow_chart","quiz","guide","jquery.throttle-debounce", "popcorn", "glossary"], function($) {
     $.fn.extend({
         scrollRight: function (val) {
             if (val === undefined) {
