@@ -1,0 +1,14 @@
+{% load glossary %}
+{% load tokens %}
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>{{ objects.0.title }}</title>
+	</head>
+	<body>
+	{% for obj in objects %}
+		<h{{ obj.level }}>{{ obj.title }}</h{{ obj.level }}>
+		{{ obj.text|safe }}
+	{% endfor %}
+	</body>
+</html>

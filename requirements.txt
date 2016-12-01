@@ -14,8 +14,8 @@ django-autocomplete-light==3.1.6
 django-choices==1.4.3
 django-debug-panel==0.8.2
 django-debug-toolbar==1.4
-django-grappelli==2.8.1
 -e git+https://github.com/ricktaylord/django-filebrowser.git#egg=django_filebrowser
+django-grappelli==2.8.1
 django-herokuapp==0.9.20
 django-require==1.0.8
 django-require-s3==1.0.0
@@ -35,9 +35,9 @@ html2text==2016.1.8
 html5lib==0.9999999
 httplib2==0.9.2
 lxml==3.6.0
+mock==1.0b1
 oauth2client==2.1.0
 oauthlib==1.0.3
-pdfkit==0.5.0
 Pillow==3.0.0
 psycopg2==2.6.1
 pyasn1==0.1.9
@@ -45,10 +45,12 @@ pyasn1-modules==0.0.8
 pycparser==2.14
 PyJWT==1.4.0
 Pyphen==0.9.4
+python-dateutil==2.6.0
 python-magic==0.4.11
 python-openid==2.2.5
 python-social-auth==0.2.13
 pytz==2015.4
+pywkher==1.0.4
 -e git+https://github.com/bernii/querystring-parser.git@6bd45faa359516c19fdd76c4396c160f0ee67da6#egg=querystring_parser
 requests==2.8.1
 requests-oauthlib==0.6.0
