@@ -1,3 +1,4 @@
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import logging
@@ -9,11 +10,6 @@ import hashlib
 import mimetypes
 import httplib2
 import httplib
-
-
-from apiclient.discovery import build
-from apiclient.errors import HttpError as GoogleHttpError
-from apiclient.http import MediaIoBaseUpload as GoogleMediaIoBaseUpload
 
 
 from .models import Lesson
@@ -31,19 +27,21 @@ from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
 from bs4 import BeautifulSoup
-from django.core.files.storage import DefaultStorage
+
+from django.core.files.storage import DefaultStorage, get_storage_class
 from django.core.files.storage import default_storage
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Prefetch
-from django.http import Http404, HttpResponseBadRequest, HttpResponseServerError, HttpResponseRedirect
+from django.http import Http404, HttpResponseBadRequest, HttpResponseServerError, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import View
 from django.views.generic import DetailView
 from django.views.generic import TemplateView
 from django.views.generic import ListView
 from django.core.urlresolvers import reverse
+from django.template.loader import render_to_string
 from django.conf import settings
 from django.db import IntegrityError
 from querystring_parser import parser
@@ -53,12 +51,10 @@ from revproxy.views import ProxyView
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
-from oauth2client.contrib.django_orm import Storage
-from oauth2client.client import OAuth2WebServerFlow as Flow
-from oauth2client.contrib import xsrfutil
 import magic
+from ..google import GoogleOAuth2RedirectRequired, GoogleUploadError, GoogleServiceOAuth2ReturnView, YouTubeCaptionServiceMixin, YouTubeServiceMixin, DriveServiceMixin
 # Create your views here.
-
+from apiclient.errors import HttpError as GoogleHttpError
 
 class S3ProxyView(ProxyView):
     upstream = settings.S3_URL
@@ -75,19 +71,18 @@ class LearningObjectRelationMixin(object):
         except ContentType.DoesNotExist:
             return self.error_response("Learning object of type %s not found" % t)
         try:
-            inst = model.objects.get(pk=tpk)
+            page = model.objects.get(pk=tpk)
         except model.DoesNotExist:
             return self.error_response("Object %s with id %d not found" % (t, tpk))
-        return inst
+        return page
 
 class LoginRequiredMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
-        if os.environ.get("DJANGO_DEVELOPMENT", False):
-            return view
+        #if os.environ.get("DJANGO_DEVELOPMENT", False):
+        #    return view
         return login_required(view)
-
 
 class CSRFExemptMixin(object):
     @classmethod
@@ -95,9 +90,7 @@ class CSRFExemptMixin(object):
         view = super(CSRFExemptMixin, cls).as_view(**initkwargs)
         return csrf_exempt(view)
 
-
 class JSONResponseMixin:
-
     """
     A mixin that can be used to render a JSON response.
     """
@@ -231,7 +224,7 @@ class TextVersionView(LoginRequiredMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super(TextVersionView, self).get_context_data(
             *args, **kwargs)
-        instance = context['object']
+        pageance = context['object']
         return context
 
 
@@ -671,7 +664,7 @@ class JSONUploadHandle(MediaUploadHandle):
         outcome = parser.save()
         if lobj:
             lobj.quiz_name = parser.name
-            if isinstance(parser, GuideToolParser):
+            if ispageance(parser, GuideToolParser):
                 try:
                     tpl = LearningTemplate.objects.get(name="guide_detail")
                     lobj.template = tpl
@@ -963,16 +956,16 @@ class MoleculeAttachView(LoginRequiredMixin, LearningObjectRelationMixin, View):
         return JsonResponse({'error': e}, status=500)
     def post(self, *args, **kwargs):
         mpk = kwargs['mpk']
-        inst = self.get_learning_object(*args, **kwargs)
+        page = self.get_learning_object(*args, **kwargs)
         try:
-            molinst = Molecule.objects.get(pk=mpk)
+            molpage = Molecule.objects.get(pk=mpk)
         except Molecule.DoesNotExist:
             return self.error_response("Object %s with id %d not found" % (t, mpk))
         try:
-            inst.molecule = molinst
-            inst.save()
+            page.molecule = molpage
+            page.save()
         except AttributeError:
-            return self.error_response("Molecule cannot be attached to %s %s" % (t, unicode(inst)))
+            return self.error_response("Molecule cannot be attached to %s %s" % (t, unicode(page)))
         return JsonResponse({'success': True}, status=200)
 
 class FigureDeleteView(LoginRequiredMixin, LearningObjectRelationMixin, View):
@@ -981,7 +974,7 @@ class FigureDeleteView(LoginRequiredMixin, LearningObjectRelationMixin, View):
         return JsonResponse({'error': e}, status=500)
 
     def get(self, *args, **kwargs):
-        inst = self.get_learning_object(*args, **kwargs)
+        page = self.get_learning_object(*args, **kwargs)
         num = int(kwargs["fNum"])
         rx = re.compile(
             r"(<div class=\"token\"><!--token-->)?\[figgroup:.*?\[\/figgroup\](<!--endtoken--></div>)?", 
@@ -994,8 +987,8 @@ class FigureDeleteView(LoginRequiredMixin, LearningObjectRelationMixin, View):
             return match.group(0)
         repl_fn.inc = 0
 
-        inst.text = rx.sub(repl_fn, inst.text)
-        inst.save()
+        page.text = rx.sub(repl_fn, page.text)
+        page.save()
         return JsonResponse({'success':'Deleted figure'}, status=200)
 
 class DetachMediaView(LoginRequiredMixin, LearningObjectRelationMixin, View):
@@ -1003,14 +996,121 @@ class DetachMediaView(LoginRequiredMixin, LearningObjectRelationMixin, View):
     def error_response(e=""):
         return JsonResponse({'error': e}, status=400)
     def get(self, *args, **kwargs):
-        inst = self.get_learning_object(*args, **kwargs)
+        page = self.get_learning_object(*args, **kwargs)
         file_pk = int(kwargs["fpk"])
         fl = UniqueFile.objects.get(pk=file_pk)
         try:
-            inst.files.remove(fl)
+            page.files.remove(fl)
         except AttributeError:
             return error_response("Probably not a question node")
         return JsonResponse({'success':'Removed media file'}, status=200)
+
+
+class ShowTouchedView(LoginRequiredMixin, LearningObjectRelationMixin, View):
+    @staticmethod
+    def error_response(e=""):
+        return JsonResponse({'error': e}, status=400)
+    def get(self, *args, **kwargs):
+        page = self.get_learning_object(*args, **kwargs)
+        return JsonResponse({'touched': 
+                [ [ (i.pk, i.slug) for i in qs  ] for qs in page.touched_structure_querysets ] 
+            } )
+
+class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
+    template_name = "chem21/publish_learning_objects_confirm.html"
+    def get_context_data(self, **kwargs):
+        logging.debug("context ici")
+        context = super(PublishLearningObjectsView, self).get_context_data(**kwargs)
+        context['learning_objects'] = [{'name':'topics','instances':Topic.objects.filter(changed=True)},
+                   {'name':'modules','instances':Module.objects.filter(changed=True)},
+                   {'name':'lessons','instances':Lesson.objects.filter(changed=True)},
+                   {'name':'questions','instances':Question.objects.filter(changed=True)}]
+        return context
+
+    @property
+    def structure(self):
+        try:
+            return self._structure
+        except AttributeError:
+            pass
+        self._structure =  dict([(obj.pk, obj) for obj in Topic.objects.all().prefetch_related(
+            Prefetch("modules",
+                     queryset=Module.objects.all().exclude(archived=True).order_by('order')),
+            Prefetch("modules__lessons",
+                     queryset=Lesson.objects.all().exclude(archived=True).order_by('order'),
+                     to_attr="ordered_lessons"),
+            Prefetch("modules__ordered_lessons__questions",
+                     queryset=Question.objects.all().exclude(archived=True).order_by(
+                         'order'),
+                     to_attr="ordered_questions"))])
+        return self._structure
+    
+    def post(self, request, *args, **kwargs):
+        def module_reduce_fn(a, b):
+            pdf_root = b.closest_pdf_root()
+            if pdf_root:
+                a.add(pdf_root)
+            return a
+        to_publish = []
+       
+        for t in ["questions", "lessons", "modules", "topics"]:
+            model = ContentType.objects.get(
+                app_label="repo",
+                model=t[:-1]).model_class()
+            
+            pks = [int(pk) for pk in request.POST.getlist(t+"[]")]
+            logging.debug(pks)
+            if len(pks):
+                to_publish += list(model.objects.filter(pk__in=pks))
+
+        storage = DefaultStorage()
+        paths = []
+        for inst in to_publish:
+            for page in inst.iter_publishable():
+                context = {
+                    'object': page,
+                    'class_tree': self.structure[page.current_topic.pk],
+                    'current_topic': page.current_topic,
+                    'breadcrumbs': page.get_ancestors(),
+                    'request': request,
+                    'user': request.user
+                }
+
+                try:
+                    context['current_module'] = page.current_module
+                except AttributeError:
+                    pass
+
+                try:
+                    context['current_lesson'] = page.current_lesson
+                except AttributeError:
+                    pass
+
+                nxt = page.get_next_object()
+                prev = page.get_previous_object()
+
+                if nxt:
+                    context['next'] = nxt
+                if prev:
+                    context['previous'] = prev
+
+                html = render_to_string("chem21/%s.html" % t[:-1], context)
+                file = ContentFile(html, name="index.html")
+                path = page.get_absolute_url()+"index.html"
+                storage.save(path, file)
+                paths.append(path)
+        return HttpResponse(repr(paths), content_type="text/plain")
+
+
+
+        #pdfs = reduce( to_publish, module_reduce_fn, [] )
+
+
+
+
+
+
+
 
 
 
@@ -1032,141 +1132,49 @@ class FileLinkGetView(LoginRequiredMixin, JSONView):
         return super(FileLinkGetView, self).render_to_response(
             *args, **kwargs)
 
-class GoogleOAuth2RedirectRequired(Exception):
-    def __init__(self, url):
-        self.url = url
-    def __str__(self):
-        return self.url
-
-class GoogleUploadError(Exception):
-    pass
-
-class GoogleServiceMixin(object):
-    # Always retry when these exceptions are raised.
-    RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
-      httplib.IncompleteRead, httplib.ImproperConnectionState,
-      httplib.CannotSendRequest, httplib.CannotSendHeader,
-      httplib.ResponseNotReady, httplib.BadStatusLine)
-
-    # Always retry when an apiclient.errors.HttpError with one of these status
-    # codes is raised.
-    RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
-    MAX_RETRIES = 10
-    @property
-    def flow(self):
-        try:
-            return self._flow
-        except AttributeError:
-            pass
-        self._flow = Flow(settings.GOOGLE_OAUTH2_KEY, settings.GOOGLE_OAUTH2_SECRET, 
-            scope=self.get_google_scope(),
-            prompt="consent",
-            access_type="offline",
-            redirect_uri=self.request.build_absolute_uri(reverse("google-service-oauth2-return")))
-        return self._flow
-
-    def get_google_scope(self):
-        try:
-            return self.request.session["google_service_scope"]
-        except KeyError:
-            self.request.session["google_service_scope"] = self.google_scope
-            return self.google_scope
 
 
-    @property
-    def storage(self):
-        try:
-            return self._storage
-        except AttributeError:
-            pass
-        self._storage = Storage(CredentialsModel, 'id', self.request.user, 'credential')
-        return self._storage
+class YouTubeCaptionListView(LoginRequiredMixin, YouTubeCaptionServiceMixin, View):
 
-    @property
-    def credential(self):
-        try:
-            return self._credential
-        except AttributeError:
-            pass
-        self._credential = self.storage.get()
-        return self._credential
-
-    @property
-    def return_path_session_key(self):
-        return "google_oauth_return_path"
-    
-
-    def get_service(self, request):
-        self.request = request
-        try:
-            return self._service
-        except AttributeError:
-            pass
-        if self.credential is None or self.credential.invalid == True:    
-            self.flow.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY,
-                                                       self.request.user)
-            self.request.session[self.return_path_session_key] = self.request.path
-            authorize_url = self.flow.step1_get_authorize_url()
-            raise GoogleOAuth2RedirectRequired(authorize_url)
-        else:
-            http = httplib2.Http()
-            http = self.credential.authorize(http)
-            return build(self.google_service_name, self.google_api_version, http=http)
-
-    # This method implements an exponential backoff strategy to resume a
-    # failed upload.
-    # from https://developers.google.com/youtube/v3/guides/uploading_a_video#Sample_Code
-    def resumable_upload(self, insert_request):
-
-      httplib2.RETRIES = 1
-      response = None
-      error = None
-      retry = 0
-      while response is None:
-        try:
-          status, response = insert_request.next_chunk()
-          if 'id' in response:
-            return response
-          else:
-            raise GoogleUploadError("The upload failed with an unexpected response: %s" % response)
-        except GoogleHttpError, e:
-          if e.resp.status in self.RETRIABLE_STATUS_CODES:
-            error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
-                                                                 e.content)
-          else:
-            raise
-        except self.RETRIABLE_EXCEPTIONS, e:
-          error = "A retriable error occurred: %s" % e
-
-        if error is not None:
-          retry += 1
-          if retry > self.MAX_RETRIES:
-            raise GoogleUploadError("The upload failed after %d attempts: %s" % (self.MAX_RETRIES, response))
-
-          max_sleep = 2 ** retry
-          sleep_seconds = random.random() * max_sleep
-          time.sleep(sleep_seconds)
-
-class YouTubeServiceMixin(GoogleServiceMixin):
-    google_scope = "https://www.googleapis.com/auth/youtube.upload"
-    google_service_name = "youtube"
-    google_api_version = "v3"
-
-class DriveServiceMixin(GoogleServiceMixin):
-    google_scope = "https://www.googleapis.com/auth/drive.readonly"
-    google_service_name = "drive"
-    google_api_version = "v3"
-
-class GoogleServiceOAuth2ReturnView(GoogleServiceMixin, View):
     def get(self, request, *args, **kwargs):
-        if not xsrfutil.validate_token(settings.SECRET_KEY, str(request.REQUEST['state']),
-                                 request.user):
-            return  HttpResponseBadRequest("ERROR: XSRF fail. %s %s %s" % (str(request.REQUEST['state']), settings.SECRET_KEY, request.user))
-        credential = self.flow.step2_exchange(request.REQUEST)
-        storage = Storage(CredentialsModel, 'id', request.user, 'credential')
-        storage.put(credential)
+        try:
+            youtube = self.get_service(request)
+        except GoogleOAuth2RedirectRequired, e:
+            return HttpResponseRedirect(e.url)
+        tracks = {}
+        for vid in UniqueFile.objects.filter(youtube_id__isnull=False):
+            caption = self.get_recent_caption(youtube, vid.youtube_id)
+            if caption is not None:
+                tracks[vid.id] = caption['id']
+        return JsonResponse({'tracks': tracks})
 
-        return HttpResponseRedirect(request.session.get(self.return_path_session_key,"/"))
+class YouTubeTranscriptView(LoginRequiredMixin, YouTubeCaptionServiceMixin, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            youtube = self.get_service(request)
+        except GoogleOAuth2RedirectRequired, e:
+            return HttpResponseRedirect(e.url)
+        vid = get_object_or_404(UniqueFile, pk=int(kwargs['pk']))
+
+        try:
+            caption = self.get_recent_caption(youtube, vid.youtube_id)
+            transcript = self.get_srt(youtube, caption['id'])
+        except GoogleOAuth2RedirectRequired, e:
+            return HttpResponseRedirect(e.url)
+
+        if caption is None:
+            return HttpResponse("")
+
+        transcript = " ".join(
+            [l for l in transcript.split("\n") if l !="" and not l.isdigit() and "-->" not in l]
+            )
+        transcript_html = "\n".join(["<p>%s.</p>" % s for s in transcript.split(". ")])
+        return HttpResponse(transcript_html, content_type="text/plain")
+
+
+
+
+
 
 class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRelationMixin, View):
 
@@ -1349,13 +1357,13 @@ class PushVideoToYouTubeView(LoginRequiredMixin,
         vpk = kwargs['vpk']
         lobj = self.get_learning_object(*args, **kwargs)
         try:
-            fileinst = UniqueFile.objects.get(pk=vpk)
+            filepage = UniqueFile.objects.get(pk=vpk)
         except UniqueFile.DoesNotExist:
             return self.error_response("Unique file with id %d not found" % vpk)
-        if fileinst.type != "video":
-            return self.error_response("File %s is not a video" % fileinst.name )
-        if fileinst.youtube_id:
-            return self.error_response("File %s has already been uploaded to YouTube (ID: %s)" % (fileinst.name, fileinst))
+        if filepage.type != "video":
+            return self.error_response("File %s is not a video" % filepage.name )
+        if filepage.youtube_id:
+            return self.error_response("File %s has already been uploaded to YouTube (ID: %s)" % (filepage.name, filepage))
         # we have a video to upload.
         # see See https://developers.google.com/youtube/v3/docs/videoCategories/list for possible categoryId
 
@@ -1363,11 +1371,11 @@ class PushVideoToYouTubeView(LoginRequiredMixin,
             tags = [mod.title for mod in lobj.modules.all()]
         except AttributeError:
             tags = [mod.title for mod in lobj.modules]
-        with DefaultStorage().open(fileinst.get_file_relative_url()) as fh:
+        with DefaultStorage().open(filepage.get_file_relative_url()) as fh:
             desc = None
-            if fileinst.description:
+            if filepage.description:
                 try: 
-                    desc = BeautifulSoup(fileinst.description).get_text()
+                    desc = BeautifulSoup(filepage.description).get_text()
                 except:
                     pass
             if desc is None:
@@ -1379,7 +1387,7 @@ class PushVideoToYouTubeView(LoginRequiredMixin,
                 response = self.initialize_upload(youtube, fh,
                     title = lobj.title,
                     description = desc, # strip HTML tags nicely
-                    mimetype = fileinst.get_mime_type(),
+                    mimetype = filepage.get_mime_type(),
                     tags = tags,
                     categoryId = 27, # =="Education"
                     privacyStatus = "unlisted", # alternatively "public", "private"
@@ -1388,8 +1396,8 @@ class PushVideoToYouTubeView(LoginRequiredMixin,
                 messages.error(request, str(e))
                 return HttpResponseRedirect(ret_uri)
         messages.success(request, "Video successfully uploaded: %s" % response['id'])
-        fileinst.youtube_id = response['id']
-        fileinst.save()
+        filepage.youtube_id = response['id']
+        filepage.save()
         return HttpResponseRedirect(ret_uri)
 
 
@@ -1397,7 +1405,7 @@ class StructureGetView(LoginRequiredMixin, JSONView):
 
     def obj_to_dict(self, obj):
         d = {'pk': obj.pk, 'name': obj.title}
-        if isinstance(obj, Question):
+        if ispageance(obj, Question):
             return d
         d['children'] = [self.obj_to_dict(ch) for ch in obj.ordered_children]
         return d
@@ -1587,7 +1595,6 @@ class ImportJSONObjectView(CSRFExemptMixin, JSONView):
 
     def error_response(self, error=""):
         return JsonResponse({'error': error}, status=500)
-
 
 
     def success_response(self, outcome):

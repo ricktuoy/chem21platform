@@ -289,6 +289,11 @@ class DrupalModel(models.Model):
     quiz_name = models.CharField(max_length=100, blank=True, null=True)
     template = models.ForeignKey(LearningTemplate, null=True, blank=True)
     archived = models.BooleanField(default=False)
+    _type_hierarchy = {'topic':1,'module':2,'lesson':3,'question':4} 
+
+    @abstractproperty
+    def touched_structure_querysets(self):
+        return None
 
     @property
     def quiz(self):
@@ -523,6 +528,10 @@ class DrupalModel(models.Model):
     def learning_object_type(self):
         return type(self).__name__.lower()
 
+    @property
+    def level(self):
+        return self._type_hierarchy[self.learning_object_type]
+        
     def __init__(self, *args, **kwargs):
         r = super(DrupalModel, self).__init__(*args, **kwargs)
         self.drupal.instantiate(self)
@@ -540,6 +549,8 @@ class OrderedManagerBase:
     @abstractproperty
     def order_field(self):
         return None
+
+
 
     @property
     def order_dirty_field(self):
@@ -623,6 +634,11 @@ class OrderedManagerBase:
             return self.model.objects.get(pk=elId)
         return arg
 
+
+    def save_structure_change(self):
+        for qs in self.touched_structure_querysets:
+            qs.update(changed=True)
+
     @transaction.atomic
     def move_to_top(self, source, parent=None):
         if parent:
@@ -639,7 +655,7 @@ class OrderedManagerBase:
         self.order_queryset().filter(
             **self.order_slice_dict(0, sval)).update(**self.order_incr_dict())
         self.set_order_value(source, 1)
-        source.save()
+        source.save_structure_change()
         self.flag_dirty()
         return (True, "Success")
 
@@ -680,6 +696,7 @@ class OrderedManagerBase:
 
         self.set_order_value(source, dval + 1)
         source.save()
+        source.save_structure_change()
         self.flag_dirty()
 
         return (True, "Success")
@@ -1100,47 +1117,14 @@ def create_child(sender, instance, raw, **kwargs):
         instance.children.add(new_child)
         instance.save()
 
-@receiver(models.signals.post_save, dispatch_uid="save_text_version")
-def save_text_version(sender, instance, raw, **kwargs):
+
+@receiver(models.signals.post_save, dispatch_uid="set_changed")
+def set_changed(sender, instance, **kwargs):
     if isinstance(instance, DrupalModel) \
             and not isinstance(instance, UniqueFile):
+        for qs in instance.touched_structure_querysets:
+            qs.update(changed=True)
 
-        if kwargs.get("update_fields", False):
-            if 'text' not in 'update_fields' \
-                    and 'intro' not in 'update_fields':
-                return
-        if kwargs.get("created", False):
-            return
-        if not raw and hasattr(instance, "user"):
-            TextVersion.objects.create_for_object(instance)
-
-@receiver(models.signals.m2m_changed)
-def generate_dirty_m2m_record(sender, instance, action,
-                              reverse, model, pk_set, **kwargs):
-
-    if not(issubclass(model, DrupalModel) and
-            isinstance(instance, DrupalModel)) or instance.fixture_mode:
-        return
-    if action != "post_add" and action != "post_remove":
-        return
-    if reverse:
-        # children = [instance, ]
-        parents = list(model.objects.filter(pk__in=pk_set))
-        parent_model = model
-    else:
-        # children = list(model.objects.filter(pk__in=pk_set))
-        parents = [instance, ]
-        parent_model = instance.__class__
-    parent_fields = parent_model.drupal.child_fields()
-
-    if parent_fields:
-        try:
-            for p in parents:
-                # raise Exception("Found a parent")
-                p.drupal.mark_fields_changed(parent_fields)
-                p.save(update_fields=["dirty", ])
-        except:
-            pass
 
 @receiver(models.signals.m2m_changed)
 def save_m2m_order(sender, instance, action,
@@ -1188,9 +1172,6 @@ class Event(BaseModel, EventUnicodeMixin):
 
 class Status(BaseModel, NameUnicodeMixin):
     name = models.CharField(max_length=200)
-
-
-
 
 class Molecule(models.Model):
     name = models.CharField(max_length=100, null=True, unique=True)
@@ -1543,6 +1524,21 @@ class Topic(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
     def get_parent(self):
         raise AttributeError
 
+    def get_ancestors(self):
+        return []
+
+    def iter_publishable(self):
+        yield self
+
+    @property
+    def touched_structure_querysets(self):
+        return [
+            Module.objects.filter(topic=self),
+            Lesson.objects.filter(modules__topic=self),
+            Question.objects.filter(lessons__modules__topic=self)
+        ]
+    
+
     @property
     def title(self):
         return self.name
@@ -1594,6 +1590,14 @@ class Module(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
     _child_orders = {}
     child_attr_name = "lessons"
 
+    def iter_publishable(self):
+        self.current_topic = self.topic
+        yield self
+
+    @property
+    def touched_structure_querysets(self):
+        return self.topic.touched_structure_querysets
+
     @classmethod
     def get_child_classname(kls):
         return "lesson"
@@ -1601,6 +1605,9 @@ class Module(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
     @classmethod
     def get_parent_fieldname(kls):
         return "topic"
+
+    def get_ancestors(self):
+        return [self.topic, ]
 
     @property
     def modules(self):
@@ -1836,6 +1843,19 @@ class Lesson(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
         question_orders='child_orders',
     )
 
+    def iter_publishable(self):
+        for module in self.modules.all():
+            self.current_module = module
+            self.current_topic = self.current_module.topic
+            yield self
+
+    @property
+    def touched_structure_querysets(self):
+        return [
+                Lesson.objects.filter(modules__lessons=self),
+                Question.objects.filter(lessons__modules__lessons=self)
+            ]
+
     @classmethod
     def get_child_classname(kls):
         return "question"
@@ -1949,6 +1969,7 @@ class Lesson(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
                         'module_slug': self.current_module.slug,
                         'slug': self.slug})
 
+
     def get_url_list(self):
         urls = []
         for module in self.modules.all():
@@ -1977,6 +1998,8 @@ class Question(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
     lessons = models.ManyToManyField(Lesson, related_name="questions")
     child_attr_name = "files"
 
+
+
     # define the interface with Drupal
     drupal = DrupalConnector(
         'question', C21RESTRequests(),
@@ -1985,6 +2008,21 @@ class Question(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
         h5p_resources='h5p_resource_dict',
         json_content='json_content'
     )
+
+    def iter_publishable(self):
+        for lesson in self.lessons.all():
+            for module in lesson.modules.all():
+                self.current_lesson = lesson
+                self.current_module = module
+                self.current_topic = self.current_module.topic
+                yield self
+
+    @property
+    def touched_structure_querysets(self):
+        return [
+            Question.objects.filter(lessons__questions=self)
+            ]
+    
 
     @property
     def first_question(self):

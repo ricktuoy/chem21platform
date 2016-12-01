@@ -106,8 +106,6 @@ class LearningView(DetailView):
         obj = context['object']
         self.object = obj
 
-
-
         try:
             obj.set_parent(self.parent)
         except AttributeError:
@@ -131,16 +129,19 @@ class LearningView(DetailView):
 
         context['current_topic'] = context[
             'object'].current_topic = context['class_tree']
+
         try:
             context['current_module'] = context[
                 'object'].current_module = self.module
         except AttributeError:
             pass
+
         try:
             context['current_lesson'] = context[
                 'object'].current_lesson = self.lesson
         except AttributeError:
             pass
+
         context['breadcrumbs'] = obj.get_ancestors()
         models =  [Module, Topic, Lesson, Question, UniqueFile, PresentationAction]
         cts = ContentType.objects.get_for_models(*models, for_concrete_models=False)
@@ -150,6 +151,7 @@ class LearningView(DetailView):
                                 for m, ct in
                                 cts.iteritems()])
         context['opts']['current'] = context['opts'][ContentType.objects.get_for_model(obj).model.replace(" ","")]
+        
         try:
             context['opts']['child'] = context['opts'][obj.get_child_classname()]
         except AttributeError:
@@ -157,6 +159,7 @@ class LearningView(DetailView):
 
         nxt = obj.get_next_object()
         prev = obj.get_previous_object()
+        
         if nxt:
             context['next'] = nxt
         if prev:
@@ -168,6 +171,7 @@ class LearningView(DetailView):
                 context['learning_reference_pk'] = obj.first_question.pk
         except AttributeError:
             pass
+        
         if 'learning_reference_type' not in context:
             context['learning_reference_type'] = self.name
             context['learning_reference_pk'] = obj.pk

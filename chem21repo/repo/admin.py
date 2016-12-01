@@ -251,9 +251,6 @@ class QuestionAdmin(admin.ModelAdmin):
         ]
 
 
-
-
-
 create_admin(
     model=Question,
     hidden_fields=['lessons', ],

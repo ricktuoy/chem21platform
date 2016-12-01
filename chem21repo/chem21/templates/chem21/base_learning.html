@@ -8,13 +8,13 @@
 {% load require %}
 {% load glossary %}
 {% load fileupload %}
-  {% block styles %}
+{% block styles %}
 
 {{ block.super }}
 <link type="text/css" rel="stylesheet" href="{% static "js/lib/colorbox/jquery.colorbox.css" %}" />
 <link type="text/css" rel="stylesheet" href="{% static "css/jquery.math.css" %}" />
 <link type="text/css" rel="stylesheet" href="{% static "css/jquery-ui.css" %}" />
-  {% endblock %}
+{% endblock %}
 
 {% block scripts %}
 {{ block.super }}
@@ -93,8 +93,6 @@
 	{% url 'media_upload' pk=learning_reference_pk type=learning_reference_type as media_url %}
 	{% fileupload_form "upload_json" caption="Upload quiz (.json) or video (.mp4)" upload_url=media_url %}
 	</form>
-	
-	    
 {% endif %}
 {% endblock %}
 {% block learning_object %}
@@ -116,59 +114,58 @@
 		{% endblock progress_title %}
 	{% endif %}
 
-{% if perms.repo.change_lesson %}
-{% if object.is_question %}
-		<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
-		data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
-		Edit text</a>
+	{% if perms.repo.change_lesson %}
+	{% if object.is_question %}
+			<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
+			data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
+			Edit text</a>
 
-{% else %}
-		<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
-		data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
-		Edit text</a>
-{% endif %}
+	{% else %}
+			<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
+			data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
+			Edit text</a>
+	{% endif %}
 
-		
-		<a id="gpicker_trigger" class="btn btn-success admin-edit" href="{% url 'admin:repo_question_loadgdoc' tpk=learning_reference_pk file_id='yermum' %}">Load from GDoc</a>
-{% endif %}
-		
-	<div id="content-body">
-	{% if tokens_replaced %}
-		{{ tokens_replaced|responsivise|glossarize|safe }}
+			
+			<a id="gpicker_trigger" class="btn btn-success admin-edit" href="{% url 'admin:repo_question_loadgdoc' tpk=learning_reference_pk file_id='yermum' %}">Load from GDoc</a>
 	{% endif %}
-	</div>
-	{% block post_text %}
-	{% if not object.get_text and object.video %}
-		{% get_video "" object.video %}
-	{% endif %}
-	{% if video %}
-		{{ video|safe }}
-	{% endif %}
-	{% if object.has_quiz %}
-		{% block interactive %}
-		{% render_quiz object.quiz %}
+			
+		<div id="content-body">
+		{% if tokens_replaced %}
+			{{ tokens_replaced|responsivise|glossarize|safe }}
+		{% endif %}
+		</div>
+		{% block post_text %}
+		{% if not object.get_text and object.video %}
+			{% get_video "" object.video %}
+		{% endif %}
+		{% if video %}
+			{{ video|safe }}
+		{% endif %}
+		{% if object.has_quiz %}
+			{% block interactive %}
+			{% render_quiz object.quiz %}
+			{% endblock %}
+		{% endif %}
+		{% if object.pdf %}
+		<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
+		<!-- TODO: display pdf -->
+		{% endif %}
 		{% endblock %}
-	{% endif %}
-	{% if object.pdf %}
-	<a href="{{ object.pdf.url }}" class="embed">{{ object.pdf.filename }}</a>
-	<!-- TODO: display pdf -->
-	{% endif %}
+		{% block bottom_nav %}
+			<nav id="end-nav">
+			{% if previous %}<a class="prev" href="{{ previous.get_absolute_url}}" title="{{ previous.title }}">&laquo; Previous</a>{% endif %}
+			{% if next %}  <a class="next" href="{{ next.get_absolute_url }}" title="{{ next.title}}">Next: {{ next.title }} &raquo;</a>{% endif %}
+			</nav>
+		{% endblock %}
+		{% block footnotes %}
+		{% if footnotes_html %}
+			<ol class="footnotes">
+			{{ footnotes_html|safe }}
+			</ol>
+		{% endif %}
+		{% endblock %}
 	{% endblock %}
-	{% block bottom_nav %}
-		<nav id="end-nav">
-		{% if previous %}<a class="prev" href="{{ previous.get_absolute_url}}" title="{{ previous.title }}">&laquo; Previous</a>{% endif %}
-		{% if next %}  <a class="next" href="{{ next.get_absolute_url }}" title="{{ next.title}}">Next: {{ next.title }} &raquo;</a>{% endif %}
-		</nav>
-	{% endblock %}
-	{% block footnotes %}
-	{% if footnotes_html %}
-		<ol class="footnotes">
-		{{ footnotes_html|safe }}
-		</ol>
-	{% endif %}
-	{% endblock %}
-
-{% endblock %}
 	</div>
 </div>
 {% endblock %}
