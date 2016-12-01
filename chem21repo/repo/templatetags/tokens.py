@@ -410,7 +410,9 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
         else:
             self.start_caption_tag = "<caption>"
             self.end_caption_tag = "</caption>"
-        classes = " ".join(class_set | frozenset(["inline"]) )
+        if "aside" in class_set:
+            class_set = class_set | frozenset(["inline"])
+        classes = " ".join(class_set)
         self.replace_caption_html(t)
         self.inc_count(t)
 
@@ -583,6 +585,8 @@ class ReplaceTokensNode(template.Node):
                 r'<div class="token"><!--token-->(.*?)<!--endtoken--></div>',
                 re.DOTALL)
 
+
+
         txt = decruft.sub(lambda match: match.group(1), txt)
         proc_order = ['hide','bibtex','ibib','bib','ilink','rsc','attrib','cta','green',
                       'figref','figure','figgroup','figcaption','tabcaption','GHS_statement']
@@ -593,6 +597,11 @@ class ReplaceTokensNode(template.Node):
                     txt = processors[key].apply_block_tool(txt)
                 except AttributeError, e:
                     pass
+        sidebyside = re.compile(
+            r'<figure class="stacked2.*?<figure class="stacked2.*?</figure>',
+            re.DOTALL)
+
+        txt = sidebyside.sub(lambda match: "<div class=\"sidebyside_figures\"%s<div class=\"clear\">&nbsp;</div></div>" % match.group(0), txt)
         context['footnotes_html'] = processors['bib'].get_footnotes_html()
         asides_html = processors['figgroup'].get_asides_html()
         asides_html = processors['figcaption'].apply(asides_html)

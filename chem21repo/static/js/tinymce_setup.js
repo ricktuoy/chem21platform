@@ -43,12 +43,15 @@ tinyMCE.init({
     keep_styles: false,
     language: 'en',
     object_resizing: false,
-    plugins: "table,spellchecker,paste,searchreplace,-bibliotag,-figuretag,-linktag",
+    plugins: "contextmenu,table,spellchecker,paste,searchreplace,-bibliotag,-figuretag,-linktag",
     // directionality : "rtl",
-    
+    contextmenu: "link inserttable | cell row column deletetable",
+    table_toolbar: "tableprops tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol",
+    table_appearance_options: true,
     // Callbacks
     file_browser_callback: 'CustomFileBrowser',
-    
+    table_styles: "Green-yellow-red ranking=ranking;",
+    table_cell_styles: "Bright green (v good)=vgood;Green (good)=good;Dark green (quite good)=quitegood;Yellow (OK)=ok;Red (bad)=bad",    
     // Cleanup/Output
     element_format: 'xhtml',
     fix_list_elements: true,
@@ -64,10 +67,8 @@ tinyMCE.init({
         {title: 'Code', block : 'p', classes: 'code'}
     ],
     verify_html: true,
-
     // URL
     remove_script_host: true,
-
     // Layout
     width: 758,
     height: 300,
@@ -82,9 +83,9 @@ tinyMCE.init({
 
 
     theme_advanced_toolbar_location: 'top',
-    theme_advanced_toolbar_align: 'left',
+    theme_advanced_toolbar_align: 'right',
     theme_advanced_statusbar_location: 'bottom',
-    theme_advanced_buttons1: "bold,italic,underline,linktag,link,unlink,bullist,undo,code,bibliotag,figuretag",
+    theme_advanced_buttons1: "bold,italic,underline,linktag,link,unlink,bullist,undo,code,bibliotag,figuretag,table,charmap",
     theme_advanced_buttons2: "",
     theme_advanced_buttons3: "",
     theme_advanced_path: false,
@@ -92,6 +93,7 @@ tinyMCE.init({
     theme_advanced_resizing: true,
     theme_advanced_resize_horizontal: false,
     theme_advanced_resizing_use_cookie: true,
+    menubar: "table",
     
     // Templates
     // see http://www.tinymce.com/wiki.php/Plugin:template

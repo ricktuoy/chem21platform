@@ -1,6 +1,5 @@
 define(["jquery"], function($) {	
 	$(".reaction-discovery").not("*:first").hide();
-
 	$(".reaction-discovery .description td").hide();
 	$(".reaction-discovery .outcome td").hide();
 	$(".reaction-discovery tbody .outcome").hide();
@@ -19,12 +18,13 @@ define(["jquery"], function($) {
 		});
 		react.nextAll(".reaction-discovery").hide();
 		if(!fail) {
-			
 			var next = react.nextAll(".reaction-discovery:first");
-
 			next.show();
 		} 
-	}
+	};
+
+
+	
 	$(".reaction-discovery thead").click(function() {
 		if($(this).hasClass("open")) {
 			return;

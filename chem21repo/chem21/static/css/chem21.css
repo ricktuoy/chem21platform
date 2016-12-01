@@ -1403,7 +1403,7 @@ img.ghs_symbol {
 
 
 
-figure.inline {
+figure.inline, div.sidebyside_figures {
 	border-top: 2px solid #aaa;
 	border-bottom: 1px solid #bbb;
 	box-shadow: 1px 1px 8px #ddd;
@@ -1482,7 +1482,7 @@ figure.inline table {
 	margin: 0 auto;
 }
 
-figure.inline figcaption {
+figure.inline figcaption, div.sidebyside_figures figcaption {
 	background-color: #dfdfdf;
 	border-top: #dbc;
 	color: #111;
@@ -1493,7 +1493,8 @@ figure.inline figcaption {
 	font-weight: bold;
 }
 
-figure.inline .figure_name {
+
+figure.inline .figure_name, div.sidebyside_figures .figure_name {
 	font-weight: normal;
 }
 
@@ -1535,6 +1536,10 @@ p.attrib .rights_statement {
 	width: 85%;
 	border-top: 1px dotted #efefef;
 	font-weight: normal;
+}
+
+div.sidebyside_figures {
+	width: 100%;
 }
 
 @media screen and (max-width: 799px) {
@@ -1789,6 +1794,18 @@ p.attrib .rights_statement {
 	}
 	#content aside.wide {
 		width: 66%;
+	}
+
+	#content figure.stacked2 {
+		width: 45%;
+		float: left;
+		margin: 0 2% 0 0;
+		padding: 2%;
+	}
+
+	#content figure.stacked2:last-of-type{
+		margin: 0;
+		float: right;
 	}
 }
 

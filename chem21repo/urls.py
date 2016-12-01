@@ -57,6 +57,9 @@ urlpatterns = [
     url(r'^detach_media/(?P<type>[^/]*)/(?P<tpk>[0-9]*)/(?P<fpk>[0-9]+)/?$',#
         DetachMediaView.as_view(),
         name="media_detach"),
+    url(r'^touched/(?P<type>[^/]*)/(?P<tpk>[0-9]*)/?$',
+        ShowTouchedView.as_view(),
+        name="touched"),
     url(r'^endnote/upload/$', EndnoteUploadView.as_view(),
         name="endnote_upload"),
     url(r'^endnote/search/(?P<term>.+)/$', BiblioSearchView.as_view(),
@@ -64,6 +67,8 @@ urlpatterns = [
     url(r'^files/add/(?P<target_type>.+)/(?P<target_id>[0-9]+)/$',
         AddFileView.as_view(),
         name="add_files"),
+    url(r'^_admin/publish/?$', PublishLearningObjectsView.as_view(),
+        name="publish_view"),
     url(r'^figures/get/(?P<type>.+)/(?P<pk>[0-9]+)/$',
         FiguresGetView.as_view(),
         name="get_figures"),
@@ -102,15 +107,18 @@ urlpatterns = [
     url(r'^s3/(?P<path>.*)$', S3ProxyView.as_view(), name="s3_proxy"),
     url(r'^[/]?$', FrontView.as_view(), name="front"),
     url(r'^(?P<slug>[^/]*)/$', TopicView.as_view(), name="topic"),
+    url(r'complete/google-service-oauth2', GoogleServiceOAuth2ReturnView.as_view(), name="google-service-oauth2-return"),
+    url(r'files/upload/youtube/(?P<type>[^/]+)/(?P<tpk>[0-9]+)/(?P<vpk>[0-9]+)/$', PushVideoToYouTubeView.as_view(), 
+        name="youtube_upload"),
+    url(r'^video/transcripts/list/$', YouTubeCaptionListView.as_view()),
+    url(r'^video/transcripts/get/(?P<pk>[0-9]+)/?$', YouTubeTranscriptView.as_view()),
     url(r'^(?P<topic_slug>[^/]*)/(?P<slug>[^/]*)/$',
         ModuleView.as_view(), name="module_detail"),
     url(r'^(?P<topic_slug>[^/]*)/(?P<module_slug>[^/]*)/(?P<slug>[^/]*)/$',
         LessonView.as_view(), name="lesson_detail"),
     url(r'^(?P<topic_slug>[^/]*)/(?P<module_slug>[^/]*)/(?P<lesson_slug>[^/]*)/(?P<slug>[^/]*)/$',
-        QuestionView.as_view(), name="question_detail"),
-    url(r'complete/google-service-oauth2', GoogleServiceOAuth2ReturnView.as_view(), name="google-service-oauth2-return"),
-    url(r'files/upload/youtube/(?P<type>[^/]+)/(?P<tpk>[0-9]+)/(?P<vpk>[0-9]+)/$', PushVideoToYouTubeView.as_view(), 
-        name="youtube_upload"),
+        QuestionView.as_view(), name="question_detail")
+
 ]
 
 if settings.DEBUG:

@@ -145,7 +145,7 @@ class FigureTokenForm(forms.Form):
     caption = forms.CharField(label = "Caption", max_length = 200, required=False)
     media = forms.MultipleChoiceField(label = "Files", choices = []) # choices are defined on init
     layout = forms.ChoiceField(label="Layout", 
-        choices = [("full_width", "Full width"), ("aside", "Inset (40% width")], initial="full_width")
+        choices = [("full_width", "Full width"), ("aside", "Inset (40% width"), ("stacked2", "Side-by-side (pair)")], initial="full_width")
 
     def __init__(self, question, *args, **kwargs):
         super(FigureTokenForm,self).__init__(*args, **kwargs)
@@ -183,11 +183,6 @@ class BaseToken(object):
         p_match = self.processor.get_match(question.text, para)
 
 
-
-
-
-
-
 class FigureToken(BaseToken):
 
     def __init__(self, para, question, processor=None):
@@ -202,7 +197,7 @@ class FigureToken(BaseToken):
 
     def update(self, *args, **kwargs):
         super(FigureToken, self).update(*args, **kwargs)
-        if 'layout' in kwargs and kwargs['layout'] == "full_width":
+        if 'layout' in kwargs and kwargs['layout'] != "aside":
             self.above = False
 
     def get_html(self, txt=""):
@@ -214,11 +209,12 @@ class FigureToken(BaseToken):
         group_attrs = [ftype,]
         if 'layout' in self.data and self.data['layout']:
             style = self.data['layout']
-            if style != "full_width":
-                styles = set()
-                styles.add("aside")
+            styles = set()
+            if style != "stacked2":
                 styles.add("inline")
+            if style != "full_width":
                 styles.add(style)
+            if len(styles):
                 group_attrs.append(" ".join(styles) )
         group_content = ["[figure:local:%s]" % pk for pk in self.data['media']]
         if 'caption' in self.data and self.data['caption']:
