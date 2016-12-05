@@ -52,7 +52,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
 import magic
-from ..google import GoogleOAuth2RedirectRequired, GoogleUploadError, GoogleServiceOAuth2ReturnView, YouTubeCaptionServiceMixin, YouTubeServiceMixin, DriveServiceMixin
+from ..google import GoogleOAuth2RedirectRequired, GoogleUploadError, GoogleMediaIOBaseUpload, GoogleServiceOAuth2ReturnView, YouTubeCaptionServiceMixin, YouTubeServiceMixin, DriveServiceMixin
 # Create your views here.
 from apiclient.errors import HttpError as GoogleHttpError
 
