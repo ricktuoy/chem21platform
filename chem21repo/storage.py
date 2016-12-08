@@ -59,8 +59,10 @@ except AttributeError:
 
 
 try:
+    loc = settings.PUBLIC_SITE_ROOT
+    url = settings.PUBLIC_SITE_URL
     SiteRootStorage = lambda:FileSystemStorage(
-        location = settings.PUBLIC_SITE_ROOT, base_url=settings.PUBLIC_SITE_URL)
+        location = loc, base_url=url)
 except AttributeError:
     SiteRootStorage = lambda:CachedS3BotoStorage(location=settings.get("PUBLIC_SITE_S3_PATH", '/'))
 
