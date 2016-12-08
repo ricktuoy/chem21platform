@@ -64,7 +64,7 @@ try:
     SiteRootStorage = lambda:FileSystemStorage(
         location = loc, base_url=url)
 except AttributeError:
-    SiteRootStorage = lambda:CachedS3BotoStorage(location=settings.get("PUBLIC_SITE_S3_PATH", '/'))
+    SiteRootStorage = lambda:CachedS3BotoStorage(location=getattr(settings, "PUBLIC_SITE_S3_PATH", '/'))
 
 
 #SiteRootS3BotoStorage = lambda: CachedS3BotoStorage(location='site/')
