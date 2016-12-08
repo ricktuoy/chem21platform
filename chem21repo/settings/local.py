@@ -5,7 +5,9 @@ TEMPLATE_DEBUG = True
 DEBUG_TOOLBAR = True
 
 STATIC_ROOT = BASE_DIR + '/../static/'
+PUBLIC_SITE_ROOT = BASE_DIR + '/../site/'
 STATIC_URL = "/static/"
+PUBLIC_SITE_URL = "http://127.0.0.1:8999"
 STATICFILES_STORAGE = 'require.storage.OptimizedStaticFilesStorage'
 SHARED_DRIVE_STORAGE = 'chem21repo.storage.SharedMediaStorage'
 SHARED_DRIVE_ROOT = "/home/rick/shared_drive"
@@ -34,11 +36,9 @@ DATABASES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.file"
 
 if DEBUG_TOOLBAR:
-    INSTALLED_APPS += ('debug_toolbar',
-                       )
+    INSTALLED_APPS += ('debug_toolbar',)
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
-    MIDDLEWARE_CLASSES = (
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',
     ) + MIDDLEWARE_CLASSES
     #DEBUG_TOOLBAR_CONFIG = {
     #    'SHOW_TOOLBAR_CALLBACK': 'chem21repo.middleware.show_toolbar',

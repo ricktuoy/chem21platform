@@ -44,6 +44,7 @@ from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.db import IntegrityError
+from django.core.files.storage import FileSystemStorage
 from querystring_parser import parser
 from chem21repo.api_clients import RESTError, RESTAuthError, C21RESTRequests
 from django.contrib.auth.decorators import login_required
@@ -1020,7 +1021,6 @@ class ShowTouchedView(LoginRequiredMixin, LearningObjectRelationMixin, View):
 class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
     template_name = "chem21/publish_learning_objects_confirm.html"
     def get_context_data(self, **kwargs):
-        logging.debug("context ici")
         context = super(PublishLearningObjectsView, self).get_context_data(**kwargs)
         context['learning_objects'] = [{'name':'topics','instances':Topic.objects.filter(changed=True)},
                    {'name':'modules','instances':Module.objects.filter(changed=True)},
@@ -1064,9 +1064,13 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
             if len(pks):
                 to_publish += list(model.objects.filter(pk__in=pks))
 
-        storage = DefaultStorage()
+        storage_class = get_storage_class(settings.PUBLIC_SITE_STORAGE)
+        storage = storage_class()
         paths = []
+        errors = []
+        successes = []
         for inst in to_publish:
+            inst_error = False
             for page in inst.iter_publishable():
                 context = {
                     'object': page,
@@ -1098,9 +1102,22 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
                 html = render_to_string("chem21/%s.html" % t[:-1], context)
                 file = ContentFile(html, name="index.html")
                 path = page.get_absolute_url()+"index.html"
-                storage.save(path, file)
-                paths.append(path)
-        return HttpResponse(repr(paths), content_type="text/plain")
+                if path[0] == "/":
+                    path = path[1:]
+                try:
+                    if issubclass(storage.__class__, FileSystemStorage) and storage.exists(path):
+                        storage.delete(path)                    
+                    storage.save(path, file)
+                    paths.append(path)
+                except Exception, e:
+                    inst_error = True
+            if inst_error:
+                errors.append((inst,e))
+            else:
+                successes.append(inst)
+        if len(errors):
+            logging.error(repr(errors))
+        return HttpResponse(repr(paths)+"\n"+repr(errors), content_type="text/plain")
 
 
 
@@ -1656,7 +1673,6 @@ class ImportQuizView(ImportJSONObjectView):
 
 class ImportGuideToolView(ImportJSONObjectView):
     parser = GuideToolParser
-
 
 
 class AddFileView(BatchProcessView):

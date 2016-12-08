@@ -1852,6 +1852,7 @@ class Lesson(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
     @property
     def touched_structure_querysets(self):
         return [
+                Module.objects.filter(lessons=self),
                 Lesson.objects.filter(modules__lessons=self),
                 Question.objects.filter(lessons__modules__lessons=self)
             ]
@@ -2019,7 +2020,11 @@ class Question(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
 
     @property
     def touched_structure_querysets(self):
+        lessons = Lesson.objects.filter(questions=self)
+        modules = Module.objects.filter(lessons__is_question=True,lessons__questions=self)
         return [
+            modules,
+            lessons,
             Question.objects.filter(lessons__questions=self)
             ]
     

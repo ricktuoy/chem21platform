@@ -11,6 +11,10 @@ from require_s3.storage import OptimizedCachedStaticFilesStorage
 
 
 class TinyMCEProxyCachedS3BotoStorage(OptimizedCachedStaticFilesStorage):
+    def __init__(self, *args, **kwargs):
+        kwargs['location'] = 'static/'
+        return super(TinyMCEProxyCachedS3BotoStorage, self).__init__(*args, **kwargs)
+
     def url(self, *args, **kwargs):
         url = super(TinyMCEProxyCachedS3BotoStorage, self).url(*args, **kwargs)
         if "tiny_mce" in url or "tinymce" in url:
@@ -53,12 +57,20 @@ try:
 except AttributeError:
     pass
 
-SiteRootS3BotoStorage = lambda: CachedS3BotoStorage(location='site/')
+
+try:
+    SiteRootStorage = lambda:FileSystemStorage(
+        location = settings.PUBLIC_SITE_ROOT, base_url=settings.PUBLIC_SITE_URL)
+except AttributeError:
+    SiteRootStorage = lambda:CachedS3BotoStorage(location=settings.get("PUBLIC_SITE_S3_PATH", '/'))
+
+
+#SiteRootS3BotoStorage = lambda: CachedS3BotoStorage(location='site/')
 
 
 class S3StaticFileSystem(object):
 
-    def __init__(self, storage=SiteRootS3BotoStorage()):
+    def __init__(self, storage=SiteRootStorage()):
         self.storage = storage
 
     def exists(self, path):

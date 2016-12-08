@@ -89,7 +89,7 @@ AWS_AUTO_CREATE_BUCKET = True
 AWS_HEADERS = {
     "Cache-Control": "public, max-age=86400",
 }
-AWS_S3_FILE_OVERWRITE = False
+AWS_S3_FILE_OVERWRITE = True
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_SECURE_URLS = True
 AWS_REDUCED_REDUNDANCY = False
@@ -119,11 +119,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY", get_random_string(
 
 # Use Amazon S3 for storage for uploaded media files.
 DEFAULT_FILE_STORAGE = "chem21repo.storage.MediaRootS3BotoStorage"
+PUBLIC_SITE_STORAGE = 'chem21repo.storage.SiteRootStorage'
 
 CHEM21_PLATFORM_BASE_URL = 'http://test-chem21-elearning.pantheonsite.io'
 CHEM21_PLATFORM_REST_API_URL = '/rest'
 CHEM21_PLATFORM_API_USER = 'admin'
-CHEM21_PLATFORM_API_PWD = '9chard87'
+CHEM21_PLATFORM_API_PWD = '#'
 
 CITEPROC_DEFAULT_STYLE = "royal-society-of-chemistry"
 
