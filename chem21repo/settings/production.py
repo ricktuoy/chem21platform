@@ -11,6 +11,10 @@ TINYMCE_JS_URL = "/s3/tiny_mce/tiny_mce.js"
 STATICFILES_STORAGE = "chem21repo.storage.TinyMCEProxyCachedS3BotoStorage"
 
 
+AWS_S3_CALLING_FORMAT = VHostCallingFormat()
+AWS_S3_CUSTOM_DOMAIN = "learning.chem21.eu"
+
+
 # Cache settings.
 CACHES = {
     'default': {
