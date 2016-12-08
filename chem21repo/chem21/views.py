@@ -10,7 +10,7 @@ from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from django.contrib.contenttypes.models import ContentType
-from django.core.files.storage import FileSystemStorage
+
 from django.http import JsonResponse
 from abc import abstractmethod
 from abc import abstractproperty

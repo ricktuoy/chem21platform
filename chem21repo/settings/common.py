@@ -88,11 +88,12 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "")
 # Amazon S3 settings.
 
 AWS_AUTO_CREATE_BUCKET = False
-AWS_S3_CALLING_FORMAT = VHostCallingFormat()
 AWS_HEADERS = {
     "Cache-Control": "public, max-age=86400",
 }
 AWS_S3_FILE_OVERWRITE = True
+AWS_S3_CALLING_FORMAT = VHostCallingFormat()
+AWS_S3_CUSTOM_DOMAIN = "learning.chem21.eu"
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_SECURE_URLS = True
 AWS_REDUCED_REDUNDANCY = False
