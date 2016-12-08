@@ -1,5 +1,5 @@
 import os
-from boto.s3.connection import SubdomainCallingFormat
+from boto.s3.connection import OrdinaryCallingFormat
 
 from django.utils.crypto import get_random_string
 
@@ -87,8 +87,8 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "")
 
 # Amazon S3 settings.
 
-AWS_AUTO_CREATE_BUCKET = True
-AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat
+AWS_AUTO_CREATE_BUCKET = False
+AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
 AWS_HEADERS = {
     "Cache-Control": "public, max-age=86400",
 }
