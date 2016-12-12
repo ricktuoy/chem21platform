@@ -1,0 +1,108 @@
+{% extends 'chem21/base_inner.html' %}
+{% load tokens %}
+{% load quiz %}
+{% load responsive %}
+{% load video %}
+{% load admin_urls %}
+{% load static from staticfiles %}
+{% load require %}
+{% load glossary %}
+{% load fileupload %}
+{% block styles %}
+
+{{ block.super }}
+<link type="text/css" rel="stylesheet" href="{% static "js/lib/colorbox/jquery.colorbox.css" %}" />
+<link type="text/css" rel="stylesheet" href="{% static "css/jquery.math.css" %}" />
+<link type="text/css" rel="stylesheet" href="{% static "css/jquery-ui.css" %}" />
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% block require %}
+{% if perms.repo.change_lesson and not staticgenerator %}
+{% require_module '../front-admin' %}
+{% else %}
+{% require_module '../common2' %}
+{% endif %}
+{% endblock %}
+{% endblock %}
+{% block head %}
+{% if not object.text and not perms.repo.change_question and not object.video and object.get_first_child and not object.is_question %}
+	<meta http-equiv="refresh" content="0;URL={{ object.get_first_child.get_absolute_url }}" /> 
+{% endif %}
+{% endblock %}
+{% block title %}{{ object.title }} :: CHEM21 learning platform{% endblock %}
+{% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
+{% block site_tools %}
+{% if request.user.is_authenticated %}
+  <div id="admin_site_links">
+  <a href="#" id="import_references_trigger">Import references</a>
+  {% url 'admin:repo_biblio_importreferences' as references_url %}
+  {% fileupload_form "import_references" caption="Upload BibTeX (.bib) file" upload_url=references_url %}
+  </div>
+{% endif %}
+{% endblock %}
+{% block content %}
+{% block sidebar_1 %}
+<div id="first-sidebar" class="collapsed col col-2-out-of-2 col-1-out-of-4 col-1-out-of-6">
+</div>
+{% endblock %}
+{% block sidebar_2 %}
+<div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
+	<div id="breadcrumb">
+		<div class="breadcrumb"><a href="/">Home</a> > {% for crumb in breadcrumbs %}<a href="{{ crumb.get_absolute_url }}">{{ crumb.title }}</a> > {% endfor %}{{ object.title }}</div>    
+	</div>
+	<div id="class_nav">
+		<h3>{{ class_tree.title }}</h3>
+		{% block class_nav %}
+		{% endblock %}
+	</div>
+	<div id="opigno-group-progress"></div>
+	<div id="content" class="has-group-progress">
+	{% block progress %}
+<div id="quiz_progress">
+    	<span class="section">{% block display_title %}{{ object.title }}{% endblock %}</span>
+    
+	<nav class="question_nav">{% if previous %}<a href="{{ previous.get_absolute_url }}">&laquo; Previous</a>{% endif %}
+{% if next %}<a class="next" href="{{ next.get_absolute_url }}">Next &raquo;</a>{% endif %}
+	</nav>
+</div>
+
+{% endblock %}
+
+{% block admin_tools %}
+
+{% if perms.repo.change_lesson %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<form method="post">
+{% csrf_token %}
+{% for type in learning_objects %}
+<h2>{{ type.name|capfirst }}</h2>
+<ul>
+{% for obj in type.instances %}
+<li>
+<label for="{{ type.name }}_{{ obj.slug}}">
+<input type="checkbox" name="{{ type.name }}[]" value="{{ obj.pk }}" id="{{ type.name }}_{{ obj.slug }}" />
+{{ obj.get_title }}
+</label>
+</li>
+{% endfor %}
+</ul>
+{% endfor %}
+<input type="submit" caption="Submit" />
+</form>
+{% endif %}
+{% endblock %}
+
+{{ block.super }}
+
+{% endblock %}
+
+{% endblock %}
