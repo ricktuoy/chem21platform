@@ -1,5 +1,5 @@
 import os
-from boto.s3.connection import VHostCallingFormat
+from boto.s3.connection import VHostCallingFormat, OrdinaryCallingFormat
 
 from django.utils.crypto import get_random_string
 
@@ -76,14 +76,14 @@ LANGUAGE_CODE = 'en-gb'
 TIME_ZONE = 'GMT'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
+USE_TZ = False
 
 # AWS setup
 
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "")
-
+AWS_S3_REGION = os.environ.get("AWS_STORAGE_REGION", None)
 
 # Amazon S3 settings.
 
@@ -92,8 +92,9 @@ AWS_HEADERS = {
     "Cache-Control": "public, max-age=86400",
 }
 AWS_S3_FILE_OVERWRITE = True
-AWS_S3_CALLING_FORMAT = VHostCallingFormat()
-AWS_S3_CUSTOM_DOMAIN = "learning.chem21.eu"
+AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
+#AWS_S3_CUSTOM_DOMAIN = "learning.chem21.eu"
+
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_SECURE_URLS = True
 AWS_REDUCED_REDUNDANCY = False
