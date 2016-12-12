@@ -11,10 +11,6 @@ STATIC_URL = S3_URL +"/static/"
 TINYMCE_JS_URL = "/s3/tiny_mce/tiny_mce.js"
 STATICFILES_STORAGE = "chem21repo.storage.TinyMCEProxyCachedS3BotoStorage"
 
-
-
-
-
 # Cache settings.
 CACHES = {
     'default': {
