@@ -1058,11 +1058,14 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
             model = ContentType.objects.get(
                 app_label="repo",
                 model=t[:-1]).model_class()
-            
-            pks = [int(pk) for pk in request.POST.getlist(t+"[]")]
-            logging.debug(pks)
-            if len(pks):
-                to_publish += list(model.objects.filter(pk__in=pks))
+            if "publish_all" in request.POST:
+                to_publish += list(model.objects.all().exclude(archived=True))
+            else:
+                pks = [int(pk) for pk in request.POST.getlist(t+"[]")]
+                logging.debug(pks)
+                if len(pks):
+                    to_publish += list(model.objects.filter(pk__in=pks))
+        
 
         storage_class = get_storage_class(settings.PUBLIC_SITE_STORAGE)
         storage = storage_class()

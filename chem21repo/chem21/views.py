@@ -87,8 +87,6 @@ class VideoTimelineView(JSONView):
 # the vars passed to video token
 
 
-
-
 class LearningView(DetailView):
     def get_template_names(self):
         if self.object.template:
@@ -177,10 +175,6 @@ class LearningView(DetailView):
             context['learning_reference_type'] = self.name
             context['learning_reference_pk'] = obj.pk
         return context
-
-
-
-
 
 
 class MediaUpload(object):
