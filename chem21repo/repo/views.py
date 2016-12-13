@@ -1119,6 +1119,7 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
 
                 html = render_to_string("chem21/%s.html" % t[:-1], context)
                 file = ContentFile(html, name="index.html")
+                file.content_type = "text/html; charset=utf-8"
                 path = page.get_absolute_url()+"index.html"
                 if path[0] == "/":
                     path = path[1:]

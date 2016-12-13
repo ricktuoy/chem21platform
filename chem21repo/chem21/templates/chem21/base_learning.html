@@ -34,7 +34,7 @@
 {% block title %}{{ object.title }} :: CHEM21 learning platform{% endblock %}
 {% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
 {% block site_tools %}
-{% if request.user.is_authenticated %}
+{% if request.user.is_authenticated and not staticgenerator %}
   <div id="admin_site_links">
   <a href="#" id="import_references_trigger">Import references</a>
   {% url 'admin:repo_biblio_importreferences' as references_url %}
