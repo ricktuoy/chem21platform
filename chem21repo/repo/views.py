@@ -1119,7 +1119,7 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
                 model = type(inst)
                 model_name = model._meta.object_name
 
-                html = render_to_string("chem21/%s.html" % model_name, context)
+                html = render_to_string("chem21/%s.html" % model_name.lower(), context)
                 file = ContentFile(html, name="index.html")
                 file.content_type = "text/html;charset=utf-8"
                 path = page.get_absolute_url()+"index.html"
