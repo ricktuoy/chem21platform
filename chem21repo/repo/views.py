@@ -59,7 +59,7 @@ from ..google import GoogleOAuth2RedirectRequired, GoogleUploadError, GoogleServ
 from apiclient.errors import HttpError as GoogleHttpError
 
 class S3ProxyView(ProxyView):
-    upstream = settings.S3_URL
+    upstream = settings.S3_URL + "/static"
 
 class LearningObjectRelationMixin(object):
     def get_learning_object(self, *args, **kwargs):
@@ -1018,6 +1018,19 @@ class ShowTouchedView(LoginRequiredMixin, LearningObjectRelationMixin, View):
                 [ [ (i.pk, i.slug) for i in qs  ] for qs in page.touched_structure_querysets ] 
             } )
 
+
+
+class ChangedLearningObjectIDs(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        for t in ["questions", "lessons", "modules", "topics"]:
+            model = ContentType.objects.get(
+                app_label="repo",
+                model=t[:-1]).model_class()
+            pks = list(model.objects.all().exclude(archived=True))
+            out[t] = pks
+        return JsonResponse(out)
+
+
 class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
     template_name = "chem21/publish_learning_objects_confirm.html"
     def get_context_data(self, **kwargs):
@@ -1045,7 +1058,8 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
                          'order'),
                      to_attr="ordered_questions"))])
         return self._structure
-    
+
+
     def post(self, request, *args, **kwargs):
         def module_reduce_fn(a, b):
             pdf_root = b.closest_pdf_root()
@@ -1062,16 +1076,15 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
                 to_publish += list(model.objects.all().exclude(archived=True))
             else:
                 pks = [int(pk) for pk in request.POST.getlist(t+"[]")]
-                logging.debug(pks)
                 if len(pks):
                     to_publish += list(model.objects.filter(pk__in=pks))
-        
 
         storage_class = get_storage_class(settings.PUBLIC_SITE_STORAGE)
         storage = storage_class()
         paths = []
         errors = []
         successes = []
+
         for inst in to_publish:
             inst_error = False
             for page in inst.iter_publishable():
@@ -1120,11 +1133,10 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
                 successes.append(inst)
         if len(errors):
             logging.error(repr(errors))
-        return HttpResponse(repr(paths)+"\n"+repr(errors), content_type="text/plain")
-
-
-
-        #pdfs = reduce( to_publish, module_reduce_fn, [] )
+            code=400
+        else:
+            code=200
+        return JsonResponse({'published_paths':paths,'errors':errors}, status=code)
 
 
 

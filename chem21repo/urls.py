@@ -69,6 +69,8 @@ urlpatterns = [
         name="add_files"),
     url(r'^_admin/publish/?$', PublishLearningObjectsView.as_view(),
         name="publish_view"),
+    url(r'^_admin/publish/changed/?$', ChangedLearningObjectIDs.as_view(), 
+        name="changed_ids"),
     url(r'^figures/get/(?P<type>.+)/(?P<pk>[0-9]+)/$',
         FiguresGetView.as_view(),
         name="get_figures"),

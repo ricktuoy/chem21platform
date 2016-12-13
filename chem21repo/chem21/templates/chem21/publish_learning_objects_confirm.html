@@ -79,34 +79,36 @@
     {% endfor %}
 </ul>
 {% endif %}
-<aside>
-<form  method="post">
-<h1>Alternatively ...</h1>
-{% csrf_token %}
-<input type="hidden" name="publish_all" />
-<input type="submit" value="Re-publish entire site" />
-<p>Warning: this really does mean every page, only do this if you are sure.</p>
-</form>
-</aside>
-<form method="post">
-<h1>Publish changed pages</h1>
-{% csrf_token %}
-{% for type in learning_objects %}
-<h2>{{ type.name|capfirst }}</h2>
-<ul>
-{% for obj in type.instances %}
-<li>
-<label for="{{ type.name }}_{{ obj.slug}}">
-<input type="checkbox" name="{{ type.name }}[]" value="{{ obj.pk }}" id="{{ type.name }}_{{ obj.slug }}" checked />
-{{ obj.get_title }}
-</label>
-</li>
-{% endfor %}
-</ul>
-{% endfor %}
-<input type="submit" value="Publish selected pages" />
-</form>
-
+<div id="publish_forms">
+	<aside>
+	<form method="post" id="publish_all_form">
+		<h1>Alternatively ...</h1>
+		{% csrf_token %}
+		<input type="hidden" name="publish_all" />
+		<input type="submit" value="Re-publish entire site" />
+		<p>Warning: this really does mean every page, only do this if you are sure.</p>
+	</form>
+	</aside>
+	<div id="">
+	<form method="post" id="publish_changed" data-changed-ids-url="{% url 'changed_ids' %}">
+		<h1>Publish changed pages</h1>
+		{% csrf_token %}
+		{% for type in learning_objects %}
+		<h2>{{ type.name|capfirst }}</h2>
+		<ul>
+		{% for obj in type.instances %}
+		<li>
+		<label for="{{ type.name }}_{{ obj.slug}}">
+		<input type="checkbox" name="{{ type.name }}[]" value="{{ obj.pk }}" id="{{ type.name }}_{{ obj.slug }}" checked />
+		{{ obj.get_title }}
+		</label>
+		</li>
+		{% endfor %}
+		</ul>
+		{% endfor %}
+		<input type="submit" value="Publish selected pages" />
+	</form>
+</div>
 {% endif %}
 {% endblock %}
 
