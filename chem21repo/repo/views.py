@@ -1022,12 +1022,13 @@ class ShowTouchedView(LoginRequiredMixin, LearningObjectRelationMixin, View):
 
 class ChangedLearningObjectIDs(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
+        out = []
         for t in ["questions", "lessons", "modules", "topics"]:
             model = ContentType.objects.get(
                 app_label="repo",
                 model=t[:-1]).model_class()
-            pks = list(model.objects.all().exclude(archived=True))
-            out[t] = pks
+            pks = [{'name': t, 'value':o.pk} for o in model.objects.all().exclude(archived=True)]
+            out += pks
         return JsonResponse(out)
 
 
@@ -1083,7 +1084,7 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
         storage = storage_class()
         paths = []
         errors = []
-        successes = []
+        success_pks = {}
 
         for inst in to_publish:
             inst_error = False
@@ -1094,7 +1095,8 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
                     'current_topic': page.current_topic,
                     'breadcrumbs': page.get_ancestors(),
                     'request': request,
-                    'user': request.user
+                    'user': request.user,
+                    'staticgenerator': True
                 }
 
                 try:
@@ -1130,7 +1132,14 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
             if inst_error:
                 errors.append((inst,e))
             else:
-                successes.append(inst)
+                model = type(inst)
+                if model not in success_pks:
+                    success_pks[model] = []
+                success_pks[model].append(inst.pk)
+
+        for modelnm, pks in success_pks.iteritems():
+            model.objects.filter(pk__in=pks).update(changed=False)
+
         if len(errors):
             logging.error(repr(errors))
             code=400
