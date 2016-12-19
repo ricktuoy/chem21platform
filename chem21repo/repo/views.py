@@ -942,15 +942,10 @@ class FiguresGetView(LoginRequiredMixin, JSONView):
         return super(FiguresGetView, self).render_to_response(
             *args, **kwargs)
 
-
-
 class MoleculeListView(LoginRequiredMixin, JSONView):
     safe = False
     def get_context_data(self, **kwargs):
         return [{'pk':m.pk, 'name':unicode(m), 'mol':m.mol_def} for m in Molecule.objects.all()]
-
-
-
 
 class MoleculeAttachView(LoginRequiredMixin, LearningObjectRelationMixin, View):
     @staticmethod
@@ -1020,7 +1015,7 @@ class ShowTouchedView(LoginRequiredMixin, LearningObjectRelationMixin, View):
 
 
 
-class ChangedLearningObjectIDs(LoginRequiredMixin, View):
+class PublishableLearningObjectIDs(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         out = []
         for t in ["questions", "lessons", "modules", "topics"]:
@@ -1029,10 +1024,15 @@ class ChangedLearningObjectIDs(LoginRequiredMixin, View):
                 model=t[:-1]).model_class()
             pks = [{'name': t, 'value':o.pk} for o in model.objects.all().exclude(archived=True)]
             out += pks
-        return JsonResponse(out)
+        return JsonResponse({"objects":out})
 
+class PublicStorageMixin(object):
+    def __init__(self, *args, **kwargs):
+        storage_class = get_storage_class(settings.PUBLIC_SITE_STORAGE)
+        self.storage = storage_class()
+        super(PublicStorageMixin, self).__init__(*args, **kwargs)
 
-class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
+class PublishLearningObjectsView(LoginRequiredMixin, PublicStorageMixin, TemplateView):
     template_name = "chem21/publish_learning_objects_confirm.html"
     def get_context_data(self, **kwargs):
         context = super(PublishLearningObjectsView, self).get_context_data(**kwargs)
@@ -1060,15 +1060,108 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
                      to_attr="ordered_questions"))])
         return self._structure
 
+    def publish_html_page(self, page):
+        # publishes a resolved learning object to HTML and returns the storage path
+        # generate template context for learning object page
+        context = {
+            'object': page,
+            'class_tree': self.structure[page.current_topic.pk],
+            'current_topic': page.current_topic,
+            'breadcrumbs': page.get_ancestors(),
+            'request': self.request,
+            'user': self.request.user,
+            'staticgenerator': True
+        }
+
+        try:
+            context['current_module'] = page.current_module
+        except AttributeError:
+            pass
+
+        try:
+            context['current_lesson'] = page.current_lesson
+        except AttributeError:
+            pass
+
+        # add optional back / next buttons to context
+        nxt = page.get_next_object()
+        prev = page.get_previous_object()
+
+        if nxt:
+            context['next'] = nxt
+        if prev:
+            context['previous'] = prev
+        
+        # set up upload file (file.content_type for S3)
+        model_name = type(page)._meta.object_name
+        html = render_to_string("chem21/%s.html" % model_name.lower(), context)
+        file = ContentFile(html, name="index.html")
+        file.content_type = "text/html;charset=utf-8"
+
+        # set up upload path
+        path = page.get_absolute_url()+"index.html"
+        if path[0] == "/":
+            path = path[1:]
+        try:
+        # upload (replacing if exists)
+            if issubclass(self.storage.__class__, FileSystemStorage) and self.storage.exists(path):
+                self.storage.delete(path)                    
+            self.storage.save(path, file)
+        except Exception, e:
+            e.html_path = path
+            raise e
+        # return storage path
+        return path
+
+    def publish_html(self, learning_objects):
+        # publishes a list of learning objects and returns the storage path
+
+        success_pks = {}
+        paths = []
+        for inst in learning_objects:
+            inst_error = False
+            num_pages = 0
+
+            # each object can be used in many locations
+            # so iterate over each path it appears at and publish
+            # iter_publishable sets up the object with parent objects (qualifies it)
+            for page in inst.iter_publishable():
+                num_pages += 1
+                try:
+                    # publish this page and book-keep storage path for return
+                    paths.append(self.publish_html_page(page))
+                except Exception, e:
+                    try:
+                        self.errors.append((inst.title, e.html_path, e))
+                    except AttributeError:
+                        self.errors.append((inst.title, e))
+                    inst_error = True
+            model = type(inst)
+            if not inst_error and num_pages:
+                # book-keep the pks for bulk flag change
+                if model not in success_pks:
+                    success_pks[model] = []
+                success_pks[model].append(inst.pk)
+                # debug/notification tally to return
+                self.num_succeeded += 1
+            if num_pages == 0:
+                # book-keep these pks for bulk archiving 
+                if model not in self.no_pages:
+                    self.no_pages[model] = []
+                self.no_pages[model].append(inst.pk)
+
+        # bulk flag all published pages as unchanged (persist)
+        for model, pks in success_pks.iteritems():
+            model.objects.filter(pk__in=pks).update(changed=False)
+
+        # bulk archive all orphan pages (persist)
+        for model, pks in self.no_pages.iteritems():
+            model.objects.filter(pk__in=pks).update(archived=True)
+        return paths
 
     def post(self, request, *args, **kwargs):
-        def module_reduce_fn(a, b):
-            pdf_root = b.closest_pdf_root()
-            if pdf_root:
-                a.add(pdf_root)
-            return a
+        # generate a list of objects to publish pages for
         to_publish = []
-       
         for t in ["questions", "lessons", "modules", "topics"]:
             model = ContentType.objects.get(
                 app_label="repo",
@@ -1080,75 +1173,27 @@ class PublishLearningObjectsView(LoginRequiredMixin, TemplateView):
                 if len(pks):
                     to_publish += list(model.objects.filter(pk__in=pks))
 
-        storage_class = get_storage_class(settings.PUBLIC_SITE_STORAGE)
-        storage = storage_class()
-        paths = []
-        errors = []
-        success_pks = {}
+        # deduce list of pdf root pages
+        def pdf_reduce_fn(a, b):
+            pdf_root = b.closest_pdf_root()
+            if pdf_root:
+                a.add(pdf_root)
+            return a
+        
+        # publish the html objects.          
+        self.errors = [] # return this
+        self.no_pages = {} # return debug book-keeping for instances with no pages (should be orphans)
+        self.num_succeeded = 0 # return debug/notification tally
 
-        for inst in to_publish:
-            inst_error = False
-            for page in inst.iter_publishable():
-                context = {
-                    'object': page,
-                    'class_tree': self.structure[page.current_topic.pk],
-                    'current_topic': page.current_topic,
-                    'breadcrumbs': page.get_ancestors(),
-                    'request': request,
-                    'user': request.user,
-                    'staticgenerator': True
-                }
+        html_paths = self.publish_html(to_publish)
+        #pdf_paths = self.publish_pdf(reduce(pdf_reduce_fn, to_publish))
 
-                try:
-                    context['current_module'] = page.current_module
-                except AttributeError:
-                    pass
-
-                try:
-                    context['current_lesson'] = page.current_lesson
-                except AttributeError:
-                    pass
-
-                nxt = page.get_next_object()
-                prev = page.get_previous_object()
-
-                if nxt:
-                    context['next'] = nxt
-                if prev:
-                    context['previous'] = prev
-                model = type(inst)
-                model_name = model._meta.object_name
-
-                html = render_to_string("chem21/%s.html" % model_name.lower(), context)
-                file = ContentFile(html, name="index.html")
-                file.content_type = "text/html;charset=utf-8"
-                path = page.get_absolute_url()+"index.html"
-                if path[0] == "/":
-                    path = path[1:]
-                try:
-                    if issubclass(storage.__class__, FileSystemStorage) and storage.exists(path):
-                        storage.delete(path)                    
-                    storage.save(path, file)
-                    paths.append(path)
-                except Exception, e:
-                    inst_error = True
-            if inst_error:
-                errors.append((inst,e))
-            else:
-                model = type(inst)
-                if model not in success_pks:
-                    success_pks[model] = []
-                success_pks[model].append(inst.pk)
-
-        for modelnm, pks in success_pks.iteritems():
-            model.objects.filter(pk__in=pks).update(changed=False)
-
-        if len(errors):
-            logging.error(repr(errors))
+        if len(self.errors):
+            logging.error(repr(self.errors))
             code=400
         else:
             code=200
-        return JsonResponse({'published_paths':paths,'errors':errors}, status=code)
+        return JsonResponse({'num_succeeded':self.num_succeeded, 'published_paths':html_paths,'errors':self.errors}, status=code)
 
 
 

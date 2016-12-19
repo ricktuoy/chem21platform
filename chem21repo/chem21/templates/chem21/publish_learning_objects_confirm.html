@@ -82,7 +82,7 @@
 <div id="publish_forms">
  <div id="publish_progress"></div>
 	<aside>
-	<form method="post" id="publish_all_form">
+	<form method="post" id="publish_all" data-publishable-ids-url="{% url 'publishable_ids' %}">
 		<h1>Alternatively ...</h1>
 		{% csrf_token %}
 		<input type="hidden" name="publish_all" />
@@ -90,8 +90,7 @@
 		<p>Warning: this really does mean every page, only do this if you are sure.</p>
 	</form>
 	</aside>
-	<div id="">
-	<form method="post" id="publish_changed" data-changed-ids-url="{% url 'changed_ids' %}">
+	<form method="post" id="publish_changed">
 		<h1>Publish changed pages</h1>
 		{% csrf_token %}
 		{% for type in learning_objects %}

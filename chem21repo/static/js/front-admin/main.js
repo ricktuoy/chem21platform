@@ -1,4 +1,4 @@
-define(["google_picker","jquery","jquery.fileupload","nav_reorder","common"], function(GPicker, $) {
+define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","nav_reorder","common"], function(GPicker, $) {
     String.prototype.format = function () {
       var args = arguments;
       return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
@@ -61,7 +61,6 @@ define(["google_picker","jquery","jquery.fileupload","nav_reorder","common"], fu
             var that=this;
             var html = $("<ul></ul>").addClass("messages");
             $.each(data.result, function (index, file) {
-                //console.debug(file);
                 var mod = file.modified.length;
                 var cre = file.created.length;
                 var message = 'Processed file {0}: created {1} references and modified {2}.'.format(
@@ -98,7 +97,60 @@ define(["google_picker","jquery","jquery.fileupload","nav_reorder","common"], fu
             });
         });
 
-        
+        var publish_pages = function(data, progress) {
+            var initial_length = data.length;
+            console.debug("initial_length: "+initial_length);
+            var published_paths = [];
+            var num_succeeded = 0
+            // initialise progress bar
+            progress.progressbar({"value": 0, "max": initial_length});
+            while(data.length) {
+                var chunk = data.splice(0,10);
+                var out = {};
+                $.each(chunk, 
+                    function(i, el) {
+                        var k = el['name'];
+                        var v = el['value'];
+                        console.debug(k);
+                        if(k == "csrfmiddlewaretoken") {
+                            return;
+                        }
+                        if(!(k in out)) {
+                            out[k] = [v];
+                        } else {
+                            out[k].push(v);
+                        }
+                    }
+                );
+                $.post(window.location.pathname, out, 
+                    function( ret ) {
+                        num_succeeded += ret.num_succeeded
+                        num_failed + = ret.num_failed
+                        console.debug(num_succeeded+" / "+initial_length)
+                        progress.progressbar("value", num_succeeded);
+
+                        if(num_succeeded >= )
+                    }
+                );
+            }
+        }
+
+        $("form#publish_changed").on("submit", function(e) {
+            e.preventDefault();
+            var data = $(this).serializeArray();
+            var progress = $("#publish_progress");
+            publish_pages(data, progress);
+        });
+
+        $("form#publish_all").on("submit", function(e) {
+            e.preventDefault();
+            console.debug($(this).data("changedIdsUrl"));
+            $.get($(this).data("publishableIdsUrl"), function( data ) {
+                var progress = $("#publish_progress");
+                publish_pages(data.objects, progress);
+            });
+
+        });
 
 
         $('#djDebug').on('mouseover', 'a', function() {

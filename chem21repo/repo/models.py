@@ -1528,6 +1528,7 @@ class Topic(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
         return []
 
     def iter_publishable(self):
+        self.current_topic = self
         yield self
 
     @property
