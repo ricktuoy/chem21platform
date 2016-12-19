@@ -388,7 +388,7 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
             self.inner_text += repl
 
     def delete_tool(self):
-        if self.context['user'].is_authenticated():
+        if self.context['user'].is_authenticated() and 'staticgenerator' not in self.context:
             return "<a data-fig-num=\"%s\" class=\"btn btn-success admin-delete delete-figure\">Delete figure</a>" % str(self.total_count)
         return "" 
 
