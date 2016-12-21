@@ -17,3 +17,10 @@ chem21repo/local.wsgi
 *log*.txt
 *json
 chem21repo/static/SCORM/scorm_template.zip
+site/*
+paper.ris
+chem21repo/scorm/*
+chem21repo/static/SCORM/SCORM-wrapper/*
+chem21repo/chem21/templates/chem21/cref.xml
+chem21repo/csl/paperpile-doi.csl
+chem21repo/repo/templatetags/media_upload.html

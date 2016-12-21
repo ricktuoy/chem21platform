@@ -68,8 +68,6 @@ class Command(BaseCommand):
                 to_render.append(obj)
                 obj = obj.get_next_object()
 
-
-
         html = render_to_string("pdf_template.html", {'objects': to_render})
         base_options = ["-s","A4",]
 

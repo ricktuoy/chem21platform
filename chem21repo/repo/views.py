@@ -23,6 +23,8 @@ from .models import Molecule
 from .models import CredentialsModel
 from .models import Biblio
 from .models import LearningTemplate
+from .object_loaders import PDFLoader, PageLoader
+from .publishers import PublicStorageMixin, HTMLPublisher, PDFPublisher
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
@@ -1013,198 +1015,57 @@ class ShowTouchedView(LoginRequiredMixin, LearningObjectRelationMixin, View):
                 [ [ (i.pk, i.slug) for i in qs  ] for qs in page.touched_structure_querysets ] 
             } )
 
-
-
-class PublishableLearningObjectIDs(LoginRequiredMixin, View):
+class PDFIDsView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        out = []
-        for t in ["questions", "lessons", "modules", "topics"]:
-            model = ContentType.objects.get(
-                app_label="repo",
-                model=t[:-1]).model_class()
-            pks = [{'name': t, 'value':o.pk} for o in model.objects.all().exclude(archived=True)]
-            out += pks
-        return JsonResponse({"objects":out})
+        refs = PDFLoader().get_reference_list()
+        return JsonResponse({'objects':refs})
 
-class PublicStorageMixin(object):
-    def __init__(self, *args, **kwargs):
-        storage_class = get_storage_class(settings.PUBLIC_SITE_STORAGE)
-        self.storage = storage_class()
-        super(PublicStorageMixin, self).__init__(*args, **kwargs)
+SCORMIDsView = PDFIDsView
+
+class PageIDsView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        refs = PageLoader().get_reference_list()
+        return JsonResponse({'objects':refs})
 
 class PublishLearningObjectsView(LoginRequiredMixin, PublicStorageMixin, TemplateView):
     template_name = "chem21/publish_learning_objects_confirm.html"
     def get_context_data(self, **kwargs):
         context = super(PublishLearningObjectsView, self).get_context_data(**kwargs)
-        context['learning_objects'] = [{'name':'topics','instances':Topic.objects.filter(changed=True)},
-                   {'name':'modules','instances':Module.objects.filter(changed=True)},
-                   {'name':'lessons','instances':Lesson.objects.filter(changed=True)},
-                   {'name':'questions','instances':Question.objects.filter(changed=True)}]
+        context['learning_objects'] = PageLoader(filter={'changed':True}).get_structure_queryset()
         return context
 
-    @property
-    def structure(self):
-        try:
-            return self._structure
-        except AttributeError:
-            pass
-        self._structure =  dict([(obj.pk, obj) for obj in Topic.objects.all().prefetch_related(
-            Prefetch("modules",
-                     queryset=Module.objects.all().exclude(archived=True).order_by('order')),
-            Prefetch("modules__lessons",
-                     queryset=Lesson.objects.all().exclude(archived=True).order_by('order'),
-                     to_attr="ordered_lessons"),
-            Prefetch("modules__ordered_lessons__questions",
-                     queryset=Question.objects.all().exclude(archived=True).order_by(
-                         'order'),
-                     to_attr="ordered_questions"))])
-        return self._structure
-
-    def publish_html_page(self, page):
-        # publishes a resolved learning object to HTML and returns the storage path
-        # generate template context for learning object page
-        context = {
-            'object': page,
-            'class_tree': self.structure[page.current_topic.pk],
-            'current_topic': page.current_topic,
-            'breadcrumbs': page.get_ancestors(),
-            'request': self.request,
-            'user': self.request.user,
-            'staticgenerator': True
-        }
-
-        try:
-            context['current_module'] = page.current_module
-        except AttributeError:
-            pass
-
-        try:
-            context['current_lesson'] = page.current_lesson
-        except AttributeError:
-            pass
-
-        # add optional back / next buttons to context
-        nxt = page.get_next_object()
-        prev = page.get_previous_object()
-
-        if nxt:
-            context['next'] = nxt
-        if prev:
-            context['previous'] = prev
-        
-        # set up upload file (file.content_type for S3)
-        model_name = type(page)._meta.object_name
-        html = render_to_string("chem21/%s.html" % model_name.lower(), context)
-        file = ContentFile(html, name="index.html")
-        file.content_type = "text/html;charset=utf-8"
-
-        # set up upload path
-        path = page.get_absolute_url()+"index.html"
-        if path[0] == "/":
-            path = path[1:]
-        try:
-        # upload (replacing if exists)
-            if issubclass(self.storage.__class__, FileSystemStorage) and self.storage.exists(path):
-                self.storage.delete(path)                    
-            self.storage.save(path, file)
-        except Exception, e:
-            e.html_path = path
-            raise e
-        # return storage path
-        return path
-
-    def publish_html(self, learning_objects):
-        # publishes a list of learning objects and returns the storage path
-
-        success_pks = {}
-        paths = []
-        for inst in learning_objects:
-            inst_error = False
-            num_pages = 0
-
-            # each object can be used in many locations
-            # so iterate over each path it appears at and publish
-            # iter_publishable sets up the object with parent objects (qualifies it)
-            for page in inst.iter_publishable():
-                num_pages += 1
-                try:
-                    # publish this page and book-keep storage path for return
-                    paths.append(self.publish_html_page(page))
-                except Exception, e:
-                    try:
-                        self.errors.append((inst.title, e.html_path, e))
-                    except AttributeError:
-                        self.errors.append((inst.title, e))
-                    inst_error = True
-            model = type(inst)
-            if not inst_error and num_pages:
-                # book-keep the pks for bulk flag change
-                if model not in success_pks:
-                    success_pks[model] = []
-                success_pks[model].append(inst.pk)
-                # debug/notification tally to return
-                self.num_succeeded += 1
-            if num_pages == 0:
-                # book-keep these pks for bulk archiving 
-                if model not in self.no_pages:
-                    self.no_pages[model] = []
-                self.no_pages[model].append(inst.pk)
-
-        # bulk flag all published pages as unchanged (persist)
-        for model, pks in success_pks.iteritems():
-            model.objects.filter(pk__in=pks).update(changed=False)
-
-        # bulk archive all orphan pages (persist)
-        for model, pks in self.no_pages.iteritems():
-            model.objects.filter(pk__in=pks).update(archived=True)
-        return paths
-
     def post(self, request, *args, **kwargs):
-        # generate a list of objects to publish pages for
-        to_publish = []
-        for t in ["questions", "lessons", "modules", "topics"]:
-            model = ContentType.objects.get(
-                app_label="repo",
-                model=t[:-1]).model_class()
-            if "publish_all" in request.POST:
-                to_publish += list(model.objects.all().exclude(archived=True))
-            else:
-                pks = [int(pk) for pk in request.POST.getlist(t+"[]")]
-                if len(pks):
-                    to_publish += list(model.objects.filter(pk__in=pks))
+        # set up loading a list of objects from PK sets in the POST querydict
+        # and passing to a publisher
+        # if publish_all flag is in POST then loader loads all the possible objects
+        # see .object_loaders.py for more information
 
-        # deduce list of pdf root pages
-        def pdf_reduce_fn(a, b):
-            pdf_root = b.closest_pdf_root()
-            if pdf_root:
-                a.add(pdf_root)
-            return a
-        
-        # publish the html objects.          
-        self.errors = [] # return this
-        self.no_pages = {} # return debug book-keeping for instances with no pages (should be orphans)
-        self.num_succeeded = 0 # return debug/notification tally
+        publish_format = request.POST.get("publish_format", "html")
 
-        html_paths = self.publish_html(to_publish)
-        #pdf_paths = self.publish_pdf(reduce(pdf_reduce_fn, to_publish))
+        if publish_format == "html":
+            loader = PageLoader(querydict=request.POST)
+            publisher_class = HTMLPublisher
+        elif publish_format == "pdf":
+            loader = PDFLoader(querydict=request.POST)
+            publisher_class = PDFPublisher
 
-        if len(self.errors):
-            logging.error(repr(self.errors))
+        # do the above!
+        #try:    
+        publisher = publisher_class(request=request, objects=loader.get_list())
+        paths = publisher.publish_all()
+        #except AttributeError:
+        #return JsonResponse({'errors':['Invalid format specified: %s' % publish_format, ]}, status=400)
+
+        if len(publisher.errors):
             code=400
         else:
             code=200
-        return JsonResponse({'num_succeeded':self.num_succeeded, 'published_paths':html_paths,'errors':self.errors}, status=code)
 
-
-
-
-
-
-
-
-
-
-
+        return JsonResponse(
+            {'num_succeeded':publisher.num_succeeded, 
+             'published_paths':paths, 
+             'errors':publisher.errors}, 
+            status=code)
 
 class FileLinkGetView(LoginRequiredMixin, JSONView):
     def get_context_data(self, **kwargs):

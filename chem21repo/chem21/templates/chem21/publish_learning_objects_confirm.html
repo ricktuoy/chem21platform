@@ -93,7 +93,54 @@
 	<form method="post" id="publish_changed">
 		<h1>Publish changed pages</h1>
 		{% csrf_token %}
-		{% for type in learning_objects %}
+		<ol>
+		{% for topic in learning_objects %}
+			<li>
+				<label for="topics_{{ topic.slug}}">
+				<input type="checkbox" name="topics[]" value="{{ topic.pk }}" id="topics_{{ topic.slug }}" checked />
+						<a href="{{ topic.get_absolute_url }}">{{ topic.name }}</a>
+				</label>
+				<ol>
+				{% for module in topic.modules.all|dictsort:"order" %}
+					<li data-lo-type="module" data-lo-pk="{{ module.pk }}" class="active">
+						<label for="modules_{{ module.slug}}">
+						<input type="checkbox" name="modules[]" value="{{ module.pk }}" id="modules_{{ module.slug }}" checked />
+							<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
+						</label>
+						<div class="item-list">
+							<ol class="active">
+								{% for lesson in module.ordered_lessons|dictsort:"order" %}
+									{% if not module.is_question or forloop.counter0 %}
+										<li data-lo-type="lesson" data-lo-pk="{{ lesson.pk }}" class="active">
+											<label for="lessons_{{ lesson.slug}}">
+											<input type="checkbox" name="modules[]" value="{{ lesson.pk }}" id="lessons_{{ lesson.slug }}" checked />
+											<a href="{% url 'lesson_detail' topic_slug=topic.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.get_title }}</a>
+											</label>
+											<ol class="active">
+											{% for question in lesson.ordered_questions|dictsort:"order" %}
+												{% if not lesson.is_question or forloop.counter0 %}
+													<li class="active" data-lo-type="question" data-lo-pk="{{ question.pk }}">
+														<label for="questions_{{ question.slug}}">
+														<input type="checkbox" name="questions[]" value="{{ question.pk }}" id="questions_{{ question.slug }}" checked />
+														<a href="{% url 'question_detail' topic_slug=topic.slug module_slug=module.slug lesson_slug=lesson.slug slug=question.slug %}">{{ question.get_title }}</a>
+														</label>
+													</li>
+												{% endif %}
+											{% endfor %}
+											</ol>
+										</li>
+									{% endif %}
+								{% endfor %}
+							</ol>
+						</div>
+					</li>
+				{% endfor %}
+				</ol>
+			</li>
+		{% endfor %}
+		</ol>
+<!--
+		{% for x in y %}
 		<h2>{{ type.name|capfirst }}</h2>
 		<ul>
 		{% for obj in type.instances %}
@@ -106,6 +153,7 @@
 		{% endfor %}
 		</ul>
 		{% endfor %}
+-->
 		<input type="submit" value="Publish selected pages" />
 	</form>
 </div>

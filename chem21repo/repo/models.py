@@ -34,6 +34,7 @@ from oauth2client.contrib.django_orm import CredentialsField
 from PIL import Image
 from djchoices import DjangoChoices, ChoiceItem
 from django.db.models import Max
+from django.db.models import Prefetch
 
 
 class CredentialsModel(models.Model):
@@ -1496,10 +1497,50 @@ class PresentationAction(models.Model):
     def as_json(self):
         return PresentationAction.JSONEncoder(
                         self.action_type).as_json(self)
-                
+
+class TopicWithStructureManager(OrderedDrupalManager):
+
+
+    def structure_filter(self, **kwargs):
+        self._structure_filter = kwargs
+        return self
+
+    def structure_exclude(self, **kwargs):
+        self._structure_exclude = kwargs
+        return self
+
+    def _qs(self, model, model_name=None):
+        qs = model.objects.exclude(archived=True)
+        if not model_name:
+            model_name = model.__name__.lower()
+        try:
+            qs = qs.exclude(**self._structure_exclude)
+        except AttributeError:
+            pass
+
+        try:
+            qs = qs.filter(**self._structure_filter)
+        except AttributeError:
+            pass
+
+        return qs
+
+    def get_queryset(self, *args, **kwargs):
+        return super(
+            TopicWithStructureManager, self).get_queryset(
+                *args, **kwargs).prefetch_related(
+                    Prefetch("modules",
+                             queryset=self._qs(Module, "module").order_by('order')),
+                    Prefetch("modules__lessons",
+                             queryset=self._qs(Lesson, "lesson").order_by('order'),
+                             to_attr="ordered_lessons"),
+                    Prefetch("modules__ordered_lessons__questions",
+                             queryset=self._qs(Question,"question").order_by('order'),
+                             to_attr="ordered_questions"))
 
 class Topic(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
     objects = OrderedDrupalManager()
+    objects_with_structure = TopicWithStructureManager()
     name = models.CharField(max_length=200)
     slug = models.CharField(max_length=200, null=True, blank=True)
     code = models.CharField(max_length=10, unique=True)
@@ -1530,6 +1571,9 @@ class Topic(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
     def iter_publishable(self):
         self.current_topic = self
         yield self
+
+    def iter_pdf_roots(self):
+        pass
 
     @property
     def touched_structure_querysets(self):
@@ -1594,6 +1638,9 @@ class Module(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
     def iter_publishable(self):
         self.current_topic = self.topic
         yield self
+
+    def iter_pdf_roots(self):
+        return self.iter_publishable()
 
     @property
     def touched_structure_querysets(self):
@@ -1850,6 +1897,11 @@ class Lesson(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
             self.current_topic = self.current_module.topic
             yield self
 
+    def iter_pdf_roots(self):
+        for module in self.modules.all():
+            module.current_topic = module.topic
+            yield module
+
     @property
     def touched_structure_querysets(self):
         return [
@@ -2018,6 +2070,12 @@ class Question(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
                 self.current_module = module
                 self.current_topic = self.current_module.topic
                 yield self
+
+    def iter_pdf_roots(self):
+        for lesson in self.lessons.all():
+            for module in lesson.modules.all():
+                module.current_topic = module.topic
+                yield module
 
     @property
     def touched_structure_querysets(self):
