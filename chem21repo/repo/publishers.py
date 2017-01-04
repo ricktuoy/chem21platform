@@ -68,6 +68,7 @@ class HTMLPublisher(BasePublisher):
             manager = Topic.objects_with_structure
             manager2 = manager.structure_exclude(archived=True)
             kls.topic_structures[topic.pk] = manager2.get(pk=topic.pk)
+        return kls.topic_structures[topic.pk]
 
 
     def publish(self, page):
