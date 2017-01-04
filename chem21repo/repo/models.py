@@ -543,6 +543,15 @@ class DrupalModel(models.Model):
     class Meta:
         abstract = True
 
+    @classmethod
+    def iter_descendent_models(kls):
+        kls_list = [Topic, Module, Lesson, Question]
+        for model in kls_list[kls_list.index(kls)+1:]:
+            yield model
+
+    @classmethod
+    def get_model_name(kls):
+        return kls.__name__.lower()
 
 class OrderedManagerBase:
     __metaclass__ = ABCMeta
@@ -1522,7 +1531,6 @@ class TopicWithStructureManager(OrderedDrupalManager):
             qs = qs.filter(**self._structure_filter)
         except AttributeError:
             pass
-
         return qs
 
     def get_queryset(self, *args, **kwargs):
@@ -1571,6 +1579,8 @@ class Topic(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
     def iter_publishable(self):
         self.current_topic = self
         yield self
+
+
 
     def iter_pdf_roots(self):
         pass

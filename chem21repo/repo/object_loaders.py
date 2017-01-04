@@ -2,6 +2,9 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from .models import Topic, Module, Lesson, Question
 from django.db.models import Prefetch
+from django.db.models import Q
+import logging
+
 
 class BaseLearningObjectLoader(object):
     # efficiently load a bunch of learning objects from Primary Key sets in a querydict 
@@ -25,11 +28,41 @@ class BaseLearningObjectLoader(object):
         self.querydict = querydict
         self.model_names = kwargs.get("model_names", 
             ["question", "lesson", "module", "topic"])
+        self.pk_sets = {}
 
-    def _qs(self, model, model_name=None):
+    @staticmethod
+    def get_model_name(model):
+        return model.__name__.lower()
+
+    def get_pk_set(self, model_name):
+        if model_name not in self.pk_sets:
+            self.pk_sets[model_name] = [int(pk) for pk in self.querydict.getlist(model_name+"s[]")]
+        return self.pk_sets[model_name]
+
+    def descendents_query_modifier(self, model, query_vars_fn):
+
+        descendent_models = list(model.iter_descendent_models())
+        clauses = Q(**query_vars_fn(model)) 
+        for descendent_model in descendent_models:
+            field_name = reduce(
+                    lambda acc, m: acc + m.get_model_name() +"s__",
+                    descendent_models[:descendent_models.index(descendent_model)],
+                    ""
+                )
+            this_query_vars = {}
+            orig_query_vars = query_vars_fn(descendent_model)
+            for k, v in orig_query_vars.iteritems():
+
+                this_query_vars[field_name+"%s" % k] = v
+            clauses |= Q(**this_query_vars)
+        return clauses
+
+    def pks_queryset(self, model, model_name=None, ancestors=False):
+
         qs = model.objects.exclude(archived=True)
+
         if not model_name:
-            model_name = model.__name__.lower()
+            model_name = self.get_model_name(model)
 
         try:
             qs = qs.exclude(**self.options['exclude'])
@@ -37,23 +70,32 @@ class BaseLearningObjectLoader(object):
             pass
 
         try:
-            qs = qs.filter(**self.options['filter'])
+            if not ancestors:
+                qs = qs.filter(**self.options['filter'])
+            else:
+                qs = qs.filter(self.descendents_query_modifier(model, lambda model: self.options['filter']))
         except KeyError:
+            logging.debug("Got a key error")
             pass
 
+    
         if not self.get_all:
-            #raise Exception(model_name+"||"+repr(self.querydict.getlist(model_name+"s[]")))
-            pkset = [int(pk) for pk in self.querydict.getlist(model_name+"s[]")]
-            qs = qs.filter(pk__in=pkset)
-
+            get_pk_query_vars = lambda model: {'pk__in':self.get_pk_set(model.get_model_name())}
+            if not ancestors:
+                qs = qs.filter(**get_pk_query_vars(model))
+            else:
+                qs = qs.filter(self.descendents_query_modifier(model, get_pk_query_vars))
+        
+        
         return qs
+
 
 
     def learning_object_reducer(self, a, t):
         model = ContentType.objects.get(
             app_label="repo",
             model=t).model_class()
-        return a + list(self._qs(model))
+        return a + list(self.pks_queryset(model))
 
     def get_list(self):
         # returns a flat unsorted list of the objects
@@ -62,15 +104,16 @@ class BaseLearningObjectLoader(object):
     def get_structure_queryset(self):
         # returns a hierarchical ordered queryset of the objects
         # note this
-        return self._qs(Topic, "topic").prefetch_related(
+        return self.pks_queryset(Topic, "topic", ancestors=True).prefetch_related(
             Prefetch("modules",
-                     queryset=self._qs(Module, "module").order_by('order')),
+                     queryset=self.pks_queryset(Module, "module", ancestors=True).order_by('order').distinct()),
             Prefetch("modules__lessons",
-                     queryset=self._qs(Lesson, "lesson").order_by('order'),
+                     queryset=self.pks_queryset(Lesson, "lesson", ancestors=True).order_by('order').distinct(),
                      to_attr="ordered_lessons"),
             Prefetch("modules__ordered_lessons__questions",
-                     queryset=self._qs(Question,"question").order_by('order'),
-                     to_attr="ordered_questions"))
+                     queryset=self.pks_queryset(Question,"question", ancestors=True).order_by('order').distinct(),
+                     to_attr="ordered_questions")).distinct()
+
 
     @staticmethod
     def get_reference_from_object(obj):

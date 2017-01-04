@@ -48,24 +48,23 @@
 </div>
 {% endblock %}
 {% block sidebar_2 %}
-<div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
+	<div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
 	<div id="breadcrumb">
 		<div class="breadcrumb"><a href="/">Home</a> > {% for crumb in breadcrumbs %}<a href="{{ crumb.get_absolute_url }}">{{ crumb.title }}</a> > {% endfor %}{{ object.title }}</div>    
 	</div>
 	<div id="class_nav">
-<h3>Publish to learning.chem21.eu</h3>
+	<h3>Publish to learning.chem21.eu</h3>
 	</div>
 	<div id="opigno-group-progress"></div>
 	<div id="content" class="has-group-progress">
 	{% block progress %}
-<div id="quiz_progress">
+	<div id="quiz_progress">
     	<span class="section">{% block display_title %}{{ object.title }}{% endblock %}</span>
     
-	<nav class="question_nav">{% if previous %}<a href="{{ previous.get_absolute_url }}">&laquo; Previous</a>{% endif %}
-{% if next %}<a class="next" href="{{ next.get_absolute_url }}">Next &raquo;</a>{% endif %}
-	</nav>
-</div>
-
+		<nav class="question_nav">{% if previous %}<a href="{{ previous.get_absolute_url }}">&laquo; Previous</a>{% endif %}
+			{% if next %}<a class="next" href="{{ next.get_absolute_url }}">Next &raquo;</a>{% endif %}
+		</nav>
+	</div>
 {% endblock %}
 
 {% block admin_tools %}
@@ -73,11 +72,11 @@
 {% if perms.repo.change_lesson %}
 
 {% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
+	<ul class="messages">
+	    {% for message in messages %}
+	    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+	    {% endfor %}
+	</ul>
 {% endif %}
 <div id="publish_forms">
  <div id="publish_progress"></div>
@@ -96,34 +95,50 @@
 		<ol>
 		{% for topic in learning_objects %}
 			<li>
+				{% if topic.changed %}
 				<label for="topics_{{ topic.slug}}">
 				<input type="checkbox" name="topics[]" value="{{ topic.pk }}" id="topics_{{ topic.slug }}" checked />
+				{% endif %}
 						<a href="{{ topic.get_absolute_url }}">{{ topic.name }}</a>
+				{% if topic.changed %}
 				</label>
+				{% endif %}
 				<ol>
 				{% for module in topic.modules.all|dictsort:"order" %}
 					<li data-lo-type="module" data-lo-pk="{{ module.pk }}" class="active">
+						{% if module.changed %}
 						<label for="modules_{{ module.slug}}">
 						<input type="checkbox" name="modules[]" value="{{ module.pk }}" id="modules_{{ module.slug }}" checked />
+						{% endif %}
 							<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
+						{% if module.changed %}
 						</label>
+						{% endif %}
 						<div class="item-list">
 							<ol class="active">
 								{% for lesson in module.ordered_lessons|dictsort:"order" %}
 									{% if not module.is_question or forloop.counter0 %}
 										<li data-lo-type="lesson" data-lo-pk="{{ lesson.pk }}" class="active">
+											{% if lesson.changed %}
 											<label for="lessons_{{ lesson.slug}}">
-											<input type="checkbox" name="modules[]" value="{{ lesson.pk }}" id="lessons_{{ lesson.slug }}" checked />
+											<input type="checkbox" name="lessons[]" value="{{ lesson.pk }}" id="lessons_{{ lesson.slug }}" checked />
+											{% endif %}
 											<a href="{% url 'lesson_detail' topic_slug=topic.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.get_title }}</a>
+											{% if lesson.changed %}
 											</label>
+											{% endif %}
 											<ol class="active">
 											{% for question in lesson.ordered_questions|dictsort:"order" %}
 												{% if not lesson.is_question or forloop.counter0 %}
 													<li class="active" data-lo-type="question" data-lo-pk="{{ question.pk }}">
+														{% if question.changed %}
 														<label for="questions_{{ question.slug}}">
 														<input type="checkbox" name="questions[]" value="{{ question.pk }}" id="questions_{{ question.slug }}" checked />
+														{% endif %}
 														<a href="{% url 'question_detail' topic_slug=topic.slug module_slug=module.slug lesson_slug=lesson.slug slug=question.slug %}">{{ question.get_title }}</a>
+														{% if question.changed %}
 														</label>
+														{% endif %}
 													</li>
 												{% endif %}
 											{% endfor %}

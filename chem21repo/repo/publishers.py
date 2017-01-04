@@ -32,29 +32,9 @@ class BasePublisher(PublicStorageMixin):
     def publish_all(self):
         success_pks = {}
         paths = []
-        """
-        for page in self.objects:
-            inst_error = False
-            num_pages = 0
-
-            # each object can be used in many locations
-            # so iterate over each path it appears at and publish
-            # iter_publishable sets up the object with parent objects (qualifies it)
-        """
         for obj in self.objects:
             obj_error = False
-            #try:
-                # publish this page and book-keep storage paths for return
             paths += self.publish(obj)
-            """
-            except Exception, e:
-            e_details = (sys.exc_info()[0].__name__, os.path.basename(sys.exc_info()[2].tb_frame.f_code.co_filename), sys.exc_info()[2].tb_lineno) 
-            try:
-                self.errors.append((obj.title, e.upload_path) + e_details)
-            except AttributeError:
-                self.errors.append((obj.title, ) + e_details)
-            obj_error = True
-            """
             model = type(obj)
             if not obj_error:
                 # book-keep the pks for bulk flag change
@@ -63,23 +43,10 @@ class BasePublisher(PublicStorageMixin):
                 success_pks[model].append(obj.pk)
                 # debug/notification tally to return
                 self.num_succeeded += 1
-        """
-        if num_pages == 0:
-            # book-keep these pks for bulk archiving 
-            if model not in self.no_pages:
-                self.no_pages[model] = []
-            self.no_pages[model].append(inst.pk)
-        """
         # bulk flag all published pages as unchanged (persist)
         for model, pks in success_pks.iteritems():
             model.objects.filter(pk__in=pks).update(changed=False)
-        """
-        # bulk archive all orphan pages (persist)
-        for model, pks in self.no_pages.iteritems():
-            model.objects.filter(pk__in=pks).update(archived=True)
-        """
         return paths
-
 
     def upload_replace_file(self, path, file):
         try:
