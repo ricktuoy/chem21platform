@@ -164,6 +164,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = [
     'katie.privett@york.ac.uk',
     'louise.summerton@york.ac.uk',
     'tom.dugmore@york.ac.uk',
-    'james.sherwood@york.ac.uk',]
+    'james.sherwood@york.ac.uk',
+    'jobie.kirkwood@york.ac.uk']
 
 WEB_ROOT = ''
