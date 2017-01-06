@@ -73,11 +73,15 @@ class Biblio(models.Model):
     def get_inline_html(self):
         if self.unknown:
             return False
+        if not self.inline_html:
+            return ""
         return self.inline_html
 
     def get_footnote_html(self):
         if self.unknown:
             return False
+        if not self.footnote_html:
+            return ""
         return self.footnote_html
 
     @staticmethod
