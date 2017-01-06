@@ -153,7 +153,7 @@ class BibTeXCiteProcessor(ContextProcessorMixin, BaseProcessor):
                 bib = Biblio.objects.get(citekey=bibkey)
                 bib.bibkey = bibkey
                 bib.save()
-        if re.match(r"\s*<.*?p>" % , match.string[:match.start][::-1]):
+        if re.match(r"\s*<.*?p>", match.string[:match.start][::-1]):
             return "[ibib]%s[/ibib]" % bib.citekey
         else:
             return "[bib]%s[/bib]" % bib.citekey
