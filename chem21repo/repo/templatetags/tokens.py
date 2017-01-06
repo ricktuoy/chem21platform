@@ -153,7 +153,10 @@ class BibTeXCiteProcessor(ContextProcessorMixin, BaseProcessor):
                 bib = Biblio.objects.get(citekey=bibkey)
                 bib.bibkey = bibkey
                 bib.save()
-        return "[bib]%s[/bib]" % bib.citekey
+        if re.match(r"\s*<.*?p>" % , match.string[:match.start][::-1]):
+            return "[ibib]%s[/ibib]" % bib.citekey
+        else:
+            return "[bib]%s[/bib]" % bib.citekey
 
 class RSCRightsProcessor(ContextProcessorMixin, TagProcessor):
     tag_name="rsc"
