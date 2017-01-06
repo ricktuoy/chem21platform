@@ -73,21 +73,11 @@ class Biblio(models.Model):
     def get_inline_html(self):
         if self.unknown:
             return False
-        if self.inline_html is None:
-            try:
-                self._get_html_from_drupal()
-            except Biblio.DoesNotExist:
-                return False
         return self.inline_html
 
     def get_footnote_html(self):
         if self.unknown:
             return False
-        if self.footnote_html is None:
-            try:
-                self._get_html_from_drupal()
-            except Biblio.DoesNotExist:
-                return False
         return self.footnote_html
 
     @staticmethod
@@ -1093,8 +1083,6 @@ def save_slug(sender, instance, **kwargs):
             or isinstance(instance, Topic) or isinstance(instance, Module):
         if not instance.slug:
             instance.slug = slugify(instance.title)
-        
-            
 
 @receiver(models.signals.pre_save, dispatch_uid="save_order")
 def save_order(sender, instance, raw, **kwargs):

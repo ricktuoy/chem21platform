@@ -410,7 +410,6 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
         else:
             self.start_caption_tag = "<caption>"
             self.end_caption_tag = "</caption>"
-        #if "aside" in class_set:
         class_set = class_set | frozenset(["inline"])
         classes = " ".join(class_set)
         self.replace_caption_html(t)

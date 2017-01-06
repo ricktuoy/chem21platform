@@ -125,11 +125,11 @@ define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","na
                 $.post(window.location.pathname, out, 
                     function( ret ) {
                         num_succeeded += ret.num_succeeded
-                        num_failed + = ret.num_failed
+                        num_failed += ret.num_failed
                         console.debug(num_succeeded+" / "+initial_length)
                         progress.progressbar("value", num_succeeded);
 
-                        if(num_succeeded >= )
+                        //if(num_succeeded >= )
                     }
                 );
             }

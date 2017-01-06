@@ -29,7 +29,7 @@ class HTMLBlockProcessor(object):
         if number < 1:
             raise ValueError("Blocks are numbered from 1 upwards")
         i_match = kls.get_match(source, number)
-        return source[:i_match.end()] + render + source[i_match.end():] 
+        return source[:i_match.end()] + render + source[i_match.end():]
 
     @classmethod
     def insert_rendered_before(kls, source, render, number):
@@ -56,7 +56,6 @@ class HTMLBlockProcessor(object):
 
 
 class BaseProcessor:
-
     __metaclass__ = ABCMeta
     openchar = "\["
     closechar = "\]"

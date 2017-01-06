@@ -154,21 +154,7 @@
 			</li>
 		{% endfor %}
 		</ol>
-<!--
-		{% for x in y %}
-		<h2>{{ type.name|capfirst }}</h2>
-		<ul>
-		{% for obj in type.instances %}
-		<li>
-		<label for="{{ type.name }}_{{ obj.slug}}">
-		<input type="checkbox" name="{{ type.name }}[]" value="{{ obj.pk }}" id="{{ type.name }}_{{ obj.slug }}" checked />
-		{{ obj.get_title }}
-		</label>
-		</li>
-		{% endfor %}
-		</ul>
-		{% endfor %}
--->
+
 		<input type="submit" value="Publish selected pages" />
 	</form>
 </div>
