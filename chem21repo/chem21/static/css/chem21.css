@@ -243,8 +243,6 @@ body.front #site-footer {
 	color: #595;
 }
 
-
-
 body.platon-use-slider #second-sidebar #front-menu li {
 	width: 33.33333% !important;
 	overflow-y: hidden;
@@ -273,8 +271,6 @@ body.platon-use-slider #second-sidebar #front-menu li a {
 body.platon-use-slider #second-sidebar #front-menu li a:hover {
 	color: #3edd42;
 }
-
-
 
 #front-menu li img {
 	max-width: 100%;
@@ -315,7 +311,6 @@ body.front ul.slides li.topic {
 
 body.front ul.slides li.slide .content {
 	top: 22%;
-	
 }
 
 body.front ul.slides li .content h2 {
@@ -393,6 +388,14 @@ body.front #content .content .cobranding {
 .biblio-title {
 	font-family: inherit;
 	color: inherit;
+}
+
+.citeproc-journal {
+	font-weight: italic;
+}
+
+.citeproc-volume {
+	font-weight: bold;
 }
 
 /************* Lesson nav ************/
@@ -507,10 +510,10 @@ body.front #content .content .cobranding {
 	font-weight: bold;
 	color: #555;
 }
+
 #class_nav a, #breadcrumb a, #site-content a {
 	color: #181;
 }
-
 
 #quiz_progress .section {
 	display: inline-block;
@@ -582,8 +585,6 @@ body.front #content .content .cobranding {
 #quiz_progress nav a.prev {
 	float: left;	
 }
-
-
 
 .breadcrumb {
 	background-color: #f6f6f6;

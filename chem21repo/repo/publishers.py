@@ -158,11 +158,9 @@ class PDFPublisher(BasePublisher):
         pdf_path = "pdf/%d" % root.pk
         letter_pdf_path = "%s/%s" % (pdf_path, letter_filename)
         a4_pdf_path = "%s/%s" % (pdf_path, a4_filename)
-
         self.upload_replace_file(letter_pdf_path, letter_pdf)
         self.upload_replace_file(a4_pdf_path, a4_pdf)
         return [letter_pdf_path, a4_pdf_path]
-
 
     def generate_pdf(self, html, options=[]):
         wkhtmltopdf_default = 'wkhtmltopdf-heroku'

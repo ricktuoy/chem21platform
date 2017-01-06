@@ -1049,12 +1049,8 @@ class PublishLearningObjectsView(LoginRequiredMixin, PublicStorageMixin, Templat
             loader = PDFLoader(querydict=request.POST)
             publisher_class = PDFPublisher
 
-        # do the above!
-        #try:    
         publisher = publisher_class(request=request, objects=loader.get_list())
         paths = publisher.publish_all()
-        #except AttributeError:
-        #return JsonResponse({'errors':['Invalid format specified: %s' % publish_format, ]}, status=400)
 
         if len(publisher.errors):
             code=400

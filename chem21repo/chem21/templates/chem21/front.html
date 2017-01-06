@@ -1,24 +1,22 @@
 {% extends 'chem21/base.html' %}
 {% load static from staticfiles %}
 {% load fb_versions %}
-
 {% block feedback_link %}
 {% endblock %}
 {% block content %}
-
-  	<div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
-      <div id="title-wrapper">
-        <h1>CHEM21</h1>
-      </div>
-      <div id="front-back">
-      <a href="#" title="Back">&laquo;</a>
-      </div>
-      <div id="content">
-        <ul class="slides">
-          <li class="slide" style="background-image: url({% static "slides/homepage_background_3.jpg" %});">
-            <div class="content">
-              <h2>Welcome&nbsp;to&nbsp;the&nbsp;CHEM21 online&nbsp;learning&nbsp;platform</h2>
-              <nav>
+	<div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
+    <div id="title-wrapper">
+      <h1>CHEM21</h1>
+    </div>
+    <div id="front-back">
+    <a href="#" title="Back">&laquo;</a>
+    </div>
+    <div id="content">
+      <ul class="slides">
+        <li class="slide" style="background-image: url({% static "slides/homepage_background_3.jpg" %});">
+          <div class="content">
+            <h2>Welcome&nbsp;to&nbsp;the&nbsp;CHEM21 online&nbsp;learning&nbsp;platform</h2>
+            <nav>
               <div class="intro">
               <p>
                 A range of free, shareable and interactive educational and training materials created to promote the uptake of green and sustainable methodologies in the synthesis of pharmaceuticals. 
@@ -26,72 +24,68 @@
               <a href="/about">&raquo; read more about the site</a>
               </div>
               <div class="cobranding">
-              <a href="http://imi.europa.eu">
-              <img src="{% static "img/imi_logo_new.png" %}" alt="Innovative Medicines Initiative" id="imi_logo" />
-              </a>
-              <a href="http://ec.europa.eu/research/health/index.cfm?pg=home">
-              <img src="{% static "img/eu_logo.png" %}" alt="European Commission" id="eu_logo" />
-              </a>
-              <a href="http://www.efpia.eu">
-              <img src="{% static "img/efpia_logo.png" %}" alt="European Federation of Pharmaceutical Industries and Associations" id="efpia_logo" />
-              </a>
-              <div class="clear">&nbsp;</div>
+                <a href="http://imi.europa.eu">
+                  <img src="{% static "img/imi_logo_new.png" %}" alt="Innovative Medicines Initiative" 
+                    id="imi_logo" />
+                </a>
+                <a href="http://ec.europa.eu/research/health/index.cfm?pg=home">
+                  <img src="{% static "img/eu_logo.png" %}" alt="European Commission" id="eu_logo" />
+                </a>
+                <a href="http://www.efpia.eu">
+                  <img src="{% static "img/efpia_logo.png" %}" alt="European Federation of Pharmaceutical Industries and Associations" 
+                    id="efpia_logo" />
+                </a>
+                <div class="clear">&nbsp;</div>
               </div>
-              <!--
-              <div class="cta">
-              <p><a id="give_feedback" href="#">Feedback on this page</a></p>
-              </div>
-              -->
-              </nav>
-              
-            </div>
-          </li>
-          {% for topic in object_list %}
-          <li class="topic" data-topic="{{ topic.slug }}">
-            <div class="content">
-            <h2>{{ topic.title }}</h2>
-            <nav class="topic_nav">
-            <ul>
-            {% for module in topic.ordered_children|dictsort:"order" %}
-              {% if not module.dummy %}
+            </nav>              
+          </div>
+        </li>
+        {% for topic in object_list %}
+        <li class="topic" data-topic="{{ topic.slug }}">
+          <div class="content">
+          <h2>{{ topic.title }}</h2>
+          <nav class="topic_nav">
+          <ul>
+          {% for module in topic.ordered_children|dictsort:"order" %}
+            {% if not module.dummy %}
               <li class="{% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}"><a href="{{ module.get_absolute_url }}">{{ module.title }}</a></li>
               {% else %}
               {% for lesson in module.ordered_children|dictsort:"order" %}
               <li class="{% if forloop.counter|divisibleby:2 %}{% if forloop.parentloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}{% else %}{% if forloop.parentloop.counter0|divisibleby:2 %}odd{% else %}even{% endif %}{% endif %}"><a href="{% url 'lesson_detail' topic_slug=module.topic.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.title }}</a></li>
               {% endfor %}
-              {% endif %}
-            {% endfor %}
-            </ul>
+            {% endif %}
+          {% endfor %}
+          </ul>
+          <div class="clear">&nbsp;</div>
+          <div class="cobranding">
+            <a href="http://imi.europa.eu">
+            <img src="{% static "img/imi_logo_new.png" %}" alt="Innovative Medicines Initiative" id="imi_logo" />
+            </a>
+            <a href="http://ec.europa.eu/research/health/index.cfm?pg=home">
+            <img src="{% static "img/eu_logo.png" %}" alt="European Commission" id="eu_logo" />
+            </a>
+            <a href="http://www.efpia.eu">
+            <img src="{% static "img/efpia_logo.png" %}" alt="European Federation of Pharmaceutical Industries and Associations" id="efpia_logo" />
+            </a>
             <div class="clear">&nbsp;</div>
-            <div class="cobranding">
-              <a href="http://imi.europa.eu">
-              <img src="{% static "img/imi_logo_new.png" %}" alt="Innovative Medicines Initiative" id="imi_logo" />
-              </a>
-              <a href="http://ec.europa.eu/research/health/index.cfm?pg=home">
-              <img src="{% static "img/eu_logo.png" %}" alt="European Commission" id="eu_logo" />
-              </a>
-              <a href="http://www.efpia.eu">
-              <img src="{% static "img/efpia_logo.png" %}" alt="European Federation of Pharmaceutical Industries and Associations" id="efpia_logo" />
-              </a>
-              <div class="clear">&nbsp;</div>
-              </div>
-            </nav>
             </div>
-          </li>
-          {% endfor %}
-        </ul>
-        <ul id="front-menu">
-          {% for topic in object_list %}
-            <li data-topic="{{ topic.slug }}" {% if forloop.counter0|divisibleby:3 %}class="row3-start"{% endif %}>
-            <a href="{{ topic.get_absolute_url }}">
-            <img src="{% if topic.icon %}{% version topic.icon 'medium' %}
-            {% else %}
-              {% static "img/logo_square.jpg" %}
-            {% endif %}" alt="{{ topic.title }}" /><span class="topic_title">{{ topic.title }}</span></a></li>
-          {% endfor %}
-        </ul>      
-      </div>
+          </nav>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      <ul id="front-menu">
+        {% for topic in object_list %}
+          <li data-topic="{{ topic.slug }}" {% if forloop.counter0|divisibleby:3 %}class="row3-start"{% endif %}>
+          <a href="{{ topic.get_absolute_url }}">
+          <img src="{% if topic.icon %}{% version topic.icon 'medium' %}
+          {% else %}
+            {% static "img/logo_square.jpg" %}
+          {% endif %}" alt="{{ topic.title }}" /><span class="topic_title">{{ topic.title }}</span></a></li>
+        {% endfor %}
+      </ul>      
     </div>
+  </div>
 {% endblock %}
 {% block footer %}
 {% endblock %}
