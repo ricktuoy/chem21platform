@@ -100,6 +100,21 @@ body.front #site-header .mobile-link-icon {
 	display: none;
 }
 
+	.ui-progressbar {
+		position: relative;
+	}
+	.ui-progressbar .progress-label {
+		position: absolute;
+		left: 0;
+		width: 100%;
+		text-align: center;
+		top: 4px;
+		font-weight: bold;
+		text-shadow: 1px 1px 0 #000;
+		margin:0;
+		padding:0;
+	}
+
 .ui-btn {
 	font-family: inherit;
 	font-weight: inherit;
@@ -391,7 +406,7 @@ body.front #content .content .cobranding {
 }
 
 .citeproc-journal {
-	font-weight: italic;
+	font-style: italic;
 }
 
 .citeproc-volume {
@@ -2157,3 +2172,4 @@ table.ui-responsive--flip th:not(:last-child),
 table.ui-responsive--flip td:not(:last-child) {
   border-bottom: 0;
 }
+

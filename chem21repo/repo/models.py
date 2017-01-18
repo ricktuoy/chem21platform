@@ -1572,10 +1572,9 @@ class Topic(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
         self.current_topic = self
         yield self
 
-
-
     def iter_pdf_roots(self):
-        pass
+        return
+        yield
 
     @property
     def touched_structure_querysets(self):
@@ -1584,7 +1583,6 @@ class Topic(OrderedModel, DrupalModel, AttributionMixin, NameUnicodeMixin):
             Lesson.objects.filter(modules__topic=self),
             Question.objects.filter(lessons__modules__topic=self)
         ]
-    
 
     @property
     def title(self):
@@ -1856,14 +1854,12 @@ class PresentationSlide(OrderedModel):
         help_text='Duration of this slide in milliseconds')
     html = models.TextField()
 
-
 class PresentationVersion(BaseModel):
     presentation = models.ForeignKey(Presentation)
     version = models.IntegerField()
     slides = models.ManyToManyField(
         PresentationSlide, through='SlidesInPresentationVersion')
     audio = models.ForeignKey(UniqueFile)
-
 
 class SlidesInPresentationVersion(OrderedModel):
     objects = SlidesInPresentationVersionManager()
@@ -1873,7 +1869,6 @@ class SlidesInPresentationVersion(OrderedModel):
     class Meta(OrderedModel.Meta):
         unique_together = ('presentation', 'slide')
         index_together = ('presentation', 'slide')
-
 
 class Lesson(OrderedModel, DrupalModel, AttributionMixin, TitleUnicodeMixin):
     objects = LessonsInModuleManager()

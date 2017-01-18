@@ -60,7 +60,6 @@
 	{% block progress %}
 	<div id="quiz_progress">
     	<span class="section">{% block display_title %}{{ object.title }}{% endblock %}</span>
-    
 		<nav class="question_nav">{% if previous %}<a href="{{ previous.get_absolute_url }}">&laquo; Previous</a>{% endif %}
 			{% if next %}<a class="next" href="{{ next.get_absolute_url }}">Next &raquo;</a>{% endif %}
 		</nav>
@@ -79,9 +78,9 @@
 	</ul>
 {% endif %}
 <div id="publish_forms">
- <div id="publish_progress"></div>
+ <div id="publish_progress"><div class="progress-label">Loading...</div></div>
 	<aside>
-	<form method="post" id="publish_all" data-publishable-ids-url="{% url 'publishable_ids' %}">
+	<form method="post" id="publish_all" data-pdf-ids-url="{% url 'pdf_ids' %}" data-publishable-ids-url="{% url 'publishable_ids' %}">
 		<h1>Alternatively ...</h1>
 		{% csrf_token %}
 		<input type="hidden" name="publish_all" />
@@ -89,7 +88,7 @@
 		<p>Warning: this really does mean every page, only do this if you are sure.</p>
 	</form>
 	</aside>
-	<form method="post" id="publish_changed">
+	<form method="post" id="publish_changed" data-pdf-ids-url="{% url 'pdf_ids' %}">
 		<h1>Publish changed pages</h1>
 		{% csrf_token %}
 		<ol>

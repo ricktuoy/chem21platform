@@ -1,14 +1,17 @@
 {% load glossary %}
 {% load tokens %}
+{% load responsive %}
 <!DOCTYPE html>
 <html>
 	<head>
-	<title>{{ objects.0.title }}</title>
+		<title>{{ objects.0.title }}</title>
 	</head>
 	<body>
-	{% for obj in objects %}
-		<h{{ obj.level }}>{{ obj.title }}</h{{ obj.level }}>
-		{{ obj.text|safe }}
+	<img src="chem21_pdf_logo.png" alt="CHEM21">
+	{% for object in objects %}
+		<h{{ object.level }}>{{ object.title }}</h{{ object.level }}>
+		{% replace_tokens object.get_text %}
+		{{ tokens_replaced|responsivise|glossarize|safe }}
 	{% endfor %}
 	</body>
 </html>

@@ -115,19 +115,17 @@
 	{% endif %}
 
 	{% if perms.repo.change_lesson %}
-	{% if object.is_question %}
-			<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
-			data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
-			Edit text</a>
+		{% if object.is_question %}
+				<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
+				data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
+				Edit text</a>
 
-	{% else %}
-			<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
-			data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
-			Edit text</a>
-	{% endif %}
-
-			
-			<a id="gpicker_trigger" class="btn btn-success admin-edit" href="{% url 'admin:repo_question_loadgdoc' tpk=learning_reference_pk file_id='yermum' %}">Load from GDoc</a>
+		{% else %}
+				<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
+				data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
+				Edit text</a>
+		{% endif %}
+		<a id="gpicker_trigger" class="btn btn-success admin-edit" href="{% url 'admin:repo_question_loadgdoc' tpk=learning_reference_pk file_id='yermum' %}">Load from GDoc</a>
 	{% endif %}
 			
 		<div id="content-body">

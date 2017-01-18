@@ -36,7 +36,10 @@ class BaseLearningObjectLoader(object):
 
     def get_pk_set(self, model_name):
         if model_name not in self.pk_sets:
-            self.pk_sets[model_name] = [int(pk) for pk in self.querydict.getlist(model_name+"s[]")]
+            pkset = [int(pk) for pk in self.querydict.getlist(model_name+"s[]")]
+            if len(pkset) == 0:
+                pkset = [int(pk) for pk in self.querydict.getlist(model_name+"s")]
+            self.pk_sets[model_name] = pkset
         return self.pk_sets[model_name]
 
     def descendents_query_modifier(self, model, query_vars_fn):
@@ -77,19 +80,20 @@ class BaseLearningObjectLoader(object):
         except KeyError:
             logging.debug("Got a key error")
             pass
-
     
         if not self.get_all:
             get_pk_query_vars = lambda model: {'pk__in':self.get_pk_set(model.get_model_name())}
             if not ancestors:
+                pk_vars = get_pk_query_vars(model)
+                #if model_name != "topic":
+                #    raise Exception(repr(model_name)+repr(pk_vars))
                 qs = qs.filter(**get_pk_query_vars(model))
             else:
                 qs = qs.filter(self.descendents_query_modifier(model, get_pk_query_vars))
-        
-        
+
+
+
         return qs
-
-
 
     def learning_object_reducer(self, a, t):
         model = ContentType.objects.get(
@@ -145,4 +149,8 @@ class PDFLoader(BaseLearningObjectLoader):
 
     def get_list(self):
         objs = super(PDFLoader, self).get_list()
-        return reduce(self.pdf_reducer, objs, set([]))
+        out = reduce(self.pdf_reducer, objs, set([]))
+        return out
+        #raise Exception(repr(objs) + repr(out))
+
+SCORMLoader = PDFLoader

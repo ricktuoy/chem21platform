@@ -23,8 +23,8 @@ from .models import Molecule
 from .models import CredentialsModel
 from .models import Biblio
 from .models import LearningTemplate
-from .object_loaders import PDFLoader, PageLoader
-from .publishers import PublicStorageMixin, HTMLPublisher, PDFPublisher
+from .object_loaders import PDFLoader, PageLoader, SCORMLoader
+from .publishers import PublicStorageMixin, HTMLPublisher, PDFPublisher, SCORMPublisher
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
@@ -1020,6 +1020,10 @@ class PDFIDsView(LoginRequiredMixin, View):
         refs = PDFLoader().get_reference_list()
         return JsonResponse({'objects':refs})
 
+    def post(self, request, *args, **kwargs):
+        refs = PDFLoader(querydict=request.POST).get_reference_list()
+        return JsonResponse({'objects':refs})
+
 SCORMIDsView = PDFIDsView
 
 class PageIDsView(LoginRequiredMixin, View):
@@ -1048,8 +1052,11 @@ class PublishLearningObjectsView(LoginRequiredMixin, PublicStorageMixin, Templat
         elif publish_format == "pdf":
             loader = PDFLoader(querydict=request.POST)
             publisher_class = PDFPublisher
+        elif publish_format == "scorm":
+            loader = SCORMLoader(querydict=request.POST)
+            publisher_class = SCORMPublisher
 
-        publisher = publisher_class(request=request, objects=loader.get_list())
+        publisher = publisher_class(request=request, pages=loader.get_list())
         paths = publisher.publish_all()
 
         if len(publisher.errors):
@@ -1062,6 +1069,8 @@ class PublishLearningObjectsView(LoginRequiredMixin, PublicStorageMixin, Templat
              'published_paths':paths, 
              'errors':publisher.errors}, 
             status=code)
+
+
 
 class FileLinkGetView(LoginRequiredMixin, JSONView):
     def get_context_data(self, **kwargs):

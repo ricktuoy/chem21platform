@@ -193,7 +193,7 @@ class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
         if html == False:
             try:
                 messages.add_message(self.request, 
-                    messages.ERROR, 
+                    messages.ERROR,
                     "Could not find reference on this page with citekey '%s'." % bib.citekey)
             except AttributeError:
                 pass
@@ -212,6 +212,7 @@ class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
              zip(
                 range(1, len(self.bibs) + 1), self.bibs)])
 
+    
 
 class BiblioInlineTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "ibib"
@@ -554,8 +555,8 @@ class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
             title = striptags(title)
             logging.debug("Here is title %s" % title)
             return "<a href=\"%s\" title=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (fle.url, title, fle.url, alt)
-        messages.add_message(self.request, 
-                messages.ERROR, 
+        messages.add_message(self.request,
+                messages.ERROR,
                 "[figure] token not valid: must be either [figure:show:xx] or [figure:local:xx]" % (where, args[0]))
         return ""
 

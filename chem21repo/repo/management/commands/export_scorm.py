@@ -45,6 +45,7 @@ class Command(BaseCommand):
         path_set = set([])
         circular = False
         self.init_urls()
+
         while not circular and obj:
             new_path = obj.get_absolute_url()
             if new_path in path_set:
@@ -53,24 +54,32 @@ class Command(BaseCommand):
                 path_set.add(new_path)
                 paths.append(new_path)
                 obj = obj.get_next_object()
+
         if circular:
             print "Circular link path .. stopping here and writing"
             print "(returned to %s)" % new_path
+
         with storage.open("SCORM/scorm_template.zip") as f:
             dat = f.read()
+
         with tempfile.NamedTemporaryFile(delete=False) as f:
             f.write(dat)
             tmpname = f.name
+
         d = tempfile.gettempdir()
         scorm_d = os.path.join(d, "SCORM")
         outzip = os.path.join(d, "SCORM_out.zip")
+
         try:
             os.mkdir(scorm_d)
         except OSError:
             pass
+            
         os.chdir(scorm_d)
+
         with zipfile.ZipFile(os.path.join(d,tmpname)) as zf:
             zf.extractall()
+
         html_dir = os.path.join(scorm_d, "pages")
         os.chdir(html_dir)
         gen = StaticGenerator()
@@ -78,15 +87,18 @@ class Command(BaseCommand):
         self.save_page(gen, "start", start)
         end = paths.pop()
         i = 1
+
         for path in paths:
             nm = "page%d" % i
             self.save_page(gen, nm, path)
             i += 1
+
         self.save_page(gen, "end", end)
         map_dir = os.path.join(scorm_d, "js", "src", "config")
         map_file = os.path.join(map_dir, "urlmap.js")
         order_file = os.path.join(map_dir, "pageorder.js")
         manifest_file = os.path.join(scorm_d, "imsmanifest.xml")
+
         with open(map_file,'w') as f:
             f.write("define(function() {\n\treturn ")
             f.write(json.dumps(self.url_map)+"\n")
@@ -97,9 +109,11 @@ class Command(BaseCommand):
             f.write("});")
         with open(manifest_file,'r') as f:
             manifest = f.read()
+
         manifest = manifest.replace('%%TITLE%%', title)
         manifest = manifest.replace('%%SHORT_NAME%%', machine_name)
         manifest = manifest.replace('%%RESOURCES%%', self.url_xml_files)
+
         with open(manifest_file, 'w') as f:
             f.write(manifest)
         with zipfile.ZipFile(outzip,'w') as zf:

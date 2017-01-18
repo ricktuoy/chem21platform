@@ -19,10 +19,12 @@ define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","na
         });
 
         var csrftoken = $.cookie('csrftoken');
+
         function csrfSafeMethod(method) {
             // these HTTP methods do not require CSRF protection
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
+
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
                 if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -30,6 +32,7 @@ define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","na
                 }
             }
         });
+
         $(".progress, .files").hide();
         $(".progress").width("100%");
 
@@ -38,6 +41,7 @@ define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","na
             $(this).hide();
             $(this).next(".fileupload_wrapper").fadeIn();
         });
+
         $('input.fileupload').fileupload({
             dataType: 'json',
             done: function (e, data) {
@@ -82,7 +86,7 @@ define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","na
             var url = "/figure/delete/{0}/{1}/{2}".format(
                 $("#learning_reference_type").val(), 
                 $("#learning_reference_pk").val(), 
-                num)
+                num);
             $.getJSON(url, function() {
                 window.location.reload(true);
             });
@@ -97,59 +101,110 @@ define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","na
             });
         });
 
-        var publish_pages = function(data, progress) {
-            var initial_length = data.length;
-            console.debug("initial_length: "+initial_length);
-            var published_paths = [];
-            var num_succeeded = 0
-            // initialise progress bar
-            progress.progressbar({"value": 0, "max": initial_length});
-            while(data.length) {
-                var chunk = data.splice(0,10);
-                var out = {};
-                $.each(chunk, 
-                    function(i, el) {
-                        var k = el['name'];
-                        var v = el['value'];
-                        console.debug(k);
-                        if(k == "csrfmiddlewaretoken") {
-                            return;
-                        }
-                        if(!(k in out)) {
-                            out[k] = [v];
-                        } else {
-                            out[k].push(v);
-                        }
-                    }
-                );
-                $.post(window.location.pathname, out, 
-                    function( ret ) {
-                        num_succeeded += ret.num_succeeded
-                        num_failed += ret.num_failed
-                        console.debug(num_succeeded+" / "+initial_length)
-                        progress.progressbar("value", num_succeeded);
+        $("#publish_progress").progressbar({"value": false}).hide();
 
-                        //if(num_succeeded >= )
+        var publish = function(source_data, publish_url, type, progress, label, chunk_size) {
+            var data = source_data.slice(0);
+            var initial_length = data.length;
+            var published_paths = [];
+            var num_succeeded = 0;
+
+            var all_returned = [];
+            var promise = $.Deferred();
+            var post_defaults = function() { return {'publish_format': type} };
+            progress.progressbar( "option", "max", initial_length);
+
+            var format_data_fn =  function(out) {
+                return function(i, el) {
+                    var k = el['name'];
+                    var v = el['value'];
+                    if(k == "csrfmiddlewaretoken") {
+                        return;
+                    }
+                    if(!(k in out)) {
+                        out[k] = [v];
+                    } else {
+                        out[k].push(v);
+                    }
+                };
+            };
+
+            label.text("Publishing changed " + type + " content");
+            if (typeof chunk_size === 'undefined') {
+                progress.progressbar( "option", "value", false );
+                var out = post_defaults();
+                $.each(data, format_data_fn(out));
+
+                $.post(publish_url, out,
+                    function( ret ) {
+                        all_returned.push(ret);
+                        promise.resolve(all_returned);
+                        progress.progressbar("option", "value", initial_length);
+                        label.text("Complete.");
                     }
                 );
+            } else {
+                // initialise progress bar
+                var chunks = [];
+                while(data.length) {
+                    var chunk = data.splice(0, chunk_size);
+                    chunks.push(chunk);
+                    var out = post_defaults();
+                    $.each(chunk, format_data_fn(out));
+                    $.post(publish_url, out, 
+                        function( ret ) {
+                            all_returned.push(ret);
+                            num_succeeded += ret.num_succeeded;
+                            progress.progressbar("value", num_succeeded);
+                            label.text("Publishing "+type+", "+data.length+" objects remaining.");
+                            if(data.length == 0 && all_returned.length == chunks.length) {
+                                label.text("Complete.");
+                                promise.resolve(all_returned);
+                            }
+                        }
+                    );
+                }
             }
+            return promise;
         }
+
+        var init_publish = function(data, pdf_url) {
+            var progress = $("#publish_progress");
+            var label = progress.find(".progress-label");
+            progress.show();
+            console.debug(pdf_url);
+            var pdf_ids = $.post(pdf_url, data);
+            var html_promise = publish(data, window.location.pathname, "html", progress, label, 5);
+            $.when(html_promise, pdf_ids).done(
+                function(html_r, pdf_r) {
+                    var pdf_data = pdf_r[0];
+                    var pdf_promise = publish(pdf_data.objects, window.location.pathname, "pdf", progress, label, 1);
+                    $.when(pdf_promise).done(function(pdf_ret_data) {
+                        var scorm_promise = publish(data, window.location.pathname, "scorm", progress, label);
+                        $.when(scorm_promise).done(function(scorm_data) {
+                            //window.location.reload();
+                        });   
+                    });
+                }
+            );
+        };
 
         $("form#publish_changed").on("submit", function(e) {
             e.preventDefault();
-            var data = $(this).serializeArray();
-            var progress = $("#publish_progress");
-            publish_pages(data, progress);
+            var form_data = $(this).serializeArray();
+            var pdf_url = $(this).data("pdfIdsUrl");
+            init_publish(form_data, pdf_url);
         });
 
         $("form#publish_all").on("submit", function(e) {
             e.preventDefault();
-            console.debug($(this).data("changedIdsUrl"));
+            var progress = $("#publish_progress");
+            var label = progress.find(".progress-label");
+            var pdf_url = $(this).data("pdfIdsUrl");
+            progress.show();
             $.get($(this).data("publishableIdsUrl"), function( data ) {
-                var progress = $("#publish_progress");
-                publish_pages(data.objects, progress);
+                init_publish(data.objects, pdf_url);
             });
-
         });
 
 

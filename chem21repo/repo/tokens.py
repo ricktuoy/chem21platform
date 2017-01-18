@@ -108,7 +108,6 @@ class BaseProcessor:
 
 
 class BlockToolMixin(object):
-
     def apply_block_tool(self, st):
         self.full_text = st
         
@@ -131,7 +130,6 @@ class BlockToolMixin(object):
 
 
 class ContextProcessorMixin(object):
-
     def __init__(self, *args, **kwargs):
         self.context = kwargs.get("context", {})
         self.request = self.context.get("request", None)
@@ -139,7 +137,6 @@ class ContextProcessorMixin(object):
 
 
 class FigureTokenForm(forms.Form):
-
     figure_type = forms.CharField(label = "Type of figure", help_text="e.g. Figure/Scheme/Table (defaults to Figure)", required=False)
     caption = forms.CharField(label = "Caption", max_length = 200, required=False)
     media = forms.MultipleChoiceField(label = "Files", choices = []) # choices are defined on init
@@ -222,8 +219,6 @@ class FigureToken(BaseToken):
         return super(FigureToken, self).get_html("[figgroup:%s]%s[/figgroup]" % (
             ":".join(group_attrs), 
             "".join(group_content) + txt))
-
-
 
 
 class Token(object):
