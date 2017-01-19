@@ -228,7 +228,7 @@ class TextVersionView(LoginRequiredMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super(TextVersionView, self).get_context_data(
             *args, **kwargs)
-        pageance = context['object']
+        instance = context['object']
         return context
 
 
@@ -668,7 +668,7 @@ class JSONUploadHandle(MediaUploadHandle):
         outcome = parser.save()
         if lobj:
             lobj.quiz_name = parser.name
-            if ispageance(parser, GuideToolParser):
+            if isinstance(parser, GuideToolParser):
                 try:
                     tpl = LearningTemplate.objects.get(name="guide_detail")
                     lobj.template = tpl
@@ -1371,7 +1371,7 @@ class StructureGetView(LoginRequiredMixin, JSONView):
 
     def obj_to_dict(self, obj):
         d = {'pk': obj.pk, 'name': obj.title}
-        if ispageance(obj, Question):
+        if isinstance(obj, Question):
             return d
         d['children'] = [self.obj_to_dict(ch) for ch in obj.ordered_children]
         return d
