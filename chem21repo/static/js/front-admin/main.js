@@ -1,4 +1,4 @@
-define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","nav_reorder","common"], function(GPicker, $) {
+define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-ui/progressbar","nav_reorder","common"], function(GPicker, $) {
     String.prototype.format = function () {
       var args = arguments;
       return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
@@ -102,6 +102,7 @@ define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","na
         });
 
         $("#publish_progress").progressbar({"value": false}).hide();
+        var auth_promise = null;
 
         var publish = function(source_data, publish_url, type, progress, label, chunk_size) {
             var data = source_data.slice(0);
@@ -128,21 +129,36 @@ define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","na
                     }
                 };
             };
+            var auth_handler = function(xhr, status, error) {
+                switch(xhr.status) {
+                    case 401:
+                        data = $.parseJSON(xhr.responseText);
+                        auth_promise = $.Deferred();
+                        $.colorbox({href:data.auth_url, onClosed:function() { auth_promise.resolve(); }});
+                }
+            };
 
             label.text("Publishing changed " + type + " content");
             if (typeof chunk_size === 'undefined') {
                 progress.progressbar( "option", "value", false );
                 var out = post_defaults();
                 $.each(data, format_data_fn(out));
+                if(!auth_promise)
 
-                $.post(publish_url, out,
-                    function( ret ) {
-                        all_returned.push(ret);
-                        promise.resolve(all_returned);
-                        progress.progressbar("option", "value", initial_length);
-                        label.text("Complete.");
-                    }
-                );
+                var postit = function() {
+                    $.post(publish_url, out)
+                        .done(function( ret ) {
+                            all_returned.push(ret);
+                            promise.resolve(all_returned);
+                            progress.progressbar("option", "value", initial_length);
+                            label.text("Complete.");
+                        }).fail(auth_handler);
+                };
+
+                if(!auth_promise) postit();
+                else {
+                    $.when(auth_promise, postit());
+                }
             } else {
                 // initialise progress bar
                 var chunks = [];
@@ -151,18 +167,24 @@ define(["google_picker","jquery","jquery.fileupload","jquery-ui/progressbar","na
                     chunks.push(chunk);
                     var out = post_defaults();
                     $.each(chunk, format_data_fn(out));
-                    $.post(publish_url, out, 
-                        function( ret ) {
-                            all_returned.push(ret);
-                            num_succeeded += ret.num_succeeded;
-                            progress.progressbar("value", num_succeeded);
-                            label.text("Publishing "+type+", "+data.length+" objects remaining.");
-                            if(data.length == 0 && all_returned.length == chunks.length) {
-                                label.text("Complete.");
-                                promise.resolve(all_returned);
+                    var postit = function() {
+                        $.post(publish_url, out, 
+                            function( ret ) {
+                                all_returned.push(ret);
+                                num_succeeded += ret.num_succeeded;
+                                progress.progressbar("value", num_succeeded);
+                                label.text("Publishing "+type+", "+data.length+" objects remaining.");
+                                if(data.length == 0 && all_returned.length == chunks.length) {
+                                    label.text("Complete.");
+                                    promise.resolve(all_returned);
+                                }
                             }
-                        }
-                    );
+                        ).fail(auth_handler);
+                    };
+                    if(!auth_promise) postit();
+                    else {
+                        $.when(auth_promise, postit());
+                    }
                 }
             }
             return promise;

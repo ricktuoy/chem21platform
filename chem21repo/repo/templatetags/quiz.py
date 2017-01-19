@@ -211,7 +211,7 @@ class RenderQuizNode(template.Node):
             with default_storage.open(self.question_file_path(quiz_name),"r") as f:    
                 quiz = json.load(f)
         except IOError:
-            return "<p>Quiz file not found.</p>"
+            return "<p>Quiz file not found. %s</p>" % self.question_file_path(quiz_name)
         json_url = default_storage.url(self.answer_file_path(quiz_name))
         return "<div class=\"quiz_questions\" data-id=\"%s\"" % quiz['id'] + \
             " data-answers-json-url=\"%s\">%s</div>" % (

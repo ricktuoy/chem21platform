@@ -114,8 +114,11 @@ class GenerateHTMLMixin(object):
             context['previous'] = prev
         
         # set up upload file 
-        model_name = type(page)._meta.object_name
-        return render_to_string("chem21/%s.html" % model_name.lower(), context)
+        if page.template:
+            template_name = page.template.name
+        else:
+            template_name = type(page)._meta.object_name.lower()
+        return render_to_string("chem21/%s.html" % template_name, context)
 
 
 class HTMLPublisher(BasePublisher, PublicStorageMixin, GenerateHTMLMixin):
