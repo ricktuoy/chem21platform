@@ -526,6 +526,11 @@ class DrupalModel(models.Model):
     @property
     def level(self):
         return self._type_hierarchy[self.learning_object_type]
+
+    @property
+    def distfromtopic(self):
+        return self.level - 1
+    
         
     def __init__(self, *args, **kwargs):
         r = super(DrupalModel, self).__init__(*args, **kwargs)

@@ -28,7 +28,7 @@
 {% endblock %}
 {% block head %}
 {% if not object.text and not perms.repo.change_question and not object.video and object.get_first_child and not object.is_question %}
-	<meta http-equiv="refresh" content="0;URL={{ object.get_first_child.get_absolute_url }}" /> 
+<meta http-equiv="refresh" content="0;URL={{ object.get_first_child.get_absolute_url }}" /> 
 {% endif %}
 {% endblock %}
 {% block title %}{{ object.title }} :: CHEM21 learning platform{% endblock %}
@@ -98,7 +98,7 @@
 				<label for="topics_{{ topic.slug}}">
 				<input type="checkbox" name="topics[]" value="{{ topic.pk }}" id="topics_{{ topic.slug }}" checked />
 				{% endif %}
-						<a href="{{ topic.get_absolute_url }}">{{ topic.name }}</a>
+				<a href="{{ topic.get_absolute_url }}">{{ topic.name }}</a>
 				{% if topic.changed %}
 				</label>
 				{% endif %}

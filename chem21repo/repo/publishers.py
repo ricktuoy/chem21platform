@@ -10,6 +10,7 @@ from subprocess import call as call_subprocess
 from subprocess import STDOUT
 from subprocess import check_output as check_subprocess
 from tempfile import NamedTemporaryFile
+from ..google import GoogleOAuth2RedirectRequired, GoogleUploadError, GoogleServiceOAuth2ReturnView, YouTubeCaptionServiceMixin
 import tempfile
 import json
 import os
@@ -160,18 +161,47 @@ class PageSetMixin(object):
                 page = page.get_next_object()
         return to_render
 
-class PDFPublisher(BasePublisher, StaticStorageMixin, PageSetMixin):
+class PDFPublisher(BasePublisher, StaticStorageMixin, PageSetMixin, YouTubeCaptionServiceMixin):
+
+    def __init__(self, *args, **kwargs):
+        if 'youtube_service' not in kwargs:
+            raise ValueError("Missing youtube_service kwarg")
+        self.youtube = kwargs['youtube_service']
+        super(PDFPublisher, self).__init__(*args, **kwargs)
     
     def publish(self, root):
         storage = self.storage
         root_path = root.get_absolute_url()
         to_render = self.get_page_set(root, root_path)
+        video_transcripts = []
+
+        for obj in to_render:
+            vid = obj.video
+            if not vid or not vid.youtube_id:
+                continue
+
+            caption = self.get_recent_caption(self.youtube, vid.youtube_id)
+            if caption is None:
+                continue
+            transcript = self.get_srt(self.youtube, caption['id'])
+            transcript = " ".join(
+                [l for l in transcript.split("\n") if l !="" and not l.isdigit() and "-->" not in l]
+                )
+            video_transcripts.append({'page': obj, 
+                'video':vid, 
+                'transcript': "\n".join(["<p>%s.</p>" % s for s in transcript.split(". ")])})
+
+        quiz_answers = []
+        for obj in to_render:
+            # extract answers to quizzes
+            continue
 
         # generate html for combined pdf
         html = render_to_string("pdf_template.html", 
             {'objects': to_render, 
             'request': self.request, 
             'user': self.request.user,
+            'video_transcripts': video_transcripts,
             'staticgenerator': True})
 
         # generate pdfs from html        
@@ -205,6 +235,7 @@ class PDFPublisher(BasePublisher, StaticStorageMixin, PageSetMixin):
         #header_location = self.get_header_html_location()
         resources = {
             "chem21_pdf_logo.png": "img/logo.png",
+            "chem21_pdf_style.css": "css/chem21_pdf.css"
         }
         for lname, spath in resources.iteritems():
             lpath = os.path.join(tempfile.gettempdir(), lname)

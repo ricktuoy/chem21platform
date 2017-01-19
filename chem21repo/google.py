@@ -84,13 +84,13 @@ class GoogleServiceMixin(GoogleFlowBaseMixin):
       return frozenset(self.scopes).issubset(frozenset(self.request_scopes))
 
     @property
-    def storage(self):
+    def google_storage(self):
         try:
-            return self._storage
+            return self._google_storage
         except AttributeError:
             pass
-        self._storage = Storage(CredentialsModel, 'id', self.request.user, 'credential')
-        return self._storage
+        self._google_storage = Storage(CredentialsModel, 'id', self.request.user, 'credential')
+        return self._google_storage
 
     @property
     def credential(self):
@@ -98,7 +98,7 @@ class GoogleServiceMixin(GoogleFlowBaseMixin):
             return self._credential
         except AttributeError:
             pass
-        self._credential = self.storage.get()
+        self._credential = self.google_storage.get()
         return self._credential
 
     @property

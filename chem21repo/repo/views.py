@@ -809,7 +809,10 @@ class MediaUploadView(JQueryFileHandleView):
         o = super(MediaUploadView,self).get_return_values()
         o['content_type'] = self.content_type
         o['handler'] = unicode(self.handle_cls)
-        o['pk'] = self.file_obj.pk
+        try:
+            o['pk'] = self.file_obj.pk
+        except AttributeError:
+            pass
         return o
 
     def get_post_dict_from_request(self, request):
@@ -1031,7 +1034,7 @@ class PageIDsView(LoginRequiredMixin, View):
         refs = PageLoader().get_reference_list()
         return JsonResponse({'objects':refs})
 
-class PublishLearningObjectsView(LoginRequiredMixin, PublicStorageMixin, TemplateView):
+class PublishLearningObjectsView(LoginRequiredMixin, YouTubeCaptionServiceMixin, PublicStorageMixin, TemplateView):
     template_name = "chem21/publish_learning_objects_confirm.html"
     def get_context_data(self, **kwargs):
         context = super(PublishLearningObjectsView, self).get_context_data(**kwargs)
@@ -1045,18 +1048,25 @@ class PublishLearningObjectsView(LoginRequiredMixin, PublicStorageMixin, Templat
         # see .object_loaders.py for more information
 
         publish_format = request.POST.get("publish_format", "html")
-
+        extra_args = {}
         if publish_format == "html":
             loader = PageLoader(querydict=request.POST)
             publisher_class = HTMLPublisher
         elif publish_format == "pdf":
             loader = PDFLoader(querydict=request.POST)
             publisher_class = PDFPublisher
+            try:
+                youtube = self.get_service(request)
+            except GoogleOAuth2RedirectRequired, e:
+                return JsonResponse({'auth_url': e.url},  status=401)
+            extra_args['youtube_service'] = youtube
         elif publish_format == "scorm":
             loader = SCORMLoader(querydict=request.POST)
             publisher_class = SCORMPublisher
 
-        publisher = publisher_class(request=request, pages=loader.get_list())
+        publisher = publisher_class(request=request, 
+            pages=loader.get_list(), 
+            **extra_args)
         paths = publisher.publish_all()
 
         if len(publisher.errors):

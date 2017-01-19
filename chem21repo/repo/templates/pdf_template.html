@@ -5,13 +5,22 @@
 <html>
 	<head>
 		<title>{{ objects.0.title }}</title>
+		<link type="text/css" rel="stylesheet" href="chem21_pdf_style.css" />
+		<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
 	</head>
 	<body>
-	<img src="chem21_pdf_logo.png" alt="CHEM21">
-	{% for object in objects %}
-		<h{{ object.level }}>{{ object.title }}</h{{ object.level }}>
-		{% replace_tokens object.get_text %}
-		{{ tokens_replaced|responsivise|glossarize|safe }}
-	{% endfor %}
+		<header>
+		<img src="chem21_pdf_logo.png" alt="CHEM21">
+		</header>
+		{% for object in objects %}
+			<h{{ object.distfromtopic }}>{{ object.title }}</h{{ object.distfromtopic }}>
+			{% replace_tokens object.get_text %}
+			{{ tokens_replaced|responsivise|glossarize|safe }}
+		{% endfor %}
+
+		<div id="transcripts">
+		</div>
+		<div id="question_answers">
+		</div>
 	</body>
 </html>
