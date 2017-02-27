@@ -573,33 +573,36 @@ class ReplaceTokensNode(template.Node):
 
     def render(self, context):
         txt = self.text.resolve(context)
-        request = context['request']
+        if not txt:
+            return ""
         processors = {
-            'bibtex':BibTeXCiteProcessor(context=context),
-            'ibib':BiblioInlineTagProcessor(context=context),
-            'bib':BiblioTagProcessor(context=context),
-            'ilink':ILinkTagProcessor(context=context),
-            'cta':CTATokenProcessor(context=context),
-            'rsc':RSCRightsProcessor(context=context),
+            'bibtex': BibTeXCiteProcessor(context=context),
+            'ibib': BiblioInlineTagProcessor(context=context),
+            'bib': BiblioTagProcessor(context=context),
+            'ilink': ILinkTagProcessor(context=context),
+            'cta': CTATokenProcessor(context=context),
+            'rsc': RSCRightsProcessor(context=context),
             'attrib': AttributionProcessor(context=context),
-            'green':GreenPrincipleTokenProcessor(context=context),
-            'figref':FigureRefProcessor(context=context),
-            'figure':FigureTokenProcessor(context=context),
-            'figgroup':FigureGroupTagProcessor(context=context),
-            'figcaption':FigCaptionTagProcessor(context=context),
-            'tabcaption':TableCaptionTagProcessor(context=context),
-            'hide':HideTagProcessor(context=context),
-            'GHS_statement':GHSStatementProcessor(context=context)
-            }
+            'green': GreenPrincipleTokenProcessor(context=context),
+            'figref': FigureRefProcessor(context=context),
+            'figure': FigureTokenProcessor(context=context),
+            'figgroup': FigureGroupTagProcessor(context=context),
+            'figcaption': FigCaptionTagProcessor(context=context),
+            'tabcaption': TableCaptionTagProcessor(context=context),
+            'hide': HideTagProcessor(context=context),
+            'GHS_statement': GHSStatementProcessor(context=context)
+        }
         decruft = re.compile(
-                r'<div class="token"><!--token-->(.*?)<!--endtoken--></div>',
-                re.DOTALL)
+            r'<div class="token"><!--token-->(.*?)<!--endtoken--></div>',
+            re.DOTALL)
 
-
-
-        txt = decruft.sub(lambda match: match.group(1), txt)
-        proc_order = ['hide','bibtex','ibib','bib','ilink','rsc','attrib','cta','green',
-                      'figref','figure','figgroup','figcaption','tabcaption','GHS_statement']
+        txt = decruft.sub(
+            lambda match: match.group(1), txt)
+        proc_order = [
+            'hide', 'bibtex', 'ibib', 'bib',
+            'ilink', 'rsc', 'attrib', 'cta',
+            'green', 'figref', 'figure', 'figgroup',
+            'figcaption', 'tabcaption', 'GHS_statement']
         for key in proc_order:
             txt = processors[key].apply(txt)
             if context['user'].is_authenticated() and ('staticgenerator' not in context or not context['staticgenerator']):

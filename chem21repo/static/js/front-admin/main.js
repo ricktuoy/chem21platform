@@ -218,8 +218,7 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
             var pdf_ids = $.post(pdf_url, data);
             //
             $.when(pdf_ids).done(
-                function(pdf_r) {
-                    var pdf_data = pdf_r[0];
+                function(pdf_data) {
                     var pdf_promise = publish(pdf_data.objects, window.location.pathname, "pdf", progress, label, 1);
                     $.when(pdf_promise).done(function(pdf_ret_data) {
                         var scorm_promise = publish(data, window.location.pathname, "scorm", progress, label);
