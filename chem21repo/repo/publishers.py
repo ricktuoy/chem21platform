@@ -220,7 +220,11 @@ class PDFPublisher(BasePublisher, StaticStorageMixin, PageSetMixin, YouTubeCapti
         american_options = ["-s", "Letter"]
 
         a4_pdf = self.generate_pdf(html, options=base_options)
+        a4_pdf.content_type = "application/pdf"  # for S3
+
         letter_pdf = self.generate_pdf(html, options=american_options)
+        letter_pdf.content_type = "application/pdf"  # for S3
+
 
 
         # upload the pdfs

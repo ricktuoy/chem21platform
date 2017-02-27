@@ -216,15 +216,18 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
             progress.show();
             console.debug(pdf_url);
             var pdf_ids = $.post(pdf_url, data);
-            var html_promise = publish(data, window.location.pathname, "html", progress, label, 5);
-            $.when(html_promise, pdf_ids).done(
-                function(html_r, pdf_r) {
+            //
+            $.when(pdf_ids).done(
+                function(pdf_r) {
                     var pdf_data = pdf_r[0];
                     var pdf_promise = publish(pdf_data.objects, window.location.pathname, "pdf", progress, label, 1);
                     $.when(pdf_promise).done(function(pdf_ret_data) {
                         var scorm_promise = publish(data, window.location.pathname, "scorm", progress, label);
                         $.when(scorm_promise).done(function(scorm_data) {
-                            //window.location.reload();
+                            var html_promise = publish(data, window.location.pathname, "html", progress, label, 5);
+                            $.when(html_promise).done(function(html_data) {
+                                //window.location.reload();
+                            });
                         });   
                     });
                 }
