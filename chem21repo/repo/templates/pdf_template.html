@@ -24,7 +24,7 @@
 			<h{{ object.distfromtopic }}>{{ object.title }}</h{{ object.distfromtopic }}>
 			{% replace_tokens object.get_text %}
 			{{ tokens_replaced|responsivise|glossarize|safe }}
-			{% if object.has_quiz %}
+			{% if object.has_quiz and not object.template.name %}
 				{% render_pdf_quiz object.quiz %}
 				Answers on <a class="answers" href="#answers_{{ object.pk }}"> last page</a>
 			{% endif %}
