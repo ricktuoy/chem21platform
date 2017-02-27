@@ -24,6 +24,62 @@ body {
 	padding: 0.3em;
 }
 
+
+
+a {
+	text-decoration: none;
+	color: #081;
+}
+
+a:hover {
+	text-decoration: underline;
+	color: #3edd42;
+}
+
+div.video {
+	border-left: 10px solid #081;
+	padding: 1.5%;
+	background-color: #fafafa;
+
+}
+
+.video img.icon {
+	width: 6%;
+	height: auto;
+	float: left;
+	margin: 0;
+	padding: 0 3% 0 3%;
+}
+
+.video .source  {
+	float: left;
+	width: auto;
+	height: 100%;
+}
+
+.video .source a {
+	display: block;
+	margin: 0;
+	font-size: 0.83em;
+}
+
+.video .resources {
+	float: left;
+	width: 25%;
+	height: auto;
+}
+
+.clearblank {
+	height: 1px;
+	clear: both;
+}
+
+.quiz_questions {
+	border-left: 10px #080 solid;
+	padding: 1em;
+	padding-left: 3em;
+}
+
 table.ranking th.bad, #she_scores .bad h3 {
 	background-color: red;
 }
@@ -231,3 +287,41 @@ div.sidebyside_figures {
 	width: 100%;
 }
 
+.transcript {
+	padding: 1.5em;
+	border-left: 10px solid #fafafa;
+	margin-top: 1em;
+}
+
+.transcript p {
+	font-size: 0.9em;
+}
+
+.transcript h4 {
+	border-bottom: 1px solid #dfdfdf;
+	margin-top: 0;
+}
+
+.quiz_answers .question {
+	color: #444;
+}
+
+.quiz_answers .answers {
+	font-style: italic;
+}
+
+.quiz_answers .label {
+	font-weight: bold;
+}
+
+footer.page {
+	font-size: 0.5em;
+	color: #999;
+	border-top: 1px solid #333;
+	margin-top: 2em;
+}
+
+footer.page .disclaimer {
+	font-weight: bold;
+	color: #444;
+}

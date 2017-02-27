@@ -4,7 +4,6 @@
  {% load admin_urls %}
 {% block class_nav %}
 <div class="item-list">
-
 	<ol>
 	{% for module in class_tree.modules.all|dictsort:"order" %}
 		{% ifequal module object %}
@@ -29,5 +28,9 @@
 	</ol>
 	<div class="clear">&nbsp;</div>
 </div>  
+{% endblock %}
+{% block learning_object %}
+<a href="{{ module.get_pdf_version_url }}">PDF</a>
+{{ block.super }}
 {% endblock %}
 

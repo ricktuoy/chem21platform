@@ -1,0 +1,9 @@
+{% extends "quiz/questions/base.html" %}
+{% block control %}
+{% for resp in question.responses %}
+
+<input type="{% block widget_type %}radio{% endblock %}" value="{{ resp.id }}" data-id="{{ resp.id }}" name="{{ question.id }}" id="q{{ question.id }}r{{ resp.id }}" class="choice">
+<label for="q{{ question.id }}r{{ resp.id }}">{{ resp.text }}</label>
+
+{% endfor %}
+{% endblock %}

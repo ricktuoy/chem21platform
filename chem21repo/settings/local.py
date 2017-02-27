@@ -24,7 +24,7 @@ INTERNAL_IPS = ("localhost", "10.0.2.2", "10.0.2.2:8080",
                 "127.0.0.1", "localhost:8080", "127.0.0.1:8080")
 
 DATABASES = {
-    "default":  {
+    "default": {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'chem21',
         'USER': 'rick',
@@ -38,12 +38,13 @@ SESSION_ENGINE = "django.contrib.sessions.backends.file"
 if DEBUG_TOOLBAR:
     INSTALLED_APPS += ('debug_toolbar',)
     DEBUG_TOOLBAR_PATCH_SETTINGS = False
-    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',
-    ) + MIDDLEWARE_CLASSES
-    #DEBUG_TOOLBAR_CONFIG = {
-    #    'SHOW_TOOLBAR_CALLBACK': 'chem21repo.middleware.show_toolbar',
-    #}
-
+    MIDDLEWARE_CLASSES = (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',) + \
+        MIDDLEWARE_CLASSES
+    """
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 'chem21repo.middleware.show_toolbar',
+    """
 
 LOGGING = {
     'version': 1,

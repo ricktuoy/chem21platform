@@ -1,12 +1,15 @@
 import os
-from boto.s3.connection import VHostCallingFormat, OrdinaryCallingFormat
+from boto.s3.connection import OrdinaryCallingFormat
 
 from django.utils.crypto import get_random_string
 
 # Application definition
 
+YOUTUBE_BASE = "https://www.youtube.com/"
+YOUTUBE_URL_TEMPLATE = YOUTUBE_BASE + "watch?v=%s&controls=1&preload=none"
+
 INSTALLED_APPS = (
-    'grappelli',    
+    'grappelli',
     'filebrowser',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -16,6 +19,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'chem21repo.repo',
     'chem21repo.chem21',
+    'chem21repo.quiz',
     'require',
     'cachedS3',
     'querystring_parser',
@@ -109,7 +113,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-
 REQUIRE_BASE_URL = 'js/lib'
 
 S3_URL = 'http://%s' % AWS_STORAGE_BUCKET_NAME
@@ -134,7 +137,9 @@ CHEM21_PLATFORM_API_PWD = '#'
 CITEPROC_DEFAULT_STYLE = "royal-society-of-chemistry"
 
 CITEPROC_CSL_PATH = os.path.join(BASE_DIR, 'csl')
-CITEPROC_DEFAULT_STYLE_PATH = os.path.join(CITEPROC_CSL_PATH, CITEPROC_DEFAULT_STYLE+".csl")
+CITEPROC_DEFAULT_STYLE_PATH = os.path.join(
+    CITEPROC_CSL_PATH,
+    CITEPROC_DEFAULT_STYLE + ".csl")
 
 AUTHENTICATION_BACKENDS = (
     'social.backends.google.GoogleOAuth2',
@@ -161,9 +166,7 @@ SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = [
     'rick.taylor@york.ac.uk',
-    'katie.privett@york.ac.uk',
     'louise.summerton@york.ac.uk',
-    'tom.dugmore@york.ac.uk',
     'james.sherwood@york.ac.uk',
     'jobie.kirkwood@york.ac.uk']
 

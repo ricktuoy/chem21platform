@@ -25,13 +25,14 @@ register = template.Library()
 class FigureRefProcessor(ContextProcessorMixin, BaseProcessor):
     @property
     def pattern(self):
+        p = r'(example|Example|figure|Figure|' + \
+            r'scheme|Scheme|table|Table)\s+[0-9]+'
         try:
             return self._pattern
         except AttributeError:
-            self._pattern = re.compile(
-                r'(example|Example|figure|Figure|scheme|Scheme|table|Table)\s+[0-9]+',
-                re.DOTALL)
+            self._pattern = re.compile(p, re.DOTALL)
             return self._pattern
+
     def repl_function(self, match):
         return "<span class=\"figure_ref\">%s</span>" % match.group()
 
@@ -57,16 +58,18 @@ class TokenProcessor(BaseProcessor):
             return self._pattern
         except AttributeError:
             self._pattern = re.compile(
-                r'%s%s(?P<%s_args>.*?)%s' % (self.openchar,
-                                  self.token_name,
-                                  self.name,
-                                  self.closechar),
+                r'%s%s(?P<%s_args>.*?)%s' %
+                (self.openchar,
+                    self.token_name,
+                    self.name,
+                    self.closechar),
                 re.DOTALL)
             return self._pattern
 
     def repl_function(self, match):
-        args = match.group(self.name+"_args").split(":")
+        args = match.group(self.name + "_args").split(":")
         return self.token_function(*args[1:])
+
 
 class TagProcessor(BaseProcessor):
     __metaclass__ = ABCMeta
@@ -88,17 +91,18 @@ class TagProcessor(BaseProcessor):
     def create_token(self, question, para=None):
         name = self.tag_name
         return Token.create(name, question, para)
-        
+
     def create_token_from_match(self, question, match, para=None):
         token = self.create_token(self, question, para)
-        token.update(content = match.group('content'))
+        token.update(content=match.group('content'))
 
     @property
     def pattern(self):
         try:
             return self._simple_pattern
         except AttributeError:
-            self._simple_pattern = re.compile(self.get_simple_tag_pattern(),
+            self._simple_pattern = re.compile(
+                self.get_simple_tag_pattern(),
                 re.DOTALL)
             return self._simple_pattern
 
@@ -107,18 +111,19 @@ class TagProcessor(BaseProcessor):
         try:
             return self._complex_pattern
         except AttributeError:
-            self._complex_pattern = re.compile(self.get_complex_tag_pattern(),
+            self._complex_pattern = re.compile(
+                self.get_complex_tag_pattern(),
                 re.DOTALL)
             return self._complex_pattern
-    
 
     @abstractmethod
     def tag_function(self, st, *args):
         return None
 
     def repl_function(self, match):
-        args = match.group(self.name+"_args").split(":")
+        args = match.group(self.name + "_args").split(":")
         return self.tag_function(match.group('content'), *args)
+
 
 class AttributionProcessor(ContextProcessorMixin, TagProcessor):
     tag_name="attrib"
@@ -158,6 +163,7 @@ class BibTeXCiteProcessor(ContextProcessorMixin, BaseProcessor):
             return "[ibib]%s[/ibib]" % bib.citekey
         else:
             return "[bib]%s[/bib]" % bib.citekey
+
 
 class RSCRightsProcessor(ContextProcessorMixin, TagProcessor):
     tag_name="rsc"

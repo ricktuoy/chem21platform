@@ -1,4 +1,3 @@
-
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import logging
@@ -10,8 +9,6 @@ import hashlib
 import mimetypes
 import httplib2
 import httplib
-
-
 from .models import Lesson
 from .models import Module
 from .models import Question
@@ -29,7 +26,6 @@ from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
 from bs4 import BeautifulSoup
-
 from django.core.files.storage import DefaultStorage, get_storage_class
 from django.core.files.storage import default_storage
 from django.contrib.contenttypes.models import ContentType
@@ -59,6 +55,7 @@ from apiclient.http import MediaIoBaseUpload as GoogleMediaIoBaseUpload
 from ..google import GoogleOAuth2RedirectRequired, GoogleUploadError, GoogleServiceOAuth2ReturnView, YouTubeCaptionServiceMixin, YouTubeServiceMixin, DriveServiceMixin
 # Create your views here.
 from apiclient.errors import HttpError as GoogleHttpError
+
 
 class S3ProxyView(ProxyView):
     upstream = settings.S3_URL + "/static"

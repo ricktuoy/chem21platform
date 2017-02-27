@@ -1062,16 +1062,18 @@ body.front #content .content .cobranding {
 
 ol.footnotes {
 	clear:both;
-	background-color: #eee;
+	background-color: #fcfcfc;
 	padding: 1em 1em 1em 2.5em;
-	border: 1px solid #d0d0d0;
-	border-top: 1px solid #bbb;
+	border: 1px solid #eee;
+	border-top: 1px solid #ddd;
 }
 
 ol.footnotes li {
+	font-size: 0.85em;
 	line-height: 1.1em;
 	margin-bottom: 0.5em;
 }
+
 
 #site-content {
 	margin-top: 55px;

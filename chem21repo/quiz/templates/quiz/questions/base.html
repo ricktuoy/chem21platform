@@ -1,0 +1,26 @@
+<div class="question" id="question_{{ question.id }}" data-id="{{ question.id }}" data-type="{{ question.type }}">
+	{% block text %}<h3>{{ question.text }}</h3>{% endblock %}
+	<p class=\"final_score\">{% block score %}{% endblock %}</p>
+	<fieldset data-role="controlgroup">
+		{% block help %}
+		{% if question.help_text %}
+		<legend class="help">{{ question.help_text }}</legend>
+		{% endif %}
+		{% endblock %}
+		{% block control %}
+    	{% endblock %}
+    </fieldset>
+    <nav class="controls">
+    {% block navigation %}
+	{% if question.previous_question %}<a class="prev" href="#{{ question.previous_question.pk }}">Previous</a>{% endif %}
+	{% if question.next_question %}<a class="next" href="#{{ question.next_question.pk }}">Next</a>{% endif %}
+	{% endblock %}
+	</nav>
+	{% block submit %}
+	{% if not question.next_question %}
+	{{ submit }}
+	{% endif %}
+	{% endblock %}
+	<div class="clear">&nbsp;</div>
+</div>
+<div class="error"></div>

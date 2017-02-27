@@ -6,6 +6,11 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
     $(function() {
         var csrftoken = $.cookie('csrftoken');
 
+        if (window.opener && window.opener !== window) {
+            // you are in a popup
+            window.close(); // GTFO
+        }
+
         function csrfSafeMethod(method) {
             // these HTTP methods do not require CSRF protection
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -129,13 +134,30 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                     }
                 };
             };
-            var auth_handler = function(xhr, status, error) {
-                switch(xhr.status) {
-                    case 401:
-                        data = $.parseJSON(xhr.responseText);
-                        auth_promise = $.Deferred();
-                        $.colorbox({href:data.auth_url, onClosed:function() { auth_promise.resolve(); }});
-                }
+            var auth_handler_gen = function(url, data, done_handle) {
+                console.debug("Generating fail handler");
+                return function(xhr, status, error) {
+                    console.debug("In fail handler");
+                    switch(xhr.status) {
+                        case 401:
+                            console.debug("401");
+                            data = $.parseJSON(xhr.responseText);
+                            var win = window.open(data.auth_url, "google_auth", 'toolbars=0,width=400,height=320,left=200,top=200,scrollbars=1,resizable=1');
+                            // ew poll for window closed.
+                            console.debug("Window opened");
+                            var pollTimer = window.setInterval(function() {
+                                console.debug("Polling for window closed");
+                                console.debug(win);
+                                if (win.closed !== false) { // !== is required for compatibility with Opera
+                                    console.debug("Window closed");
+                                    window.clearInterval(pollTimer);
+                                    console.debug("Poll closed");
+                                    $.post(url, data, done_handle);
+                                    console.debug("posted again");
+                                }
+                            }, 200);
+                    }
+                };
             };
 
             label.text("Publishing changed " + type + " content");
@@ -143,16 +165,19 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                 progress.progressbar( "option", "value", false );
                 var out = post_defaults();
                 $.each(data, format_data_fn(out));
-                if(!auth_promise)
+                
 
                 var postit = function() {
-                    $.post(publish_url, out)
-                        .done(function( ret ) {
+                    var done_handle = function( ret ) {
                             all_returned.push(ret);
                             promise.resolve(all_returned);
                             progress.progressbar("option", "value", initial_length);
                             label.text("Complete.");
-                        }).fail(auth_handler);
+                        };
+                    $.post(publish_url, out)
+                        .done(done_handle).fail(
+                            auth_handler_gen(publish_url,out,done_handle));
+
                 };
 
                 if(!auth_promise) postit();
@@ -167,24 +192,19 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                     chunks.push(chunk);
                     var out = post_defaults();
                     $.each(chunk, format_data_fn(out));
-                    var postit = function() {
-                        $.post(publish_url, out, 
-                            function( ret ) {
-                                all_returned.push(ret);
-                                num_succeeded += ret.num_succeeded;
-                                progress.progressbar("value", num_succeeded);
-                                label.text("Publishing "+type+", "+data.length+" objects remaining.");
-                                if(data.length == 0 && all_returned.length == chunks.length) {
-                                    label.text("Complete.");
-                                    promise.resolve(all_returned);
-                                }
+                    var done_handle = function( ret ) {
+                            all_returned.push(ret);
+                            num_succeeded += ret.num_succeeded;
+                            progress.progressbar("value", num_succeeded);
+                            label.text("Publishing "+type+", "+data.length+" objects remaining.");
+                            if(data.length == 0 && all_returned.length == chunks.length) {
+                                label.text("Complete.");
+                                promise.resolve(all_returned);
                             }
-                        ).fail(auth_handler);
-                    };
-                    if(!auth_promise) postit();
-                    else {
-                        $.when(auth_promise, postit());
-                    }
+                        };
+                    $.post(publish_url, out).done(done_handle).fail(
+                        auth_handler_gen(publish_url, out, done_handle));
+                    
                 }
             }
             return promise;
@@ -210,6 +230,7 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                 }
             );
         };
+
 
         $("form#publish_changed").on("submit", function(e) {
             e.preventDefault();
