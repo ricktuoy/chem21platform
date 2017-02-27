@@ -189,6 +189,7 @@ class PDFPublisher(
         if 'youtube_service' not in kwargs:
             raise ValueError("Missing youtube_service kwarg")
         self.youtube = kwargs['youtube_service']
+        self._static_storage = None
         super(PDFPublisher, self).__init__(*args, **kwargs)
 
     def publish(self, root):
@@ -247,6 +248,9 @@ class PDFPublisher(
         return [letter_pdf_path, a4_pdf_path]
 
     def save_local_from_storage(self, infile, suffix=None):
+        if not self._static_storage:
+            self._static_storage = get_storage_class(
+                settings.STATICFILES_STORAGE)()
         if suffix is None:
             suffix = os.path.splitext(infile)[1]
         local_file = NamedTemporaryFile(delete=False)
