@@ -521,9 +521,10 @@ class ILinkTagProcessor(ContextProcessorMixin, LinkMixin, TagProcessor):
     def tag_function(self, st, *args):
         obj = ILinkTagProcessor.get_object(*[int(x) for x in args])
         if not obj:
-            messages.add_message(self.request, 
-                    messages.ERROR, 
-                    "[ilink:%s] token not valid: cannot find object with this reference." % ":".join(args))
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                "[ilink:%s] token not valid: cannot find object with this reference." % ":".join(args))
             return ""
         return "<a class=\"internal\" href=\"%s\">%s</a>" % (
             obj.get_absolute_url(), st)
@@ -532,7 +533,9 @@ class HideTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "hide"
 
     def get_simple_tag_pattern(self):
-        return "<p>\s*%s\s*</p>" % super(HideTagProcessor, self).get_simple_tag_pattern()
+        return "<p>\s*%s\s*</p>" % super(
+            HideTagProcessor, self).get_simple_tag_pattern()
+
     def tag_function(self, st, *args):
         return "<div class=\"hide_solution\"><p>%s</p></div>" % st
 
@@ -554,16 +557,20 @@ class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
                 alt = ""
             title = ":".join(args[2:])
             if not fle:
-                messages.add_message(self.request, 
-                    messages.ERROR, 
-                    "[figure] token not valid: cannot find file object with this %s id: %s" % (where, args[0]) )
+                messages.add_message(
+                    self.request,
+                    messages.ERROR,
+                    "[figure] token not valid: cannot find file object with this %s id: %s" % (
+                        where, args[0]))
                 return ""
             title = striptags(title)
-            logging.debug("Here is title %s" % title)
-            return "<a href=\"%s\" title=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (fle.url, title, fle.url, alt)
-        messages.add_message(self.request,
-                messages.ERROR,
-                "[figure] token not valid: must be either [figure:show:xx] or [figure:local:xx]" % (where, args[0]))
+            return "<a href=\"%s\" title=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (
+                fle.url, title, fle.url, alt)
+        messages.add_message(
+            self.request,
+            messages.ERROR,
+            "[figure] token not valid: must be either [figure:show:xx] or [figure:local:xx]" % (
+                where, args[0]))
         return ""
 
 
@@ -605,7 +612,9 @@ class ReplaceTokensNode(template.Node):
             'figcaption', 'tabcaption', 'GHS_statement']
         for key in proc_order:
             txt = processors[key].apply(txt)
-            if context['user'].is_authenticated() and ('staticgenerator' not in context or not context['staticgenerator']):
+            if context['user'].is_authenticated() and (
+                    'staticgenerator' not in context or
+                    not context['staticgenerator']):
                 try:
                     txt = processors[key].apply_block_tool(txt)
                 except AttributeError, e:

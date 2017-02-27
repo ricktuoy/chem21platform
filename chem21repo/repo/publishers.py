@@ -28,11 +28,19 @@ class StaticStorageMixin(object):
         self.storage = storage_class()
         super(StaticStorageMixin, self).__init__()
 
+class MediaStorageMixin(object):
+    def __init__(self):
+        storage_class = get_storage_class()
+        self.storage = storage_class()
+        super(MediaStorageMixin, self).__init__()
+
+
 
 class BasePublisher(object):
     def __init__(self, request, pages, *args, **kwargs):
         self.pages = pages
-        # these should each have unique URL i.e. associated with a single parent module, topic, lesson as necessary
+        # these should each have unique URL
+        # i.e. associated with a single parent module etc as necessary
         # n.b. this can be achieved using a loader from .object_loaders
         self.request = request
         self.errors = []  # return this
@@ -173,7 +181,9 @@ class PageSetMixin(object):
         return to_render
 
 
-class PDFPublisher(BasePublisher, StaticStorageMixin, PageSetMixin, YouTubeCaptionServiceMixin):
+class PDFPublisher(
+        BasePublisher, MediaStorageMixin,
+        PageSetMixin, YouTubeCaptionServiceMixin):
 
     def __init__(self, *args, **kwargs):
         if 'youtube_service' not in kwargs:
@@ -225,15 +235,15 @@ class PDFPublisher(BasePublisher, StaticStorageMixin, PageSetMixin, YouTubeCapti
         letter_pdf = self.generate_pdf(html, options=american_options)
         letter_pdf.content_type = "application/pdf"  # for S3
 
-
-
         # upload the pdfs
-        pdf_path = "pdf/%d" % root.pk
-        letter_pdf_path = "%s/%s-letter.pdf" % (pdf_path, root.slug)
-        a4_pdf_path = "%s/%s-a4.pdf" % (pdf_path, root.slug)
+        letter_pdf_path = root.get_pdf_version_path("letter")
+        a4_pdf_path = root.get_pdf_version_path("a4")
         self.upload_replace_file(
-            root.get_pdf_version_path("letter"), letter_pdf)
-        self.upload_replace_file(root.get_pdf_version_path("a4"), a4_pdf)
+            letter_pdf_path,
+            letter_pdf)
+        self.upload_replace_file(
+            a4_pdf_path,
+            a4_pdf)
         return [letter_pdf_path, a4_pdf_path]
 
     def save_local_from_storage(self, infile, suffix=None):

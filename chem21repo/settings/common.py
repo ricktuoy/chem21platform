@@ -43,8 +43,7 @@ MIDDLEWARE_CLASSES = (
     'chem21repo.middleware.C21ReturnURIMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    #'social_auth.middleware.SocialAuthExceptionMiddleware'
+    'django.middleware.security.SecurityMiddleware'
 )
 
 ROOT_URLCONF = 'chem21repo.urls'

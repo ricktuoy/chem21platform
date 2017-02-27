@@ -310,7 +310,7 @@ class Module(
         return self.iter_publishable()
 
     def get_pdf_version_url(self, fmt="a4"):
-        storage = get_storage_class(settings.STATICFILES_STORAGE)()
+        storage = get_storage_class()()
         return storage.url(self.get_pdf_version_path(fmt))
 
     def get_pdf_version_path(self, fmt):
