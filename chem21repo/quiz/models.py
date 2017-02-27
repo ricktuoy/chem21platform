@@ -2,10 +2,14 @@ from django.core.files.storage import default_storage
 import json
 import logging
 
+
+class ToolNotFoundError(Exception):
+    pass
+
+
 class ToolBase(dict):
     quizzes = {}
     storage = default_storage
-
 
     @classmethod
     def load(cls, name):
@@ -19,7 +23,7 @@ class ToolBase(dict):
             with self.storage.open(self.question_file_path, "r") as f:
                 super(ToolBase, self).__init__(**json.load(f))
         except IOError:
-            raise IOError(
+            raise ToolNotFoundError(
                 "Question file not found. %s" % self.question_file_path)
 
         self.questions = self['data']

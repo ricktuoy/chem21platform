@@ -1,10 +1,10 @@
 from ..models import Guide
 from ..models import Quiz
+from ..models import ToolNotFoundError
 from django import template
 from django.template.loader import get_template
 from django.utils.html import format_html
 from django.utils.html import mark_safe
-import logging
 
 
 register = template.Library()
@@ -37,7 +37,10 @@ class RenderToolNode(template.Node):
 
     def render(self, context):
         self.tool_name = self.text.resolve(context)
-        self.tool = self.tool_class.load(self.tool_name)
+        try:
+            self.tool = self.tool_class.load(self.tool_name)
+        except ToolNotFoundError:
+            return ""
         w_context = self.get_wrapper_context(context)
         return format_html(self.tool_html_wrapper, **w_context)
 
