@@ -254,7 +254,7 @@ class PDFPublisher(
         if suffix is None:
             suffix = os.path.splitext(infile)[1]
         local_file = NamedTemporaryFile(delete=False)
-        with self.storage.open(infile) as f:
+        with self._static_storage.open(infile) as f:
             local_file.write(f.read())
         local_file.close()
         return os.path.join(tempfile.gettempdir(), local_file.name)
