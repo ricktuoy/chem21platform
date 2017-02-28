@@ -2,9 +2,15 @@
     margin: 0;
 }
 
+img {
+	max-width: 100%;
+	height: auto;
+}
+
 body {
 	font-family: "Source Sans Pro", sans-serif;
-	font-size: 14pt;
+	font-size: 18pt;
+	max-width: 900px;
 }
 
 .not-front #content table td p,

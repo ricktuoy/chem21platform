@@ -89,6 +89,7 @@ class ToolBase(dict):
 
 class Quiz(ToolBase):
     PATH_ROOT = 'quiz'
+
     @property
     def question_file_path(self):
         return "%s/%s_questions.json" % (self.PATH_ROOT, self.name)
