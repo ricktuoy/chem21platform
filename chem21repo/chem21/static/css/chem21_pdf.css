@@ -10,7 +10,7 @@ img {
 body {
 	font-family: "Source Sans Pro", sans-serif;
 	font-size: 18pt;
-	max-width: 900px;
+	width: 900px;
 }
 
 .not-front #content table td p,

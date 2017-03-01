@@ -6,22 +6,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
                 return false;
             }
             return "div.choice";
-            /*
-            var tp = this.data("type");
-            var cls = false;
-            switch(tp) {
-                case "single":
-                    cls = ".ui-radio"
-                    break;
-                case "multi":
-                    cls = ".ui-checkbox"
-                    break;
-            }
-            return cls;
-            */
         };
-
-
 
         $.fn.quiz_find_choices = function() {
             var cls = this._quiz_choice_class();
@@ -46,6 +31,7 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             }
             return this.find(cls).has("input[data-id=\""+id+"\"]");
         };
+
         $(".quiz_questions .question").each(function() {
             $(this).addClass($(this).data("type"));
         });
@@ -55,7 +41,6 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             var $choice = $(this).add($(this).next("label"));
             $new_div.append($choice);
         });
-
 
         $(".quiz_questions").on("click", "div.choice", function(e) {
             e.stopImmediatePropagation();

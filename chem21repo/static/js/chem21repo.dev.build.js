@@ -92,7 +92,8 @@
         "jsCurry": "jscurry-0.4.1",
         "jquery.math": "jqmath-0.4.4" ,
         "admin_fileupload": "../admin-fileupload",
-        "nav_reorder": "../nav-reorder"
+        "nav_reorder": "../nav-reorder",
+        "pdf_gen": "../pdf-gen"
     },
     shim: {
         "jquery.math": ['jquery','jsCurry']

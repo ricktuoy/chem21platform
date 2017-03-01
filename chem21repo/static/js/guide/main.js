@@ -12,8 +12,6 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             $(this).addClass($(this).data("type"));
         });
 
-
-
         $(".guide").on("click", "div.choice", function(e) {
             e.stopImmediatePropagation();
             e.preventDefault();
@@ -91,8 +89,6 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
             var $scores = $quiz.find("#she_scores");
             $scores.slideUp();
         });
-
-
 
         function get_route() {
             $quiz = $(".guide");
@@ -242,8 +238,7 @@ define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/dro
 
             if($scores.filter(":visible").length == 0) {  
                 $scores.slideDown();
-            } 
-            
+            }
         });
     });
 });

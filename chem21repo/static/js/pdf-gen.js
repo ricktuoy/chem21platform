@@ -4,11 +4,7 @@
 // except 'app' ones, 
 requirejs.config({
     "baseUrl": "/static/js/lib",
-    "urlArgs": "bust=005",
-    "shim": {
-        'jquery.colorbox': ['jquery'],
-    }
+    "urlArgs": "bust=001"
 });
-
 // Load the main app module to start the app
-requirejs(["file_listing/main"]);
+requirejs(["../pdf-gen/main"]);
