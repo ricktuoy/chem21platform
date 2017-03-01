@@ -42,3 +42,5 @@ LOGGING = {
         }
     }
 }
+
+WKHTMLTOPDF_CMD = "wkhtmltopdf-pack"
