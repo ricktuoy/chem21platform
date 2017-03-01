@@ -270,7 +270,7 @@ class PDFPublisher(
             if not os.path.exists(lpath):
                 tmp_path = self.save_local_from_storage(spath)
                 os.rename(tmp_path, lpath)
-        wkhtmltopdf_default = 'wkhtmltopdf-heroku'
+        wkhtmltopdf_default = 'wkhtmltopdf'
         # Reference command
         wkhtmltopdf_cmd = os.environ.get(
             'WKHTMLTOPDF_CMD',

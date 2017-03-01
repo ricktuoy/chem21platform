@@ -41,13 +41,13 @@ class HTMLBlockProcessor(object):
         else:
             i_match = kls.get_match(source, number - 1)
             return source[:i_match.end()] + render + source[i_match.end():] 
-            
+
     @classmethod
     def append_to_all(kls, source, render_fn):
         def sub_callback(match):
             out = "%s%s%s" % ( 
                 match.group(1) + match.group(2),
-                render_fn(sub_callback.count, ref = kls.get_block_ref(match)),
+                render_fn(sub_callback.count, ref=kls.get_block_ref(match)),
                 match.group(3))
             sub_callback.count += 1
             return out
