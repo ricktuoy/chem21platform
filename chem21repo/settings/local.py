@@ -54,3 +54,5 @@ LOGGING = {
         'level': 'DEBUG',
     },
 }
+
+WKHTMLTOPDF_CMD = "wkhtmltopdf"

@@ -28,12 +28,12 @@ class StaticStorageMixin(object):
         self.storage = storage_class()
         super(StaticStorageMixin, self).__init__()
 
+
 class MediaStorageMixin(object):
     def __init__(self):
         storage_class = get_storage_class()
         self.storage = storage_class()
         super(MediaStorageMixin, self).__init__()
-
 
 
 class BasePublisher(object):
@@ -263,7 +263,9 @@ class PDFPublisher(
         resources = {
             "chem21_pdf_logo.png": "img/logo.png",
             "chem21_pdf_style.css": "css/chem21_pdf.css",
-            "video.png": "img/video.png"
+            "video.png": "img/video.png",
+            "require.js": "js/lib/require.js",
+            "pdf-gen.js": "js/pdf-gen.js"
         }
         for lname, spath in resources.iteritems():
             lpath = os.path.join(tempfile.gettempdir(), lname)
