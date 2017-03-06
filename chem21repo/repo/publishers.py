@@ -294,7 +294,8 @@ class PDFPublisher(
             # '--load-error-handling', 'ignore',
             '--footer-html', os.path.join(
                 tempfile.gettempdir(),
-                html_footer_file.name)]
+                html_footer_file.name),
+            '--javascript-delay', 1000]
         # wkhtmltopdf
         args = [wkhtmltopdf_cmd, '-q'] + options + [
             os.path.join(tempfile.gettempdir(), html_file.name),
