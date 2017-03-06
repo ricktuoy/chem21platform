@@ -268,7 +268,8 @@ class PDFPublisher(
             "jqmath.css": "css/jquery.math.css",
             "video.png": "img/video.png",
             "require.js": "js/lib/require.js",
-            "pdf-gen.js": "js/pdf-gen.js"
+            "jquery.js": "js/lib/jquery.js",
+            "jqmath.js": "js/lib/jqmath-0.4.4.js"
         }
         for lname, spath in resources.iteritems():
             lpath = os.path.join(tempfile.gettempdir(), lname)
