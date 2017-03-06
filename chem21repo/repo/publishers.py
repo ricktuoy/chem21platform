@@ -2,6 +2,7 @@ import json
 import os
 import tempfile
 import zipfile
+import logging
 
 from ..google import YouTubeCaptionServiceMixin
 from .models import Topic
@@ -12,6 +13,7 @@ from django.core.files.storage import get_storage_class
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from subprocess import check_output as check_subprocess
+from subprocess import CalledProcessError
 from tempfile import NamedTemporaryFile
 
 
@@ -263,6 +265,7 @@ class PDFPublisher(
         resources = {
             "chem21_pdf_logo.png": "img/logo.png",
             "chem21_pdf_style.css": "css/chem21_pdf.css",
+            "jqmath.css": "css/jquery.math.css",
             "video.png": "img/video.png",
             "require.js": "js/lib/require.js",
             "pdf-gen.js": "js/pdf-gen.js"
@@ -288,6 +291,7 @@ class PDFPublisher(
         html_footer_file.close()
         options += [
             '-B', '40mm',
+            # '--load-error-handling', 'ignore',
             '--footer-html', os.path.join(
                 tempfile.gettempdir(),
                 html_footer_file.name)]
@@ -295,11 +299,17 @@ class PDFPublisher(
         args = [wkhtmltopdf_cmd, '-q'] + options + [
             os.path.join(tempfile.gettempdir(), html_file.name),
             os.path.join(tempfile.gettempdir(), pdf_file.name)]
-        out = check_subprocess(args)
+        try:
+            out = check_subprocess(args)
+        except CalledProcessError as e:
+            raise Exception("wkhtmltopdf error: %s %s" % (repr(e.args), args) )
+        
         return pdf_file
 
 
-class SCORMPublisher(BasePublisher, StaticStorageMixin, GenerateHTMLMixin, PageSetMixin, ):
+class SCORMPublisher(
+        BasePublisher, StaticStorageMixin,
+        GenerateHTMLMixin, PageSetMixin):
 
     @staticmethod
     def initialise_scorm_dir(self):
