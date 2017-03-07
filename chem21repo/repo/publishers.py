@@ -216,7 +216,7 @@ class PDFPublisher(
                     obj.transcript = "\n".join(
                         ["<p>%s.</p>" % s for s in transcript.split(". ")])
 
-            if obj.quiz and obj.template and obj.template.name:
+            if obj.quiz and obj.template and obj.template.name != "guide":
                 quizzes.append(obj)
 
         # generate html for combined pdf
@@ -256,8 +256,9 @@ class PDFPublisher(
             html_file)
         for res in resources:
             with open(res, 'r') as res_file:
+                fname = res.split("/")[-1]
                 self.upload_replace_file(
-                    pdf_base_path + "/" + res_file.name,
+                    pdf_base_path + "/" + fname,
                     res_file)
         return [letter_pdf_path, a4_pdf_path]
 

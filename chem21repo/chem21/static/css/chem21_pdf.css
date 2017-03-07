@@ -34,7 +34,25 @@ tr {
 	padding: 0.3em;
 }
 
+tr:nth-child(even) {
+	background-color: #efefef;
+}
 
+td {
+	font-size: 0.85em;
+	text-align: center;
+
+}
+
+th {
+    background: #4da14f;
+    color: white;
+}
+
+caption {
+    background: #3e7342;
+    color: white;
+}
 
 a {
 	text-decoration: none;
