@@ -13,6 +13,10 @@ body {
 	width: 900px;
 }
 
+tr {
+    page-break-inside: avoid;
+}
+
 .not-front #content table td p,
 .not-front #content table th p {
 	line-height: 1.2em;

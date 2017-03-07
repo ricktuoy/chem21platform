@@ -30,7 +30,9 @@
 </div>  
 {% endblock %}
 {% block learning_object %}
+{% if perms.repo.change_lesson and not staticgenerator %}
 <a href="{{ module.get_pdf_version_url }}">PDF</a>
+{% endif %}
 {{ block.super }}
 {% endblock %}
 
