@@ -138,6 +138,7 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                 console.debug("Generating fail handler");
                 return function(xhr, status, error) {
                     console.debug("In fail handler");
+                    console.debug(xhr.status);
                     switch(xhr.status) {
                         case 401:
                             console.debug("401");
@@ -221,13 +222,13 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                 function(pdf_data) {
                     var pdf_promise = publish(pdf_data.objects, window.location.pathname, "pdf", progress, label, 1);
                     $.when(pdf_promise).done(function(pdf_ret_data) {
-                        var scorm_promise = publish(data, window.location.pathname, "scorm", progress, label);
-                        $.when(scorm_promise).done(function(scorm_data) {
+                        //var scorm_promise = publish(data, window.location.pathname, "scorm", progress, label);
+                        //$.when(scorm_promise).done(function(scorm_data) {
                             var html_promise = publish(data, window.location.pathname, "html", progress, label, 5);
                             $.when(html_promise).done(function(html_data) {
                                 //window.location.reload();
                             });
-                        });   
+                        //});   
                     });
                 }
             );

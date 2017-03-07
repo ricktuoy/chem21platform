@@ -257,7 +257,7 @@ class PDFPublisher(
         for res in resources:
             with open(res, 'r') as res_file:
                 self.upload_replace_file(
-                    pdf_base_path + "/" + res.name,
+                    pdf_base_path + "/" + res_file.name,
                     res_file)
         return [letter_pdf_path, a4_pdf_path]
 
