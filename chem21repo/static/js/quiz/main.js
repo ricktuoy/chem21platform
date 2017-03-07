@@ -120,7 +120,9 @@ define(["jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"]
             if($(this).hasClass("marked")) {
                 return true;
             }
+            
             $(this).find(".question").hide();
+            logging.debug(dest);
             dest.show();
         });
         

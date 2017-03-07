@@ -313,6 +313,9 @@ class Module(
         storage = get_storage_class()()
         return storage.url(self.get_pdf_version_path(fmt))
 
+    def get_pdf_base_path(self):
+        return "pdf/%d" % self.pk
+
     def get_pdf_version_path(self, fmt):
         return "pdf/%d/%s-%s.pdf" % (
             self.pk, self.slug, fmt)

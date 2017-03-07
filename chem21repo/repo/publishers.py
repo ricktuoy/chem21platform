@@ -78,6 +78,7 @@ class BasePublisher(object):
             ) and self.storage.exists(path):
                 self.storage.delete(path)
             self.storage.save(path, file)
+            file.close()
         except Exception, e:
             e.upload_path = path
             raise e
@@ -232,21 +233,32 @@ class PDFPublisher(
         base_options = ["-s", "A4", ]
         american_options = ["-s", "Letter"]
 
-        a4_pdf = self.generate_pdf(html, options=base_options)
+        a4_pdf, html_file, resources = self.generate_pdf(html, options=base_options)
         a4_pdf.content_type = "application/pdf"  # for S3
 
-        letter_pdf = self.generate_pdf(html, options=american_options)
+        letter_pdf, html_file, resources = self.generate_pdf(html, options=american_options)
         letter_pdf.content_type = "application/pdf"  # for S3
+
+
 
         # upload the pdfs
         letter_pdf_path = root.get_pdf_version_path("letter")
         a4_pdf_path = root.get_pdf_version_path("a4")
+        pdf_base_path = root.get_pdf_base_path()
         self.upload_replace_file(
             letter_pdf_path,
             letter_pdf)
         self.upload_replace_file(
             a4_pdf_path,
             a4_pdf)
+        self.upload_replace_file(
+            pdf_base_path + "/index.html",
+            html_file)
+        for res in resources:
+            with open(res, 'r') as res_file:
+                self.upload_replace_file(
+                    pdf_base_path + "/" + res.name,
+                    res_file)
         return [letter_pdf_path, a4_pdf_path]
 
     def save_local_from_storage(self, infile, suffix=None):
@@ -271,11 +283,13 @@ class PDFPublisher(
             "jquery.js": "js/lib/jquery.js",
             "jqmath.js": "js/lib/jqmath-0.4.4.js"
         }
+        local_resources = []
         for lname, spath in resources.iteritems():
             lpath = os.path.join(tempfile.gettempdir(), lname)
             if not os.path.exists(lpath):
                 tmp_path = self.save_local_from_storage(spath)
                 os.rename(tmp_path, lpath)
+            local_resources.append(lpath)
         wkhtmltopdf_default = 'wkhtmltopdf'
         # Reference command
         wkhtmltopdf_cmd = os.environ.get(
@@ -286,7 +300,7 @@ class PDFPublisher(
         pdf_file = NamedTemporaryFile(delete=False, suffix='.pdf')
         html_file = NamedTemporaryFile(delete=False, suffix='.html')
         html_file.write(html.encode("utf-8"))
-        html_file.close()
+        #html_file.close()
         html_footer_file = NamedTemporaryFile(delete=False, suffix='.html')
         html_footer_file.write(footer_html.encode("utf-8"))
         html_footer_file.close()
@@ -296,7 +310,7 @@ class PDFPublisher(
             '--footer-html', os.path.join(
                 tempfile.gettempdir(),
                 html_footer_file.name),
-            '--javascript-delay', '10000']
+            '--javascript-delay', '2000']
         # wkhtmltopdf
         args = [wkhtmltopdf_cmd, '-q'] + options + [
             os.path.join(tempfile.gettempdir(), html_file.name),
@@ -306,7 +320,7 @@ class PDFPublisher(
         except CalledProcessError as e:
             raise Exception("wkhtmltopdf error: %s %s" % (repr(e.args), args) )
         
-        return pdf_file
+        return (pdf_file, html_file, local_resources)
 
 
 class SCORMPublisher(

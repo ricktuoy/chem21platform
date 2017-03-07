@@ -12,15 +12,15 @@
     </fieldset>
     <nav class="controls">
 	    {% block navigation %}
-		{% if question.previous_question %}<a class="prev" href="#{{ question.previous_question.pk }}">Previous</a>{% endif %}
-		{% if question.next_question %}<a class="next" href="#{{ question.next_question.pk }}">Next</a>{% endif %}
+		{% if question.previous_question %}<a class="prev" href="#question_{{ question.previous_question.pk }}">Previous</a>{% endif %}
+		<a class="next" href="#question_{{ question.next_question.pk }}">Next</a>
 		{% endblock %}
+
 	</nav>
-	{% block submit %}
+			{% block submit %}
 	{% if not question.next_question %}
 		{{ submit }}
 	{% endif %}
 	{% endblock %}
 	<div class="clear">&nbsp;</div>
 </div>
-<div class="error"></div>
