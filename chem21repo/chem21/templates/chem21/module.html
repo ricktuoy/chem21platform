@@ -1,4 +1,5 @@
 {% extends 'chem21/base_learning.html' %}
+{% load staticfiles %}
 {% block title %} {{ object.title }} :: {{ object.topic.title }} :: CHEM21 learning platform{% endblock %}
 {% block display_title %}{{ object.topic.title }}: {{ object.title }}{% endblock %}
  {% load admin_urls %}
@@ -30,8 +31,10 @@
 </div>  
 {% endblock %}
 {% block learning_object %}
-{% if perms.repo.change_lesson and not staticgenerator %}
-<a href="{{ module.get_pdf_version_url }}">PDF</a>
+{% if perms.repo.change_lesson and not staticgenerator and module.has_pdf_version %}
+<div class="pdf_version">
+<img src="{% static "img/pdf_logo.png" %}" alt="" /> Download <a href="{{ module.get_pdf_version_url }}">PDF version </a> of this module.
+</div>
 {% endif %}
 {{ block.super }}
 {% endblock %}

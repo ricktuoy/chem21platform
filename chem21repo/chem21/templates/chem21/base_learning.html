@@ -98,7 +98,7 @@
 {% block learning_object %}
 	{% if object.get_text %}
 		{% replace_tokens object.get_text %}
-	
+		
 		{% if object.video %}
 			{% get_video tokens_replaced object.video %}
 		{% endif %}
@@ -143,6 +143,8 @@
 		{% if object.has_quiz %}
 			{% block interactive %}
 			{% render_quiz object.quiz %}
+			{% replace_tokens rendered_tool %}
+			{{ tokens_replaced|safe }}
 			{% endblock %}
 		{% endif %}
 		{% if object.pdf %}

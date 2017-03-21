@@ -26,7 +26,6 @@ class RenderToolNode(template.Node):
         pass
 
     def get_wrapper_context(self, context):
-
         content_html = mark_safe("\n".join([
             self.render_element(el)
             for i, el in self.iter_elements()]))
@@ -42,7 +41,9 @@ class RenderToolNode(template.Node):
         except ToolNotFoundError:
             return ""
         w_context = self.get_wrapper_context(context)
-        return format_html(self.tool_html_wrapper, **w_context)
+        context['rendered_tool'] = format_html(
+            self.tool_html_wrapper, **w_context)
+        return ""
 
 
 class ElTemplateMixin(object):
@@ -143,7 +144,7 @@ class RenderPDFQuizNode(
 class RenderGuideNode(RenderQuizNode):
     tool_class = Guide
     tool_html_wrapper = (
-        u"<div class=\"guide\" data-id=\"{tool_id}\""
+        u"<div class=\"guide\" data-id=\"{tool_id}\" "
         u"data-answers-json-url=\"{json_url}\">"
         u"<form>{content}</form><div id=\"she_scores\"></div></div>")
     submit_html = u"<a href=\"#she_scores\" class=\"submit\">Show scores</a>"
@@ -163,7 +164,8 @@ class RenderPDFAnswersNode(
         AnswerToolMixin, ElInlineMixin, RenderToolNode):
     default_f = (
         u"<li class=\"answer\"><div class=\"question\">{text}</div>"
-        u"<div class=\"answers\"><span class=\"label\">Correct answer</span>: {answer}</div></div>")
+        u"<div class=\"answers\"><span class=\"label\">Correct answer</span>:"
+        u" {answer}</div></div>")
     multi_f = (
         u"<li class=\"answer\"><div class=\"question\">{text}</div>"
         u"<div class=\"answers\"><span class=\"label\">Correct answers</span>:<ul class=\"answers\">{answers}</ul></div></li>")

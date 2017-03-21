@@ -3,6 +3,9 @@
 
 
 {% load quiz %}
+{% load tokens %}
 {% block interactive %}
 {% render_guide_tool object.quiz %}
+{% replace_tokens rendered_tool %}
+{{ tokens_replaced|safe }}
 {% endblock %}

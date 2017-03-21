@@ -1399,6 +1399,16 @@ img.ghs_symbol {
 	color: white;
 }
 
+div.pdf_version {
+	width: 25%;
+	border: 1px solid #dfdfdf;
+	border-top: 8px #141 solid;
+	padding: 1em;
+}
+
+div.pdf_version img {
+	vertical-align: middle;
+}
 
 #content #score_s p, #content #score_h p, #content #score_e p, #content #default_ranking p {
 	font-size: 2.4em;

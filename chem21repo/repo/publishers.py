@@ -233,13 +233,13 @@ class PDFPublisher(
         base_options = ["-s", "A4", ]
         american_options = ["-s", "Letter"]
 
-        a4_pdf, html_file, resources = self.generate_pdf(html, options=base_options)
+        a4_pdf, html_file, resources = self.generate_pdf(
+            html, options=base_options)
         a4_pdf.content_type = "application/pdf"  # for S3
 
-        letter_pdf, html_file, resources = self.generate_pdf(html, options=american_options)
+        letter_pdf, html_file, resources = self.generate_pdf(
+            html, options=american_options)
         letter_pdf.content_type = "application/pdf"  # for S3
-
-
 
         # upload the pdfs
         letter_pdf_path = root.get_pdf_version_path("letter")
@@ -301,7 +301,6 @@ class PDFPublisher(
         pdf_file = NamedTemporaryFile(delete=False, suffix='.pdf')
         html_file = NamedTemporaryFile(delete=False, suffix='.html')
         html_file.write(html.encode("utf-8"))
-        #html_file.close()
         html_footer_file = NamedTemporaryFile(delete=False, suffix='.html')
         html_footer_file.write(footer_html.encode("utf-8"))
         html_footer_file.close()
@@ -319,8 +318,9 @@ class PDFPublisher(
         try:
             out = check_subprocess(args)
         except CalledProcessError as e:
-            raise Exception("wkhtmltopdf error: %s %s" % (repr(e.args), args) )
-        
+            raise Exception(
+                "wkhtmltopdf error: %s %s" % (repr(e.args), args))
+
         return (pdf_file, html_file, local_resources)
 
 
@@ -369,7 +369,9 @@ class SCORMPublisher(
                     zf.write(full_file, arc_file)
         with open(self.out_zip_path) as f:
             zipc = f.read()
-        with self.storage.open("SCORM/%d/%s.zip" % (root_page.pk, root_page.slug), 'w') as sf:
+        with self.storage.open(
+                "SCORM/%d/%s.zip" % (
+                    root_page.pk, root_page.slug), 'w') as sf:
             sf.write(zipc)
 
     def publisher(self, root):
@@ -385,11 +387,13 @@ class SCORMPublisher(
         # write javascript config
         config_dir = os.path.join(scorm_dir, "js", "src", "config")
 
-        self.write_requirejs_settings_file(dict(url_map),
-                                           os.path.join(config_dir, "urlmap.js"))
+        self.write_requirejs_settings_file(
+            dict(url_map),
+            os.path.join(config_dir, "urlmap.js"))
 
-        self.write_requirejs_settings_file([name for name, page in to_render],
-                                           os.path.join(config_dir, "pageorder.js"))
+        self.write_requirejs_settings_file(
+            [name for name, page in to_render],
+            os.path.join(config_dir, "pageorder.js"))
 
         # write manifest
         manifest_file = os.path.join(scorm_dir, "imsmanifest.xml")
