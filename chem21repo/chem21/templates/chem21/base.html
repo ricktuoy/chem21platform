@@ -7,7 +7,7 @@
 <head>
   {% block head %}
   {% endblock %}
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}CHEM21: learn online for free{% endblock %}</title>
   {% block styles %}
@@ -69,7 +69,7 @@
         {% block search %}
 
         <a href="#top" id="menu-toggle-link" class="mobile-link-icon">
-          <img src="{% static "img/menu-toggle-icon.png" %}" />
+          <img src="{% static "img/menu-toggle-icon.png" %} alt="Toggle menu" />
         </a>
         <div id="header-search">
           {{ search_form }}
@@ -110,7 +110,8 @@
    {% endblock %}
   </footer>
   {% endblock %}
-
+  </div>
+  </div>
 
 </body>
 </html>
