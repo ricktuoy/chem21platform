@@ -71,12 +71,14 @@
 			<div id="quiz_answers">
 				<h1>Quiz answers</h1>
 				{% for quiz in quizzes %}
+					{% if quiz.has_quiz and not quiz.template.name %}
 					<div class="quiz_answers" id="answers_{{ quiz.pk }}">
 					<h2>{{ quiz.current_lesson.title }} - {{ quiz.title }}</h2>
 					{% render_pdf_answers quiz.quiz %}	
 					{% replace_tokens rendered_tool %}
 					{{ tokens_replaced|safe }}
 					</div>
+					{% endif %}
 				{% endfor %}
 			</div>
 		{% endif %}
