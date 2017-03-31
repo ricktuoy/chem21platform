@@ -1404,6 +1404,15 @@ div.pdf_version {
 	border: 1px solid #dfdfdf;
 	border-top: 8px #141 solid;
 	padding: 1em;
+	float: right;
+	margin-left: 1.5em;
+}
+
+div.pdf_version h2 {
+	font-size: 1.1em;
+	margin-top: 0;
+	margin-bottom: 0.5em;
+	border-bottom: 1px solid #eaeaea;
 }
 
 div.pdf_version img {

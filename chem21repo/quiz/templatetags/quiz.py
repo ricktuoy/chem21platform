@@ -123,11 +123,11 @@ class RenderPDFQuizNode(
         u"<ol id=\"{tool_id}\" class=\"quiz_questions\">{content}</ol>")
 
     def render_choices(self, element):
-        return mark_safe("\n".join([
+        return "\n".join([
             format_html(
                 u"<li>{}</li>",
-                choice['text']) for choice in element['responses']
-        ]))
+                mark_safe(choice['text'])) for choice in element['responses']
+        ])
 
     def get_element_context(self, question):
         ctx = {
@@ -168,7 +168,8 @@ class RenderPDFAnswersNode(
         u" {answer}</div></div>")
     multi_f = (
         u"<li class=\"answer\"><div class=\"question\">{text}</div>"
-        u"<div class=\"answers\"><span class=\"label\">Correct answers</span>:<ul class=\"answers\">{answers}</ul></div></li>")
+        u"<div class=\"answers\"><span class=\"label\">Correct answers</span>:"
+        u"<ul class=\"answers\">{answers}</ul></div></li>")
     formats = {
         'single': default_f,
         'multi': multi_f,
@@ -179,11 +180,12 @@ class RenderPDFAnswersNode(
         u" class=\"quiz_questions\">{content}</ol>")
 
     def render_answers(self, answer):
-        return mark_safe("\n".join([
+        return "\n".join([
             format_html(
                 u"<li>{}</li>",
-                (answer_t, )) for answer_t in answer['correct_texts']
-        ]))
+                (mark_safe(
+                    answer_t),)) for answer_t in answer['correct_texts']
+        ])
 
     def get_element_context(self, answer):
         question = answer['question']
