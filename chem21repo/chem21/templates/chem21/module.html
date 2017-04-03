@@ -31,12 +31,12 @@
 </div>  
 {% endblock %}
 {% block learning_object %}
-{% if perms.repo.change_lesson and not staticgenerator  %}
 <div class="pdf_version">
 <h2>Download this module</h3>
 <img src="{% static "img/pdf_icon.png" %}" alt="" /> <a target="_blank" href="{{ module.get_pdf_version_url }}">PDF version</a>
-</div>
+{% if perms.repo.change_lesson and not staticgenerator  %}
 {% endif %}
+</div>
 {{ block.super }}
 {% endblock %}
 
