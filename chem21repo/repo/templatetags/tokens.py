@@ -191,8 +191,8 @@ class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
         if st not in self.bibset:
             self.bibs.append(bib)
             self.bibset[st] = len(self.bibs)
-        return "<a href=\"#citekey_%d\">[%d]</a>" % (
-            self.bibset[st], self.bibset[st])
+        return "<a href=\"#citekey_%s_%d\">[%d]</a>" % (
+            st, self.bibset[st], self.bibset[st])
 
     def _get_footnote_html(self, bib, id):
         html = bib.get_footnote_html()
@@ -208,8 +208,8 @@ class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
             url = reverse("admin:repo_biblio-power_change", 
                 args = [bib.pk,])
             html += "<a href=\"%s\">%s</a>" % (url, "[edit]")
-        return "<li id=\"citekey_%d\">%s</li>" % (
-            id, html)
+        return "<li id=\"citekey_%s_%d\">%s</li>" % (
+            bib.citekey, self.bibset[bib.citekey], html)
 
     def get_footnotes_html(self):
         return "\n".join(
@@ -217,8 +217,6 @@ class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
              for id, bib in
              zip(
                 range(1, len(self.bibs) + 1), self.bibs)])
-
-    
 
 class BiblioInlineTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "ibib"

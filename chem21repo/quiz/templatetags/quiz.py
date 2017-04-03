@@ -165,7 +165,7 @@ class RenderPDFAnswersNode(
     default_f = (
         u"<li class=\"answer\"><div class=\"question\">{text}</div>"
         u"<div class=\"answers\"><span class=\"label\">Correct answer</span>:"
-        u" {answer}</div></div>")
+        u" {answer}</div></li>")
     multi_f = (
         u"<li class=\"answer\"><div class=\"question\">{text}</div>"
         u"<div class=\"answers\"><span class=\"label\">Correct answers</span>:"
