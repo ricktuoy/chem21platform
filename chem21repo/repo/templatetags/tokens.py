@@ -581,6 +581,9 @@ class ReplaceTokensNode(template.Node):
     def render(self, context):
         txt = self.text.resolve(context)
         if not txt:
+            context['footnotes_html'] = ''
+            context['pre_content'] = ''
+            context['tokens_replaced'] = ''
             return ""
         processors = {
             'bibtex': BibTeXCiteProcessor(context=context),
