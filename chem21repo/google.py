@@ -191,14 +191,8 @@ class YouTubeCaptionServiceMixin(GoogleServiceMixin):
         if caption_set is None:
             return None
         def reduce_fn(c1, c2):
-            if c2['snippet']['language'] != "en":
-                return c1
-            if c1 is None:
-                return c2
-            t1 = dateutil.parser.parse(c1['snippet']['lastUpdated'])
-            t2 = dateutil.parser.parse(c2['snippet']['lastUpdated'])
-            if t1 < t2:
-                return c2
+            if c2['snippet']['trackKind'] != "ASR" and c2['snippet']['language'] == "en":
+              return c2
             return c1 
 
         return reduce(reduce_fn, caption_set, None)
