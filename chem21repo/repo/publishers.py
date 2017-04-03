@@ -216,7 +216,7 @@ class PDFPublisher(
                     obj.transcript = "\n".join(
                         ["<p>%s.</p>" % s for s in transcript.split(". ")])
 
-            if obj.quiz and obj.template and obj.template.name != "guide":
+            if obj.quiz and not obj.template or obj.template.name != "guide":
                 quizzes.append(obj)
 
         # generate html for combined pdf

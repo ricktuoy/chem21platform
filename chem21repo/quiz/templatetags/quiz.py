@@ -113,7 +113,7 @@ class RenderPDFQuizNode(
         QuestionToolMixin, ElInlineMixin, RenderToolNode):
     default_f = (
         u"<li class=\"question\">{text}"
-        u"<ul class=\"choices\">{choices}</ul></li>")
+        u"<ol class=\"choices\">{choices}</ol></li>")
     formats = {
         'single': default_f,
         'multi': default_f,
