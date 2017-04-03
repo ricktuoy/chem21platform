@@ -123,11 +123,11 @@ class RenderPDFQuizNode(
         u"<ol id=\"{tool_id}\" class=\"quiz_questions\">{content}</ol>")
 
     def render_choices(self, element):
-        return "\n".join([
+        return mark_safe("\n".join([
             format_html(
                 u"<li>{}</li>",
                 mark_safe(choice['text'])) for choice in element['responses']
-        ])
+        ]))
 
     def get_element_context(self, question):
         ctx = {
@@ -180,12 +180,12 @@ class RenderPDFAnswersNode(
         u" class=\"quiz_questions\">{content}</ol>")
 
     def render_answers(self, answer):
-        return "\n".join([
+        return mark_safe("\n".join([
             format_html(
                 u"<li>{}</li>",
                 (mark_safe(
                     answer_t),)) for answer_t in answer['correct_texts']
-        ])
+        ]))
 
     def get_element_context(self, answer):
         question = answer['question']

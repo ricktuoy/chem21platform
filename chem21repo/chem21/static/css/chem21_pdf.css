@@ -41,7 +41,6 @@ tr:nth-child(even) {
 td {
 	font-size: 0.85em;
 	text-align: center;
-
 }
 
 th {
@@ -80,8 +79,6 @@ div.video {
 
 .video .source  {
 	float: left;
-	width: auto;
-	height: 100%;
 }
 
 .video .source a {
