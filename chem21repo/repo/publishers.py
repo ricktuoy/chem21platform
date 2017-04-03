@@ -282,7 +282,8 @@ class PDFPublisher(
             "video.png": "img/video.png",
             "require.js": "js/lib/require.js",
             "jquery.js": "js/lib/jquery.js",
-            "jqmath.js": "js/lib/jqmath-0.4.4.js"
+            "jqmath.js": "js/lib/jqmath-0.4.4.js",
+            "jscurry.js": "js/lib/jscurry-0.4.1.js"
         }
         local_resources = []
         for lname, spath in resources.iteritems():
