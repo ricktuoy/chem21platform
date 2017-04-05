@@ -133,7 +133,15 @@ class GenerateHTMLMixin(object):
             template_name = page.template.name
         else:
             template_name = type(page)._meta.object_name.lower()
-        return render_to_string("chem21/%s.html" % template_name, context)
+
+        if template_name == "module":
+            context['pdf_version_urls'] = {
+                'a4': page.get_pdf_version_url(fmt="a4"),
+                'letter': page.get_pdf_version_url(fmt="letter")
+            }
+
+        return render_to_string(
+            "chem21/%s.html" % template_name, context)
 
 
 class HTMLPublisher(BasePublisher, PublicStorageMixin, GenerateHTMLMixin):

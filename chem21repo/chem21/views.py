@@ -260,8 +260,6 @@ class ModuleView(LearningView):
             'a4': context['object'].get_pdf_version_url(fmt="a4"),
             'letter': context['object'].get_pdf_version_url(fmt="letter")
         }
+
+             
         return context
-
-
-
-
