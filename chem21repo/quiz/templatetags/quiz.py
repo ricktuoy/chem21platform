@@ -179,6 +179,8 @@ class RenderPDFAnswersNode(
         u"<ol id=\"answers_{tool_id}\""
         u" class=\"quiz_questions\">{content}</ol>")
 
+    
+
     def render_answers(self, answer):
         return mark_safe("\n".join([
             format_html(

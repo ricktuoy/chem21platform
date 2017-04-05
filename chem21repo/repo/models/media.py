@@ -1,4 +1,5 @@
 import os
+import mimetypes
 
 from .base import ActiveManager
 from .base import OrderedModel

@@ -33,7 +33,7 @@
 {% block learning_object %}
 <div class="pdf_version">
 <h2>Download this module</h3>
-<img src="{% static "img/pdf_icon.png" %}" alt="" /> <a target="_blank" href="{{ module.get_pdf_version_url }}">PDF version</a>
+<img src="{% static "img/pdf_icon.png" %}" alt="" /> <a target="_blank" title="{{ object.title }} PDF (A4)" href="{{ pdf_version_urls.a4 }}">A4 PDF</a> | <a target="_blank" title="{{ object.title }} PDF (letter)" href="{{ pdf_version_urls.letter }}">Letter PDF</a>
 {% if perms.repo.change_lesson and not staticgenerator  %}
 {% endif %}
 </div>

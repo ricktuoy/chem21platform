@@ -247,5 +247,3 @@ PathUnicodeMixin = UnicodeMixinFactory("path")
 PathUnicodeMixin.__name__ = "PathUnicodeMixin"
 TitleUnicodeMixin = UnicodeMixinFactory("title")
 TitleUnicodeMixin.__name__ = "TitleUnicodeMixin"
-
-

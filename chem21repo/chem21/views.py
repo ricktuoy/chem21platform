@@ -253,6 +253,15 @@ class ModuleView(LearningView):
     model = Module
     name = "module"
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(ModuleView, self).get_context_data(
+            self, *args, **kwargs)
+        context['pdf_version_urls'] = {
+            'a4': context['object'].get_pdf_version_url(fmt="a4"),
+            'letter': context['object'].get_pdf_version_url(fmt="letter")
+        }
+        return context
+
 
 
 

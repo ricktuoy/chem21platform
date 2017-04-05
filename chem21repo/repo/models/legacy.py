@@ -19,8 +19,6 @@ class AuthorInFileManager(models.Manager, OrderedRelationalManagerBase):
         return "file"
 
 
-
-
 class PresentationsInQuestionManager(models.Manager,
                                      OrderedRelationalManagerBase):
 

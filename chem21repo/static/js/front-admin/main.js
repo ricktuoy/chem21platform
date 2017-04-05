@@ -137,26 +137,22 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
             var auth_handler_gen = function(url, data, done_handle) {
                 console.debug("Generating fail handler");
                 return function(xhr, status, error) {
-                    console.debug("In fail handler");
-                    console.debug(xhr.status);
                     switch(xhr.status) {
                         case 401:
                             console.debug("401");
                             data = $.parseJSON(xhr.responseText);
                             var win = window.open(data.auth_url, "google_auth", 'toolbars=0,width=400,height=320,left=200,top=200,scrollbars=1,resizable=1');
                             // ew poll for window closed.
-                            console.debug("Window opened");
                             var pollTimer = window.setInterval(function() {
-                                console.debug("Polling for window closed");
-                                console.debug(win);
                                 if (win.closed !== false) { // !== is required for compatibility with Opera
-                                    console.debug("Window closed");
                                     window.clearInterval(pollTimer);
-                                    console.debug("Poll closed");
                                     $.post(url, data, done_handle);
-                                    console.debug("posted again");
+
                                 }
                             }, 200);
+                        case 503:
+                            console.debug("Retry " + url);
+                            $.post(url, data, done_handle);
                     }
                 };
             };
