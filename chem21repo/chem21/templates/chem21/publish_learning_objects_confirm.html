@@ -80,11 +80,18 @@
 <div id="publish_forms">
  <div id="publish_progress"><div class="progress-label">Loading...</div></div>
 	<aside>
+			<h1>Alternatively ...</h1>
 	<form method="post" id="publish_all" data-pdf-ids-url="{% url 'pdf_ids' %}" data-publishable-ids-url="{% url 'publishable_ids' %}">
-		<h1>Alternatively ...</h1>
+
 		{% csrf_token %}
 		<input type="hidden" name="publish_all" />
 		<input type="submit" value="Re-publish entire site" />
+		<p>Warning: this really does mean every page, only do this if you are sure.</p>
+	</form>
+	<form method="post" id="publish_all_html" data-publishable-ids-url="{% url 'publishable_ids' %}">
+		{% csrf_token %}
+		<input type="hidden" name="publish_all_html" />
+		<input type="submit" value="Re-publish entire site - HTML only" />
 		<p>Warning: this really does mean every page, only do this if you are sure.</p>
 	</form>
 	</aside>

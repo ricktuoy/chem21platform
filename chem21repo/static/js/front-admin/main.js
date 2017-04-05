@@ -211,7 +211,6 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
             var progress = $("#publish_progress");
             var label = progress.find(".progress-label");
             progress.show();
-            console.debug(pdf_url);
             var pdf_ids = $.post(pdf_url, data);
             //
             $.when(pdf_ids).done(
@@ -230,6 +229,17 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
             );
         };
 
+        var init_publish_html = function(data) {
+            var progress = $("#publish_progress");
+            var label = progress.find(".progress-label");
+            progress.show();
+            var html_promise = publish(data, window.location.pathname, "html", progress, label, 5);
+            $.when(html_promise).done(function(html_data) {
+                window.location.reload();
+            });
+
+        };
+
 
         $("form#publish_changed").on("submit", function(e) {
             e.preventDefault();
@@ -246,6 +256,16 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
             progress.show();
             $.get($(this).data("publishableIdsUrl"), function( data ) {
                 init_publish(data.objects, pdf_url);
+            });
+        });
+
+        $("form#publish_all_html").on("submit", function(e) {
+            e.preventDefault();
+            var progress = $("#publish_progress");
+            var label = progress.find(".progress-label");
+            progress.show();
+            $.get($(this).data("publishableIdsUrl"), function( data ) {
+                init_publish_html(data.objects);
             });
         });
 
