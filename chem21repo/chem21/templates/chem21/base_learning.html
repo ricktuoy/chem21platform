@@ -35,6 +35,7 @@
 {% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
 {% block site_tools %}
 {% if request.user.is_authenticated and not staticgenerator %}
+
   <div id="admin_site_links">
   <a href="#" id="import_references_trigger">Import references</a>
   {% url 'admin:repo_biblio_importreferences' as references_url %}
@@ -73,6 +74,32 @@
 {% block admin_tools %}
 
 {% if perms.repo.change_lesson %}
+  <nav>
+	<ul class="admin_menu">
+	{% for category, commands in page_admin_menu %}
+	<li class="category">
+		{{ category }}
+		<ul>
+		{% for command in commands %}
+			<li class="command">
+				{% if command.params %}
+					<a href="{{ command.url }}" 
+					   data-signature="{{ command.param_string }}" 
+					   data-instruction="{{ command.instruction }}"
+				       data-command-name="{{ command.name }}">{{ command.display_name }}</a>
+				{% else %}
+					{% if command.url %}<a href="{{ command.url }}">{{ command.display_name }}</a>
+					{% else %}{{ command.display_name }}{% endif %}
+				{% endif %}
+			</li>
+		{% endfor %}
+		</ul>
+	</li>
+	{% endfor %}
+	</ul>
+  </nav>
+
+
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
@@ -115,8 +142,8 @@
 	{% endif %}
 
 	{% if perms.repo.change_lesson %}
-		{% if object.is_question %}
-				<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.first_question.pk %}"
+		{% if object.page %}
+				<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.page.pk %}"
 				data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
 				Edit text</a>
 

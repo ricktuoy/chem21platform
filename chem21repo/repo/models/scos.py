@@ -30,6 +30,12 @@ class AttributionMixin(BaseModel):
         abstract = True
 
 
+class PageContainerMixin(BaseModel):
+    page = models.ForeignKey('Question', blank=True, null=True)
+    class Meta:
+        abstract = True
+
+
 class GlossaryTerm(models.Model):
     name = models.CharField(max_length=100, unique=True, db_index=True)
     description = models.TextField(default=[])
@@ -191,7 +197,10 @@ class TopicWithStructureManager(OrderedManager):
                         to_attr="ordered_questions"))
 
 
-class Topic(OrderedModel, SCOBase, AttributionMixin, NameUnicodeMixin):
+class Topic(
+        OrderedModel, SCOBase,
+        AttributionMixin, PageContainerMixin,
+        NameUnicodeMixin):
     objects = OrderedManager()
     objects_with_structure = TopicWithStructureManager()
     name = models.CharField(max_length=200)
@@ -281,6 +290,7 @@ class Module(
         OrderedModel,
         SCOBase,
         AttributionMixin,
+        PageContainerMixin,
         NameUnicodeMixin):
     objects = OrderedManager()
     name = models.CharField(max_length=200)
@@ -438,7 +448,12 @@ class LessonsInModuleManager(models.Manager,
         return "modules"
 
 
-class Lesson(OrderedModel, SCOBase, AttributionMixin, TitleUnicodeMixin):
+class Lesson(
+        OrderedModel,
+        SCOBase,
+        AttributionMixin,
+        PageContainerMixin,
+        TitleUnicodeMixin):
     objects = LessonsInModuleManager()
     modules = models.ManyToManyField(Module, related_name="lessons")
     title = models.CharField(max_length=100, blank=True, default="")
@@ -555,11 +570,11 @@ class Question(OrderedModel, SCOBase, AttributionMixin, TitleUnicodeMixin):
     presentations = models.ManyToManyField(
         Presentation, through='PresentationsInQuestion')
     """
-    files = models.ManyToManyField(UniqueFile, related_name="questions")
+    files = models.ManyToManyField(UniqueFile, related_name="questions", blank=True)
     text = models.TextField(null=True, blank=True, default="")
     byline = models.TextField(null=True, blank=True, default="")
     remote_id = models.IntegerField(null=True, db_index=True)
-    lessons = models.ManyToManyField(Lesson, related_name="questions")
+    lessons = models.ManyToManyField(Lesson, related_name="questions", blank=True)
     child_attr_name = "files"
 
     @property

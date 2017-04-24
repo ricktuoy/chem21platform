@@ -4,6 +4,7 @@ from chem21repo.repo.models import Question
 from chem21repo.repo.models import Topic
 from chem21repo.repo.models import UniqueFile
 from chem21repo.repo.models import PresentationAction
+from chem21repo.repo.admin.menu_actions import PageActionRegistry
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.db.models import Prefetch
@@ -104,6 +105,10 @@ class LearningView(DetailView):
 
         obj = context['object']
         self.object = obj
+
+        reg = PageActionRegistry.get()
+        reg.page = self.object
+        context['page_admin_menu'] = reg.itercategories()
 
         try:
             obj.set_parent(self.parent)

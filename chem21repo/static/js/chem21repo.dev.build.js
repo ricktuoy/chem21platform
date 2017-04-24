@@ -30,6 +30,8 @@
                   {name: 'select_linktag'},
                   {name: 'admin_fileupload'},
                   {name: 'google_picker'},
+                  {name: 'selector_widget_mixin'},
+                  {name: 'page_menu'},
                   {name: 'nav_reorder'}],
     /*
      * Allow CSS optimizations. Allowed values:
@@ -93,7 +95,9 @@
         "jquery.math": "jqmath-0.4.4" ,
         "admin_fileupload": "../admin-fileupload",
         "nav_reorder": "../nav-reorder",
-        "pdf_gen": "../pdf-gen"
+        "pdf_gen": "../pdf-gen",
+        "selector_widget_mixin": "../selector-widget-mixin/main",
+        "page_menu": "../page-menu"
     },
     shim: {
         "jquery.math": ['jquery','jsCurry']

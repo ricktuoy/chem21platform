@@ -84,9 +84,13 @@ class QuestionAdmin(admin.ModelAdmin):
         from django.conf.urls import url
         urls = super(QuestionAdmin, self).get_urls()
         my_urls = [
-            url(r'^add_token/([0-9]+)/([0-9]+)/(.*)$',
+            url(r'^add_figure/([0-9]+)/([0-9]+)/([0-9]+)$',
                 self.admin_site.admin_view(self.add_figure),
-                name='repo_question_addtoken'
+                name='add_figure'
+                ),
+            url(r'^edit_figure/([0-9]+)/([0-9]+)/([0-9]+)$',
+                self.admin_site.admin_view(self.add_figure),
+                name='edit_figure'
                 ),
             url(r'^load_gdoc/(?P<tpk>[0-9]+)/(?P<file_id>.*)[/]?$',
                 self.admin_site.admin_view(LoadFromGDocView.as_view()),
@@ -108,17 +112,17 @@ class QuestionAdmin(admin.ModelAdmin):
 
     def save_and_get_redirect(self, request, token, form):
         token.update(**form.cleaned_data)
-        token.render()
+        token.insert()
         token.question.save()
         return self._redirect(request)
 
-    def edit_figure(self, request, qpk, para, token_type, order):
+    def edit_figure(self, request, qpk, para, order):
         context = {}
         question = Question.objects.get(pk=qpk)
         try:
             token = Token.get(
-                "figure", para=int(para),
-                question=question, order=order)
+                "figure", para=int(para), fig=order,
+                question=question)
         except Token.DoesNotExist:
             raise Http404("Token does not exist.")
         form = self.get_token_form(request, token)
@@ -131,7 +135,7 @@ class QuestionAdmin(admin.ModelAdmin):
             token_type, int(para))
         return render(request, "admin/question_token_form.html", context)
 
-    def add_figure(self, request, qpk, para, token_type):
+    def add_figure(self, request, qpk, para, figure):
         context = {}
         try:
             question = Question.objects.get(pk=qpk)
@@ -140,23 +144,24 @@ class QuestionAdmin(admin.ModelAdmin):
         token = Token.create(
             "figure",
             para=int(para),
+            fig=int(figure),
             question=question)
         form = self.get_token_form(request, token)
         if form.is_valid():
             return self.save_and_get_redirect(request, token, form)
         context['form'] = form
-        context['token_type'] = token_type
+        context['token_type'] = 'figure'
         context['token'] = token
         context['title'] = "Insert %s at paragraph %d" % (
-            token_type, int(para))
+            'figure', int(para))
         return render(request, "admin/question_token_form.html", context)
 
-    def delete_token(self, request, qpk, para, token_type, order):
+    def delete_figure(self, request, qpk, para, figure):
         question = Question.get(qpk)
         try:
             token = Token.get(
-                token_type, para=int(para),
-                question=question, order=order)
+                "figure", para=int(para),
+                question=question, figure=int(figure))
         except Token.DoesNotExist:
             raise Http404("Token does not exist.")
         token.delete()

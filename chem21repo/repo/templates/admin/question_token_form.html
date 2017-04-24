@@ -5,7 +5,7 @@
 	{% require_module '../admin-fileupload' %}
 {% endblock %}
 {% block content %}
-<form action="{% url "admin:repo_question_addtoken" token.question.pk token.para token_type %}" method="post" id="question_token_form">{% csrf_token %}{% block form_top %}{% endblock %}
+<form method="post" id="question_token_form">{% csrf_token %}{% block form_top %}{% endblock %}
         <div>
             <!-- Errors -->
             {% if errors %}

@@ -45,11 +45,11 @@
 }
 
 .color-white {
-    color: #fcfcfc;
+    color: white;
 }
 
 .background-color-white {
-    background-color: #fcfcfc;
+    background-color: white;
 }
 
 .color-light-gray {
@@ -57,7 +57,7 @@
 }
 
 .background-color-light-gray {
-    background-color: #fcfcfc;
+    background-color: #fafafa;
 }
 
 .color-medium-gray {
@@ -117,7 +117,7 @@
 }
 
 #second-sidebar {
-    background-color: #fcfcfc;
+    background-color: white;
 }
 
 #title-wrapper {

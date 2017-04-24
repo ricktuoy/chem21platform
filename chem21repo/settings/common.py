@@ -2,6 +2,7 @@ import os
 from boto.s3.connection import OrdinaryCallingFormat
 
 from django.utils.crypto import get_random_string
+from chem21repo.repo.settings import *
 
 # Application definition
 
@@ -32,6 +33,8 @@ INSTALLED_APPS = (
 )
 
 
+
+
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'chem21repo.middleware.C21AdminMiddleware',
@@ -57,6 +60,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'chem21repo.context_processors.page_admin_menu',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -67,6 +71,7 @@ TEMPLATES = [
 TEMPLATE_CONTEXT_PROCESSORS = (
     'social.apps.django_app.context_processors.backends',
     'social.apps.django_app.context_processors.login_redirect',
+    'chem21repo.context_processors.page_admin_menu',
     'django.core.context_processors.request'
 )
 
@@ -170,3 +175,4 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = [
     'jobie.kirkwood@york.ac.uk']
 
 WEB_ROOT = ''
+

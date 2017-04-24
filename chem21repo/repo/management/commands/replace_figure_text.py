@@ -1,7 +1,6 @@
 from chem21repo.repo.models import *
 from chem21repo.repo.templatetags.tokens import SurroundFiguresTokenProcessor
 from django.core.management.base import BaseCommand
-from django.template.defaultfilters import slugify
 
 
 class Command(BaseCommand):

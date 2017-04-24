@@ -26,16 +26,17 @@ class C21AdminMiddleware(object):
     def is_ignorable_request(request):
         try:
             parts = request.path.split("/")
-            return (request.is_ajax() or 
-                parts[1] == "s3" or 
-                parts[1] == "__debug__"  or
+            return (
+                request.is_ajax() or
+                parts[1] == "s3" or
+                parts[1] == "__debug__" or
                 parts[1] == "video_timeline")
         except IndexError:
             return False
 
     def get_admin_uris_in_stack(self, request):
         return [uri for uri in request.session.get('recent_uri_stack', []) if self.is_admin_uri(uri)]
-        
+
 
     def process_response(self, request, response):
         if not hasattr(request, 'session'):

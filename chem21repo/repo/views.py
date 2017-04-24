@@ -589,10 +589,10 @@ class JQueryFileHandleView(LoginRequiredMixin, View):
 class MediaUploadHandle(object):
     def process(self, f, lobj=None, **kwargs):
         m = hashlib.md5()
-        
+
         for ch in f.chunks():
             m.update(ch)
-        
+
         checksum = m.hexdigest()
         name = f.name
         title, ext = os.path.splitext(name)
@@ -602,7 +602,8 @@ class MediaUploadHandle(object):
         dest_path = "sources/" + checksum + ext
         default_storage.save(dest_path, f)
 
-        defaults = {'ext': ext,
+        defaults = {
+            'ext': ext,
             'type': tpe,
             'title': title}
         

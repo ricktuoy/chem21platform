@@ -18,6 +18,7 @@ from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.template.defaultfilters import striptags
+from ..tokens import Token
 
 register = template.Library()
 
@@ -58,7 +59,7 @@ class TokenProcessor(BaseProcessor):
             return self._pattern
         except AttributeError:
             self._pattern = re.compile(
-                r'%s%s(?P<%s_args>.*?)%s' %
+                r'(?<!\<\!\-\-token\-\-\>)%s%s(?P<%s_args>.*?)%s' %
                 (self.openchar,
                     self.token_name,
                     self.name,
@@ -432,11 +433,12 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
                     self.asides.append(self.inner_text)
                     return ""
                 else:
-                    self.inner_text = "<aside>%s</aside>" % self.inner_text    
+                    self.inner_text = "<aside>%s</aside>" % self.inner_text
         return self.inner_text
 
     def get_asides_html(self):
-        return "".join(map(lambda x: "<aside>%s</aside>" % x, self.asides))  
+        return "".join(
+            map(lambda x: "<aside>%s</aside>" % x, self.asides))
 
 
 class SurroundFiguresTokenProcessor(ContextProcessorMixin, TokenProcessor):

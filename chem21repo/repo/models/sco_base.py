@@ -1,6 +1,7 @@
 from .base import BaseModel
 from .base import UnicodeMixinFactory
 from django.db import models
+import logging
 
 
 class LearningTemplate(models.Model):
@@ -68,12 +69,7 @@ class SCOBase(models.Model):
             p = self.get_parent()
         except AttributeError:
             p = None
-        """
-        TODO: need to check for situation where parent is_question
-        in this situation, we need to check self is  not the 
-        first child of parent
-        e.g. check sibs[1]
-        """
+        
         try:
             p.current_module = self.current_module
         except AttributeError:
@@ -304,6 +300,12 @@ class SCOBase(models.Model):
         return None
 
     def get_text(self):
+        try:
+            text = self.page.text
+            logging.debug("Using page attribute for text")
+            return text
+        except AttributeError:
+            pass
         if self.is_question:
             try:
                 return self.first_question.text
@@ -312,6 +314,12 @@ class SCOBase(models.Model):
         return self.text
 
     def get_title(self):
+        try:
+            title = self.page.title
+            logging.debug("Using page attribute for title")
+            return title
+        except AttributeError:
+            pass
         if self.is_question:
             try:
                 return self.first_question.title

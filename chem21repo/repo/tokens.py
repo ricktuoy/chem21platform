@@ -8,6 +8,10 @@ from django.core.urlresolvers import reverse
 import logging
 
 
+class MatchError(Exception):
+    pass
+
+
 class HTMLBlockProcessor(object):
     matches = []
     pattern = re.compile(
@@ -16,9 +20,12 @@ class HTMLBlockProcessor(object):
     @classmethod
     def get_match(kls, source, number):
         if number < 1:
-            raise ValueError("Blocks are numbered from 1 upwards")
+            raise MatchError("Blocks are numbered from 1 upwards")
         matches = list(kls.pattern.finditer(source))
-        return matches[number - 1]
+        try:
+            return matches[number - 1]
+        except IndexError:
+            raise MatchError("No match found.")
 
     @classmethod
     def get_block_ref(kls, match):
@@ -65,7 +72,7 @@ class BaseProcessor:
     def __init__(self, *args, **kwargs):
         pass
 
-    def match_as_token(self, match, para, token):
+    def match_as_token(self, match, question, para):
         return Token.from_match(question, para, match)
 
     def get_inner_tag_pattern(self, name, inpattern):
@@ -93,10 +100,15 @@ class BaseProcessor:
     def _token_generator(self, seq):
         prev_end = 0
         para_count = 0
-        for i,m in enumerate(seq):
+        for i, m in enumerate(seq):
             para_count = para_count + m.string.count("<p", prev_end, m.start())
             prev_end = m.end()
-            yield (para, self.match_as_token(match = m, question = None, para=para_count))
+            yield (
+                para,
+                self.match_as_token(
+                    match=m,
+                    question=None,
+                    para=para_count))
 
     def token_matches(self, st):
         try:
@@ -110,13 +122,13 @@ class BaseProcessor:
 class BlockToolMixin(object):
     def apply_block_tool(self, st):
         self.full_text = st
-        
         try:
             obj = self.context['object']
         except KeyError:
-            return st      
+            return st
 
         def render_tool(count, ref):
+            return ""
             url = reverse("admin:repo_question_addtoken", 
                 args = [obj.first_question.pk,
                         count,
@@ -149,45 +161,69 @@ class FigureTokenForm(forms.Form):
 
 
 class BaseToken(object):
+    block_processor = HTMLBlockProcessor
 
-    def __init__(self, para, question, processor=None, above=False):
+    def __init__(self, para, question, fig=0, above=False):
         self.para = para
         self.question = question
         self.data = {}
+        self.fig = fig
         self.above = above
-        if not processor:
-            processor = HTMLBlockProcessor
-        self.processor = processor
 
     def update(self, **kwargs):
         self.data.update(kwargs)
 
-    def render(self):
-        html = self.get_html()
-        para = self.para
-        if self.above:
-            fn = self.processor.insert_rendered_before
-        else:
-            fn = self.processor.insert_rendered_after
-        self.question.text = fn(self.question.text, html, para)
+    @staticmethod
+    def get_match(source, number):
+        regex = r"\<div class=\"token\"\>\<\!\-\-token\-\-\>(.*)\<\!\-\-endtoken\-\-\>\<\/div\>"
+        regex = re.compile(regex)
+        matches = list(regex.finditer(source))
+        try:
+            return matches[number - 1]
+        except IndexError:
+            raise MatchError("No such token found")
 
-    def get_html(self, txt):
-        return "<div class=\"token\"><!--token-->" + txt \
-            + "<!--endtoken--></div>"
+    @property
+    def start_index(self):
+        offset = -1 if self.above else 0
+        para_match = self.block_processor.get_match(
+            self.question.text, self.para + offset)
+        try:
+            para_match_next = self.block_processor.get_match(
+                self.question.text, self.para + offset + 1)
+            token_text = self.question.text[
+                para_match.end() + 1:para_match_next.start()]
+        except MatchError:
+            token_text = self.question.text[
+                para_match.end() + 1:]
+        if not self.fig or not token_text:
+            return para_match.end()
+        try:
+            token_match = self.get_match(
+                token_text, self.fig)
+        except MatchError:
+            return para_match.end()
+        return para_match.end() + token_match.end() + 1
+
+    def insert(self):
+        html = self.get_html()
+        index = self.start_index
+        self.question.text = self.question.text[:index] + \
+            html + self.question.text[index:]
 
     def get(self, para, question, order=1):
         p_match = self.processor.get_match(question.text, para)
+        return p_match
 
 
 class FigureToken(BaseToken):
+    def __init__(self, para, fig, question):
+        super(FigureToken, self).__init__(
+            para=para,
+            question=question,
+            fig=fig,
+            above=False)
 
-    def __init__(self, para, question, processor=None):
-        super(FigureToken,self).__init__(para=para, 
-            question=question, 
-            processor=processor, 
-            above=True)
-        #self.token_processor = FigureGroupTagProcessor()
-    
     def form(self, *args, **kwargs):
         return FigureTokenForm(self.question, *args, **kwargs)
 
@@ -197,12 +233,12 @@ class FigureToken(BaseToken):
             self.above = False
 
     def get_html(self, txt=""):
-        if not 'media' in self.data:
+        if 'media' not in self.data:
             return ""
         ftype = self.data.get("figure_type", "figure")
-        if not ftype: 
+        if not ftype:
             ftype = "figure"
-        group_attrs = [ftype,]
+        group_attrs = [ftype, ]
         if 'layout' in self.data and self.data['layout']:
             style = self.data['layout']
             styles = set()
@@ -211,14 +247,14 @@ class FigureToken(BaseToken):
             if style != "full_width":
                 styles.add(style)
             if len(styles):
-                group_attrs.append(" ".join(styles) )
+                group_attrs.append(" ".join(styles))
         group_content = ["[figure:local:%s]" % pk for pk in self.data['media']]
         if 'caption' in self.data and self.data['caption']:
             group_content.append(
                 "[figcaption]%s[/figcaption]" % self.data['caption'])
-        return super(FigureToken, self).get_html("[figgroup:%s]%s[/figgroup]" % (
-            ":".join(group_attrs), 
-            "".join(group_content) + txt))
+        return "[figgroup:%s]%s[/figgroup]" % (
+                ":".join(group_attrs),
+                "".join(group_content) + txt)
 
 
 class Token(object):
@@ -226,18 +262,19 @@ class Token(object):
     @classmethod
     def processor_from_name(kls, nm):
         return eval(nm.capitalize() + "Processor")
+
     @classmethod
     def class_from_name(kls, nm):
         return eval(nm.capitalize() + "Token")
 
     @classmethod
-    def create(kls, tp, para, question, *args, **kwargs):
+    def create(kls, tp, para, fig, question, *args, **kwargs):
         token_class = kls.class_from_name(tp)
-        return token_class(para=para, question=question,
+        return token_class(para=para, question=question, fig=fig,
                            *args, **kwargs)
 
     @classmethod
-    def get(kls, tp, para, question, order):
+    def get(kls, tp, para, fig, question):
         token_class = kls.class_from_name(tp)
-        return token_class.get(para=para, question=question, 
+        return token_class.get(para=para, question=question, fig=fig,
             order=order)
