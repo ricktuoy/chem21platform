@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = 'Surround figgroups with divs'
+    help = 'Create pages for all topic/module/lessons'
 
     def handle(self, *args, **options):
         mods = [Topic, Module, Lesson]

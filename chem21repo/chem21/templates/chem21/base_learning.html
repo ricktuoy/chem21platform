@@ -86,6 +86,8 @@
 					<a href="{{ command.url }}" 
 					   data-signature="{{ command.param_string }}" 
 					   data-instruction="{{ command.instruction }}"
+					   data-query-type="{{ command.query_type }}"
+					   data-id-type="{{ command.id_type }}"
 				       data-command-name="{{ command.name }}">{{ command.display_name }}</a>
 				{% else %}
 					{% if command.url %}<a href="{{ command.url }}">{{ command.display_name }}</a>

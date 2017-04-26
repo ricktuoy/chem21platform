@@ -52,6 +52,7 @@ define(["jquery","selector_widget_mixin"], function($,SelectorWidgetMixin) {
 		'build_uri');
 	Figures.prototype.get_select_click_callback = function() {
 		var non_selector = this.blocks.non_figures.selector;
+		var selector = this.selector;
 		var that = this;
 		return function(evt) {
 			var $this = $(this);
@@ -65,13 +66,13 @@ define(["jquery","selector_widget_mixin"], function($,SelectorWidgetMixin) {
 			var paragraph = that.blocks.non_figures.find().index(next_non_fig);
 			if($prev_non_figs.length > 0) {
 				var prev_non_fig = $prev_non_figs[0];
-				var $cluster = $(prev_non_fig).nextUntil(non_selector);
+				var $cluster = $(prev_non_fig).nextUntil(non_selector).filter(selector);
 				var order = $cluster.index(this) + 1;
 			} else {
-				var $cluster = $(next_non_fig).prevAll();
+				var $cluster = $(next_non_fig).prevAll().filter(selector);
 				var order = $cluster.length - $cluster.index(this);
 			}
-			var uri  = that.build_uri({para: paragraph, pos: "below", fig: order + 1});
+			var uri  = that.build_uri({para: paragraph, pos: "below", fig: order});
 				window.location = uri;
 		};
 	};

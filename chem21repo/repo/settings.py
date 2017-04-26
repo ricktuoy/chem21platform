@@ -1,7 +1,17 @@
 LMS_PAGE_MENU = [
-    ('Text', [
-        'edit',
-        'load'
+    ('Page', [
+        ('new', {
+            'display_name': 'Add child page',
+            'id_type': 'struct',
+            'param_type': 'querystring'
+        }),
+        ('edit', {
+            'view_name': "admin:repo_question_change",
+            'display_name': 'Edit text',
+        }),
+        ('load', {
+            'display_name': 'Load text from GDoc',
+        })
     ]),
     ('Figure', [
         ('add', {
@@ -21,5 +31,8 @@ LMS_PAGE_MENU = [
         'edit',
     ]),
     ('References', [
-        'add',
+        ('add', {
+            'display_name': "Upload .bib",
+            'id_type': None
+        }),
     ])]

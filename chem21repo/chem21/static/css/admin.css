@@ -1,3 +1,9 @@
+.not-front #content ul.admin_menu {
+	max-width: none;
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
 .messages {
 	list-style-type: none;
 	margin: 0 0 1em 0;
@@ -26,29 +32,33 @@
 ul.admin_menu {
 	margin: 0;
 	padding: 0;
+	background-color: #454;
+	width: 100%;
+	border:0;
+	display: table;
 }
 
-ul.admin_menu li {
+ul.admin_menu>li {
 	list-style-type: none;
 	margin: 0 !important;
-	padding: 0.7em;
-	border-right: 1px solid #ccc;
-	border-left: 1px solid #eee;
-	border-top: 1px solid #eee;
-	border-bottom: 1px solid #ddd;
-	background-color: #fafafa;
+	padding: 0.3% 1%;
+	font-size: 0.85em;
 	cursor: pointer;
+	width: 18%;
+	color: #eee;
+	text-align: center;
+	border:0;
 }
 
 
 ul.admin_menu li.category {
-	display: inline-block;
+	display: table-cell;
 	position: relative;
 	z-index: 1000;
 }
 
 ul.admin_menu li a {
-	color: #333;
+	color: white;
 	text-decoration: none;
 }
 
@@ -56,22 +66,31 @@ ul.admin_menu li.category ul {
 	position: absolute;
 	top: 100%;
 	left: 0;
+	right: 0;
 	display: none;
 	margin: 0;
 	padding:0;
 }
 
 ul.admin_menu li.category {
-	text-transform: uppercase;
 	margin: 0 !important;
 }
 
+
 ul.admin_menu li.command {
 	display: block;
+	background-color: #565;
+	text-align: center;
+	margin: 0 !important;
+	padding: 0.2em 0;
+	width: 100%;
+}
+ul.admin_menu li.command a {
+	color: white !important;
 }
 
 ul.admin_menu li:hover {
-	background-color: #eaeaea;
+	background-color: black;
 }
 
 

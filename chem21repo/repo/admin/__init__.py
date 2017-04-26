@@ -92,6 +92,10 @@ class QuestionAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.add_figure),
                 name='edit_figure'
                 ),
+            url(r'^remove_figure/([0-9]+)/([0-9]+)/([0-9]+)$',
+                self.admin_site.admin_view(self.remove_figure),
+                name='remove_figure'
+                ),
             url(r'^load_gdoc/(?P<tpk>[0-9]+)/(?P<file_id>.*)[/]?$',
                 self.admin_site.admin_view(LoadFromGDocView.as_view()),
                 name='repo_question_loadgdoc'
@@ -156,14 +160,13 @@ class QuestionAdmin(admin.ModelAdmin):
             'figure', int(para))
         return render(request, "admin/question_token_form.html", context)
 
-    def delete_figure(self, request, qpk, para, figure):
-        question = Question.get(qpk)
-        try:
-            token = Token.get(
-                "figure", para=int(para),
-                question=question, figure=int(figure))
-        except Token.DoesNotExist:
-            raise Http404("Token does not exist.")
+    def remove_figure(self, request, qpk, para, figure):
+        question = Question.objects.get(pk=qpk)
+        token = Token.create(
+            "figure",
+            para=int(para),
+            question=question,
+            fig=int(figure))
         token.delete()
         token.question.save()
         return self._redirect(request)

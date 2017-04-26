@@ -91,6 +91,10 @@ class QuestionAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.add_token),
                 name='page_add_token'
                 ),
+            url(r'^remove_token/([0-9]+)/([0-9]+)/(.*)$',
+                self.admin_site.admin_view(self.delete_token),
+                name='page_remove_token'
+                ),
             url(r'^load_gdoc/(?P<tpk>[0-9]+)/(?P<file_id>.*)[/]?$',
                 self.admin_site.admin_view(LoadFromGDocView.as_view()),
                 name='page_load_text'
@@ -147,7 +151,7 @@ class QuestionAdmin(admin.ModelAdmin):
         context['title'] = "Insert %s at paragraph %d" % (token_type, int(para)) 
         return render(request, "admin/question_token_form.html", context)
 
-    def delete_token(self, request, qpk, para, token_type, order):
+    def delete_token(self, request, qpk, para, token_type):
         question = Question.get(qpk)
         try:
             token = Token.get(token_type, para=int(para), question=question, order=order)

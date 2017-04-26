@@ -18,17 +18,12 @@ $(function() {
 
 	$(".admin_menu").on({
 		click: function(evt) {
-			evt.preventDefault();
-			$(".admin_menu .category").addClass("disabled");
-			$(".admin_menu .category ul").hide();
+
 			var link = $(this).find("a");
 			var href = link.attr("href");
 			var signature = link.data("signature");
 			var instruction = link.data("instruction");
 			switch(link.data("commandName")) {
-				case "":
-					window.location = href;
-					return;
 				case "addFigure":
 					blocks.init_select(signature, href);	
 					break;
@@ -37,8 +32,15 @@ $(function() {
 					blocks.figures.init_select(signature, href);
 					break;
 				default:
+					if(href) {
+						window.location = href;
+					}
 					return;
 			}
+			
+			$(".admin_menu .category").addClass("disabled");
+			$(".admin_menu .category ul").hide();
+			evt.preventDefault();
 			if(instruction) {
 				var $instruction = $("<p id=\"admin_menu_action_instruction\">" + instruction + "</p>");
 				$(".admin_menu").after($instruction);

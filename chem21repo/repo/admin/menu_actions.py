@@ -1,6 +1,8 @@
 from django.core.urlresolvers import reverse, NoReverseMatch
+from django.contrib.contenttypes.models import ContentType
 import re
 from django.conf import settings
+
 from collections import OrderedDict
 from ..models import Question
 import logging
@@ -13,11 +15,25 @@ class BasePageMenuAction(object):
         self.page = page
 
     @property
+    def page_id(self):
+        try:
+            if self.id_type == "struct":
+                ct = ContentType.objects.get_for_model(self.page)
+                return [ct.model, self.page.self.page.pk]
+        except AttributeError:
+            pass
+        try:
+            return [self.page.page.pk, ]
+        except AttributeError:
+            pass
+        return [self.page.pk, ]
+
+    @property
     def url(self):
         try:
             return reverse(
                 self.view_name,
-                args=[self.page.pk, ] + ([0, ] * (len(self.params))))
+                args=self.page_id + ([0, ] * (len(self.params))))
         except NoReverseMatch:
             return ""
 
@@ -40,7 +56,7 @@ class ActionClassFactory(object):
 
     @staticmethod
     def create(
-            action_name, display_name="",
+            action_name, display_name="", id_type="", param_type="",
             params=[], instruction="", view_name=""):
         view_name = view_name if view_name else \
             "admin:%s" % ActionClassFactory.to_snake(action_name)
@@ -50,6 +66,7 @@ class ActionClassFactory(object):
         NewAction.view_name = view_name
         NewAction.params = params
         NewAction.instruction = instruction
+        NewAction.id_type = id_type
         NewAction.display_name = display_name if display_name else action_name
         NewAction.name = action_name
         NewAction.__name__ = ("%sAction" % action_name)
@@ -64,11 +81,16 @@ class PageActionRegistry(OrderedDict):
         for category, verbs in settings.LMS_PAGE_MENU:
             try:
                 for verb, kwargs in verbs:
-                    kwargs['display_name'] = verb.capitalize()
+                    outkwargs = {
+                        'display_name': verb.capitalize(),
+                        'param_type': 'segments',
+                        'id_type': 'page'
+                    }
+                    outkwargs.update(kwargs)
                     self.register(
                         category,
                         "%s%s" % (verb, category),
-                        **kwargs)
+                        **outkwargs)
             except ValueError:   # no kwargs
                 for verb in verbs:
                     self.register(

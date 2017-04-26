@@ -33,8 +33,6 @@ INSTALLED_APPS = (
 )
 
 
-
-
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'chem21repo.middleware.C21AdminMiddleware',

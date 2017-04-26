@@ -10,7 +10,6 @@ from .base import OrderedRelationalManagerBase
 from .base import TitleUnicodeMixin
 from .media import UniqueFile
 from .sco_base import SCOBase
-from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -32,8 +31,13 @@ class AttributionMixin(BaseModel):
 
 class PageContainerMixin(BaseModel):
     page = models.ForeignKey('Question', blank=True, null=True)
+
     class Meta:
         abstract = True
+
+    def copy_page_fields_to(self, pg=None):
+        pg.title = self.title
+        pg.text = self.text
 
 
 class GlossaryTerm(models.Model):
@@ -49,20 +53,6 @@ def generate_dirty_record(sender,
     if isinstance(instance, SCOBase) \
             and not isinstance(instance, UniqueFile):
         instance.changed = True
-        """
-        if update_fields:
-            instance.drupal.mark_fields_changed(update_fields)
-            return
-        if not raw:
-            try:
-                original = sender.objects.get(pk=instance.pk)
-                instance.drupal.mark_fields_changed(
-                    original.drupal.get_field_diff(instance.drupal))
-                return
-            except:
-                pass
-        # instance.drupal.mark_fields_changed(instance.drupal.fields)
-        """
 
 
 @receiver(models.signals.pre_save)
@@ -91,24 +81,20 @@ def save_order(sender, instance, raw, **kwargs):
 
 
 @receiver(models.signals.post_save, dispatch_uid="create_child")
-def create_child(sender, instance, raw, **kwargs):
+def create_page(sender, instance, raw, **kwargs):
     if not(
             isinstance(instance, Lesson) or
             isinstance(instance, Topic) or
             isinstance(instance, Module)):
         return
-    if instance.children.all().count() == 0:
-        name = instance.title
-        instance.is_question = True
-        if isinstance(instance, Lesson):
-            new_child = Question(title=name)
-        elif isinstance(instance, Topic):
-            new_child = Module(name=name)
-        elif isinstance(instance, Module):
-            new_child = Lesson(title=name)
-        new_child.save()
-        instance.children.add(new_child)
-        instance.save()
+    if instance.page:
+        return
+    else:
+        pg = Question()
+    instance.copy_page_fields_to(pg)
+    pg.save()
+    instance.page = pg
+    instance.save()
 
 
 @receiver(models.signals.post_save, dispatch_uid="set_changed")

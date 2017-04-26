@@ -149,8 +149,14 @@ class ContextProcessorMixin(object):
 
 
 class FigureTokenForm(forms.Form):
-    figure_type = forms.CharField(label = "Type of figure", help_text="e.g. Figure/Scheme/Table (defaults to Figure)", required=False)
-    caption = forms.CharField(label = "Caption", max_length = 200, required=False)
+    figure_type = forms.CharField(
+        label="Type of figure",
+        help_text="e.g. Figure/Scheme/Table (defaults to Figure)",
+        required=False)
+    caption = forms.CharField(
+        label="Caption",
+        max_length=200,
+        required=False)
     media = forms.MultipleChoiceField(label = "Files", choices = []) # choices are defined on init
     layout = forms.ChoiceField(label="Layout", 
         choices = [("full_width", "Full width"), ("aside", "Inset (40% width"), ("stacked2", "Side-by-side (pair)")], initial="full_width")
@@ -175,7 +181,7 @@ class BaseToken(object):
 
     @staticmethod
     def get_match(source, number):
-        regex = r"\<div class=\"token\"\>\<\!\-\-token\-\-\>(.*)\<\!\-\-endtoken\-\-\>\<\/div\>"
+        regex = r"\<div class=\"token\"\>\<\!\-\-token\-\-\>(.*?)\<\!\-\-endtoken\-\-\>\<\/div\>"
         regex = re.compile(regex)
         matches = list(regex.finditer(source))
         try:
@@ -186,30 +192,50 @@ class BaseToken(object):
     @property
     def start_index(self):
         offset = -1 if self.above else 0
-        para_match = self.block_processor.get_match(
-            self.question.text, self.para + offset)
+        if self.para + offset == 0:
+            start = 0
+        else:
+            para_match = self.block_processor.get_match(
+                self.question.text, self.para + offset)
+            start = para_match.end()
         try:
             para_match_next = self.block_processor.get_match(
                 self.question.text, self.para + offset + 1)
             token_text = self.question.text[
-                para_match.end() + 1:para_match_next.start()]
+                start:para_match_next.start()]
         except MatchError:
             token_text = self.question.text[
-                para_match.end() + 1:]
+                start:]
         if not self.fig or not token_text:
-            return para_match.end()
+            return start
         try:
             token_match = self.get_match(
                 token_text, self.fig)
         except MatchError:
-            return para_match.end()
-        return para_match.end() + token_match.end() + 1
+            return start
+        return start + token_match.end()
 
     def insert(self):
         html = self.get_html()
         index = self.start_index
         self.question.text = self.question.text[:index] + \
             html + self.question.text[index:]
+
+    def delete(self):
+        offset = -1 if self.above else 0
+        if self.para + offset == 0:
+            start = 0
+        else:
+            pm = self.block_processor.get_match(
+                self.question.text, self.para + offset)
+            start = pm.end()
+        search_text = self.question.text[
+            start:]
+        tm = self.get_match(search_text, self.fig)
+
+        self.question.text = self.question.text[
+            0:start + tm.start()] + self.question.text[
+            start + tm.end():]
 
     def get(self, para, question, order=1):
         p_match = self.processor.get_match(question.text, para)
@@ -252,7 +278,7 @@ class FigureToken(BaseToken):
         if 'caption' in self.data and self.data['caption']:
             group_content.append(
                 "[figcaption]%s[/figcaption]" % self.data['caption'])
-        return "[figgroup:%s]%s[/figgroup]" % (
+        return "<div class=\"token\"><!--token-->[figgroup:%s]%s[/figgroup]<!--endtoken--></div>" % (
                 ":".join(group_attrs),
                 "".join(group_content) + txt)
 
