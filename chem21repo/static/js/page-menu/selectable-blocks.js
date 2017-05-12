@@ -1,6 +1,6 @@
 define(["jquery","selector_widget_mixin"], function($,SelectorWidgetMixin) {
 	var S_CONTAINER_PREPEND_ID = "blocks_zeroth";
-	var S_CONTENT_BLOCK_FIGURE = "aside,.inline";
+	var S_CONTENT_BLOCK_FIGURE = "aside,.inline,table";
 
 	Function.prototype.apply_mixin = function(parent) {
 		for (var i = 1; i < arguments.length; i+=1) {

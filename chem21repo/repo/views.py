@@ -60,6 +60,7 @@ from apiclient.errors import HttpError as GoogleHttpError
 class S3ProxyView(ProxyView):
     upstream = settings.S3_URL + "/static"
 
+
 class LearningObjectRelationMixin(object):
     def get_learning_object(self, *args, **kwargs):
         t = kwargs['type']
@@ -76,6 +77,7 @@ class LearningObjectRelationMixin(object):
         except model.DoesNotExist:
             return self.error_response("Object %s with id %d not found" % (t, tpk))
         return page
+
 
 class LoginRequiredMixin(object):
     @classmethod

@@ -12,7 +12,7 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "chem21repo.settings")
 
-if 'DJANGO_DEVELOPMENT' not in os.environ:
+if 'DJANGO_DEVELOPMENT' not in os.environ and 'DJANGO_AWS' not in os.environ:
     from dj_static import Cling
     application = Cling(get_wsgi_application())
 else:

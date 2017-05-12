@@ -128,7 +128,8 @@ tinyMCE.init({
     
     // Grappelli Settings
     grappelli_adv_hidden: false,
-    grappelli_show_documentstructure: 'on'
+    grappelli_show_documentstructure: 'on',
+    valid_children : "+div[table]"
     
     // Elements
     // valid_elements: '@[id|class|style|title|dir<ltr?rtl|lang|xml::lang|onclick|ondblclick|'

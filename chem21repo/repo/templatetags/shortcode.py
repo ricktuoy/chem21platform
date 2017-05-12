@@ -86,17 +86,6 @@ class TagProcessor(BaseProcessor):
     def get_simple_tag_pattern(self):
         return self.get_inner_tag_pattern(self.name, '(?P<content>.*?)')
 
-    def get_complex_tag_pattern(self):
-        return None
-
-    def create_token(self, question, para=None):
-        name = self.tag_name
-        return Token.create(name, question, para)
-
-    def create_token_from_match(self, question, match, para=None):
-        token = self.create_token(self, question, para)
-        token.update(content=match.group('content'))
-
     @property
     def pattern(self):
         try:
@@ -107,19 +96,11 @@ class TagProcessor(BaseProcessor):
                 re.DOTALL)
             return self._simple_pattern
 
-    @property
-    def complex_pattern(self):
-        try:
-            return self._complex_pattern
-        except AttributeError:
-            self._complex_pattern = re.compile(
-                self.get_complex_tag_pattern(),
-                re.DOTALL)
-            return self._complex_pattern
-
     @abstractmethod
-    def tag_function(self, st, *args):
+    def tag_function(self, content, *args):
         return None
+
+    
 
     def repl_function(self, match):
         args = match.group(self.name + "_args").split(":")
@@ -128,8 +109,8 @@ class TagProcessor(BaseProcessor):
 
 class AttributionProcessor(ContextProcessorMixin, TagProcessor):
     tag_name="attrib"
-    def tag_function(self, st, *args):
-        html = "<p class=\"attrib\">%s</p>" % st
+    def tag_function(self, content, *args):
+        html = "<p class=\"attrib\">%s</p>" % content
         return html
 
 class BibTeXCiteProcessor(ContextProcessorMixin, BaseProcessor):
@@ -168,14 +149,17 @@ class BibTeXCiteProcessor(ContextProcessorMixin, BaseProcessor):
 
 class RSCRightsProcessor(ContextProcessorMixin, TagProcessor):
     tag_name="rsc"
-    def tag_function(self, st, *args):
+    def tag_function(self, content, *args):
         rsc_template = template.loader.get_template("chem21/include/rsc_statement.html")
-        cxt = {'content': st}
+        cxt = {'content': content}
         cxt['tools'] = not self.context.get('staticgenerator', False)
         html = rsc_template.render(cxt)
         return html
 
-class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
+
+class BiblioTagProcessor(
+        ContextProcessorMixin,
+        TagProcessor):
     tag_name = "bib"
 
     def __init__(self, request=None, *args, **kwargs):
@@ -183,31 +167,36 @@ class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
         self.bibset = {}
         return super(BiblioTagProcessor, self).__init__(*args, **kwargs)
 
-    def tag_function(self, st, *args):
+    def tag_function(self, content, *args):
         try:
-            bib = Biblio.objects.get(citekey=st)
+            bib = Biblio.objects.get(citekey=content)
         except Biblio.DoesNotExist:
-            bib = Biblio(citekey=st)
+            bib = Biblio(citekey=content)
             bib.save()
-        if st not in self.bibset:
+        if content not in self.bibset:
             self.bibs.append(bib)
-            self.bibset[st] = len(self.bibs)
+            self.bibset[content] = len(self.bibs)
         return "<a href=\"#citekey_%s_%d\">[%d]</a>" % (
-            st, self.bibset[st], self.bibset[st])
+            content, self.bibset[content], self.bibset[content])
 
     def _get_footnote_html(self, bib, id):
         html = bib.get_footnote_html()
-        if html == False:
+        if html is False:
             try:
-                messages.add_message(self.request, 
+                messages.add_message(
+                    self.request,
                     messages.ERROR,
-                    "Could not find reference on this page with citekey '%s'." % bib.citekey)
+                    "Could not find reference on this page with citekey '%s'."
+                    % bib.citekey)
             except AttributeError:
                 pass
             html = "Unknown reference."
-        if self.context['user'].is_authenticated() and ('staticgenerator' not in self.context or not self.context['staticgenerator']):
-            url = reverse("admin:repo_biblio-power_change", 
-                args = [bib.pk,])
+        if self.context['user'].is_authenticated() and (
+                'staticgenerator' not in self.context or not
+                self.context['staticgenerator']):
+            url = reverse(
+                "admin:repo_biblio-power_change",
+                args=[bib.pk, ])
             html += "<a href=\"%s\">%s</a>" % (url, "[edit]")
         return "<li id=\"citekey_%s_%d\">%s</li>" % (
             bib.citekey, self.bibset[bib.citekey], html)
@@ -219,94 +208,28 @@ class BiblioTagProcessor(ContextProcessorMixin, TagProcessor):
              zip(
                 range(1, len(self.bibs) + 1), self.bibs)])
 
+
 class BiblioInlineTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "ibib"
 
-    def tag_function(self, st, *args):
+    def tag_function(self, content, *args):
         try:
-            bib = Biblio.objects.get(citekey=st)
+            bib = Biblio.objects.get(citekey=content)
         except Biblio.DoesNotExist:
-            bib = Biblio(citekey=st)
+            bib = Biblio(citekey=content)
             bib.save()
         html = bib.get_inline_html()
-        if html == False:
+        if html is False:
             try:
-                messages.add_message(self.request, 
-                    messages.ERROR, 
-                    "Could not find reference on this page with citekey '%s'." % bib.citekey)
+                messages.add_message(
+                    self.request,
+                    messages.ERROR,
+                    "Could not find reference on this page with citekey '%s'."
+                    % bib.citekey)
             except AttributeError:
                 pass
             html = "Unknown reference."
         return html
-
-class GreenPrincipleTokenProcessor(ContextProcessorMixin, TokenProcessor):
-    token_name = "greenprinciple"
-    principles = [
-        {'title': 'Prevention',
-         'description': ''
-         },
-        {'title': 'Atom economy',
-         'description': ''
-         },
-        {'title': 'Less hazardous chemical syntheses',
-         'description': ''
-         },
-        {'title': 'Designing safer chemicals',
-         'description': ''
-         },
-        {'title': 'Safer solvents and auxiliaries',
-         'description': ''
-         },
-        {'title': 'Design for energy efficiency',
-         'description': ''
-         },
-        {'title': 'Use of renewable feedstocks',
-         'description': ''
-         },
-        {'title': 'Reduce derivatives',
-         'description': ''
-         },
-        {'title': 'Catalysis',
-         'description': ''
-         },
-        {'title': 'Design for degradation',
-         'description': ''
-         },
-        {'title': 'Real-time analysis for pollution prevention',
-         'description': ''
-         },
-        {'title': 'Inherently safer chemistry for accident prevention',
-         'description': ''
-         },
-    ]
-
-    def build_html(self, num_list):
-        out = "<ol class=\"green_principles\">"
-        num = 1
-        for principle in self.principles:
-            active_cls = ""
-            if num in num_list:
-                active_cls = " active"
-            out += "<li class=\"%s%s\">%s</li>" % (
-                "p" + str(num), active_cls, principle['title'])
-            num += 1
-        out += "</ol>"
-        return out
-
-    def token_function(self, *args):
-        return ""
-        num_list = []
-        try:
-            command = args[0]
-        except IndexError:
-            return
-        if command == "show":
-            try:
-                num_list = [int(x) for x in args[1:]]
-            except IndexError:
-                num_list = range(1, 12)
-        self.context['pre_content'] = self.context.get('pre_content', "") + self.build_html(num_list)
-        return ""
 
 class GHSStatementProcessor(ContextProcessorMixin, TokenProcessor):
     token_name = "GHS_statement"
@@ -320,19 +243,20 @@ class GHSStatementProcessor(ContextProcessorMixin, TokenProcessor):
         return "<img src=\"%s\" alt=\"GHS symbol: %s\" class=\"ghs_symbol\" />" % (
             url, symbol_name)
 
+
 class FigCaptionTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "figcaption"
 
-    def tag_function(self, st, *args):
-        return "<figcaption>%s</figcaption>" % st
+    def tag_function(self, content, *args):
+        return "<figcaption>%s</figcaption>" % content
 
 class TableCaptionTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "tabcaption"
 
-    def tag_function(self, st, *args):
-        return "<caption>%s</caption>" % st
+    def tag_function(self, content, *args):
+        return "<caption>%s</caption>" % content
 
-class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcessor):
+class FigureGroupProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "figgroup"
 
     def __init__(self, *args, **kwargs):
@@ -360,13 +284,6 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
     def get_type(self):
         t = "figure"
         return t
-
-    def block_tool_handle_html(self):
-        return "[+Fig]"
-
-    @property
-    def block_tool_name(self):
-        return "figure"
 
     @property
     def caption_regex(self):
@@ -397,13 +314,9 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
         else:
             self.inner_text += repl
 
-    def delete_tool(self):
-        if self.context['user'].is_authenticated() and 'staticgenerator' not in self.context:
-            return "<a data-fig-num=\"%s\" class=\"btn btn-success admin-delete delete-figure\">Delete figure</a>" % str(self.total_count)
-        return "" 
 
-    def tag_function(self, st, *args):
-        self.inner_text = st
+    def tag_function(self, content, *args):
+        self.inner_text = content
         try:
             t = args[0]
         except IndexError:
@@ -426,8 +339,8 @@ class FigureGroupTagProcessor(ContextProcessorMixin, BlockToolMixin, TagProcesso
         self.inc_count(t)
 
         if t != "table":
-            self.inner_text = "<figure class=\"%s\">%s%s</figure>" % (
-                classes, self.inner_text, self.delete_tool())
+            self.inner_text = "<figure class=\"%s\">%s</figure>" % (
+                classes, self.inner_text)
             if "aside" in class_set:
                 if not "inline" in class_set:
                     self.asides.append(self.inner_text)
@@ -518,7 +431,7 @@ class CTATokenProcessor(ContextProcessorMixin, LinkMixin, TokenProcessor):
 class ILinkTagProcessor(ContextProcessorMixin, LinkMixin, TagProcessor):
     tag_name = "inlink"
 
-    def tag_function(self, st, *args):
+    def tag_function(self, content, *args):
         obj = ILinkTagProcessor.get_object(*[int(x) for x in args])
         if not obj:
             messages.add_message(
@@ -527,7 +440,7 @@ class ILinkTagProcessor(ContextProcessorMixin, LinkMixin, TagProcessor):
                 "[ilink:%s] token not valid: cannot find object with this reference." % ":".join(args))
             return ""
         return "<a class=\"internal\" href=\"%s\">%s</a>" % (
-            obj.get_absolute_url(), st)
+            obj.get_absolute_url(), content)
 
 class HideTagProcessor(ContextProcessorMixin, TagProcessor):
     tag_name = "hide"
@@ -536,14 +449,44 @@ class HideTagProcessor(ContextProcessorMixin, TagProcessor):
         return "<p>\s*%s\s*</p>" % super(
             HideTagProcessor, self).get_simple_tag_pattern()
 
-    def tag_function(self, st, *args):
-        return "<div class=\"hide_solution\"><p>%s</p></div>" % st
+    def tag_function(self, content, *args):
+        return "<div class=\"hide_solution\"><p>%s</p></div>" % content
 
 
 class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
     token_name = "figure"
 
-    def token_function(self, command, *args):
+    @staticmethod
+    def get_token(self, command, pk, alt="", *args):
+        if command == "show":
+            fle = UniqueFile.objects.get(remote_id=args[0])
+            where = "remote"
+        elif command == "local":
+            fle = UniqueFile.objects.get(pk=args[0])
+            where = "local"
+        else:
+            raise TokenValidationError(
+                "Format must be either [figure:show:xx] or [figure:local:xx]")
+        if not fle:
+            raise TokenValidationError(
+                "Cannot find %s file object with id %s" % (
+                    where, args[0]))
+
+        token = FigureToken(
+            file_obj=fle,
+            alt=alt,
+            title=striptags(":".join(args)))
+        return token
+
+    @staticmethod
+    def get_html(self, token):
+        return "<a href=\"%s\" title=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (
+            token.url,
+            token.title,
+            token.url,
+            token.alt)
+
+    def token_function(self, command, id, alt="", *args):
         if command == "show" or command == "local":
             if command == "show":
                 fle = UniqueFile.objects.get(remote_id=args[0])
@@ -555,7 +498,7 @@ class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
                 alt = args[1]
             except IndexError:
                 alt = ""
-            title = ":".join(args[2:])
+            title = striptags(":".join(args))
             if not fle:
                 messages.add_message(
                     self.request,
@@ -563,13 +506,11 @@ class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
                     "[figure] token not valid: cannot find file object with this %s id: %s" % (
                         where, args[0]))
                 return ""
-            title = striptags(title)
-            return "<a href=\"%s\" title=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (
-                fle.url, title, fle.url, alt)
+
         messages.add_message(
             self.request,
             messages.ERROR,
-            "[figure] token not valid: must be either [figure:show:xx] or [figure:local:xx]" % (
+            "[figure] token not valid: " % (
                 where, args[0]))
         return ""
 
@@ -585,48 +526,49 @@ class ReplaceTokensNode(template.Node):
             context['pre_content'] = ''
             context['tokens_replaced'] = ''
             return ""
-        processors = {
-            'bibtex': BibTeXCiteProcessor(context=context),
-            'ibib': BiblioInlineTagProcessor(context=context),
-            'bib': BiblioTagProcessor(context=context),
-            'ilink': ILinkTagProcessor(context=context),
-            'cta': CTATokenProcessor(context=context),
-            'rsc': RSCRightsProcessor(context=context),
-            'attrib': AttributionProcessor(context=context),
-            'green': GreenPrincipleTokenProcessor(context=context),
-            'figref': FigureRefProcessor(context=context),
-            'figure': FigureTokenProcessor(context=context),
-            'figgroup': FigureGroupTagProcessor(context=context),
-            'figcaption': FigCaptionTagProcessor(context=context),
-            'tabcaption': TableCaptionTagProcessor(context=context),
-            'hide': HideTagProcessor(context=context),
-            'GHS_statement': GHSStatementProcessor(context=context)
+        inline_processors = {
+            'bibtex': BibTeXCiteProcessor(context=context),  #inline
+            'ibib': BiblioInlineTagProcessor(context=context),  #inline
+            'bib': BiblioTagProcessor(context=context),  #block
+            'ilink': ILinkTagProcessor(context=context),  #inline
+            'cta': CTATokenProcessor(context=context),  #block
+            'rsc': RSCRightsProcessor(context=context),  #inline
+            'attrib': AttributionProcessor(context=context),  #block
+            'figref': FigureRefProcessor(context=context),  #inline
+            'figure': FigureTokenProcessor(context=context), #inline
+            'figgroup': FigureGroupTagProcessor(context=context),  #block
+            'hide': HideTagProcessor(context=context), #inline
+            'GHS_statement': GHSStatementProcessor(context=context) #inline
         }
         decruft = re.compile(
-            r'<div class="token"><!--token-->(.*?)<!--endtoken--></div>',
+            r'<div class="token" (?P<id_att>id=".*?")><!--token--><(?P<tag>\w*)(?P<tag_atts>\s*[^<>]*)>(?P<content>.*?)<!--endtoken--></div>',
             re.DOTALL)
 
-        txt = decruft.sub(
-            lambda match: match.group(1), txt)
         proc_order = [
             'hide', 'bibtex', 'ibib', 'bib',
             'ilink', 'rsc', 'attrib', 'cta',
             'green', 'figref', 'figure', 'figgroup',
             'figcaption', 'tabcaption', 'GHS_statement']
+
         for key in proc_order:
             txt = processors[key].apply(txt)
-            if context['user'].is_authenticated() and (
-                    'staticgenerator' not in context or
-                    not context['staticgenerator']):
-                try:
-                    txt = processors[key].apply_block_tool(txt)
-                except AttributeError, e:
-                    pass
         sidebyside = re.compile(
             r'<figure class="stacked2.*?<figure class="stacked2.*?</figure>',
             re.DOTALL)
 
-        txt = sidebyside.sub(lambda match: "<div class=\"sidebyside_figures\"%s<div class=\"clear\">&nbsp;</div></div>" % match.group(0), txt)
+        txt = sidebyside.sub(
+            lambda match:
+                "<div class=\"sidebyside_figures\"%s<div class=\"clear\">&nbsp;</div></div>"
+                % match.group(0),
+            txt)
+
+        txt = decruft.sub(
+            lambda match: "<%s %s%s>%s" % (
+                match.group('tag'),
+                match.group('id_att'),
+                match.group('tag_atts'),
+                match.group('content')), txt)
+
         context['footnotes_html'] = processors['bib'].get_footnotes_html()
         asides_html = processors['figgroup'].get_asides_html()
         asides_html = processors['figcaption'].apply(asides_html)
@@ -635,8 +577,8 @@ class ReplaceTokensNode(template.Node):
         return ""
 
 
-@register.tag(name="replace_tokens")
-def do_replace_tokens(parser, token):
+@register.tag(name="replace_shortcode")
+def do_replace_shortcode(parser, token):
     try:
         tag_name, text_field = token.split_contents()
     except ValueError:
