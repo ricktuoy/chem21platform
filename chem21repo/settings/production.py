@@ -1,4 +1,5 @@
 from common import *
+import os
 
 if 'RDS_DB_NAME' in os.environ:
     DATABASES = {
