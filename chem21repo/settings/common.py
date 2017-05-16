@@ -9,6 +9,13 @@ from chem21repo.repo.settings import *
 YOUTUBE_BASE = "https://www.youtube.com/"
 YOUTUBE_URL_TEMPLATE = YOUTUBE_BASE + "watch?v=%s&controls=1&preload=none"
 
+# Amazon Elastic Beanstalk settings
+
+# whether should be viewable at .elasticbeanstalk.com domain
+AWS_EB_TEST = os.environ.get("DJANGO_AWS_EB_TEST", False)
+
+
+
 INSTALLED_APPS = (
     'grappelli',
     'filebrowser',
@@ -173,4 +180,9 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = [
     'jobie.kirkwood@york.ac.uk']
 
 WEB_ROOT = ''
+
+ALLOWED_HOSTS = [".chem21.eu",]
+
+if AWS_EB_TEST:
+    ALLOWED_HOSTS += [".elasticbeanstalk.com",]
 
