@@ -51,3 +51,4 @@ LOGGING = {
         }
     }
 }
+DEBUG=True
