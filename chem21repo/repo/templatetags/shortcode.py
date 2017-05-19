@@ -11,13 +11,16 @@ from chem21repo.repo.models import Module
 from chem21repo.repo.models import Question
 from chem21repo.repo.models import Topic
 from chem21repo.repo.models import UniqueFile
-from chem21repo.repo.tokens import *
+from chem21repo.repo.shortcodes.processors import HTMLShortcodeProcessor
+
 from django import template
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.template.defaultfilters import striptags
+
+
 from ..tokens import Token
 
 register = template.Library()
@@ -514,8 +517,7 @@ class FigureTokenProcessor(ContextProcessorMixin, TokenProcessor):
                 where, args[0]))
         return ""
 
-
-class ReplaceTokensNode(template.Node):
+class ReplaceShortcodesNode(template.Node):
     def __init__(self, text_field):
         self.text = template.Variable(text_field)
 
@@ -526,56 +528,10 @@ class ReplaceTokensNode(template.Node):
             context['pre_content'] = ''
             context['tokens_replaced'] = ''
             return ""
-        inline_processors = {
-            'bibtex': BibTeXCiteProcessor(context=context),  #inline
-            'ibib': BiblioInlineTagProcessor(context=context),  #inline
-            'bib': BiblioTagProcessor(context=context),  #block
-            'ilink': ILinkTagProcessor(context=context),  #inline
-            'cta': CTATokenProcessor(context=context),  #block
-            'rsc': RSCRightsProcessor(context=context),  #inline
-            'attrib': AttributionProcessor(context=context),  #block
-            'figref': FigureRefProcessor(context=context),  #inline
-            'figure': FigureTokenProcessor(context=context), #inline
-            'figgroup': FigureGroupTagProcessor(context=context),  #block
-            'hide': HideTagProcessor(context=context), #inline
-            'GHS_statement': GHSStatementProcessor(context=context) #inline
-        }
-        decruft = re.compile(
-            r'<div class="token" (?P<id_att>id=".*?")><!--token--><(?P<tag>\w*)(?P<tag_atts>\s*[^<>]*)>(?P<content>.*?)<!--endtoken--></div>',
-            re.DOTALL)
-
-        proc_order = [
-            'hide', 'bibtex', 'ibib', 'bib',
-            'ilink', 'rsc', 'attrib', 'cta',
-            'green', 'figref', 'figure', 'figgroup',
-            'figcaption', 'tabcaption', 'GHS_statement']
-
-        for key in proc_order:
-            txt = processors[key].apply(txt)
-        sidebyside = re.compile(
-            r'<figure class="stacked2.*?<figure class="stacked2.*?</figure>',
-            re.DOTALL)
-
-        txt = sidebyside.sub(
-            lambda match:
-                "<div class=\"sidebyside_figures\"%s<div class=\"clear\">&nbsp;</div></div>"
-                % match.group(0),
-            txt)
-
-        txt = decruft.sub(
-            lambda match: "<%s %s%s>%s" % (
-                match.group('tag'),
-                match.group('id_att'),
-                match.group('tag_atts'),
-                match.group('content')), txt)
-
-        context['footnotes_html'] = processors['bib'].get_footnotes_html()
-        asides_html = processors['figgroup'].get_asides_html()
-        asides_html = processors['figcaption'].apply(asides_html)
-        context['pre_content'] = context.get('pre_content',"") + asides_html 
-        context['tokens_replaced'] = txt
+        processor = HTMLShortcodeProcessor(txt, context=context)
+        context['tokens_replaced'] = processor.replace_shortcodes_with_html()
+        context = processor.update_context()
         return ""
-
 
 @register.tag(name="replace_shortcode")
 def do_replace_shortcode(parser, token):
@@ -586,4 +542,4 @@ def do_replace_shortcode(parser, token):
             "%r tag requires exactly one argument" % token.contents.split()[
                 0]
         )
-    return ReplaceTokensNode(text_field)
+    return ReplaceShortcodesNode(text_field)

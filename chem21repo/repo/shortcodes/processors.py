@@ -33,7 +33,7 @@ class HTMLShortcodeProcessor(ContextProcessorMixin):
 
     def __init__(self, html, *args, **kwargs):
         self.raw_html = html
-        return super(HTMLProcessor, self).__init__(*args, **kwargs)
+        return super(HTMLShortcodeProcessor, self).__init__(*args, **kwargs)
 
     @classmethod
     def register_block_shortcode(kls, ShortcodeProcessor):
@@ -327,12 +327,6 @@ class TagShortcodeProcessor(BaseShortcodeProcessor):
         This should be implemented with @classmethod """
         return None
 
-    @abstractmethod
-    def _renderer_to_arg_list(kls, obj):
-        """ Takes a Renderer object and returns ordered list of its properties
-        to be ouput in shortcode open tag
-        This should be implemented with @classmethod """
-        pass
 
     @abstractmethod
     def _renderer_to_content(kls, obj):
@@ -343,15 +337,6 @@ class TagShortcodeProcessor(BaseShortcodeProcessor):
 
 
 class FigureProcessor(TokenShortcodeProcessor):
-
-    @classmethod
-    def _renderer_to_arg_list(kls, obj):
-        """ Returns ordered list of FigureRenderer properties """
-        command = "local"
-        pk = obj.file_obj.pk
-        alt = obj.alt
-        title = obj.title
-        return [command, pk, alt, title]
 
     @classmethod
     def _to_renderer(kls, command, pk, alt="", *args):

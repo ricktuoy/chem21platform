@@ -1,12 +1,13 @@
 from .errors import *
 from abc import ABCMeta
-from abc import abstractproperty
 from abc import abstractmethod
 
 
 class BaseShortcodeRenderer(object):
     openchar = "["
     closechar = "]"
+
+    __metaclass__ = ABCMeta
 
     @abstractmethod
     def to_html(self, obj):
@@ -31,6 +32,8 @@ class BaseShortcodeRenderer(object):
 
 class TagShortcodeRenderer(object):
 
+    __metaclass__ = ABCMeta
+
     @BaseShortcodeRenderer.shortcode_html
     def to_shortcode(self):
         """ returns string of complete shortcode block"""
@@ -39,7 +42,7 @@ class TagShortcodeRenderer(object):
             self.openchar,
             self.name,
             ":" if len(args > 0) else "",
-            ":".join(self.to_arg_list),
+            ":".join(self._to_arg_list()),
             self.closechar,
             self._content(),
             self.openchar,
@@ -47,13 +50,21 @@ class TagShortcodeRenderer(object):
             self.closechar)
 
     @abstractmethod
-    def to_arg_list(self):
+    def _to_arg_list(self):
         """ returns ordered list of properties
         to be output in shortcode tag """
         pass
 
+    @abstractmethod
+    def _content():
+        """ returns text to display between opening and closing
+        tags of shortcode """
+        pass
+
 
 class TokenShortcodeRenderer(object):
+
+    __metaclass__ = ABCMeta
 
     @BaseShortcodeRenderer.shortcode_html
     def to_shortcode(self):
@@ -63,11 +74,11 @@ class TokenShortcodeRenderer(object):
             self.openchar,
             self.name,
             ":" if len(args > 0) else "",
-            ":".join(self.to_arg_list),
+            ":".join(self._to_arg_list()),
             self.closechar)
 
     @abstractmethod
-    def to_arg_list(self):
+    def _to_arg_list(self):
         """ returns ordered list of properties
         to be output in shortcode tag """
         pass
@@ -92,18 +103,12 @@ class FigureGroupRenderer(BaseShortcodeRenderer):
     def form(self, question, *args, **kwargs):
         return FigureGroupForm(question, *args, **kwargs)
 
-    def children_html(self):
-        for figure in self.figures:
-            yield figure.get_html()
-        for caption in self.captions:
-            yield "<figcaption>%s</figcaption>" % caption
-
     def get_html(self):
         classes = " ".join(self.styles)
-        out = "".join(self.children_html())
+        out = "".join(self._children_html())
         out += "<figure class=\"%s\">%s</figure>" % (
             classes, out)
-        if not self.is_hero() and "inline" in self.styles:
+        if not self._is_hero() and "inline" in self.styles:
             return "<aside>%s</aside>" % out
 
     def to_html(self):
@@ -112,17 +117,40 @@ class FigureGroupRenderer(BaseShortcodeRenderer):
         return self.get_html()
 
     def update_context(self, context):
-        if not self.is_hero():
+        if not self._is_hero():
             return context
-        context['asides'] += self.get_html()
+        try:
+            context['pre_content'] += self.get_html()
+        except KeyError:
+            context['pre_content'] = self.get_html()
         return context
 
-    def is_hero(self):
+    def _is_hero(self):
         if "aside" not in self.styles and "inline" not in self.styles:
             return True
         return False
 
+    def _children_html(self):
+        for figure in self.figures:
+            yield figure.get_html()
+        for caption in self.captions:
+            yield "<figcaption>%s</figcaption>" % caption
 
+    def _to_arg_list(self):
+        """ Returns ordered list of FigureGroupRenderer properties """
+        layout = " ".join(self.layout)
+        group_type = self.group_type
+        return [group_type, layout]
+
+    @classmethod
+    def _content(self):
+        """ Returns text content of the figgroup shortcode, made up of
+        figure and caption shortcodes """
+        figure_content = "".join(
+            [f.to_shortcode() for f in self.figures])
+        caption_content = "".join(
+            [c.to_shortcode() for c in self.captions])
+        return "%s%s" % (figure_content, caption_content)
 
 
 class TableRenderer(ContainerShortcodeBlock):
@@ -147,6 +175,21 @@ class TableRenderer(ContainerShortcodeBlock):
     def to_html(self):
         return self.get_html()
 
+    @classmethod
+    def _to_arg_list(self):
+        """ Returns ordered list of TableRenderer properties """
+        layout = " ".join(obj.layout)
+        group_type = obj.group_type
+        return [group_type, layout]
+
+    @classmethod
+    def _to_content(self):
+        """ Returns text content of the table shortcode, made up of
+        caption shortcodes and the table html """
+        caption_content = "".join(
+            [c.to_shortcode() for c in obj.captions])
+        return "%s%s" % (caption_content, self.html)
+
 
 class FigureRenderer(BaseShortcodeBlock):
     def __init__(self, question, file_obj, alt="", title=""):
@@ -154,6 +197,13 @@ class FigureRenderer(BaseShortcodeBlock):
         self.title = title
         self.url = file_obj.get_absolute_url()
         super(FigureBlock, self).__init__(question)
+
+    def _to_arg_list(self):
+        command = "local"
+        pk = self.file_obj.pk
+        alt = self.alt
+        title = self.title
+        return [command, pk, alt, title]
 
     def get_html(self):
         return "<a href=\"%s\" title=\"%s\"><img src=\"%s\" alt=\"%s\" /></a>" % (
