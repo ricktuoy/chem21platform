@@ -51,4 +51,3 @@ LOGGING = {
         }
     }
 }
-DEBUG=True
