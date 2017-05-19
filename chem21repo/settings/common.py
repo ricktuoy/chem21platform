@@ -93,10 +93,10 @@ USE_TZ = False
 
 # AWS setup
 
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "")
+AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY_ID", "")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "")
-AWS_S3_REGION = os.environ.get("AWS_STORAGE_REGION", None)
+AWS_S3_REGION_NAME = os.environ.get("AWS_STORAGE_REGION", None)
 
 # Amazon S3 settings.
 
@@ -104,12 +104,14 @@ AWS_AUTO_CREATE_BUCKET = False
 AWS_HEADERS = {
     "Cache-Control": "public, max-age=86400",
 }
+#AWS_S3_SIGNATURE_VERSION = os.environ.get("AWS_S3_SIGNATURE_VERSION",'s3v4') 
 AWS_S3_FILE_OVERWRITE = True
-AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
-AWS_S3_CUSTOM_DOMAIN = "learning.chem21.eu"
+
+if "AWS_S3_CUSTOM_DOMAIN" in os.environ:
+    AWS_S3_CUSTOM_DOMAIN = "learning.chem21.eu"
+    AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
 
 AWS_QUERYSTRING_AUTH = False
-AWS_S3_SECURE_URLS = False
 AWS_REDUCED_REDUNDANCY = False
 AWS_IS_GZIPPED = False
 

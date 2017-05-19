@@ -1,22 +1,22 @@
 BeautifulSoup==3.2.1
 beautifulsoup4==4.4.1
 boto==2.38.0
+boto3==1.4.1
 citeproc-py==0.3.0
 cssselect==0.9.1
 Django==1.8
 django-autocomplete-light==3.1.6
--e git+https://github.com/ricktaylord/django-cached-s3-storage.git@aafe927913d7bb854b21825282a86c1062ff1815#egg=django_cachedS3_storage
 django-choices==1.4.3
 django-debug-panel==0.8.2
 django-debug-toolbar==1.4
--e git+https://github.com/ricktaylord/django-filebrowser.git#egg=django_filebrowser
+django-filebrowser==3.6.4
 django-grappelli==2.8.1
 django-require==1.0.8
 django-require-s3==1.0.0
 django-revproxy==0.9.10
 django-ses==0.8.1
 -e git+https://github.com/ricktaylord/django-static-generator.git@8ac91e1a73456b5927186983051c12fcf2c01539#egg=django_staticgenerator
--e git+https://github.com/ricktuoy/django-storages@1.1.8#egg=django_storages
+django-storages==1.5.1
 django-tinymce==2.3.0
 -e git+https://github.com/ricktaylord/django-tinymce-biblio.git@6afd67a579e2d0cf2bcb9fa140c3b13b5d8ed17d#egg=django_tinymce_biblio
 -e git+https://github.com/ricktaylord/django-tinymce-figures.git@7b5d20492700a6564286c91a703133196d3f1925#egg=django_tinymce_figuretag
