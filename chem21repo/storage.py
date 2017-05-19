@@ -8,15 +8,19 @@ import tempfile
 from django.core.files.storage import DefaultStorage
 from django.core.urlresolvers import reverse
 from require_s3.storage import OptimizedCachedStaticFilesStorage
+from storages.backends.s3boto import S3BotoStorage
 
 
-class TinyMCEProxyCachedS3BotoStorage(OptimizedCachedStaticFilesStorage):
+class TinyMCEProxyCachedS3BotoStorage(S3BotoStorage):
     def __init__(self, *args, **kwargs):
         kwargs['location'] = 'static/'
         return super(TinyMCEProxyCachedS3BotoStorage, self).__init__(*args, **kwargs)
 
     def url(self, *args, **kwargs):
-        url = super(TinyMCEProxyCachedS3BotoStorage, self).url(*args, **kwargs)
+        try:
+            url = super(TinyMCEProxyCachedS3BotoStorage, self).url(*args, **kwargs)
+        except ValueError:
+            return ""
         if "tiny_mce" in url or "tinymce" in url:
             url = reverse(
                 "s3_proxy", kwargs={'path': url.replace(settings.S3_URL + "/", "")})
