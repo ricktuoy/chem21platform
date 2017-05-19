@@ -1,4 +1,4 @@
-from cachedS3.storage import CachedS3BotoStorage
+
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.utils import timezone
@@ -8,22 +8,26 @@ import tempfile
 from django.core.files.storage import DefaultStorage
 from django.core.urlresolvers import reverse
 from require_s3.storage import OptimizedCachedStaticFilesStorage
+from storages.backends.s3boto3 import S3Boto3Storage
 
 
-class TinyMCEProxyCachedS3BotoStorage(OptimizedCachedStaticFilesStorage):
+class TinyMCEProxyCachedS3BotoStorage(S3Boto3Storage):
     def __init__(self, *args, **kwargs):
         kwargs['location'] = 'static/'
         return super(TinyMCEProxyCachedS3BotoStorage, self).__init__(*args, **kwargs)
 
     def url(self, *args, **kwargs):
-        url = super(TinyMCEProxyCachedS3BotoStorage, self).url(*args, **kwargs)
+        try:
+            url = super(TinyMCEProxyCachedS3BotoStorage, self).url(*args, **kwargs)
+        except ValueError:
+            return ""
         if "tiny_mce" in url or "tinymce" in url:
             url = reverse(
                 "s3_proxy", kwargs={'path': url.replace(settings.S3_URL + "/", "")})
         return url
 
 
-class MediaRootS3BotoStorage(CachedS3BotoStorage):
+class MediaRootS3BotoStorage(S3Boto3Storage):
     def __init__(self, *args, **kwargs):
         kwargs['location'] = 'media/'
         return super(MediaRootS3BotoStorage, self).__init__(*args, **kwargs)
@@ -64,7 +68,7 @@ try:
     SiteRootStorage = lambda:FileSystemStorage(
         location = loc, base_url=url)
 except AttributeError:
-    SiteRootStorage = lambda:CachedS3BotoStorage(location=getattr(settings, "PUBLIC_SITE_S3_PATH", '/'))
+    SiteRootStorage = lambda:S3Boto3Storage(location=getattr(settings, "PUBLIC_SITE_S3_PATH", '/'))
 
 
 #SiteRootS3BotoStorage = lambda: CachedS3BotoStorage(location='site/')
