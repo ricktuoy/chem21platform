@@ -58,7 +58,7 @@ class HTMLShortcodeParser(object):
             ShortcodeProcessor (class): ShortcodeProcessor-type 
                 class to register
         """
-        cls._block_processors[ShortcodeProcessor.__name__] = ShortcodeProcessor
+        cls._block_processors[ShortcodeProcessor.name] = ShortcodeProcessor
 
     @classmethod
     def register_inline_shortcode(cls, ShortcodeProcessor):
@@ -68,7 +68,7 @@ class HTMLShortcodeParser(object):
             ShortcodeProcessor (class): ShortcodeProcessor-type class to register
         """
         cls._inline_processors[
-            ShortcodeProcessor.__name__] = ShortcodeProcessor
+            ShortcodeProcessor.name] = ShortcodeProcessor
 
     def remove_block_shortcodes(self):
         """
@@ -76,11 +76,11 @@ class HTMLShortcodeParser(object):
             str: source HTML without block shortcodes
         """
         out = ""
-        for match in self._blocks.values():
+        for k in sorted(self._blocks):
             try:
-                self._get_renderers_for_shortcode(match.group(0))
+                self._get_renderers_for_shortcode(self._blocks[k].group(0))
             except ShortcodeLoadError:
-                out += match.group(0)
+                out += self._blocks[k].group(0)
         return out
 
     def get_rendered_html(self):
@@ -95,19 +95,18 @@ class HTMLShortcodeParser(object):
             pass
         self._rendered_html = ""
         self._extra_html_snippets = self._get_extra_snippets_from_inlines()
-        logging.debug(self._blocks.values())
-        for match in self._blocks.values():
+
+        for k in sorted(self._blocks):
+            match = self._blocks[k]
             try:
                 renderers = self._get_renderers_for_shortcode(
                     match.group(0))
-                logging.debug(renderers)
             except ShortcodeLoadError:
                 logging.debug("No shortcode")
                 self._rendered_html += match.group(0)
                 continue
             for renderer in renderers:
                 self._rendered_html += renderer.get_html()
-                print renderer.get_html()
                 try:
                     renderer.update_extra_html_snippets(
                         self._extra_html_snippets)
@@ -281,13 +280,12 @@ class HTMLShortcodeParser(object):
         self._inlines_replaced = self._html_snippet
         self._inline_html_snippets = {}
         for name, ShortcodeProcessor in self._inline_processors.iteritems():
+            logging.debug("Inline")
             logging.debug(ShortcodeProcessor)
-            logging.debug(self._html_snippet)
-            logging.debug(inspect.getsourcelines(ShortcodeProcessor.__init__))
             self._inlines_replaced = ShortcodeProcessor(
-                self._html_snippet).get_rendered_html(
+                self._inlines_replaced).get_rendered_html(
                 extra_html_snippets=self._inline_html_snippets)
-
+            logging.debug(self._inlines_replaced)
         return self._inlines_replaced
 
     def _get_extra_snippets_from_inlines(self):
@@ -334,12 +332,9 @@ class HTMLShortcodeParser(object):
             ShortcodeLoadError: if shortcode_html is not a recognised shortcode
         """
         for name, ShortcodeProcessor in self._block_processors.iteritems():
-            try:
-                renderers = ShortcodeProcessor(shortcode_html).renderers()
-                logging.debug(renderers)
+            renderers = ShortcodeProcessor(shortcode_html).renderers()
+            if renderers:
                 return renderers
-            except ShortcodeLoadError:
-                continue
         raise ShortcodeLoadError
 
     def _get_name_of_shortcode(self, shortcode_html):

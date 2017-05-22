@@ -138,7 +138,7 @@ class BiblioMixin(object):
         if self.edit:
             url = reverse(
                 "admin:repo_biblio-power_change",
-                args=[bib.pk, ])
+                args=[self.bib.pk, ])
             html += "<a href=\"%s\">%s</a>" % (url, "[edit]")
         return html
 
@@ -162,7 +162,7 @@ class FootnoteReferenceRenderer(BiblioMixin, BaseShortcodeRenderer):
 
     def update_extra_html_snippets(self, html_snippets):
         ref_html = "<li id=\"citekey_%s_%s\">%s</li>" % (
-                self.bib.citekey, self.position, self._reference_html())
+            self.bib.citekey, self.position, self._reference_html())
         try:
             html_snippets['footnotes'] += ref_html
         except KeyError:
@@ -207,26 +207,34 @@ class CTARenderer(BaseShortcodeRenderer):
 class AttributionRenderer(BaseShortcodeRenderer):
     name = "attrib"
 
-    def get_html(self, inner_html):
-        html = "<p class=\"attrib\">%s</p>" % inner_html
+    def __init__(self, inner_html):
+        self.inner_html = inner_html
+
+    def get_html(self):
+        html = "<p class=\"attrib\">%s</p>" % self.inner_html
         return html
 
 
 class GHSStatementRenderer(BaseShortcodeRenderer):
     name = "GHS_statement"
 
-    def get_html(self, num):
-        url = static("img/ghs/symbol_%s.png" % num)
-        return "<img src=\"%s\" alt=\"GHS symbol\" class=\"ghs_symbol\" />" %  url
+    def __init__(self, num):
+        self.num = num
 
+    def get_html(self):
+        url = static("img/ghs/symbol_%s.png" % self.num)
+        return "<img src=\"%s\" alt=\"GHS symbol\" class=\"ghs_symbol\" />" % url
 
 class RSCRightsRenderer(BaseShortcodeRenderer):
     name = "rsc"
 
+    def __init__(self, text):
+        self.text = text
+
     def get_html(self, content):
         rsc_template = template.loader.get_template(
             "chem21/include/rsc_statement.html")
-        cxt = {'content': content}
+        cxt = {'content': self.text}
         cxt['tools'] = False
         html = rsc_template.render(cxt)
         return html

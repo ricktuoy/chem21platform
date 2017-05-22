@@ -45,7 +45,9 @@ class BaseShortcodeProcessor(object):
             :obj: `list` of :obj:`BaseShortcodeRenderer`: list of renderer objects for each
                 matching shortcode
         """
-        logging.debug(self.pattern.finditer(self._html))
+        logging.debug(self._html)
+        logging.debug(type(self))
+        logging.debug(list(self.pattern.finditer(self._html)))
         return [
             self._shortcode_to_renderer(match)
             for match in self.pattern.finditer(self._html)]
@@ -123,7 +125,7 @@ class TokenShortcodeProcessor(BaseShortcodeProcessor):
             return self._pattern
         except AttributeError:
             self._pattern = re.compile(
-                r'%s%s(?P<%s_args>.*?)%s' %
+                r'%s%s(?P<%s_attrs>.*?)%s' %
                 (self.openchar,
                     self.name,
                     self.name,
@@ -133,7 +135,7 @@ class TokenShortcodeProcessor(BaseShortcodeProcessor):
 
     def _shortcode_to_renderer(self, match):
         args, kwargs = self.renderer_args(
-            *match.group(self.name + "_args").split(":")[1:])
+            *match.group(self.name + "_attrs").split(":"))
         return self.renderer(*args, **kwargs)
 
     @abstractmethod
@@ -182,18 +184,19 @@ class TagShortcodeProcessor(BaseShortcodeProcessor):
         try:
             return self._simple_pattern
         except AttributeError:
-            self._simple_pattern = re.compile(
-                r'%s%s[:]?(?P<%s_args>.*?)%s%s%s\/%s%s' % (
-                    self.openchar, self.name, self.name,
-                    self.closechar, '(?P<content>.*?)',
-                    self.openchar, self.name, self.closechar),
-                re.DOTALL)
+            regstr = r'%s%s[:]?(?P<%s_attrs>.*?)%s%s%s\/%s%s' % (
+                self.openchar, self.name, self.name,
+                self.closechar, '(?P<content>.*?)',
+                self.openchar, self.name, self.closechar)
+            self._simple_pattern = re.compile(regstr, re.DOTALL)
             return self._simple_pattern
 
     def _shortcode_to_renderer(self, match):
-        args, kwargs = self.renderer_args(
-            match.group('content'),
-            *match.group(self.name + "_args").split(":")[1:])
+        attr_str = match.group(self.name + "_attrs")
+        props = [match.group('content'), ]
+        if attr_str:
+            props += attr_str.split(":")
+        args, kwargs = self.renderer_args(*props)
         return self.renderer(*args, **kwargs)
 
     @abstractmethod

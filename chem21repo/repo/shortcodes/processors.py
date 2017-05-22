@@ -150,7 +150,7 @@ class PageMixin(object):
 
 
 class InternalLinkProcessor(PageMixin, TagShortcodeProcessor):
-    name = "ilink"
+    name = "inlink"
     renderer = InternalLinkRenderer
 
     def renderer_args(self, content, *page_pks):
