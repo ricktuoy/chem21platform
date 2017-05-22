@@ -3,6 +3,7 @@
 from abc import ABCMeta
 from abc import abstractmethod, abstractproperty
 import re
+import logging
 
 
 class BaseShortcodeProcessor(object):
@@ -44,9 +45,10 @@ class BaseShortcodeProcessor(object):
             :obj: `list` of :obj:`BaseShortcodeRenderer`: list of renderer objects for each
                 matching shortcode
         """
+        logging.debug(self.pattern.finditer(self._html))
         return [
             self._shortcode_to_renderer(match)
-            for match in self.pattern.finditer()]
+            for match in self.pattern.finditer(self._html)]
 
     def get_rendered_html(self, extra_html_snippets):
         """substitutes each matched shortcode with the
@@ -130,12 +132,12 @@ class TokenShortcodeProcessor(BaseShortcodeProcessor):
             return self._pattern
 
     def _shortcode_to_renderer(self, match):
-        args, kwargs = self._renderer_args(
-            *match.group(self.name + "_args").split(":"))
+        args, kwargs = self.renderer_args(
+            *match.group(self.name + "_args").split(":")[1:])
         return self.renderer(*args, **kwargs)
 
     @abstractmethod
-    def _renderer_args(self, *args):
+    def renderer_args(self, *args):
         """
         Args:
             *args: list of properties from shortcode
@@ -189,9 +191,9 @@ class TagShortcodeProcessor(BaseShortcodeProcessor):
             return self._simple_pattern
 
     def _shortcode_to_renderer(self, match):
-        args, kwargs = self._renderer_args(
+        args, kwargs = self.renderer_args(
             match.group('content'),
-            *match.group(self.name + "_args").split(":"))
+            *match.group(self.name + "_args").split(":")[1:])
         return self.renderer(*args, **kwargs)
 
     @abstractmethod

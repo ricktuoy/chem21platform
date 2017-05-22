@@ -17,7 +17,7 @@ from .renderers import InternalLinkRenderer
 from .renderers import TableRenderer
 from .renderers import RSCRightsRenderer
 from .renderers import GHSStatementRenderer
-from ..models.base import UniqueFile
+from ..models.media import UniqueFile
 from django.utils.html import strip_tags
 
 
@@ -87,10 +87,10 @@ class BiblioFootnoteProcessor(TagShortcodeProcessor):
     name = "bib"
     renderer = FootnoteReferenceRenderer
 
-    def __init__(self):
+    def __init__(self, html):
         self.bibs = []
         self.bibset = {}
-        return super(BiblioFootnoteProcessor, self).__init__()
+        return super(BiblioFootnoteProcessor, self).__init__(html)
 
     def renderer_args(self, content):
         try:
@@ -170,7 +170,7 @@ class CTAProcessor(TokenShortcodeProcessor):
 
 
 class AttributionProcessor(TagShortcodeProcessor):
-    tag_name = "attrib"
+    name = "attrib"
     renderer = AttributionRenderer
 
     def renderer_args(self, content):

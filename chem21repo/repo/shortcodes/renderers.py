@@ -161,8 +161,12 @@ class FootnoteReferenceRenderer(BiblioMixin, BaseShortcodeRenderer):
             self.bib.citekey, self.position, self.position)
 
     def update_extra_html_snippets(self, html_snippets):
-        html_snippets['footnotes'] += "<li id=\"citekey_%s_%s\">%s</li>" % (
-            self.bib.citekey, self.position, self._reference_html())
+        ref_html = "<li id=\"citekey_%s_%s\">%s</li>" % (
+                self.bib.citekey, self.position, self._reference_html())
+        try:
+            html_snippets['footnotes'] += ref_html
+        except KeyError:
+            html_snippets['footnotes'] = ref_html
 
 
 class BlockReferenceRenderer(BiblioMixin, BaseShortcodeRenderer):
@@ -216,7 +220,7 @@ class GHSStatementRenderer(BaseShortcodeRenderer):
         return "<img src=\"%s\" alt=\"GHS symbol\" class=\"ghs_symbol\" />" %  url
 
 
-class RHSRightsRenderer(BaseShortcodeRenderer):
+class RSCRightsRenderer(BaseShortcodeRenderer):
     name = "rsc"
 
     def get_html(self, content):

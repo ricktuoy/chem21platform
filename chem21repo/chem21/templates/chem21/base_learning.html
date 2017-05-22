@@ -1,5 +1,5 @@
 {% extends 'chem21/base_inner.html' %}
-{% load tokens %}
+{% load shortcodes %}
 {% load quiz %}
 {% load responsive %}
 {% load video %}
@@ -126,10 +126,10 @@
 {% endblock %}
 {% block learning_object %}
 	{% if object.get_text %}
-		{% replace_tokens object.get_text %}
+		{% replace_shortcodes object.get_text %}
 		
 		{% if object.video %}
-			{% get_video tokens_replaced object.video %}
+			{% get_video shortcodes_replaced object.video %}
 		{% endif %}
 		{% block pre_content %}
 		{% if pre_content %}
@@ -158,8 +158,8 @@
 	{% endif %}
 			
 		<div id="content-body">
-		{% if tokens_replaced %}
-			{{ tokens_replaced|responsivise|glossarize|safe }}
+		{% if shortcodes_replaced %}
+			{{ shortcodes_replaced|responsivise|glossarize|safe }}
 		{% endif %}
 		</div>
 		{% block post_text %}
@@ -172,8 +172,8 @@
 		{% if object.has_quiz %}
 			{% block interactive %}
 			{% render_quiz object.quiz %}
-			{% replace_tokens rendered_tool %}
-			{{ tokens_replaced|safe }}
+			{% replace_shortcodes rendered_tool %}
+			{{ shortcodes_replaced|safe }}
 			{% endblock %}
 		{% endif %}
 		{% if object.pdf %}
@@ -198,7 +198,5 @@
 	</div>
 </div>
 {% endblock %}
-
-{{ block.super }}
 
 {% endblock %}

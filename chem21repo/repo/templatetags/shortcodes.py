@@ -1,7 +1,8 @@
 import re
 
-from chem21repo.repo.shortcodes import HTMLShortcodeProcessor
+from ..shortcodes import HTMLShortcodeParser
 from django import template
+import logging
 
 register = template.Library()
 
@@ -32,13 +33,15 @@ class ReplaceShortcodesNode(template.Node):
             context['pre_content'] = ''
             context['tokens_replaced'] = ''
             return ""
-        processor = HTMLShortcodeProcessor(html)
-        context['tokens_replaced'] = processor.replace_shortcodes_with_html()
-        context += processor.get_extra_html_snippets()
+        parser = HTMLShortcodeParser(html)
+        context['shortcodes_replaced'] = parser.get_rendered_html()
+        logging.debug(parser.get_rendered_html())
+        context.update(parser.get_extra_html_snippets())
+        logging.debug(context)
         return ""
 
 
-@register.tag(name="replace_shortcode")
+@register.tag(name="replace_shortcodes")
 def do_replace_shortcode(parser, token):
     try:
         tag_name, text_field = token.split_contents()
@@ -48,4 +51,3 @@ def do_replace_shortcode(parser, token):
                 0]
         )
     return ReplaceShortcodesNode(text_field)
-
