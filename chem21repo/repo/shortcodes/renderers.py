@@ -1,90 +1,16 @@
-from .errors import *
-from abc import ABCMeta
-from abc import abstractmethod
+from .base import BaseShortcodeRenderer
+from .base import TagShortcodeRenderer
+from .base import TokenShortcodeRenderer
+from .forms import FigureGroupForm
+from .forms import TableGroupForm
+from django.core.urlresolvers import reverse
+from django.contrib.staticfiles.templatetags.staticfiles import static
+from django import template
 
 
-class BaseShortcodeRenderer(object):
-    openchar = "["
-    closechar = "]"
+class FigureGroupRenderer(TagShortcodeRenderer):
+    name = "figgroup"
 
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def to_html(self, obj):
-        """ returns rendered HTML """
-        pass
-
-    @abstractmethod
-    def to_shortcode(self):
-        """ returns rendered shortcode text """
-        pass
-
-    def shortcode_html(inner_html):
-        """ decorator that wraps shortcodes in placeholder html """
-        def wrap(self):
-            out = "<div class=\"shortcode\"><!--shortcode-->"
-            out += inner_html(self)
-            out += "<!--end_shortcode--></div>"
-            return out
-        return wrap
-    shortcode_html = staticmethod(shortcode_html)
-
-
-class TagShortcodeRenderer(object):
-
-    __metaclass__ = ABCMeta
-
-    @BaseShortcodeRenderer.shortcode_html
-    def to_shortcode(self):
-        """ returns string of complete shortcode block"""
-        args = self._arg_list()
-        return "%s%s%s%s%s%s%s%s/%s" % (
-            self.openchar,
-            self.name,
-            ":" if len(args > 0) else "",
-            ":".join(self._to_arg_list()),
-            self.closechar,
-            self._content(),
-            self.openchar,
-            self.name,
-            self.closechar)
-
-    @abstractmethod
-    def _to_arg_list(self):
-        """ returns ordered list of properties
-        to be output in shortcode tag """
-        pass
-
-    @abstractmethod
-    def _content():
-        """ returns text to display between opening and closing
-        tags of shortcode """
-        pass
-
-
-class TokenShortcodeRenderer(object):
-
-    __metaclass__ = ABCMeta
-
-    @BaseShortcodeRenderer.shortcode_html
-    def to_shortcode(self):
-        """ returns string of complete shortcode block"""
-        args = self.renderer_to_arg_list(obj)
-        return "%s%s%s%s%s" % (
-            self.openchar,
-            self.name,
-            ":" if len(args > 0) else "",
-            ":".join(self._to_arg_list()),
-            self.closechar)
-
-    @abstractmethod
-    def _to_arg_list(self):
-        """ returns ordered list of properties
-        to be output in shortcode tag """
-        pass
-
-
-class FigureGroupRenderer(BaseShortcodeRenderer):
     def __init__(
             self,
             figures=[],
@@ -100,10 +26,12 @@ class FigureGroupRenderer(BaseShortcodeRenderer):
                 self.styles.remove("full_width")
         self.group_type = group_type
 
-    def form(self, question, *args, **kwargs):
+    def get_form(self, question, *args, **kwargs):
         return FigureGroupForm(question, *args, **kwargs)
 
     def get_html(self):
+        if self._is_hero():
+            return ""
         classes = " ".join(self.styles)
         out = "".join(self._children_html())
         out += "<figure class=\"%s\">%s</figure>" % (
@@ -111,19 +39,25 @@ class FigureGroupRenderer(BaseShortcodeRenderer):
         if not self._is_hero() and "inline" in self.styles:
             return "<aside>%s</aside>" % out
 
-    def to_html(self):
-        if self.is_hero():
-            return ""
-        return self.get_html()
-
-    def update_context(self, context):
+    def update_extra_html_snippets(self, html_snippets):
         if not self._is_hero():
-            return context
+            return
         try:
-            context['pre_content'] += self.get_html()
+            html_snippets['pre_content'] += self.get_html()
         except KeyError:
-            context['pre_content'] = self.get_html()
-        return context
+            html_snippets['pre_content'] = self.get_html()
+
+    def shortcode_args(self):
+        layout = " ".join(self.layout)
+        group_type = self.group_type
+        return [group_type, layout]
+
+    def shortcode_content(self):
+        figure_content = "".join(
+            [f.get_shortcode() for f in self.figures])
+        caption_content = "".join(
+            [c.get_shortcode() for c in self.captions])
+        return "%s%s" % (figure_content, caption_content)
 
     def _is_hero(self):
         if "aside" not in self.styles and "inline" not in self.styles:
@@ -136,35 +70,21 @@ class FigureGroupRenderer(BaseShortcodeRenderer):
         for caption in self.captions:
             yield "<figcaption>%s</figcaption>" % caption
 
-    def _to_arg_list(self):
-        """ Returns ordered list of FigureGroupRenderer properties """
-        layout = " ".join(self.layout)
-        group_type = self.group_type
-        return [group_type, layout]
 
-    @classmethod
-    def _content(self):
-        """ Returns text content of the figgroup shortcode, made up of
-        figure and caption shortcodes """
-        figure_content = "".join(
-            [f.to_shortcode() for f in self.figures])
-        caption_content = "".join(
-            [c.to_shortcode() for c in self.captions])
-        return "%s%s" % (figure_content, caption_content)
+class TableRenderer(TagShortcodeRenderer):
+    name = "table"
 
-
-class TableRenderer(ContainerShortcodeBlock):
     def __init__(
             self,
             caption="",
             html="",
             table_type="table"):
-        super(TableBlock, self).__init__(question, caption)
+        super(TableRenderer, self).__init__(caption)
 
         self.table_html = html
         self.table_type = table_type
 
-    def form(self, question, *args, **kwargs):
+    def get_form(self, question, *args, **kwargs):
         return TableGroupForm(question, *args, **kwargs)
 
     def get_html(self):
@@ -172,33 +92,28 @@ class TableRenderer(ContainerShortcodeBlock):
             ["<caption>%s</caption>" % c for c in self.captions])
         return caps + self.table_html
 
-    def to_html(self):
-        return self.get_html()
-
-    @classmethod
-    def _to_arg_list(self):
-        """ Returns ordered list of TableRenderer properties """
-        layout = " ".join(obj.layout)
-        group_type = obj.group_type
+    def shortcode_args(self):
+        layout = " ".join(self.layout)
+        group_type = self.group_type
         return [group_type, layout]
 
-    @classmethod
-    def _to_content(self):
+    def shortcode_content(self):
         """ Returns text content of the table shortcode, made up of
         caption shortcodes and the table html """
         caption_content = "".join(
-            [c.to_shortcode() for c in obj.captions])
+            [c.get_shortcode() for c in self.captions])
         return "%s%s" % (caption_content, self.html)
 
 
-class FigureRenderer(BaseShortcodeBlock):
-    def __init__(self, question, file_obj, alt="", title=""):
+class FigureRenderer(TokenShortcodeRenderer):
+    name = "figure"
+
+    def __init__(self, file_obj, alt="", title=""):
         self.alt = alt
         self.title = title
         self.url = file_obj.get_absolute_url()
-        super(FigureBlock, self).__init__(question)
 
-    def _to_arg_list(self):
+    def shortcode_args(self):
         command = "local"
         pk = self.file_obj.pk
         alt = self.alt
@@ -211,3 +126,103 @@ class FigureRenderer(BaseShortcodeBlock):
             self.title,
             self.url,
             self.alt)
+
+
+class BiblioMixin(object):
+
+    def _reference_html(self):
+        html = self.bib.get_footnote_html()
+        if html is False:
+            html = "Unknown reference with citekey %s" % self.bib.citekey
+
+        if self.edit:
+            url = reverse(
+                "admin:repo_biblio-power_change",
+                args=[bib.pk, ])
+            html += "<a href=\"%s\">%s</a>" % (url, "[edit]")
+        return html
+
+
+class FootnoteReferenceRenderer(BiblioMixin, BaseShortcodeRenderer):
+    name = "bib"
+    positions = {}
+
+    def __init__(self, bib, position, edit=False):
+        self.bib = bib
+        try:
+            self.position = self.positions[self.bib.citekey]
+        except KeyError:
+            self.positions[self.bib.citekey] = self.position = \
+                len(self.positions) + 1
+        self.edit = edit
+
+    def get_html(self):
+        return "<a href=\"#citekey_%s_%d\">[%d]</a>" % (
+            self.bib.citekey, self.position, self.position)
+
+    def update_extra_html_snippets(self, html_snippets):
+        html_snippets['footnotes'] += "<li id=\"citekey_%s_%s\">%s</li>" % (
+            self.bib.citekey, self.position, self._reference_html())
+
+
+class BlockReferenceRenderer(BiblioMixin, BaseShortcodeRenderer):
+    name = "ibib"
+
+    def __init__(self, bib, edit=False):
+        self.bib = bib
+        self.edit = edit
+
+    def get_html(self):
+        return self._reference_html()
+
+
+class InternalLinkRenderer(BaseShortcodeRenderer):
+    name = "ilink"
+
+    def __init__(self, inner_html, page):
+        self.page = page
+        self.inner_html = inner_html
+
+    def get_html(self):
+        return "<a class=\"internal\" href=\"%s\">%s</a>" % (
+            self.page.get_absolute_url(), self.inner_html)
+
+
+class CTARenderer(BaseShortcodeRenderer):
+    name = "cta"
+
+    def __init__(self, page):
+        self.page = page
+
+    def get_html(self):
+
+        return "<p class=\"cta\">To study this area in more depth, see <a href=\"%s\"><span class=\"subject_title\">%s</span></a></p>" % (
+            self.page.get_absolute_url(), self.page.title)
+
+
+class AttributionRenderer(BaseShortcodeRenderer):
+    name = "attrib"
+
+    def get_html(self, inner_html):
+        html = "<p class=\"attrib\">%s</p>" % inner_html
+        return html
+
+
+class GHSStatementRenderer(BaseShortcodeRenderer):
+    name = "GHS_statement"
+
+    def get_html(self, num):
+        url = static("img/ghs/symbol_%s.png" % num)
+        return "<img src=\"%s\" alt=\"GHS symbol\" class=\"ghs_symbol\" />" %  url
+
+
+class RHSRightsRenderer(BaseShortcodeRenderer):
+    name = "rsc"
+
+    def get_html(self, content):
+        rsc_template = template.loader.get_template(
+            "chem21/include/rsc_statement.html")
+        cxt = {'content': content}
+        cxt['tools'] = False
+        html = rsc_template.render(cxt)
+        return html

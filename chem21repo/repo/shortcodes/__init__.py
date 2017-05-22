@@ -1,30 +1,16 @@
-from .processors import *
-from .errors import *
-import re
+from .parser import HTMLShortcodeParser
+from .processors import FigureGroupProcessor
+from .processors import TableProcessor
+from .processors import BiblioFootnoteProcessor
+from .processors import BiblioBlockProcessor
+from .processors import InternalLinkProcessor
+from .processors import CTAProcessor
+from .processors import AttributionProcessor
 
-
-
-
-
-
-class Token(object):
-
-    @classmethod
-    def processor_from_name(kls, nm):
-        return eval(nm.capitalize() + "Processor")
-
-    @classmethod
-    def class_from_name(kls, nm):
-        return eval(nm.capitalize() + "Token")
-
-    @classmethod
-    def create(kls, tp, para, fig, question, *args, **kwargs):
-        token_class = kls.class_from_name(tp)
-        return token_class(para=para, question=question, fig=fig,
-                           *args, **kwargs)
-
-    @classmethod
-    def get(kls, tp, para, fig, question):
-        token_class = kls.class_from_name(tp)
-        return token_class.get(para=para, question=question, fig=fig,
-            order=order)
+HTMLShortcodeParser.register_block_shortcode(FigureGroupProcessor)
+HTMLShortcodeParser.register_block_shortcode(TableProcessor)
+HTMLShortcodeParser.register_block_shortcode(BiblioBlockProcessor)
+HTMLShortcodeParser.register_block_shortcode(CTAProcessor)
+HTMLShortcodeParser.register_inline_shortcode(BiblioFootnoteProcessor)
+HTMLShortcodeParser.register_inline_shortcode(InternalLinkProcessor)
+HTMLShortcodeParser.register_block_shortcode(AttributionProcessor)

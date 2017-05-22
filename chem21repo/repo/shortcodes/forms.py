@@ -2,6 +2,9 @@ from django import forms
 
 
 class FigureGroupForm(forms.Form):
+    media = forms.MultipleChoiceField(
+        label="Image(s)",
+        choices=[])  # choices are defined on init
     figure_type = forms.CharField(
         label="Type of figure",
         help_text="e.g. Figure/Scheme/Table (defaults to Figure)",
@@ -10,9 +13,6 @@ class FigureGroupForm(forms.Form):
         label="Caption",
         max_length=200,
         required=False)
-    media = forms.MultipleChoiceField(
-        label="Image(s)",
-        choices=[])  # choices are defined on init
     layout = forms.ChoiceField(
         label="Layout",
         choices=[
@@ -25,3 +25,13 @@ class FigureGroupForm(forms.Form):
         super(FigureGroupForm, self).__init__(*args, **kwargs)
         self.fields['media'].choices = [
             (f.pk, f.title) for f in question.files.filter(type="image")]
+
+
+class TableForm(forms.Form):
+    inner_html = forms.TextField(
+
+        )
+    caption = forms.CharField(
+        label="Caption",
+        max_length=200,
+        required=False)
