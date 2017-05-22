@@ -28,9 +28,9 @@ class FigureGroupForm(forms.Form):
 
 
 class TableForm(forms.Form):
-    inner_html = forms.TextField(
-
-        )
+    inner_html = forms.CharField(
+        label="Table content",
+        required=True)
     caption = forms.CharField(
         label="Caption",
         max_length=200,

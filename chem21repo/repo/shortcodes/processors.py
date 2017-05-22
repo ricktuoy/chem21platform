@@ -15,8 +15,11 @@ from .renderers import FigureRenderer
 from .renderers import FootnoteReferenceRenderer
 from .renderers import InternalLinkRenderer
 from .renderers import TableRenderer
-from .renderers import RSCRightsProcessor
+from .renderers import RSCRightsRenderer
 from .renderers import GHSStatementRenderer
+from ..models.base import UniqueFile
+from django.utils.html import strip_tags
+
 
 class FigureProcessor(TokenShortcodeProcessor):
     name = "figure"
@@ -40,7 +43,7 @@ class FigureProcessor(TokenShortcodeProcessor):
         return [], {
             'file_obj': fle,
             'alt': alt,
-            'title': striptags(":".join(args))}
+            'title': strip_tags(":".join(args))}
 
 
 class CaptionProcessor(TagShortcodeProcessor):
@@ -87,7 +90,7 @@ class BiblioFootnoteProcessor(TagShortcodeProcessor):
     def __init__(self):
         self.bibs = []
         self.bibset = {}
-        return super(BiblioFootnoteProcessor, self).__init__(*args, **kwargs)
+        return super(BiblioFootnoteProcessor, self).__init__()
 
     def renderer_args(self, content):
         try:

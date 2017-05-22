@@ -8,3 +8,9 @@ class ShortcodeLoadError(Exception):
 
 class NotAShortcodeError(Exception):
     pass
+
+class BlockNotFoundError(Exception):
+    pass
+
+class ShortcodeValidationError(Exception):
+    pass

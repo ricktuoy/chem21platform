@@ -48,3 +48,4 @@ def do_replace_shortcode(parser, token):
                 0]
         )
     return ReplaceShortcodesNode(text_field)
+

@@ -1,8 +1,7 @@
 """Module containing the main HTML shortcode parser class.
 
 """
-from .base import ContextProcessorMixin
-from .errors import ShortcodeLoadError, BlockNotFoundError, MatchError
+from .errors import ShortcodeLoadError, BlockNotFoundError
 from decorator import decorator
 import re
 
@@ -31,10 +30,10 @@ class HTMLShortcodeParser(object):
         get_admin_html (TYPE): Description
 
     """
-    pattern = re.compile((
-        r'<(?P<tag>\w*)\s*(?P<tag_atts>[^<>]*)>',
-        r'(?P<content>.*?(?:<(?P=tag).*?>.*?<\/(?P=tag)>)',
-        r'*[^<>]*)<\/(?P=tag)>'),
+    pattern = re.compile(
+        r'<(?P<tag>\w*)\s*(?P<tag_atts>[^<>]*)>' +
+        r'(?P<content>.*?(?:<(?P=tag).*?>.*?<\/(?P=tag)>)' +
+        r'*[^<>]*)<\/(?P=tag)>',
         re.DOTALL)
     _block_processors = {}
     _inline_processors = {}
@@ -231,7 +230,8 @@ class HTMLShortcodeParser(object):
                 """
                 if pair[1] is None:
                     return acc
-                return "%s %s=\"%s\"" % (acc, *pair)
+                out = (acc,) + pair
+                return "%s %s=\"%s\"" % out
 
             replacement_attrs = reduce(
                 make_attr_str,

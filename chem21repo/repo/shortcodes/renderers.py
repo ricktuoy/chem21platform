@@ -2,7 +2,7 @@ from .base import BaseShortcodeRenderer
 from .base import TagShortcodeRenderer
 from .base import TokenShortcodeRenderer
 from .forms import FigureGroupForm
-from .forms import TableGroupForm
+from .forms import TableForm
 from django.core.urlresolvers import reverse
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django import template
@@ -85,7 +85,7 @@ class TableRenderer(TagShortcodeRenderer):
         self.table_type = table_type
 
     def get_form(self, question, *args, **kwargs):
-        return TableGroupForm(question, *args, **kwargs)
+        return TableForm(question, *args, **kwargs)
 
     def get_html(self):
         caps = "".join(
