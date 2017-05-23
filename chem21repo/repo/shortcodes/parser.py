@@ -49,6 +49,16 @@ class HTMLShortcodeParser(object):
         """
         self._html_snippet = html
         self._extra_html = {}
+        for ShortcodeProcessor in self._block_processors.values():
+            try:
+                ShortcodeProcessor.renderer.reset_counter()
+            except AttributeError:
+                pass
+        for ShortcodeProcessor in self._inline_processors.values():
+            try:
+                ShortcodeProcessor.renderer.reset_counter()
+            except AttributeError:
+                pass
 
     @classmethod
     def register_block_shortcode(cls, ShortcodeProcessor):
@@ -193,6 +203,12 @@ class HTMLShortcodeParser(object):
         # next line raises ShortcodeLoadError if not a shortcode
         return self._get_renderers_for_shortcode(match.group(0))
 
+    @staticmethod
+    def _remove_block_markup(html):
+        html = html.replace("<div class=\"shortcode\"><!-- shortcode -->", "")
+        html = html.replace("<!-- end_shortcode --></div>", "")
+        return html
+
     def _add_attrs_to_block(*attr_names):
         """decorator factory that adds html attributes to a block
 
@@ -251,6 +267,22 @@ class HTMLShortcodeParser(object):
                 match.group('content'),
                 match.group('tag'))
         return decorator(decorator_body)
+
+    def mark_up_block_shortcodes(self):
+        out = self._html_snippet
+        out = self._remove_block_markup(out)
+        for name, ShortcodeProcessor in self._block_processors.iteritems():
+            renderers_matches = ShortcodeProcessor(out).renderers_and_matches()
+            for renderer, match in renderers_matches:
+                out = out[:match.start()] + renderer.get_wrapped_shortcode() + \
+                    out[match.end():]
+
+        # clean up
+        out = re.sub(r"<p[^>]*><div", "<div", out)
+        out = out.replace("</div></p>", "</div>")
+        return out
+
+
 
     @_add_attrs_to_block("data-admin-index", "data-shortcode")
     def get_admin_block_html(self, block):
@@ -316,7 +348,7 @@ class HTMLShortcodeParser(object):
             for match in self.pattern.finditer(
                 self._get_html_with_inlines_replaced())])
 
-        logging.debug(self._c_matches)
+        logging.debug(sorted(self._c_matches))
         return self._c_matches
 
     def _get_renderers_for_shortcode(self, shortcode_html):
@@ -365,7 +397,7 @@ class HTMLShortcodeParser(object):
         Returns:
             TYPE: Description
         """
-        return str(match.start())
+        return match.start()
 
     def _get_shortcode_type(self, match):
         """Returns the name of the processor for a matched shortcode block,

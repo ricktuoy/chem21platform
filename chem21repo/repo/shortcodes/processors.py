@@ -8,7 +8,7 @@ from .base import TokenShortcodeProcessor
 from .errors import ShortcodeValidationError
 from .parser import HTMLShortcodeParser
 from .renderers import AttributionRenderer
-from .renderers import BlockReferenceRenderer
+from .renderers import InlineReferenceRenderer
 from .renderers import CTARenderer
 from .renderers import FigureGroupRenderer
 from .renderers import FigureRenderer
@@ -19,18 +19,19 @@ from .renderers import RSCRightsRenderer
 from .renderers import GHSStatementRenderer
 from ..models.media import UniqueFile
 from django.utils.html import strip_tags
-
+import logging
 
 class FigureProcessor(TokenShortcodeProcessor):
     name = "figure"
     renderer = FigureRenderer
 
     def renderer_args(self, command, pk, alt="", *args):
+        logging.debug((command,pk,alt,args))
         if command == "show":
-            fle = UniqueFile.objects.get(remote_id=args[0])
+            fle = UniqueFile.objects.get(remote_id=pk)
             where = "remote"
         elif command == "local":
-            fle = UniqueFile.objects.get(pk=args[0])
+            fle = UniqueFile.objects.get(pk=pk)
             where = "local"
         else:
             raise ShortcodeValidationError(
@@ -46,12 +47,21 @@ class FigureProcessor(TokenShortcodeProcessor):
             'title': strip_tags(":".join(args))}
 
 
-class CaptionProcessor(TagShortcodeProcessor):
-    name = "caption"
-    renderer = lambda caption: caption 
+class FigCaptionProcessor(TagShortcodeProcessor):
+    name = "figcaption"
+    renderer = lambda self, caption: caption 
 
     def renderer_args(self, caption):
         return [caption, ], {}
+
+
+class TableCaptionProcessor(TagShortcodeProcessor):
+    name = "caption"
+    renderer = lambda self, caption: caption 
+
+    def renderer_args(self, caption):
+        return [caption, ], {}
+
 
 
 class FigureGroupProcessor(TagShortcodeProcessor):
@@ -60,7 +70,7 @@ class FigureGroupProcessor(TagShortcodeProcessor):
 
     def renderer_args(self, content, group_type="figure", layout=""):
         figures = FigureProcessor(content).renderers()
-        captions = CaptionProcessor(content).renderers()
+        captions = FigCaptionProcessor(content).renderers()
         layouts_set = frozenset(layout.split(" "))
         return [], {
             'figures': figures,
@@ -74,7 +84,7 @@ class TableProcessor(TagShortcodeProcessor):
     renderer = TableRenderer
 
     def renderer_args(self, content, container_type, layout=""):
-        captions = CaptionProcessor(content).renderers()
+        captions = TableCaptionProcessor(content).renderers()
         html = HTMLShortcodeParser(content).remove_block_shortcodes()
         layouts_set = frozenset(layout.split(" "))
         return [], {
@@ -87,29 +97,20 @@ class BiblioFootnoteProcessor(TagShortcodeProcessor):
     name = "bib"
     renderer = FootnoteReferenceRenderer
 
-    def __init__(self, html):
-        self.bibs = []
-        self.bibset = {}
-        return super(BiblioFootnoteProcessor, self).__init__(html)
-
     def renderer_args(self, content):
         try:
             bib = Biblio.objects.get(citekey=content)
         except Biblio.DoesNotExist:
             bib = Biblio(citekey=content)
             bib.save()
-        if content not in self.bibset:
-            self.bibs.append(bib)
-            self.bibset[content] = len(self.bibs)
 
         return [], {
-            'bib': bib,
-            'position': self.bibset[content]}
+            'bib': bib}
 
 
-class BiblioBlockProcessor(TagShortcodeProcessor):
+class BiblioInlineProcessor(TagShortcodeProcessor):
     name = "ibib"
-    renderer = BlockReferenceRenderer
+    renderer = InlineReferenceRenderer
 
     def renderer_args(self, content):
         try:
@@ -159,7 +160,7 @@ class InternalLinkProcessor(PageMixin, TagShortcodeProcessor):
             'inner_html': content}
 
 
-class CTAProcessor(TokenShortcodeProcessor):
+class CTAProcessor(PageMixin, TokenShortcodeProcessor):
     name = "cta"
     renderer = CTARenderer
 
@@ -195,5 +196,5 @@ class RSCRightsProcessor(TagShortcodeProcessor):
 
     def renderer_args(self, content, *args):
         return [], {
-            'inner_html': content
+            'text': content
         }

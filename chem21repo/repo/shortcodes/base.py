@@ -45,11 +45,13 @@ class BaseShortcodeProcessor(object):
             :obj: `list` of :obj:`BaseShortcodeRenderer`: list of renderer objects for each
                 matching shortcode
         """
-        logging.debug(self._html)
-        logging.debug(type(self))
-        logging.debug(list(self.pattern.finditer(self._html)))
         return [
             self._shortcode_to_renderer(match)
+            for match in self.pattern.finditer(self._html)]
+
+    def renderers_and_matches(self):
+        return [
+            (self._shortcode_to_renderer(match), match)
             for match in self.pattern.finditer(self._html)]
 
     def get_rendered_html(self, extra_html_snippets):
@@ -125,7 +127,7 @@ class TokenShortcodeProcessor(BaseShortcodeProcessor):
             return self._pattern
         except AttributeError:
             self._pattern = re.compile(
-                r'%s%s(?P<%s_attrs>.*?)%s' %
+                r'%s%s:(?P<%s_attrs>.*?)%s' %
                 (self.openchar,
                     self.name,
                     self.name,
@@ -154,10 +156,11 @@ class TagShortcodeProcessor(BaseShortcodeProcessor):
     """Abstract class for token processors.
 
     Examples:
-        Tags have a closing tag:
+        Tag shortcodes have closing markup:
         [bib]taylor-2014[/bib]
+
         Here `figgroup` and `caption` are tag shortcodes whereas
-            `figure` is a token shortcode
+            `figure` is a token shortcode:
         [figgroup:figure:aside][caption]A caption[/caption]
             [figure:local:10][/figgroup]
     """
@@ -248,9 +251,9 @@ class BaseShortcodeRenderer(object):
             Returns:
                 str: wrapped HTML
             """
-            out = "<div class=\"shortcode\"><!--shortcode-->"
+            out = "<div class=\"shortcode\"><!-- shortcode -->"
             out += inner_html(self)
-            out += "<!--end_shortcode--></div>"
+            out += "<!-- end_shortcode --></div>"
             return out
         return wrap
 
@@ -262,24 +265,26 @@ class TagShortcodeRenderer(BaseShortcodeRenderer):
     """
     __metaclass__ = ABCMeta
 
-    @BaseShortcodeRenderer._shortcode_html
     def get_shortcode(self):
         """returns string of complete shortcode block
 
         Returns:
             str: shortcode block HTML
         """
-        args = self._to_arg_list()
-        return "%s%s%s%s%s%s%s%s/%s" % (
+        args = self.shortcode_args()
+        return "%s%s%s%s%s%s%s/%s%s" % (
             self.openchar,
             self.name,
-            ":" if len(args > 0) else "",
+            ":" if len(args) > 0 else "",
             ":".join(args),
             self.closechar,
-            self._content(),
+            self.shortcode_content(),
             self.openchar,
             self.name,
             self.closechar)
+
+    get_wrapped_shortcode = BaseShortcodeRenderer._shortcode_html(
+        get_shortcode)
 
     @abstractmethod
     def shortcode_args(self):
@@ -308,20 +313,24 @@ class TokenShortcodeRenderer(BaseShortcodeRenderer):
     """
     __metaclass__ = ABCMeta
 
-    @BaseShortcodeRenderer._shortcode_html
     def get_shortcode(self):
         """returns string of complete shortcode block
 
         Returns:
             str: shortcode block HTML
         """
-        args = self._to_arg_list()
+        args = self.shortcode_args()
+        print self.name
+        print args
         return "%s%s%s%s%s" % (
             self.openchar,
             self.name,
-            ":" if len(args > 0) else "",
+            ":" if len(args) > 0 else "",
             ":".join(args),
             self.closechar)
+
+    get_wrapped_shortcode = BaseShortcodeRenderer._shortcode_html(
+        get_shortcode)
 
     @abstractmethod
     def shortcode_args(self):
