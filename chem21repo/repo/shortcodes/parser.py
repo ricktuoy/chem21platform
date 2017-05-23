@@ -80,18 +80,35 @@ class HTMLShortcodeParser(object):
         cls._inline_processors[
             ShortcodeProcessor.name] = ShortcodeProcessor
 
-    def remove_block_shortcodes(self):
+    def remove_shortcodes(self, shortcode_names):
         """
         Returns:
-            str: source HTML without block shortcodes
+            str: source HTML without named shortcodes
         """
-        out = ""
-        for k in sorted(self._blocks):
+        html = self._html_snippet
+        for name in shortcode_names:
             try:
-                self._get_renderers_for_shortcode(self._blocks[k].group(0))
-            except ShortcodeLoadError:
-                out += self._blocks[k].group(0)
-        return out
+                ShortcodeProcessor = self._block_processors[name]
+            except KeyError:
+                pass
+
+            try:
+                ShortcodeProcessor = self._block_processors[name]
+            except KeyError:
+                print "Shortcode not found %s" % name
+                continue
+
+            renderers_matches = ShortcodeProcessor(
+                html).renderers_and_matches()
+
+            prev_i = 0
+            new_html = ""
+            for renderer, match in renderers_matches:
+                new_html += html[prev_i:match.start()]
+                prev_i = match.end()
+            new_html += html[:renderers_matches[-1][1]]
+            html = new_html
+        return html
 
     def get_rendered_html(self):
         """replace all shortcodes in the source with their HTML rendering 

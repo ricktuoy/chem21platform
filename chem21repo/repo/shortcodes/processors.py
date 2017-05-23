@@ -72,6 +72,7 @@ class FigureGroupProcessor(TagShortcodeProcessor):
         figures = FigureProcessor(content).renderers()
         captions = FigCaptionProcessor(content).renderers()
         layouts_set = frozenset(layout.split(" "))
+        #print "+++++++++++++++++++++++++++"
         return [], {
             'figures': figures,
             'captions': captions,
@@ -83,9 +84,12 @@ class TableProcessor(TagShortcodeProcessor):
     name = "table"
     renderer = TableRenderer
 
-    def renderer_args(self, content, container_type, layout=""):
-        captions = TableCaptionProcessor(content).renderers()
-        html = HTMLShortcodeParser(content).remove_block_shortcodes()
+    def renderer_args(self, content, layout=""):
+        captions = FigCaptionProcessor(content).renderers()
+        #print "~~~~~~~~~~~~~~~~~~~~" + content
+        #html = HTMLShortcodeParser(content).remove_shortcodes(["figcaption", ])
+        #print "********************" + html
+        html = re.sub(r"[figcaption][/figcaption]")
         layouts_set = frozenset(layout.split(" "))
         return [], {
             'layout': list(layouts_set),

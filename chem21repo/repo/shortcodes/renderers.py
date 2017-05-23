@@ -89,15 +89,17 @@ class TableRenderer(TagShortcodeRenderer):
 
     def __init__(
             self,
-            caption="",
+            captions="",
             html="",
+            layout="",
             table_type="table"):
-        super(TableRenderer, self).__init__(caption)
         # clean up bad html
         html = html.replace("<p>", "")
         html = html.replace("</p>", "")
         self.table_html = html
         self.table_type = table_type
+        self.captions = captions
+        self.layout = layout
 
     def get_form(self, question, *args, **kwargs):
         return TableForm(question, *args, **kwargs)
@@ -108,16 +110,15 @@ class TableRenderer(TagShortcodeRenderer):
         return caps + self.table_html
 
     def shortcode_args(self):
-        layout = " ".join(self.layout)
-        group_type = self.group_type
-        return [group_type, layout]
+        #layout = self.layout
+        return []
 
     def shortcode_content(self):
         """ Returns text content of the table shortcode, made up of
         caption shortcodes and the table html """
         caption_content = "".join(
-            [c.get_shortcode() for c in self.captions])
-        return "%s%s" % (caption_content, self.html)
+            ["<caption>%s</caption>" % c for c in self.captions])
+        return "%s%s" % (caption_content, self.table_html)
 
 
 class FigureRenderer(TokenShortcodeRenderer):
