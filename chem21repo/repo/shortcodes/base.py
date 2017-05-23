@@ -201,10 +201,13 @@ class TagShortcodeProcessor(BaseShortcodeProcessor):
             props += attr_str.split(":")
         try:
             args, kwargs = self.renderer_args(*props)
-        except TypeError:
-            msg = "Incorrect number of %s tag properties: %s" % (self.name, repr(props))
+        except TypeError as e:
+            msg = "Incorrect number of %s tag properties: %s" % (self.name, len(props))
+            msg += "\n%s" % e.message
             logging.error(msg)
             print msg
+            die()
+
         return self.renderer(*args, **kwargs)
 
     @abstractmethod

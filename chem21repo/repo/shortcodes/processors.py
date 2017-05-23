@@ -20,6 +20,7 @@ from .renderers import GHSStatementRenderer
 from ..models.media import UniqueFile
 from django.utils.html import strip_tags
 import logging
+import re
 
 class FigureProcessor(TokenShortcodeProcessor):
     name = "figure"
@@ -89,7 +90,8 @@ class TableProcessor(TagShortcodeProcessor):
         #print "~~~~~~~~~~~~~~~~~~~~" + content
         #html = HTMLShortcodeParser(content).remove_shortcodes(["figcaption", ])
         #print "********************" + html
-        html = re.sub(r"[figcaption][/figcaption]")
+        html = re.sub(r"\[figcaption\].*?\[\/figcaption\]", "", content)
+
         layouts_set = frozenset(layout.split(" "))
         return [], {
             'layout': list(layouts_set),
