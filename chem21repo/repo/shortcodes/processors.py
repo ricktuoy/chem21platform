@@ -27,7 +27,6 @@ class FigureProcessor(TokenShortcodeProcessor):
     renderer = FigureRenderer
 
     def renderer_args(self, command, pk, alt="", *args):
-        logging.debug((command,pk,alt,args))
         if command == "show":
             fle = UniqueFile.objects.get(remote_id=pk)
             where = "remote"
@@ -45,7 +44,7 @@ class FigureProcessor(TokenShortcodeProcessor):
         return [], {
             'file_obj': fle,
             'alt': alt,
-            'title': strip_tags(":".join(args))}
+            'title': fle.title}
 
 
 class FigCaptionProcessor(TagShortcodeProcessor):

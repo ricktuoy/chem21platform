@@ -286,20 +286,22 @@ class HTMLShortcodeParser(object):
         return decorator(decorator_body)
 
     def mark_up_block_shortcodes(self):
-        out = self._html_snippet
-        out = self._remove_block_markup(out)
+        start = self._remove_block_markup(self._html_snippet)
+        out = start
+
         for name, ShortcodeProcessor in self._block_processors.iteritems():
-            renderers_matches = ShortcodeProcessor(out).renderers_and_matches()
-            for renderer, match in renderers_matches:
-                out = out[:match.start()] + renderer.get_wrapped_shortcode() + \
-                    out[match.end():]
+            proc = ShortcodeProcessor(out)
+
+            def _wrap(match):
+                renderer = proc._shortcode_to_renderer(match)
+                return renderer.get_wrapped_shortcode()
+            # print repr(ShortcodeProcessor)
+            out = re.sub(proc.pattern, _wrap, out)
 
         # clean up
         out = re.sub(r"<p[^>]*><div", "<div", out)
         out = out.replace("</div></p>", "</div>")
         return out
-
-
 
     @_add_attrs_to_block("data-admin-index", "data-shortcode")
     def get_admin_block_html(self, block):

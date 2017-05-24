@@ -128,6 +128,7 @@ class FigureRenderer(TokenShortcodeRenderer):
         self.alt = alt
         self.url = file_obj.get_absolute_url()
         self.file_obj = file_obj
+        self.title = title
 
     def shortcode_args(self):
         command = "local"
@@ -235,26 +236,20 @@ class CTARenderer(TokenShortcodeRenderer):
 
     def shortcode_args(self):
         args = []
+        args.insert(0, str(self.page.pk))
         try:
-            args.append(str(self.page.current_topic))
+            args.insert(0, str(self.page.current_lesson.pk))
         except AttributeError:
-            args.append(str(self.page.pk))
-            return args
+            pass
         try:
-            args.append(str(self.page.current_module))
+            args.insert(0, str(self.page.current_module.pk))
+            args.insert(0, str(self.page.current_module.topic.pk))
         except AttributeError:
-            args.append(str(self.page.pk))
-            return args
-        try:
-            args.append(str(self.page.current_lesson))
-        except AttributeError:
-            args.append(str(self.page.pk))
-            return args
-        try:
-            args.append(str(self.page.current_module))
-        except AttributeError:
-            args.append(str(self.page.pk))
-            return args
+            try:
+                args.insert(0, str(self.page.topic.pk))
+            except AttributeError:
+                pass
+        return args
 
 
 class AttributionRenderer(TagShortcodeRenderer):
