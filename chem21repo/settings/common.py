@@ -29,7 +29,6 @@ INSTALLED_APPS = (
     'chem21repo.chem21',
     'chem21repo.quiz',
     'require',
-    'cachedS3',
     'querystring_parser',
     'revproxy',
     'bibliotag',
