@@ -182,7 +182,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = [
 
 WEB_ROOT = ''
 
-ALLOWED_HOSTS = [".chem21.eu",]
+ALLOWED_HOSTS = [".chem21.eu", "localhost"]
 
 if AWS_EB_TEST:
     ALLOWED_HOSTS += [".elasticbeanstalk.com",]
