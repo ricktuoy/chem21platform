@@ -103,7 +103,7 @@ AWS_QUERYSTRING_AUTH = False
 AWS_S3_SECURE_URLS = False
 AWS_REDUCED_REDUNDANCY = False
 AWS_IS_GZIPPED = False
-
+AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
