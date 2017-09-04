@@ -98,8 +98,6 @@ AWS_HEADERS = {
     "Cache-Control": "public, max-age=86400",
 }
 AWS_S3_FILE_OVERWRITE = True
-AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
-AWS_S3_CUSTOM_DOMAIN = "learning.chem21.eu"
 
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_SECURE_URLS = False
