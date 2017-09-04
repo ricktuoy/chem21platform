@@ -117,7 +117,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 REQUIRE_BASE_URL = 'js/lib'
 
-S3_URL = 'http://%s' % AWS_STORAGE_BUCKET_NAME
+S3_URL = "http://learning.chem21.eu.s3-website.eu-central-1.amazonaws.com"
 
 MEDIA_ROOT = '/media/'
 MEDIA_URL = S3_URL + MEDIA_ROOT
