@@ -7,7 +7,7 @@ DATABASES = {
 
 REQUIRE_BUILD_PROFILE = '../chem21repo.dev.build.js'
 # Use Amazon S3 for static files storage.
-STATIC_URL = S3_URL + "/static/"
+STATIC_URL = "http://learning.chem21.eu.s3-website.eu-central-1.amazonaws.com/static/"
 TINYMCE_JS_URL = "/s3/tiny_mce/tiny_mce.js"
 STATICFILES_STORAGE = "chem21repo.storage.TinyMCEProxyCachedS3BotoStorage"
 
