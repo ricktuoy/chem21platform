@@ -24,3 +24,9 @@ chem21repo/static/SCORM/SCORM-wrapper/*
 chem21repo/chem21/templates/chem21/cref.xml
 chem21repo/csl/paperpile-doi.csl
 chem21repo/repo/templatetags/media_upload.html
+chem21repo/settings/local.py
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

@@ -1,5 +1,5 @@
 {% extends 'chem21/base_learning.html' %}
-{% load tokens %}
+{% load shortcodes %}
 {% load admin_urls %}
 {% block title %} {{ object.title }} :: {{ current_module.title }} :: CHEM21 learning platform{% endblock %}
 {% block display_title %}{% if not current_module.dummy %}{{ current_module.topic.title }}: {% endif %}{% if current_module.dummy %}{{ current_module.topic.title }} {% else %} {{ current_module.title }} {% endif %}{% endblock %}

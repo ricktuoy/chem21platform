@@ -1,5 +1,5 @@
-{% extends 'chem21/base_inner.html' %}
-{% load tokens %}
+{% extends 'chem21/base.html' %}
+{% load shortcodes %}
 {% load quiz %}
 {% load responsive %}
 {% load video %}
@@ -127,10 +127,10 @@
 {% endblock %}
 {% block learning_object %}
 	{% if object.get_text %}
-		{% replace_tokens object.get_text %}
+		{% replace_shortcodes object.get_text %}
 		
 		{% if object.video %}
-			{% get_video tokens_replaced object.video %}
+			{% get_video shortcodes_replaced object.video %}
 		{% endif %}
 		{% block pre_content %}
 		{% if pre_content %}
@@ -159,8 +159,8 @@
 	{% endif %}
 			
 		<div id="content-body">
-		{% if tokens_replaced %}
-			{{ tokens_replaced|responsivise|glossarize|safe }}
+		{% if shortcodes_replaced %}
+			{{ shortcodes_replaced|responsivise|glossarize|safe }}
 		{% endif %}
 		</div>
 		{% block post_text %}
@@ -173,8 +173,8 @@
 		{% if object.has_quiz %}
 			{% block interactive %}
 			{% render_quiz object.quiz %}
-			{% replace_tokens rendered_tool %}
-			{{ tokens_replaced|safe }}
+			{% replace_shortcodes rendered_tool %}
+			{{ shortcodes_replaced|safe }}
 			{% endblock %}
 		{% endif %}
 		{% if object.pdf %}
@@ -189,9 +189,9 @@
 			</nav>
 		{% endblock %}
 		{% block footnotes %}
-		{% if footnotes_html %}
+		{% if footnotes %}
 			<ol class="footnotes">
-			{{ footnotes_html|safe }}
+			{{ footnotes|safe }}
 			</ol>
 		{% endif %}
 		{% endblock %}
@@ -199,7 +199,23 @@
 	</div>
 </div>
 {% endblock %}
-
-{{ block.super }}
-
+<footer id="site-footer">
+{% block footer %}
+<div class="cobranding">
+              <a href="http://imi.europa.eu">
+              <img src="{% static "img/imi_logo_new.png" %}" alt="Innovative Medicines Initiative" id="imi_logo" />
+              </a>
+              <a href="http://ec.europa.eu/research/health/index.cfm?pg=home">
+              <img src="{% static "img/eu_logo.png" %}" alt="European Commission" id="eu_logo" />
+              </a>
+              <a href="http://www.efpia.eu">
+              <img src="{% static "img/efpia_logo.png" %}" alt="European Federation of Pharmaceutical Industries and Associations" id="efpia_logo" />
+              </a>
+              <p class="verbage">This resource has been created as part of the IMI funded CHEM21 project (Chemical Manufacturing Methods for the 21st Century Pharmaceutical Industries).  CHEM21 has received funding from the Innovative Medicines Initiative Joint Undertaking under grant agreement n°115360, resources of which are composed of financial contribution from the European Union’s Seventh Framework Programme (FP7/2007-2013) and EFPIA companies’ in kind contribution.</p>
+              <p class="verbage">The educational material is licensed (unless otherwise specified) under Creative Commons license <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>, which gives permission for it to be shared and adapted for non-commercial purposes as long as attribution is given. For full details please see our <a href="/legal">legal statements</a>.</p>
+              <p class="verbage" style="font-weight: bold">The views expressed in regards to education and training materials represent the aspiration of the CHEM21 consortium, although may not always be the view of each individual organisation.  Referencing of external sources does not imply formal endorsement by the CHEM21 consortium.</p>
+              <div class="clear">&nbsp;</div>
+              </div>
+{% endblock %}
+</footer>
 {% endblock %}

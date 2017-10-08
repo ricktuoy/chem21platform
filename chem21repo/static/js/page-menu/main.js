@@ -6,6 +6,11 @@ $(function() {
 	blocks.figures.selected_css_class = "edit_selected";
 	blocks.figures.selectable_css_class = "edit_selectable";
 
+	blocks.figures.find().css("style","border:1px solid green;");
+	blocks.non_figures.find().css("style","border:1px solid red;");
+	console.debug(blocks.figures.find());
+	console.debug(blocks.non_figures.find());
+
 	$(".admin_menu").on({
 		mouseenter: function() {
 			$(this).find("ul").show();

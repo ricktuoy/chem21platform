@@ -5,7 +5,8 @@ from factories import create_admin, create_power_admin
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from chem21repo.repo.tokens import Token
+from ..shortcodes import HTMLShortcodeParser
+from ..shortcodes.errors import BlockNotFoundError
 
 create_admin(
     model=Module,
@@ -107,68 +108,66 @@ class QuestionAdmin(admin.ModelAdmin):
         url = request.session.get('admin_return_uri', "/")
         return HttpResponseRedirect(url)
 
-    def get_token_form(self, request, token):
+    def get_shortcode_form(self, request, shortcode, question):
         if request.method == "POST":
-            form = token.form(request.POST)
-        else:
-            form = token.form()
-        return form
+            shortcode.update(**request.POST)
+        return shortcode.get_form(question)
 
-    def save_and_get_redirect(self, request, token, form):
-        token.update(**form.cleaned_data)
-        token.insert()
-        token.question.save()
-        return self._redirect(request)
 
-    def edit_figure(self, request, qpk, para, order):
-        context = {}
-        question = Question.objects.get(pk=qpk)
-        try:
-            token = Token.get(
-                "figure", para=int(para), fig=order,
-                question=question)
-        except Token.DoesNotExist:
-            raise Http404("Token does not exist.")
-        form = self.get_token_form(request, token)
-        if form.is_valid():
-            return self.save_and_get_redirect(request, token, form)
-        context['form'] = form
-        context['token_type'] = token_type
-        context['token'] = token
-        context['title'] = "Insert %s at paragraph %d" % (
-            token_type, int(para))
-        return render(request, "admin/question_token_form.html", context)
-
-    def add_figure(self, request, qpk, para, figure):
+    def edit_figure(self, request, qpk, block_id):
         context = {}
         try:
             question = Question.objects.get(pk=qpk)
         except Question.DoesNotExist:
             raise Http404("Question does not exist")
-        token = Token.create(
-            "figure",
-            para=int(para),
-            fig=int(figure),
-            question=question)
-        form = self.get_token_form(request, token)
-        if form.is_valid():
-            return self.save_and_get_redirect(request, token, form)
+        parser = HTMLShortcodeParser(question.text)
+        renderers = parser.get_renderers(block_id)
+        renderer = renderers[0]
+        form = self.get_shortcode_form(request, renderer, question)
+        if request.method == POST and form.is_valid():
+            shortcode.update(**form.cleaned_data)
+            new_html = parser.replace_shortcode(block_id, renderer)
+            question.text = new_html
+            question.save()
+            return self._redirect(request)
+        context['form'] = form
+        context['token_type'] = token_type
+        context['token'] = token
+        context['title'] = "Edit figure"
+        return render(request, "admin/question_token_form.html", context)
+
+    def add_figure(self, request, qpk, block_id):
+        context = {}
+        try:
+            question = Question.objects.get(pk=qpk)
+        except Question.DoesNotExist:
+            raise Http404("Question does not exist")
+        renderer = FigureRenderer()
+        form = self.get_shortcode_form(request, renderer, question)
+        if request.method == POST and form.is_valid():
+            parser = HTMLShortcodeParser(question.text)
+            new_html = parser.insert_shortcode(block_id, renderer)
+            question.text = new_html
+            question.save()
+            return self._redirect(request)
         context['form'] = form
         context['token_type'] = 'figure'
         context['token'] = token
-        context['title'] = "Insert %s at paragraph %d" % (
-            'figure', int(para))
+        context['title'] = "Insert figure"
         return render(request, "admin/question_token_form.html", context)
 
     def remove_figure(self, request, qpk, para, figure):
-        question = Question.objects.get(pk=qpk)
-        token = Token.create(
-            "figure",
-            para=int(para),
-            question=question,
-            fig=int(figure))
-        token.delete()
-        token.question.save()
+        try:
+            question = Question.objects.get(pk=qpk)
+        except Question.DoesNotExist:
+            raise Http404("Question does not exist")
+        parser = HTMLShortcodeParser(question.text)
+        try:
+            html = parser.remove_shortcode(block_id)
+        except BlockNotFoundError:
+            pass
+        question.text = html
+        question.save()
         return self._redirect(request)
 
     class Media:
