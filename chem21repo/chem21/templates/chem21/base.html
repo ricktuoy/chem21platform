@@ -86,11 +86,11 @@
         {% if not staticgenerator %}
         <div id="header-login" class="hidden-mobile">
           <div class="link-block-user-login">
-          {% if request.user.is_authenticated %}
+            {% if request.user.is_authenticated %}
             <a href="{% url 'admin:logout' %}?next={{ request.path }}">logout</a>
-          {% else %}
+            {% else %}
             <a href="{% url 'social:begin' backend='google-oauth2' %}?next={{ request.path }}">login</a>
-          {% endif %}
+            {% endif %}
           </div>
         </div>
         {% endif %}
