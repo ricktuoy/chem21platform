@@ -152,7 +152,7 @@ CITEPROC_DEFAULT_STYLE_PATH = os.path.join(
     CITEPROC_DEFAULT_STYLE + ".csl")
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
+    'chem21repo.auth.backends.LocalGoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend'
 )
 GOOGLE_OAUTH2_KEY = SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get(
