@@ -25,6 +25,8 @@ from chem21.views import *
 urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
     url('', include('social_django.urls', namespace='social')),
+    url(r'^login-error/$',
+        TemplateView.as_view(template_name="chem21/login-error.html"), name="about"),
     url(r'^filebrowser/', include(fbsite.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
