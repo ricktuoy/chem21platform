@@ -54,4 +54,4 @@ sqlparse==0.1.18
 static3==0.6.1
 tinycss==0.3
 uritemplate==0.6
-urllib3==1.10.1
+urllib3==1.24.2
