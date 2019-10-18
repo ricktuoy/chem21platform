@@ -5,7 +5,7 @@ boto3==1.4.1
 citeproc-py==0.3.0
 cssselect==0.9.1
 decorator
-Django==1.8
+Django==1.11.23
 django-autocomplete-light==3.1.6
 django-choices==1.4.3
 django-debug-panel==0.8.2
