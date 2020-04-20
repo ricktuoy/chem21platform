@@ -1,3 +1,5 @@
+from django.core.exceptions import ImproperlyConfigured
+
 from common import *
 import os
 
@@ -12,13 +14,15 @@ if 'RDS_DB_NAME' in os.environ:
             'PORT': os.environ['RDS_PORT'],
         }
     }
+else:
+    raise ImproperlyConfigured(
+        "No RDS_DB_NAME environment configured. Have you added a postgres DB to your elastic beanstalk environment?")
 
 REQUIRE_BUILD_PROFILE = '../chem21repo.dev.build.js'
 # Use Amazon S3 for static files storage.
 STATIC_URL = S3_URL + "/"
 TINYMCE_JS_URL = "/s3/tiny_mce/tiny_mce.js"
 STATICFILES_STORAGE = "chem21repo.storage.TinyMCEProxyCachedS3BotoStorage"
-
 
 # Cache settings.
 CACHES = {

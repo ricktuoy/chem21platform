@@ -185,5 +185,5 @@ WEB_ROOT = ''
 ALLOWED_HOSTS = [".chem21.eu", "localhost"]
 
 if AWS_EB_TEST:
-    ALLOWED_HOSTS += [".elasticbeanstalk.com",]
+    ALLOWED_HOSTS += [".elasticbeanstalk.com","172.31.2.191"]
 
