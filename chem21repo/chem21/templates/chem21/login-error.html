@@ -1,0 +1,26 @@
+{% extends 'chem21/base.html' %}
+{% block title %}Login error :: CHEM21 learning platform{% endblock %}
+{% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
+{% block content %}
+{% block sidebar_1 %}
+<div id="first-sidebar" class="col col-2-out-of-2 col-1-out-of-4 col-1-out-of-6">
+    <div id="main-navigation-wrapper">
+        <div class="row main-navigation-row">
+            <div id="main-navigation-item-home"
+                 class="col col-1-out-of-2 col-2-out-of-4 col-3-out-of-6 main-navigation-item">
+                <a href="/"
+                   class="col col-1-out-of-2 col-2-out-of-4 col-3-out-of-6 main-navigation-item"><span>Home</span></a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block sidebar_2 %}
+<div id="second-sidebar" class="col col-2-out-of-2 col-3-out-of-4 col-5-out-of-6">
+    <h2>You have not been authorized.</h2>
+    <p>You are not a registered administrator of this resource: please contact the site owner to request access.</p>
+</div>
+</div>
+{% endblock %}
+{{ block.super }}
+{% endblock %}

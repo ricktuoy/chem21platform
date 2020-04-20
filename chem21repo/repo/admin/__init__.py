@@ -2,17 +2,27 @@ from ..models import *
 from ..views import BibTeXUploadView, LoadFromGDocView
 from django.contrib import admin
 from factories import create_admin, create_power_admin
-
+from chem21repo.repo.admin.user import LocalUserForm
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from ..shortcodes import HTMLShortcodeParser
 from ..shortcodes.errors import BlockNotFoundError
+
+admin.site.unregister(User)
+
+
+@admin.register(User)
+class LocalUserAdmin(admin.ModelAdmin):
+    form = LocalUserForm
+    model = User
 
 create_admin(
     model=Module,
     fields=['name', 'code', 'text'],
     hidden_fields=['topic', ],
 )
+
+
 
 
 class BiblioAdmin(admin.ModelAdmin):

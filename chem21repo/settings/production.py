@@ -1,6 +1,7 @@
 from django.core.exceptions import ImproperlyConfigured
 
 from common import *
+from auth import *
 import os
 
 if 'RDS_DB_NAME' in os.environ:

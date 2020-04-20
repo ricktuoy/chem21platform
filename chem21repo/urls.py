@@ -24,6 +24,9 @@ from chem21.views import *
 
 urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
+    url('', include('social_django.urls', namespace='social')),
+    url(r'^login-error/$',
+        TemplateView.as_view(template_name="chem21/login-error.html"), name="about"),
     url(r'^filebrowser/', include(fbsite.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
@@ -97,7 +100,6 @@ urlpatterns = [
         FigureDeleteView.as_view(), name="figure_delete"),
     url(r'version/(?P<pk>[0-9]+)[/]?$', TextVersionView.as_view(),
         name="version"),
-    url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^local/strip_remote/', StripRemoteIdView.as_view(), name="strip_id"),
     url(r'^push/', PushView.as_view(), name="push_ajax"),
     url(r'^local/clear/', MarkAsCleanView.as_view(), name="clear_ajax"),
