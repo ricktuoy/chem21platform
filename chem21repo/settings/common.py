@@ -13,6 +13,7 @@ YOUTUBE_URL_TEMPLATE = YOUTUBE_BASE + "watch?v=%s&controls=1&preload=none"
 
 # whether should be viewable at .elasticbeanstalk.com domain
 AWS_EB_TEST = os.environ.get("DJANGO_AWS_EB_TEST", False)
+DEBUG = True if os.environ.get("DJANGO_DEBUG", False) else False
 
 
 
