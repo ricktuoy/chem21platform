@@ -1,5 +1,5 @@
 from common import *
-from site_specific import *
+from auth import *
 import os
 
 if 'RDS_DB_NAME' in os.environ:
