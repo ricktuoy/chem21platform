@@ -27,6 +27,7 @@ chem21repo/repo/templatetags/media_upload.html
 chem21repo/settings/local.py
 logs
 setenv.sh
+collected-static
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
