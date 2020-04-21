@@ -26,6 +26,7 @@ chem21repo/csl/paperpile-doi.csl
 chem21repo/repo/templatetags/media_upload.html
 chem21repo/settings/local.py
 logs
+setenv.sh
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
