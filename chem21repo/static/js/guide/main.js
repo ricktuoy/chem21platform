@@ -1,4 +1,4 @@
-define(["guide/scores", "guide/route", "jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"], function(Scores, Route, $) {
+define(["../js/guide/scores", "../js/guide/route", "jquery", "jquery.cookie", "jquery-ui/droppable", "jquery-ui/draggable"], function(Scores, Route, $) {
     $(function() {
         $.fn.reduce = [].reduce;
 

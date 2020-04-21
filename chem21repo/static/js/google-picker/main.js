@@ -1,4 +1,4 @@
-define(["jquery","../google-picker/settings"], function($,settings) {
+define(["jquery","google-picker/settings"], function($,settings) {
 
     var pickerApiLoaded = false;
     var oauthToken;

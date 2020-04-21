@@ -3,8 +3,7 @@
 // Configure loading modules from the lib directory,
 // except 'app' ones, 
 requirejs.config({
-    "baseUrl": "/static/js/lib",
     "urlArgs": "bust=007"
 });
 // Load the main app module to start the app
-requirejs(["../flow-chart/main"]);
+requirejs(["flow-chart/main"]);

@@ -5,7 +5,6 @@
 {% load video %}
 {% load admin_urls %}
 {% load static from staticfiles %}
-{% load require %}
 {% load glossary %}
 {% load fileupload %}
 {% block styles %}
@@ -19,11 +18,11 @@
 {% block scripts %}
 {{ block.super }}
 {% block require %}
-{% if perms.repo.change_lesson and not staticgenerator %}
-{% require_module '../front-admin' %}
-{% else %}
-{% require_module '../common2' %}
-{% endif %}
+    {% if perms.repo.change_lesson and not staticgenerator %}
+        <script src="{% static "js/front-admin.js" %}"></script>
+    {% else %}
+        <script src="{% static "js/common.js" %}"></script>
+    {% endif %}
 {% endblock %}
 {% endblock %}
 {% block head %}

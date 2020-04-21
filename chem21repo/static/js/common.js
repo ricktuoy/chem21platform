@@ -3,7 +3,6 @@
 // Configure loading modules from the lib directory,
 // except 'app' ones, 
 requirejs.config({
-    "baseUrl": "/static/js/lib",
     "urlArgs": "bust=017",
     "shim": {
         'jquery.colorbox': ['jquery'],
@@ -15,4 +14,4 @@ requirejs.config({
     }
 });
 // Load the main app module to start the app
-requirejs(["../common/main"]);
+requirejs(["common/main"]);

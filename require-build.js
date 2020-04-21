@@ -1,12 +1,3 @@
-/**
- * Build profile for django-require.
- * 
- * This supports all the normal configuration available to a r.js build profile. The only gotchas are:
- *
- *   - 'baseUrl' will be overidden by django-require during the build process.
- *   - 'appDir' will be overidden by django-require during the build process.
- *   - 'dir' will be overidden by django-require during the build process. 
- */
 ({
     
     /*
@@ -14,6 +5,9 @@
      * dependencies will be included in the module's file when the build is
      * done. A minimum module entry is {name: "module_name"}.
      */
+        baseUrl: "js",
+        appDir: "collected-static/src",
+        dir: "collected-static/deploy",
         modules: [{name: 'file_listing'},
                   {name: 'front_admin'},
                   {name: 'quiz'}, 
@@ -73,31 +67,40 @@
      */
     skipDirOptimize: true,
     paths: {
-        "jquery.mobile": "jquery.mobile/jquery.mobile-1.4.5",
-        "jquery.mobile.config": "jquery.mobile/jquery.mobile.config",
-        "quiz": "../quiz",
-        "guide": "../guide",
-        "file_listing": "../file_listing",
-        "list_fix": "../list-fix",
-        "mol_menu": "../mol-menu",
-        "mol_menu_admin": "../mol-menu-admin",
-        "flow_chart": "../flow-chart",
-        "common": "../common",
-        "common2": "../common2",
-        "glossary": "../glossary/main",
-        "front_admin": "../front-admin",
-        "select_bibliotag": "../../tiny_mce/plugins/bibliotag/js/select_bibliotag",
-        "select_figuretag": "../../tiny_mce/plugins/figuretag/js/select_figuretag",
-        "select_linktag": "../../tiny_mce/plugins/linktag/js/select_linktag",
-        "google_picker": "../google-picker/main",
-        "uri_js": "uri.js/src",
-        "jsCurry": "jscurry-0.4.1",
-        "jquery.math": "jqmath-0.4.4" ,
-        "admin_fileupload": "../admin-fileupload",
-        "nav_reorder": "../nav-reorder",
-        "pdf_gen": "../pdf-gen",
-        "selector_widget_mixin": "../selector-widget-mixin/main",
-        "page_menu": "../page-menu"
+        "jquery": "lib/jquery",
+        "jquery.colorbox": "lib/jquery.colorbox",
+        "jquery.mjs.nestedSortable": "lib/jquery.mjs.nestedSortable",
+        "jquery-ui": "lib/jquery-ui",
+        "jquery.cookie": "lib/jquery.cookie",
+        "jquery.ui-contextmenu": "lib/jquery.ui-contextmenu",
+        "jquery.fileupload": "lib/jquery.fileupload",
+        "jquery.mobile": "lib/jquery.mobile/jquery.mobile-1.4.5",
+        "jquery.mobile.config": "lib/jquery.mobile/jquery.mobile.config",
+        "jquery.throttle-debounce": "lib/jquery.throttle-debounce",
+        "popcorn": "lib/popcorn",
+        "quiz": "quiz",
+        "guide": "guide/main",
+        "file_listing": "file_listing",
+        "list_fix": "list-fix",
+        "mol_menu": "mol-menu",
+        "mol_menu_admin": "mol-menu-admin",
+        "flow_chart": "flow-chart",
+        "common": "common",
+        "common2": "common2",
+        "glossary": "glossary/main",
+        "front_admin": "front-admin",
+        "select_bibliotag": "../tiny_mce/plugins/bibliotag/js/select_bibliotag",
+        "select_figuretag": "../tiny_mce/plugins/figuretag/js/select_figuretag",
+        "select_linktag": "../tiny_mce/plugins/linktag/js/select_linktag",
+        "google_picker": "google-picker/main",
+        "uri_js": "lib/uri.js/src",
+        "jsCurry": "lib/jscurry-0.4.1",
+        "jquery.math": "lib/jqmath-0.4.4" ,
+        "admin_fileupload": "admin-fileupload",
+        "nav_reorder": "nav-reorder",
+        "pdf_gen": "pdf-gen",
+        "selector_widget_mixin": "selector-widget-mixin/main",
+        "page_menu": "page-menu"
     },
     shim: {
         "jquery.math": ['jquery','jsCurry']

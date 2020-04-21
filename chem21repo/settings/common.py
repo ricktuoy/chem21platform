@@ -15,8 +15,6 @@ YOUTUBE_URL_TEMPLATE = YOUTUBE_BASE + "watch?v=%s&controls=1&preload=none"
 AWS_EB_TEST = os.environ.get("DJANGO_AWS_EB_TEST", False)
 DEBUG = True if os.environ.get("DJANGO_DEBUG", False) else False
 
-
-
 INSTALLED_APPS = (
     'grappelli',
     'filebrowser',
@@ -29,7 +27,6 @@ INSTALLED_APPS = (
     'chem21repo.repo',
     'chem21repo.chem21',
     'chem21repo.quiz',
-    'require',
     'querystring_parser',
     'revproxy',
     'bibliotag',
@@ -126,7 +123,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 REQUIRE_BASE_URL = 'js/lib'
 
-S3_URL = 'http://%s' % AWS_STORAGE_BUCKET_NAME
+S3_URL = 'https://%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 MEDIA_ROOT = '/media/'
 MEDIA_URL = S3_URL + MEDIA_ROOT

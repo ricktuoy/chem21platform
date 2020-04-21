@@ -3,8 +3,7 @@
 // Configure loading modules from the lib directory,
 // except 'app' ones, 
 requirejs.config({
-    "baseUrl": "/static/js/lib",
     "urlArgs": "bust=005",
 });
 // Load the main app module to start the app
-requirejs(["../admin-fileupload/main"]);
+requirejs(["admin-fileupload/main"]);
