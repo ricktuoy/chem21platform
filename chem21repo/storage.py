@@ -1,15 +1,9 @@
-
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.utils import timezone
 import os
-import grp
-import tempfile
-from django.core.files.storage import DefaultStorage
 from django.core.urlresolvers import reverse
-from require_s3.storage import OptimizedCachedStaticFilesStorage
 from storages.backends.s3boto3 import S3Boto3Storage
-
 
 class TinyMCEProxyCachedS3BotoStorage(S3Boto3Storage):
     def __init__(self, *args, **kwargs):
@@ -61,7 +55,6 @@ try:
 except AttributeError:
     pass
 
-
 try:
     loc = settings.PUBLIC_SITE_ROOT
     url = settings.PUBLIC_SITE_URL
@@ -69,10 +62,6 @@ try:
         location = loc, base_url=url)
 except AttributeError:
     SiteRootStorage = lambda:S3Boto3Storage(location=getattr(settings, "PUBLIC_SITE_S3_PATH", '/'))
-
-
-#SiteRootS3BotoStorage = lambda: CachedS3BotoStorage(location='site/')
-
 
 class S3StaticFileSystem(object):
 
