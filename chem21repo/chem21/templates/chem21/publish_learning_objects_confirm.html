@@ -78,13 +78,18 @@
 {% endif %}
 <div id="publish_forms">
  <div id="publish_progress"><div class="progress-label">Loading...</div></div>
-	<form method="post" id="publish_all" data-pdf-ids-url="{% url 'pdf_ids' %}" data-publishable-ids-url="{% url 'publishable_ids' %}">
-		{% csrf_token %}
+    <form method="post" id="publish_all" data-pdf-ids-url="{% url 'pdf_ids' %}" data-publishable-ids-url="{% url 'publishable_ids' %}">
+        {% csrf_token %}
         <h2>Publish to live?</h2>
         <p>Confirm that you want to publish the site to the public.</p>
         <input type="hidden" name="publish_all" />
-		<input type="submit" value="Yes, please publish" />
-	</form>
+        <input type="submit" value="Yes, please publish" />
+    </form>
+    <div id="publish_complete">
+        <h2>Publish complete</h2>
+        <p>The site has been published live.</p>
+        <p>&raquo; <a href="/">Return to the front page</a>.</p>
+    </div>
 </div>
 {% endif %}
 {% endblock %}

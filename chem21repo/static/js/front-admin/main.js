@@ -39,6 +39,7 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
         });
 
         $(".progress, .files").hide();
+        $("#publish_complete").hide();
         $(".progress").width("100%");
 
         $("#site-header").on("click", "#import_references_trigger", function(e) {
@@ -112,7 +113,6 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
         var publish = function(source_data, publish_url, type, progress, label, chunk_size) {
             var data = source_data.slice(0);
             var initial_length = data.length;
-            var published_paths = [];
             var num_succeeded = 0;
 
             var all_returned = [];
@@ -124,7 +124,7 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                 return function(i, el) {
                     var k = el['name'];
                     var v = el['value'];
-                    if(k == "csrfmiddlewaretoken") {
+                    if(k === "csrfmiddlewaretoken") {
                         return;
                     }
                     if(!(k in out)) {
@@ -135,11 +135,9 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                 };
             };
             var auth_handler_gen = function(url, data, done_handle) {
-                console.debug("Generating fail handler");
                 return function(xhr, status, error) {
                     switch(xhr.status) {
                         case 401:
-                            console.debug("401");
                             data = $.parseJSON(xhr.responseText);
                             var win = window.open(data.auth_url, "google_auth", 'toolbars=0,width=400,height=320,left=200,top=200,scrollbars=1,resizable=1');
                             // ew poll for window closed.
@@ -150,10 +148,12 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
 
                                 }
                             }, 200);
+                            break;
                         case 503:
-                            console.debug("Retry " + url);
                             $.post(url, data, done_handle);
+                            break;
                     }
+                    done_handle({"num_succeeded": 0});
                 };
             };
 
@@ -187,27 +187,28 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                 while(data.length) {
                     var chunk = data.splice(0, chunk_size);
                     chunks.push(chunk);
-                    var out = post_defaults();
-                    $.each(chunk, format_data_fn(out));
+                    var out2 = post_defaults();
+                    $.each(chunk, format_data_fn(out2));
                     var done_handle = function( ret ) {
                             all_returned.push(ret);
                             num_succeeded += ret.num_succeeded;
                             progress.progressbar("value", num_succeeded);
-                            label.text("Publishing "+type+", "+data.length+" objects remaining.");
-                            if(data.length == 0 && all_returned.length == chunks.length) {
+                            label.text("Publishing " + type +" (" + all_returned.length + " / " + chunks.length + ")");
+                            if(data.length === 0 && all_returned.length === chunks.length) {
                                 label.text("Complete.");
                                 promise.resolve(all_returned);
                             }
                         };
-                    $.post(publish_url, out).done(done_handle).fail(
-                        auth_handler_gen(publish_url, out, done_handle));
+                    $.post(publish_url, out2).done(done_handle).fail(
+                        auth_handler_gen(publish_url, out2, done_handle));
                     
                 }
             }
             return promise;
-        }
+        };
 
         var init_publish = function(data, pdf_url) {
+            $("form#publish_all").hide();
             var progress = $("#publish_progress");
             var label = progress.find(".progress-label");
             progress.show();
@@ -221,6 +222,7 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                         //$.when(scorm_promise).done(function(scorm_data) {
                             var html_promise = publish(data, window.location.pathname, "html", progress, label, 5);
                             $.when(html_promise).done(function(html_data) {
+                                $("#publish_complete").show();
                                 //window.location.reload();
                             });
                         //});   
