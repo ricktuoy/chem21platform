@@ -52,7 +52,7 @@
 		<div class="breadcrumb"><a href="/">Home</a> > {% for crumb in breadcrumbs %}<a href="{{ crumb.get_absolute_url }}">{{ crumb.title }}</a> > {% endfor %}{{ object.title }}</div>    
 	</div>
 	<div id="class_nav">
-	<h3>Publish to learning.chem21.eu</h3>
+	<h3>Publish</h3>
 	</div>
 	<div id="opigno-group-progress"></div>
 	<div id="content" class="has-group-progress">
@@ -78,96 +78,42 @@
 {% endif %}
 <div id="publish_forms">
  <div id="publish_progress"><div class="progress-label">Loading...</div></div>
-	<aside>
-			<h1>Alternatively ...</h1>
 	<form method="post" id="publish_all" data-pdf-ids-url="{% url 'pdf_ids' %}" data-publishable-ids-url="{% url 'publishable_ids' %}">
-
 		{% csrf_token %}
-		<input type="hidden" name="publish_all" />
-		<input type="submit" value="Re-publish entire site" />
-		<p>Warning: this really does mean every page, only do this if you are sure.</p>
-	</form>
-	<form method="post" id="publish_all_html" data-publishable-ids-url="{% url 'publishable_ids' %}">
-		{% csrf_token %}
-		<input type="hidden" name="publish_all_html" />
-		<input type="submit" value="Re-publish entire site - HTML only" />
-		<p>Warning: this really does mean every page, only do this if you are sure.</p>
-	</form>
-	</aside>
-	<form method="post" id="publish_changed" data-pdf-ids-url="{% url 'pdf_ids' %}">
-		<h1>Publish changed pages</h1>
-		{% csrf_token %}
-		<ol>
-		{% for topic in learning_objects %}
-			<li>
-				{% if topic.changed %}
-				<label for="topics_{{ topic.slug}}">
-				<input type="checkbox" name="topics[]" value="{{ topic.pk }}" id="topics_{{ topic.slug }}" checked />
-				{% endif %}
-				<a href="{{ topic.get_absolute_url }}">{{ topic.name }}</a>
-				{% if topic.changed %}
-				</label>
-				{% endif %}
-				<ol>
-				{% for module in topic.modules.all|dictsort:"order" %}
-					<li data-lo-type="module" data-lo-pk="{{ module.pk }}" class="active">
-						{% if module.changed %}
-						<label for="modules_{{ module.slug}}">
-						<input type="checkbox" name="modules[]" value="{{ module.pk }}" id="modules_{{ module.slug }}" checked />
-						{% endif %}
-							<a href="{{ module.get_absolute_url }}">{{ module.name }}</a>
-						{% if module.changed %}
-						</label>
-						{% endif %}
-						<div class="item-list">
-							<ol class="active">
-								{% for lesson in module.ordered_lessons|dictsort:"order" %}
-									{% if not module.is_question or forloop.counter0 %}
-										<li data-lo-type="lesson" data-lo-pk="{{ lesson.pk }}" class="active">
-											{% if lesson.changed %}
-											<label for="lessons_{{ lesson.slug}}">
-											<input type="checkbox" name="lessons[]" value="{{ lesson.pk }}" id="lessons_{{ lesson.slug }}" checked />
-											{% endif %}
-											<a href="{% url 'lesson_detail' topic_slug=topic.slug module_slug=module.slug slug=lesson.slug %}">{{ lesson.get_title }}</a>
-											{% if lesson.changed %}
-											</label>
-											{% endif %}
-											<ol class="active">
-											{% for question in lesson.ordered_questions|dictsort:"order" %}
-												{% if not lesson.is_question or forloop.counter0 %}
-													<li class="active" data-lo-type="question" data-lo-pk="{{ question.pk }}">
-														{% if question.changed %}
-														<label for="questions_{{ question.slug}}">
-														<input type="checkbox" name="questions[]" value="{{ question.pk }}" id="questions_{{ question.slug }}" checked />
-														{% endif %}
-														<a href="{% url 'question_detail' topic_slug=topic.slug module_slug=module.slug lesson_slug=lesson.slug slug=question.slug %}">{{ question.get_title }}</a>
-														{% if question.changed %}
-														</label>
-														{% endif %}
-													</li>
-												{% endif %}
-											{% endfor %}
-											</ol>
-										</li>
-									{% endif %}
-								{% endfor %}
-							</ol>
-						</div>
-					</li>
-				{% endfor %}
-				</ol>
-			</li>
-		{% endfor %}
-		</ol>
-
-		<input type="submit" value="Publish selected pages" />
+        <h2>Publish to live?</h2>
+        <p>Confirm that you want to publish the site to the public.</p>
+        <input type="hidden" name="publish_all" />
+		<input type="submit" value="Yes, please publish" />
 	</form>
 </div>
 {% endif %}
 {% endblock %}
 
 {{ block.super }}
-
+    </div>
+    </div>
 {% endblock %}
 
+
+    <footer id="site-footer">
+        {% block footer %}
+            <div class="cobranding">
+                <a href="http://imi.europa.eu">
+                    <img src="{% static "img/imi_logo_new.png" %}" alt="Innovative Medicines Initiative" id="imi_logo" />
+                </a>
+                <a href="http://ec.europa.eu/research/health/index.cfm?pg=home">
+                    <img src="{% static "img/eu_logo.png" %}" alt="European Commission" id="eu_logo" />
+                </a>
+                <a href="http://www.efpia.eu">
+                    <img src="{% static "img/efpia_logo.png" %}" alt="European Federation of Pharmaceutical Industries and Associations" id="efpia_logo" />
+                </a>
+                <p class="verbage">This resource has been created as part of the IMI funded CHEM21 project (Chemical Manufacturing Methods for the 21st Century Pharmaceutical Industries).  CHEM21 has received funding from the Innovative Medicines Initiative Joint Undertaking under grant agreement nÂ°115360, resources of which are composed of financial contribution from the European Unionâ€™s Seventh Framework Programme (FP7/2007-2013) and EFPIA companiesâ€™ in kind contribution.</p>
+                <p class="verbage">The educational material is licensed (unless otherwise specified) under Creative Commons license <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>, which gives permission for it to be shared and adapted for non-commercial purposes as long as attribution is given. For full details please see our <a href="/legal">legal statements</a>.</p>
+                <p class="verbage" style="font-weight: bold">The views expressed in regards to education and training materials represent the aspiration of the CHEM21 consortium, although may not always be the view of each individual organisation.  Referencing of external sources does not imply formal endorsement by the CHEM21 consortium.</p>
+                <div class="clear">&nbsp;</div>
+            </div>
+        {% endblock %}
+    </footer>
 {% endblock %}
+
+
