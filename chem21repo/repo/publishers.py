@@ -2,19 +2,19 @@ import json
 import os
 import tempfile
 import zipfile
-import logging
+from subprocess import CalledProcessError
+from subprocess import check_output as check_subprocess
+from tempfile import NamedTemporaryFile
 
-from ..google import YouTubeCaptionServiceMixin
-from .models import Topic
-from chem21repo.quiz.models import Quiz
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
 from django.core.files.storage import get_storage_class
-from django.core.files.base import ContentFile
+from django.db.models import Prefetch
 from django.template.loader import render_to_string
-from subprocess import check_output as check_subprocess
-from subprocess import CalledProcessError
-from tempfile import NamedTemporaryFile
+
+from .models import Topic, Module, Lesson
+from ..google import YouTubeCaptionServiceMixin
 
 
 class PublicStorageMixin(object):
@@ -74,7 +74,7 @@ class BasePublisher(object):
         try:
             # upload (replacing if exists)
             if issubclass(
-                self.storage.__class__, FileSystemStorage
+                    self.storage.__class__, FileSystemStorage
             ) and self.storage.exists(path):
                 self.storage.delete(path)
             self.storage.save(path, file)
@@ -85,8 +85,7 @@ class BasePublisher(object):
         return path
 
 
-class GenerateHTMLMixin(object):
-
+class LearningObjectHTMLMixin(object):
     topic_structures = {}
 
     @classmethod
@@ -144,7 +143,39 @@ class GenerateHTMLMixin(object):
             "chem21/%s.html" % template_name, context)
 
 
-class HTMLPublisher(BasePublisher, PublicStorageMixin, GenerateHTMLMixin):
+class PagesHTMLPublisher(BasePublisher, PublicStorageMixin):
+    def publish(self):
+        self.upload_replace_file("index.html", self.get_front_page_file())
+        self.upload_replace_file("about/index.html", self.get_about_page_file())
+        self.upload_replace_file("legal/index.html", self.get_legal_page_file())
+
+    def get_front_page_file(self):
+        return self.get_file_for_page("chem21/front.html", self.get_front_page_context())
+
+    def get_about_page_file(self):
+        return self.get_file_for_page("chem21/about.html", {})
+
+    def get_legal_page_file(self):
+        return self.get_file_for_page("chem21/legal.html", {})
+
+    def get_file_for_page(self, template, context):
+        context['staticgenerator'] = True
+        html = render_to_string(template, context)
+        f = ContentFile(html, name="index.html")
+        f.content_type = "text/html;charset=utf-8"
+        return f
+
+    def get_front_page_context(self):
+        return {'object_list': Topic.objects.prefetch_related(
+            Prefetch("modules",
+                     queryset=Module.objects.all().exclude(archived=True).order_by('order'),
+                     to_attr="ordered_children"),
+            Prefetch("ordered_children__lessons",
+                     queryset=Lesson.objects.all().exclude(archived=True).order_by('order'),
+                     to_attr="ordered_children"))}
+
+
+class LearningObjectHTMLPublisher(BasePublisher, PublicStorageMixin, LearningObjectHTMLMixin):
 
     def publish(self, page):
         html = self.generate_html(page)
@@ -180,7 +211,7 @@ class PageSetMixin(object):
             ancestor_paths = frozenset(
                 [p.get_absolute_url() for p in page.get_ancestors()])
             if new_path in path_set:
-                #raise CircularNavigationException
+                # raise CircularNavigationException
                 break
             elif new_path != root_path and root_path not in ancestor_paths:
                 # end as current page is not a descendent of root
@@ -193,8 +224,8 @@ class PageSetMixin(object):
 
 
 class PDFPublisher(
-        BasePublisher, MediaStorageMixin,
-        PageSetMixin, YouTubeCaptionServiceMixin):
+    BasePublisher, MediaStorageMixin,
+    PageSetMixin, YouTubeCaptionServiceMixin):
 
     def __init__(self, *args, **kwargs):
         if 'youtube_service' not in kwargs:
@@ -217,9 +248,9 @@ class PDFPublisher(
                     transcript = self.get_srt(self.youtube, caption['id'])
                     transcript = " ".join(
                         [line for line in transcript.split("\n")
-                            if line != "" and
-                            not line.isdigit() and
-                            "-->" not in line]
+                         if line != "" and
+                         not line.isdigit() and
+                         "-->" not in line]
                     )
                     obj.transcript = "\n".join(
                         ["<p>%s.</p>" % s for s in transcript.split(". ")])
@@ -334,8 +365,8 @@ class PDFPublisher(
 
 
 class SCORMPublisher(
-        BasePublisher, StaticStorageMixin,
-        GenerateHTMLMixin, PageSetMixin):
+    BasePublisher, StaticStorageMixin,
+    LearningObjectHTMLMixin, PageSetMixin):
 
     @staticmethod
     def initialise_scorm_dir(self):
@@ -380,7 +411,7 @@ class SCORMPublisher(
             zipc = f.read()
         with self.storage.open(
                 "SCORM/%d/%s.zip" % (
-                    root_page.pk, root_page.slug), 'w') as sf:
+                        root_page.pk, root_page.slug), 'w') as sf:
             sf.write(zipc)
 
     def publisher(self, root):

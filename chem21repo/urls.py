@@ -70,6 +70,7 @@ urlpatterns = [
     url(r'^files/add/(?P<target_type>.+)/(?P<target_id>[0-9]+)/$',
         AddFileView.as_view(),
         name="add_files"),
+    url(r'^_admin/publish/pages/?$', PublishPagesView.as_view()),
     url(r'^_admin/publish/?$', PublishLearningObjectsView.as_view(),
         name="publish_view"),
     url(r'^_admin/publish/all/?$', PageIDsView.as_view(), 

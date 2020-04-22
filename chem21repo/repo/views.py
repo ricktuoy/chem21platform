@@ -21,7 +21,8 @@ from .models import CredentialsModel
 from .models import Biblio
 from .models import LearningTemplate
 from .object_loaders import PDFLoader, PageLoader, SCORMLoader
-from .publishers import PublicStorageMixin, HTMLPublisher, PDFPublisher, SCORMPublisher
+from .publishers import PublicStorageMixin, LearningObjectHTMLPublisher, PDFPublisher, SCORMPublisher, \
+    PagesHTMLPublisher
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
@@ -51,6 +52,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
 import magic
+import logging
 from apiclient.http import MediaIoBaseUpload as GoogleMediaIoBaseUpload
 from ..google import GoogleOAuth2RedirectRequired, GoogleUploadError, GoogleServiceOAuth2ReturnView, YouTubeCaptionServiceMixin, YouTubeServiceMixin, DriveServiceMixin
 # Create your views here.
@@ -266,7 +268,7 @@ class MoveViewBase:
             from_el)
 
         parent_id = kwargs.get('parent_id', None)
-        
+
         if "to_id" not in kwargs or kwargs['to_id'] == "0":
             # no dest id or dest id==0 then move element to top
             context['new_order'] = 1
@@ -288,7 +290,7 @@ class MoveViewBase:
         context['new_order'] = self.orderable_manager.get_order_value(to_el)
         context['success'], context[
             'message'] = self.orderable_manager.move(from_el, to_el, parent_id)
-        
+
         return context
 
 
@@ -608,10 +610,10 @@ class MediaUploadHandle(object):
             'ext': ext,
             'type': tpe,
             'title': title}
-        
+
         fo, created = UniqueFile.objects.get_or_create(
             checksum=checksum, defaults=defaults)
-        
+
         if not created:
             fo.ext = ext
             fo.type = tpe
@@ -634,7 +636,7 @@ class MolUploadHandle(object):
         if root != name:
             name = root
         mol, created = Molecule.objects.get_or_create(
-            name=name, 
+            name=name,
             defaults={'mol_def':"".join(datalines)})
         if not created:
             mol.mol_def = "".join(datalines)
@@ -675,7 +677,7 @@ class JSONUploadHandle(MediaUploadHandle):
                 except LearningTemplate.DoesNotExist:
                     raise AJAXError("No 'guide_detail' template registered")
             lobj.save()
-        return JSONFileObjectWrapper(name = "%s: %s" % (parser.human_type_name, parser.name), 
+        return JSONFileObjectWrapper(name = "%s: %s" % (parser.human_type_name, parser.name),
             url = default_storage.url(outcome))
 
 
@@ -704,11 +706,11 @@ class BibTeXUploadView(JQueryFileHandleView):
                 #'bibliography': self.bibliography,
                 #'raw': self.raw,
                 'skipped': self.skipped,
-                'created': self.created_bibs, 
+                'created': self.created_bibs,
                 'modified': self.modified_bibs
                 }
 
-   
+
     def process_file(self, f, k, *args, **kwargs):
         from .bibtex import BibTeXParsing
 
@@ -767,9 +769,9 @@ class BibTeXUploadView(JQueryFileHandleView):
                     except Biblio.DoesNotExist:
                         raise Exception("Unknown integrity error when trying to create biblio")
                 #self.skipped.append((repr(bib), created, crargs))
-                
+
             if created:
-                self.created_bibs.append(repr(bib)) 
+                self.created_bibs.append(repr(bib))
             else:
                 #del defaults['citekey']
                 for k,v in defaults.iteritems():
@@ -821,12 +823,12 @@ class MediaUploadView(JQueryFileHandleView):
         except AttributeError:
             self._post_dict = parser.parse(request.POST.urlencode())
             return self._post_dict
-    
+
     def post(self, request, *args, **kwargs):
         self.urlkwargs = kwargs
         kwargs.update(self.get_post_dict_from_request(request))
         return super(MediaUploadView, self).post(request, *args, **kwargs)
-            
+
     @property
     def learning_object(self,**kwargs):
         try:
@@ -914,7 +916,7 @@ class BiblioSearchView(LoginRequiredMixin, JSONView):
             out.append({'id': bib.citekey,
                         'value': bib.title})
         return out
-        
+
     def render_to_response(self, *args, **kwargs):
         kwargs['safe'] = False
         return super(BiblioSearchView, self).render_to_response(
@@ -979,9 +981,9 @@ class FigureDeleteView(LoginRequiredMixin, LearningObjectRelationMixin, View):
         page = self.get_learning_object(*args, **kwargs)
         num = int(kwargs["fNum"])
         rx = re.compile(
-            r"(<div class=\"token\"><!--token-->)?\[figgroup:.*?\[\/figgroup\](<!--endtoken--></div>)?", 
+            r"(<div class=\"token\"><!--token-->)?\[figgroup:.*?\[\/figgroup\](<!--endtoken--></div>)?",
             re.DOTALL)
-        
+
         def repl_fn(match):
             repl_fn.inc = repl_fn.inc + 1
             if repl_fn.inc == num:
@@ -1014,8 +1016,8 @@ class ShowTouchedView(LoginRequiredMixin, LearningObjectRelationMixin, View):
         return JsonResponse({'error': e}, status=400)
     def get(self, *args, **kwargs):
         page = self.get_learning_object(*args, **kwargs)
-        return JsonResponse({'touched': 
-                [ [ (i.pk, i.slug) for i in qs  ] for qs in page.touched_structure_querysets ] 
+        return JsonResponse({'touched':
+                [ [ (i.pk, i.slug) for i in qs  ] for qs in page.touched_structure_querysets ]
             } )
 
 class PDFIDsView(LoginRequiredMixin, View):
@@ -1034,6 +1036,16 @@ class PageIDsView(LoginRequiredMixin, View):
         refs = PageLoader().get_reference_list()
         return JsonResponse({'objects':refs})
 
+
+class PublishPagesView(LoginRequiredMixin, PublicStorageMixin, TemplateView):
+    template_name = "chem21/publish_learning_objects_confirm.html"
+
+    def post(self, request):
+        publisher = PagesHTMLPublisher(request, [])
+        publisher.publish()
+        return JsonResponse({}, status=200)
+
+
 class PublishLearningObjectsView(LoginRequiredMixin, YouTubeCaptionServiceMixin, PublicStorageMixin, TemplateView):
     template_name = "chem21/publish_learning_objects_confirm.html"
     def get_context_data(self, **kwargs):
@@ -1051,7 +1063,7 @@ class PublishLearningObjectsView(LoginRequiredMixin, YouTubeCaptionServiceMixin,
         extra_args = {}
         if publish_format == "html":
             loader = PageLoader(querydict=request.POST)
-            publisher_class = HTMLPublisher
+            publisher_class = LearningObjectHTMLPublisher
         elif publish_format == "pdf":
             loader = PDFLoader(querydict=request.POST)
             publisher_class = PDFPublisher
@@ -1064,8 +1076,8 @@ class PublishLearningObjectsView(LoginRequiredMixin, YouTubeCaptionServiceMixin,
             loader = SCORMLoader(querydict=request.POST)
             publisher_class = SCORMPublisher
 
-        publisher = publisher_class(request=request, 
-            pages=loader.get_list(), 
+        publisher = publisher_class(request=request,
+            pages=loader.get_list(),
             **extra_args)
         paths = publisher.publish_all()
 
@@ -1075,9 +1087,9 @@ class PublishLearningObjectsView(LoginRequiredMixin, YouTubeCaptionServiceMixin,
             code=200
 
         return JsonResponse(
-            {'num_succeeded':publisher.num_succeeded, 
-             'published_paths':paths, 
-             'errors':publisher.errors}, 
+            {'num_succeeded':publisher.num_succeeded,
+             'published_paths':paths,
+             'errors':publisher.errors},
             status=code)
 
 
@@ -1156,7 +1168,7 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
                 style = span['style']
             except KeyError:
                 span.unwrap()
-                continue    
+                continue
             weight_match = re.search(r'font-weight:(\d*)', style)
             try:
                 weight = int(weight_match.group(1))
@@ -1219,7 +1231,7 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
                 del el['style']
             except (KeyError, TypeError):
                 pass
-        
+
         tables = body.find_all("table")
         for table in tables:
             if not table.thead:
@@ -1237,7 +1249,7 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
                 tbody.insert_before(thead)
                 for el in thead("td"):
                     el.name = "th"
-                thead.wrap(soup.new_tag("thead"))        
+                thead.wrap(soup.new_tag("thead"))
 
 
 
@@ -1260,14 +1272,14 @@ class LoadFromGDocView(LoginRequiredMixin, DriveServiceMixin, LearningObjectRela
         messages.success(request, "Page text successfully replaced.")
         return HttpResponseRedirect(ret_uri)
 
-class PushVideoToYouTubeView(LoginRequiredMixin, 
-                         YouTubeServiceMixin, 
-                         LearningObjectRelationMixin, 
+class PushVideoToYouTubeView(LoginRequiredMixin,
+                         YouTubeServiceMixin,
+                         LearningObjectRelationMixin,
                          View):
     @staticmethod
     def error_response(e=""):
         return JsonResponse({'error': e}, status=500)
-   
+
     # from https://developers.google.com/youtube/v3/guides/uploading_a_video#Sample_Code
     def initialize_upload(self, youtube, fh, **options):
 
@@ -1340,7 +1352,7 @@ class PushVideoToYouTubeView(LoginRequiredMixin,
         with DefaultStorage().open(filepage.get_file_relative_url()) as fh:
             desc = None
             if filepage.description:
-                try: 
+                try:
                     desc = BeautifulSoup(filepage.description).get_text()
                 except:
                     pass
@@ -1474,7 +1486,7 @@ class JSONObjectParser(object):
         except KeyError:
             return self.error_response("%s object has no id" % self.human_type_name)
         return t
-    
+
 
 class QuizParser(JSONObjectParser):
     type_name = "quiz_object"
@@ -1545,13 +1557,13 @@ class GuideToolParser(JSONObjectParser):
         f = ContentFile(json.dumps(out))
         default_storage.save(dest, f)
 
-        return dest 
+        return dest
 
 class ImportJSONObjectError(Exception):
     pass
 
 class ImportJSONObjectView(CSRFExemptMixin, JSONView):
-    
+
     def populate_post_dict(self):
         try:
             return self._post_dict
@@ -1564,7 +1576,7 @@ class ImportJSONObjectView(CSRFExemptMixin, JSONView):
 
 
     def success_response(self, outcome):
-        return JsonResponse({'success': 'Saved to %s' % 
+        return JsonResponse({'success': 'Saved to %s' %
             default_storage.url(outcome)})
 
     def get_learning_object(self, kwargs):

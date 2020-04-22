@@ -210,7 +210,9 @@ define(["jquery","jquery.fileupload","jquery.colorbox","jquery-ui/progressbar","
                         //$.when(scorm_promise).done(function(scorm_data) {
                             var html_promise = publish(data, window.location.pathname, "html", progress, label, 5);
                             $.when(html_promise).done(function(html_data) {
-                                $("#publish_complete").show();
+                                $.post(window.location.pathname + "/pages").done(function() {
+                                    $("#publish_complete").show();
+                                });
                                 //window.location.reload();
                             });
                         //});   
