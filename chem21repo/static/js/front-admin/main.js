@@ -1,4 +1,4 @@
-define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-ui/progressbar","nav_reorder","page_menu","common"], function(GPicker, $) {
+define(["jquery","jquery.fileupload","jquery.colorbox","jquery-ui/progressbar","nav_reorder","page_menu","common"], function($) {
     String.prototype.format = function () {
       var args = arguments;
       return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
@@ -135,20 +135,8 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
                 };
             };
             var auth_handler_gen = function(url, data, done_handle) {
-                return function(xhr, status, error) {
+                return function(xhr) {
                     switch(xhr.status) {
-                        case 401:
-                            data = $.parseJSON(xhr.responseText);
-                            var win = window.open(data.auth_url, "google_auth", 'toolbars=0,width=400,height=320,left=200,top=200,scrollbars=1,resizable=1');
-                            // ew poll for window closed.
-                            var pollTimer = window.setInterval(function() {
-                                if (win.closed !== false) { // !== is required for compatibility with Opera
-                                    window.clearInterval(pollTimer);
-                                    $.post(url, data, done_handle);
-
-                                }
-                            }, 200);
-                            break;
                         case 503:
                             $.post(url, data, done_handle);
                             break;
@@ -277,7 +265,4 @@ define(["google_picker","jquery","jquery.fileupload","jquery.colorbox","jquery-u
         });
 
     });
-    return {
-        Picker:GPicker
-    }
 });
