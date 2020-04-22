@@ -133,7 +133,7 @@ class OrderedManagerBase:
         self.order_queryset().filter(
             **self.order_slice_dict(0, sval)).update(**self.order_incr_dict())
         self.set_order_value(source, 1)
-        source.save_structure_change()
+        source.save()
         return (True, "Success")
 
     @transaction.atomic
@@ -173,8 +173,6 @@ class OrderedManagerBase:
 
         self.set_order_value(source, dval + 1)
         source.save()
-        source.save_structure_change()
-
         return (True, "Success")
 
 
