@@ -16,7 +16,7 @@ Some/all of this infrastructure deployment process could probably be automated a
 5. Set yourself up to run the requireJS optimiser from the top level of the checked out repository.  It's easiest to do this with node: `npm install -g requirejs`
 6. At the top level of this repository, run the following commands to collect, build and deploy all static resources:
 - ` python manage.py collectstatic `
-- ` r.js -o require-build.js
+- ` r.js -o require-build.js `
 - ` aws s3 sync collected-static/deploy/ s3://<BUCKET_NAME>/static/ `
 
 ### Deploy the CMS to AWS Elastic Beanstalk
