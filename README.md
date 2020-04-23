@@ -8,6 +8,7 @@ These notes assume knowledge of AWS S3, IAM, Elastic Beanstalk. Also Python/Djan
 Some/all of this infrastructure deployment process could probably be automated as a Cloudformation stack/equivalent.
 
 ### Set up the published site bucket with static resources
+_note that this part won't be needed for production as there's already a bucket set up_
 
 1. Create an S3 bucket for the published site.  Set it up to serve a public website. 
 2. Create an IAM deployment user/role for yourself, that has read-right permissions on the bucket
