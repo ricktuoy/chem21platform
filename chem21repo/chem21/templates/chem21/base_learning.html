@@ -73,34 +73,71 @@
 {% block admin_tools %}
 
 {% if perms.repo.change_lesson %}
-		<!--
+
   <nav>
 	<ul class="admin_menu">
-	{% for category, commands in page_admin_menu %}
-	<li class="category">
-		{{ category }}
-		<ul>
-		{% for command in commands %}
-			<li class="command">
-				{% if command.params %}
-					<a href="{{ command.url }}" 
-					   data-signature="{{ command.param_string }}" 
-					   data-instruction="{{ command.instruction }}"
-					   data-query-type="{{ command.query_type }}"
-					   data-id-type="{{ command.id_type }}"
-				       data-command-name="{{ command.name }}">{{ command.display_name }}</a>
-				{% else %}
-					{% if command.url %}<a href="{{ command.url }}">{{ command.display_name }}</a>
-					{% else %}{{ command.display_name }}{% endif %}
-				{% endif %}
-			</li>
-		{% endfor %}
-		</ul>
-	</li>
-	{% endfor %}
-	</ul>
+        <li class="category">
+            Page
+            <ul>
+                <li class="command">
+                {% if object.page %}
+                    <a class="admin-edit" href="{% url opts.question|admin_urlname:'change' object.page.pk %}"
+                       data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
+                        Edit text</a>
+
+                {% else %}
+                    <a class="admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
+                       data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
+                        Edit text</a>
+                {% endif %}
+                </li>
+                {% if opts.child %}
+                    <li class="command">
+                        <a class="admin-add" href="{% url opts.child|admin_urlname:'add' %}?{{ opts.child.parent_fieldname }}={{object.pk}}">
+                            Add child page</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </li>
+        <li class="category">
+            Figure
+            <ul>
+                <li class="command">
+                {% if object.page %}
+                    <a href="{% url opts.question|admin_urlname:'add_figure' object.page.pk 0%}"
+                       data-signature="para"
+                       data-instruction="Click a location below to insert a figure."
+                       data-id-type="page" data-command-name="addFigure">Add</a>
+                {% else %}
+                    <a href="{% url opts.current|admin_urlname:'add_figure' object.pk 0%}"
+                       data-signature="para"
+                       data-instruction="Click a location below to insert a figure."
+                       data-id-type="page" data-command-name="addFigure">Add</a>
+                {% endif %}
+                    </li>
+            </ul>
+        </li>
+        <li class="category">
+            References
+            <ul>
+                <li class="command">
+                    {% if object.page %}
+                        <a href="{% url opts.question|admin_urlname:'add_figure' object.page.pk 0%}"
+                           data-signature="para"
+                           data-instruction="Click a location below to insert a figure."
+                           data-id-type="page" data-command-name="addFigure">Add</a>
+                    {% else %}
+                        <a href="{% url opts.current|admin_urlname:'add_figure' object.pk 0%}"
+                           data-signature="para"
+                           data-instruction="Click a location below to insert a figure."
+                           data-id-type="page" data-command-name="addFigure">Add</a>
+                    {% endif %}
+                </li>
+            </ul>
+        </li>
+    </ul>
   </nav>
-  -->
+
 
 
 {% if messages %}
@@ -115,11 +152,7 @@
  		<input type="hidden" id="learning_reference_pk" value="{{ learning_reference_pk }}" />
  
 
-	{% if opts.child %}
-		<a class="btn btn-success admin-add" href="{% url opts.child|admin_urlname:'add' %}?{{ opts.child.parent_fieldname }}={{object.pk}}"
-		data-from-url-edit="{% url opts.child|admin_urlname:'changelist' %}">
-		Add child page</a>
-	{% endif %}
+
 	{% url 'media_upload' pk=learning_reference_pk type=learning_reference_type as media_url %}
 	{% fileupload_form "upload_json" caption="Upload quiz (.json) or video (.mp4)" upload_url=media_url %}
 	</form>
