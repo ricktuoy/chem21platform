@@ -35,7 +35,7 @@ class BasePageMenuAction(object):
                 self.view_name,
                 args=self.page_id + ([0, ] * (len(self.params))))
         except NoReverseMatch:
-            return ""
+            return "Not for "+self.view_name
 
     @property
     def name(self):

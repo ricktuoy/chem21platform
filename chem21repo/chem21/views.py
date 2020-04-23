@@ -73,7 +73,6 @@ class JSONView(JSONResponseMixin, TemplateView):
         return self.render_to_json_response(context, **response_kwargs)
 
 
-
 class VideoTimelineView(JSONView):
     def get_context_data(self, *args, **kwargs):
         pk = kwargs['pk']
@@ -238,8 +237,6 @@ class QuestionView(LearningView):
         qnum = question_orders[context['object'].pk]
         context['question_num'] = qnum
         return context
-
-
 
 
 class LessonView(LearningView):

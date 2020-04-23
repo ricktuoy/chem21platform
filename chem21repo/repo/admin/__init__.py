@@ -1,12 +1,14 @@
-from ..models import *
-from ..views import BibTeXUploadView, LoadFromGDocView
 from django.contrib import admin
-from factories import create_admin, create_power_admin
-from chem21repo.repo.admin.user import LocalUserForm
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
+
+from chem21repo.repo.admin.user import LocalUserForm
+from factories import create_admin, create_power_admin
+from ..models import *
 from ..shortcodes import HTMLShortcodeParser
 from ..shortcodes.errors import BlockNotFoundError
+from ..shortcodes.renderers import FigureGroupRenderer
+from ..views import BibTeXUploadView, LoadFromGDocView
 
 admin.site.unregister(User)
 
@@ -95,17 +97,17 @@ class QuestionAdmin(admin.ModelAdmin):
         from django.conf.urls import url
         urls = super(QuestionAdmin, self).get_urls()
         my_urls = [
-            url(r'^add_figure/([0-9]+)/([0-9]+)/([0-9]+)$',
+            url(r'^add_figure/([0-9]+)/([0-9]+)$',
                 self.admin_site.admin_view(self.add_figure),
-                name='add_figure'
+                name='repo_question_add_figure'
                 ),
-            url(r'^edit_figure/([0-9]+)/([0-9]+)/([0-9]+)$',
-                self.admin_site.admin_view(self.add_figure),
-                name='edit_figure'
+            url(r'^edit_figure/([0-9]+)/([0-9]+)$',
+                self.admin_site.admin_view(self.edit_figure),
+                name='repo_question_edit_figure'
                 ),
-            url(r'^remove_figure/([0-9]+)/([0-9]+)/([0-9]+)$',
+            url(r'^remove_figure/([0-9]+)/([0-9]+)$',
                 self.admin_site.admin_view(self.remove_figure),
-                name='remove_figure'
+                name='repo_question_remove_figure'
                 ),
             url(r'^load_gdoc/(?P<tpk>[0-9]+)/(?P<file_id>.*)[/]?$',
                 self.admin_site.admin_view(LoadFromGDocView.as_view()),
@@ -134,17 +136,17 @@ class QuestionAdmin(admin.ModelAdmin):
         renderers = parser.get_renderers(block_id)
         renderer = renderers[0]
         form = self.get_shortcode_form(request, renderer, question)
-        if request.method == POST and form.is_valid():
-            shortcode.update(**form.cleaned_data)
+        if request.method == "POST" and form.is_valid():
+            #shortcode.update(**form.cleaned_data)
             new_html = parser.replace_shortcode(block_id, renderer)
             question.text = new_html
             question.save()
             return self._redirect(request)
         context['form'] = form
-        context['token_type'] = token_type
-        context['token'] = token
+        context['token_type'] = 'figure'
+        #context['token'] = token
         context['title'] = "Edit figure"
-        return render(request, "admin/question_token_form.html", context)
+        return render(request, "admin/question_figure_form.html", context)
 
     def add_figure(self, request, qpk, block_id):
         context = {}
@@ -152,9 +154,9 @@ class QuestionAdmin(admin.ModelAdmin):
             question = Question.objects.get(pk=qpk)
         except Question.DoesNotExist:
             raise Http404("Question does not exist")
-        renderer = FigureRenderer()
+        renderer = FigureGroupRenderer()
         form = self.get_shortcode_form(request, renderer, question)
-        if request.method == POST and form.is_valid():
+        if request.method == "POST" and form.is_valid():
             parser = HTMLShortcodeParser(question.text)
             new_html = parser.insert_shortcode(block_id, renderer)
             question.text = new_html
@@ -162,21 +164,21 @@ class QuestionAdmin(admin.ModelAdmin):
             return self._redirect(request)
         context['form'] = form
         context['token_type'] = 'figure'
-        context['token'] = token
+        context['question_pk'] = qpk
         context['title'] = "Insert figure"
-        return render(request, "admin/question_token_form.html", context)
+        return render(request, "admin/question_figure_form.html", context)
 
-    def remove_figure(self, request, qpk, para, figure):
+    def remove_figure(self, request, qpk, para):
         try:
             question = Question.objects.get(pk=qpk)
         except Question.DoesNotExist:
             raise Http404("Question does not exist")
         parser = HTMLShortcodeParser(question.text)
         try:
-            html = parser.remove_shortcode(block_id)
+            html = parser.remove_shortcode(para)
+            question.text = html
         except BlockNotFoundError:
             pass
-        question.text = html
         question.save()
         return self._redirect(request)
 

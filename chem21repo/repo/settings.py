@@ -8,9 +8,6 @@ LMS_PAGE_MENU = [
         ('edit', {
             'view_name': "admin:repo_question_change",
             'display_name': 'Edit text',
-        }),
-        ('load', {
-            'display_name': 'Load text from GDoc',
         })
     ]),
     ('Figure', [
