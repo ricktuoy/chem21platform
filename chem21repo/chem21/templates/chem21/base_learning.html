@@ -33,14 +33,6 @@
 {% block title %}{{ object.title }} :: CHEM21 learning platform{% endblock %}
 {% block body_classes %}html not-front not-logged-in no-sidebars{% endblock %}
 {% block site_tools %}
-{% if request.user.is_authenticated and not staticgenerator %}
-
-  <div id="admin_site_links">
-  <a href="#" id="import_references_trigger">Import references</a>
-  {% url 'admin:repo_biblio_importreferences' as references_url %}
-  {% fileupload_form "import_references" caption="Upload BibTeX (.bib) file" upload_url=references_url %}
-  </div>
-{% endif %}
 {% endblock %}
 {% block content %}
 {% block sidebar_1 %}
@@ -72,7 +64,7 @@
 
 {% block admin_tools %}
 
-{% if perms.repo.change_lesson %}
+{% if perms.repo.change_lesson and not staticgenerator %}
 
   <nav>
 	<ul class="admin_menu">
@@ -123,15 +115,19 @@
                 <li class="command">
                     {% if object.page %}
                         <a href="{% url opts.question|admin_urlname:'add_figure' object.page.pk 0%}"
-                           data-signature="para"
-                           data-instruction="Click a location below to insert a figure."
-                           data-id-type="page" data-command-name="addFigure">Add</a>
+                           data-id-type="page" data-command-name="addReferences">Upload .bib file</a>
                     {% else %}
                         <a href="{% url opts.current|admin_urlname:'add_figure' object.pk 0%}"
-                           data-signature="para"
-                           data-instruction="Click a location below to insert a figure."
-                           data-id-type="page" data-command-name="addFigure">Add</a>
+                           data-id-type="page" data-command-name="addReferences">Upload .bib file</a>
                     {% endif %}
+                </li>
+            </ul>
+        </li>
+        <li class="category">
+            Publish
+            <ul>
+                <li class="command">
+                    <a href="/_admin/publish">Publish the site</a>
                 </li>
             </ul>
         </li>
@@ -147,21 +143,11 @@
     {% endfor %}
 </ul>
 {% endif %}
- 	<form id="admin_tools">
- 		<input type="hidden" id="learning_reference_type" value="{{ learning_reference_type }}" />
- 		<input type="hidden" id="learning_reference_pk" value="{{ learning_reference_pk }}" />
- 
-
-
-	{% url 'media_upload' pk=learning_reference_pk type=learning_reference_type as media_url %}
-	{% fileupload_form "upload_json" caption="Upload quiz (.json) or video (.mp4)" upload_url=media_url %}
-	</form>
 {% endif %}
 {% endblock %}
 {% block learning_object %}
 	{% if object.get_text %}
 		{% replace_shortcodes object.get_text %}
-		
 		{% if object.video %}
 			{% get_video shortcodes_replaced object.video %}
 		{% endif %}
@@ -176,20 +162,6 @@
 			<div class="titles"><h1>{{ object.get_title }}</h1></div>
 		{% endblock progress_title %}
 	{% endif %}
-
-	{% if perms.repo.change_lesson %}
-		{% if object.page %}
-				<a class="btn btn-success admin-edit" href="{% url opts.question|admin_urlname:'change' object.page.pk %}"
-				data-from-url-edit="{% url opts.question|admin_urlname:'changelist' %}">
-				Edit text</a>
-
-		{% else %}
-				<a class="btn btn-success admin-edit" href="{% url opts.current|admin_urlname:'change' object.pk %}"
-				data-from-url-edit="{% url opts.current|admin_urlname:'changelist' %}">
-				Edit text</a>
-		{% endif %}
-
-    {% endif %}
 			
 		<div id="content-body">
 		{% if shortcodes_replaced %}
