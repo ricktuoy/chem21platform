@@ -1,28 +1,16 @@
-from django.core.exceptions import ImproperlyConfigured
-
 from common import *
-from auth import *
-import os
+import dj_database_url
 
-if 'RDS_DB_NAME' in os.environ:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['RDS_DB_NAME'],
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
-        }
-    }
-else:
-    raise ImproperlyConfigured(
-        "No RDS_DB_NAME environment configured. Have you added a postgres DB to your elastic beanstalk environment?")
+DATABASES = {
+    "default": dj_database_url.config(default='postgres://localhost'),
+}
 
 REQUIRE_BUILD_PROFILE = '../chem21repo.dev.build.js'
-STATIC_URL = S3_URL + "/"
+# Use Amazon S3 for static files storage.
+STATIC_URL = "http://learning.chem21.eu.s3-website.eu-central-1.amazonaws.com/"
 TINYMCE_JS_URL = "/s3/tiny_mce/tiny_mce.js"
 STATICFILES_STORAGE = "chem21repo.storage.TinyMCEProxyCachedS3BotoStorage"
+
 
 # Cache settings.
 CACHES = {
@@ -55,3 +43,6 @@ LOGGING = {
         }
     }
 }
+
+DEBUG = True
+TEMPLATE_DEBUG = True
