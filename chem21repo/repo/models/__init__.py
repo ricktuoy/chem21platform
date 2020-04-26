@@ -1,5 +1,7 @@
-from .biblio import *
+from functools import wraps
+
 from .base import *
+from .biblio import *
 from .google import *
 from .legacy import *
 from .media import *
@@ -9,7 +11,21 @@ from .scos import *
 from .versions import *
 
 
+def disable_for_loaddata(signal_handler):
+    """
+    Decorator that turns off signal handlers when loading fixture data.
+    """
+
+    @wraps(signal_handler)
+    def wrapper(*args, **kwargs):
+        if 'raw' in kwargs.keys() and kwargs['raw']:
+            return
+        signal_handler(*args, **kwargs)
+
+    return wrapper
+
 @receiver(models.signals.pre_save)
+@disable_for_loaddata
 def generate_dirty_record(sender,
                           instance, raw,
                           using, update_fields,
@@ -18,18 +34,18 @@ def generate_dirty_record(sender,
             and not isinstance(instance, UniqueFile):
         instance.changed = True
 
-
 @receiver(models.signals.pre_save)
+@disable_for_loaddata
 def save_slug(sender, instance, **kwargs):
     if isinstance(instance, Question) or isinstance(instance, Lesson) \
             or isinstance(instance, Topic) or isinstance(instance, Module):
         if not instance.slug:
             instance.slug = slugify(instance.title)
 
-
 @receiver(models.signals.pre_save, dispatch_uid="save_order")
-def save_order(sender, instance, raw, **kwargs):
-    if not(
+@disable_for_loaddata
+def save_order(sender, instance, **kwargs):
+    if not (
             isinstance(instance, Lesson) or
             isinstance(instance, Topic) or
             isinstance(instance, Module)):
@@ -45,8 +61,9 @@ def save_order(sender, instance, raw, **kwargs):
 
 
 @receiver(models.signals.post_save, dispatch_uid="create_child")
-def create_page(sender, instance, raw, **kwargs):
-    if not(
+@disable_for_loaddata
+def create_page(sender, instance, **kwargs):
+    if not (
             isinstance(instance, Lesson) or
             isinstance(instance, Topic) or
             isinstance(instance, Module)):
@@ -60,16 +77,16 @@ def create_page(sender, instance, raw, **kwargs):
     instance.page = pg
     instance.save()
 
-
 @receiver(models.signals.post_save, dispatch_uid="set_changed")
+@disable_for_loaddata
 def set_changed(sender, instance, **kwargs):
     if isinstance(instance, SCOBase) \
             and not isinstance(instance, UniqueFile):
         for qs in instance.touched_structure_querysets:
             qs.update(changed=True)
 
-
 @receiver(models.signals.m2m_changed)
+@disable_for_loaddata
 def save_m2m_order(
         sender, instance, action,
         reverse, model, pk_set, **kwargs):
