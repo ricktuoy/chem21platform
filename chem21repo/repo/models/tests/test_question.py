@@ -3,7 +3,7 @@ from django.test import TestCase
 from .. import Question
 
 
-class SCOBaseTestCase(TestCase):
+class QuestionTestCase(TestCase):
     fixtures = ['fixtures/init_data.json']
 
     def test_that_question_objects_know_their_canonical_page(self):

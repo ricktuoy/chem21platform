@@ -2,7 +2,8 @@ from django.test import TestCase
 
 from .. import Lesson
 
-class SCOBaseTestCase(TestCase):
+
+class LessonTestCase(TestCase):
     fixtures = ['fixtures/init_data.json']
 
     def test_that_all_lesson_objects_only_have_one_parent_module(self):
