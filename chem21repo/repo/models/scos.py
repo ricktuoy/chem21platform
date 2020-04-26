@@ -201,13 +201,16 @@ class Module(
     _child_orders = {}
     child_attr_name = "lessons"
 
+    @property
+    def current_topic(self):
+        return self.topic
+
     @classmethod
     def iter_descendent_models(kls):
         for model in [Lesson, Question]:
             yield model
 
     def iter_publishable(self):
-        self.current_topic = self.topic
         yield self
 
     def iter_pdf_roots(self):
@@ -253,7 +256,6 @@ class Module(
 
     def set_parent(self, parent):
         super(Module, self).set_parent(parent)
-        self.current_topic = parent
 
     def get_parent(self):
         return self.topic
@@ -358,20 +360,23 @@ class Lesson(
     child_attr_name = "questions"
     is_question = models.BooleanField(default=False)
 
+    @property
+    def current_module(self):
+        return self.modules.first()
+
+    @property
+    def current_topic(self):
+        return self.current_module.topics.first()
+
     @classmethod
     def iter_descendent_models(kls):
         yield Question
 
     def iter_publishable(self):
-        for module in self.modules.all():
-            self.current_module = module
-            self.current_topic = self.current_module.topic
-            yield self
+        yield self
 
     def iter_pdf_roots(self):
-        for module in self.modules.all():
-            module.current_topic = module.topic
-            yield module
+        yield self.current_module
 
     @property
     def touched_structure_querysets(self):
@@ -399,8 +404,6 @@ class Lesson(
 
     def set_parent(self, parent):
         super(Lesson, self).set_parent(parent)
-        self.current_topic = parent.topic
-        self.current_module = parent
 
     def get_parent(self):
         return self.current_module
@@ -475,23 +478,27 @@ class Question(OrderedModel, SCOBase, AttributionMixin, TitleUnicodeMixin):
     def is_question(self):
         return False
 
+    @property
+    def current_lesson(self):
+        return self.lessons.first()
+
+    @property
+    def current_module(self):
+        return self.current_lesson.modules.first()
+
+    @property
+    def current_topic(self):
+        return self.current_module.topic
+
     @classmethod
     def iter_descendent_models(kls):
         return []
 
     def iter_publishable(self):
-        for lesson in self.lessons.all():
-            for module in lesson.modules.all():
-                self.current_lesson = lesson
-                self.current_module = module
-                self.current_topic = self.current_module.topic
-                yield self
+        yield self
 
     def iter_pdf_roots(self):
-        for lesson in self.lessons.all():
-            for module in lesson.modules.all():
-                module.current_topic = module.topic
-                yield module
+        yield self.current_module
 
     @property
     def touched_structure_querysets(self):
@@ -528,13 +535,14 @@ class Question(OrderedModel, SCOBase, AttributionMixin, TitleUnicodeMixin):
 
     def set_parent(self, parent):
         super(Question, self).set_parent(parent)
-        self.current_topic = parent.current_module.topic
-        self.current_module = parent.current_module
-        self.current_lesson = parent
         self.current_lesson.set_parent(self.current_module)
 
     def get_parent(self):
         return self.current_lesson
+
+    def get_canonical_page(self):
+        par = self.current_lesson
+        return par if par.is_question and par.first_question.pk == self.pk else self
 
     def save(self, *args, **kwargs):
         if getattr(self, 'fixture_files_only', False):
@@ -548,16 +556,6 @@ class Question(OrderedModel, SCOBase, AttributionMixin, TitleUnicodeMixin):
                     'module_slug': self.current_module.slug,
                     'lesson_slug': self.current_lesson.slug,
                     'slug': self.slug, })
-
-    def get_url_list(self):
-        urls = []
-        for lesson in self.lessons.all():
-            for module in lesson.modules.all():
-                self.current_lesson = lesson
-                self.current_module = module
-                self.current_topic = module.topic
-                urls.append(self.get_absolute_url())
-        return urls
 
     def get_touched_url_list(self, fields_changed=None):
         urls = []

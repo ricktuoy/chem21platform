@@ -43,15 +43,7 @@ class SCOBase(models.Model):
                     return ch
             except AttributeError:
                 pass
-            """
-            ch = self.children.all().exclude(archived=True).order_by('order').first()
-            if ch is not None and ch.dummy and not isinstance(ch, UniqueFile):
-                o = ch
-                o.set_parent(self)
-                sib = o.get_next_sibling()
-                if sib:
-                    return sib
-            """
+
         sib = self.get_next_sibling()
         if sib:
             return sib

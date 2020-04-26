@@ -142,14 +142,11 @@ class PageMixin(object):
         try:
             lesson = Lesson.objects.get(pk=pks[2])
             obj = lesson
-            obj.current_module = module
         except IndexError:
             pass
         try:
             question = Question.objects.get(pk=pks[3])
             obj = question
-            obj.current_lesson = lesson
-            obj.current_module = module
         except IndexError:
             pass
         return obj
