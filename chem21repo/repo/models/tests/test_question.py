@@ -4,7 +4,7 @@ from .. import Question
 
 
 class SCOBaseTestCase(TestCase):
-    fixtures = ['init_data.json']
+    fixtures = ['fixtures/init_data.json']
 
     def test_that_question_objects_know_their_canonical_page(self):
         solvent_selection_need = Question.objects.get(pk=40)
@@ -13,7 +13,7 @@ class SCOBaseTestCase(TestCase):
 
         # should be assigned to the associated lesson
         self.assertEqual(solvent_selection_need.get_canonical_page().id, 114)
-        self.assertEqual(solvent_selection_need.get_canonical_page().get_absolute_url(), "methods-of-facilitating-change/tools-and-guides/the-need-fo-solvent-selection-guides/")
+        self.assertEqual(solvent_selection_need.get_canonical_page().get_absolute_url(), "/methods-of-facilitating-change/tools-and-guides/the-need-fo-solvent-selection-guides/")
         # should be assigned to the associated lesson
         self.assertEqual(solvent_selection_criteria.get_canonical_page().id, 115)
         # should just be assigned to itself

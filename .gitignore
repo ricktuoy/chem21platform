@@ -15,7 +15,6 @@ files_test
 *.bk*
 chem21repo/local.wsgi
 *log*.txt
-*json
 chem21repo/static/SCORM/scorm_template.zip
 site/*
 paper.ris

@@ -3,7 +3,7 @@ from django.test import TestCase
 from .. import Lesson
 
 class SCOBaseTestCase(TestCase):
-    fixtures = ['init_data.json']
+    fixtures = ['fixtures/init_data.json']
 
     def test_that_all_lesson_objects_only_have_one_parent_module(self):
         all_lessons = Lesson.objects.all().exclude(archived=True)
