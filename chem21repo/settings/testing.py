@@ -1,16 +1,26 @@
+from django.core.exceptions import ImproperlyConfigured
+
 from common import *
-import dj_database_url
 
-DATABASES = {
-    "default": dj_database_url.config(default='postgres://localhost'),
-}
+if 'RDS_DB_NAME' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
+        }
+    }
+else:
+    raise ImproperlyConfigured(
+        "No RDS_DB_NAME variable configured. Have you added postgres DB variables to your testing environment?")
 
-REQUIRE_BUILD_PROFILE = '../chem21repo.dev.build.js'
+
 # Use Amazon S3 for static files storage.
-STATIC_URL = "http://learning.chem21.eu.s3-website.eu-central-1.amazonaws.com/"
+STATIC_URL = S3_URL + '/static'
 TINYMCE_JS_URL = "/s3/tiny_mce/tiny_mce.js"
-STATICFILES_STORAGE = "chem21repo.storage.TinyMCEProxyCachedS3BotoStorage"
-
 
 # Cache settings.
 CACHES = {
