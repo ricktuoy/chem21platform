@@ -24,6 +24,7 @@ def disable_for_loaddata(signal_handler):
 
     return wrapper
 
+
 @receiver(models.signals.pre_save)
 @disable_for_loaddata
 def generate_dirty_record(sender,
@@ -34,6 +35,7 @@ def generate_dirty_record(sender,
             and not isinstance(instance, UniqueFile):
         instance.changed = True
 
+
 @receiver(models.signals.pre_save)
 @disable_for_loaddata
 def save_slug(sender, instance, **kwargs):
@@ -41,6 +43,7 @@ def save_slug(sender, instance, **kwargs):
             or isinstance(instance, Topic) or isinstance(instance, Module):
         if not instance.slug:
             instance.slug = slugify(instance.title)
+
 
 @receiver(models.signals.pre_save, dispatch_uid="save_order")
 @disable_for_loaddata
@@ -77,6 +80,7 @@ def create_page(sender, instance, **kwargs):
     instance.page = pg
     instance.save()
 
+
 @receiver(models.signals.post_save, dispatch_uid="set_changed")
 @disable_for_loaddata
 def set_changed(sender, instance, **kwargs):
@@ -84,6 +88,7 @@ def set_changed(sender, instance, **kwargs):
             and not isinstance(instance, UniqueFile):
         for qs in instance.touched_structure_querysets:
             qs.update(changed=True)
+
 
 @receiver(models.signals.m2m_changed)
 @disable_for_loaddata
