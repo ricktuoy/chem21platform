@@ -57257,31 +57257,6 @@
     "fields": {
       "dummy": false,
       "order_dirty": true,
-      "remote_id": 433,
-      "attribution": null,
-      "title": "Case studies",
-      "text": null,
-      "slug": "case-studies",
-      "changed": true,
-      "modules": [
-        18
-      ],
-      "quiz_name": null,
-      "page": null,
-      "is_question": true,
-      "dirty": "[\"question_orders\"]",
-      "template": null,
-      "show_attribution": false,
-      "archived": false,
-      "order": 4
-    },
-    "model": "repo.lesson",
-    "pk": 40
-  },
-  {
-    "fields": {
-      "dummy": false,
-      "order_dirty": true,
       "remote_id": 415,
       "attribution": null,
       "title": "Introduction",
@@ -60597,29 +60572,6 @@
   },
   {
     "fields": {
-      "dummy": false,
-      "order_dirty": true,
-      "remote_id": null,
-      "attribution": null,
-      "title": "Test",
-      "text": "",
-      "slug": "test",
-      "changed": true,
-      "modules": [],
-      "quiz_name": null,
-      "page": null,
-      "is_question": true,
-      "dirty": "[]",
-      "template": null,
-      "show_attribution": false,
-      "archived": false,
-      "order": 1
-    },
-    "model": "repo.lesson",
-    "pk": 190
-  },
-  {
-    "fields": {
       "files": [],
       "dummy": false,
       "order_dirty": true,
@@ -61006,8 +60958,8 @@
   {
     "fields": {
       "files": [
-        1563,
-        1423
+        1423,
+        1563
       ],
       "dummy": true,
       "order_dirty": true,
@@ -61159,8 +61111,8 @@
   {
     "fields": {
       "files": [
-        1434,
-        1221
+        1221,
+        1434
       ],
       "dummy": true,
       "order_dirty": true,
@@ -61187,8 +61139,8 @@
   {
     "fields": {
       "files": [
-        1424,
-        1223
+        1223,
+        1424
       ],
       "dummy": true,
       "order_dirty": true,
@@ -62520,10 +62472,10 @@
   {
     "fields": {
       "files": [
-        1674,
         1267,
         1268,
-        1270
+        1270,
+        1674
       ],
       "dummy": true,
       "order_dirty": true,
@@ -63763,10 +63715,10 @@
   {
     "fields": {
       "files": [
+        1306,
         1522,
         1523,
-        1524,
-        1306
+        1524
       ],
       "dummy": true,
       "order_dirty": true,
@@ -63820,10 +63772,10 @@
   {
     "fields": {
       "files": [
-        1526,
         1308,
         1309,
-        1310
+        1310,
+        1526
       ],
       "dummy": true,
       "order_dirty": true,
@@ -63923,9 +63875,9 @@
   {
     "fields": {
       "files": [
+        1318,
         1593,
-        1594,
-        1318
+        1594
       ],
       "dummy": true,
       "order_dirty": true,
@@ -64029,8 +63981,8 @@
   {
     "fields": {
       "files": [
-        1521,
-        1319
+        1319,
+        1521
       ],
       "dummy": true,
       "order_dirty": true,
@@ -64109,10 +64061,10 @@
   {
     "fields": {
       "files": [
-        1520,
         1321,
         1322,
-        1323
+        1323,
+        1520
       ],
       "dummy": true,
       "order_dirty": true,
@@ -64216,8 +64168,8 @@
   {
     "fields": {
       "files": [
-        1577,
-        1333
+        1333,
+        1577
       ],
       "dummy": false,
       "order_dirty": true,
@@ -64244,8 +64196,6 @@
   {
     "fields": {
       "files": [
-        1335,
-        1334,
         1324,
         1325,
         1326,
@@ -64254,7 +64204,9 @@
         1329,
         1330,
         1331,
-        1332
+        1332,
+        1334,
+        1335
       ],
       "dummy": false,
       "order_dirty": true,
@@ -64724,7 +64676,7 @@
         116
       ],
       "title": "Example: Sanofi solvent selection guide",
-      "text": "<p><span>In this video, Denis Prat talks us through the Sanofi solvent selection guide.[bib]10.1021/op4002565[/bib].</span></p>",
+      "text": "<p>In this video, Denis Prat talks us through the Sanofi solvent selection guide.[bib]10.1021/op4002565[/bib].</p>",
       "changed": true,
       "quiz_name": "",
       "slug": "example-sanofi-solvent-selection-guide",
@@ -64816,9 +64768,9 @@
   {
     "fields": {
       "files": [
+        1492,
         1578,
-        1579,
-        1492
+        1579
       ],
       "dummy": false,
       "order_dirty": true,
@@ -65161,8 +65113,8 @@
   {
     "fields": {
       "files": [
-        1576,
-        1448
+        1448,
+        1576
       ],
       "dummy": false,
       "order_dirty": true,
@@ -66874,8 +66826,8 @@
   {
     "fields": {
       "files": [
-        1544,
-        1543
+        1543,
+        1544
       ],
       "dummy": true,
       "order_dirty": true,
@@ -66986,8 +66938,8 @@
   {
     "fields": {
       "files": [
-        1552,
-        1551
+        1551,
+        1552
       ],
       "dummy": true,
       "order_dirty": true,
@@ -67158,7 +67110,7 @@
         27
       ],
       "title": "Summary and further reading",
-      "text": "<p>Route selection is at the foundation of designing a route that meets operational, environmental, legal and economic factors. The following are a selection of just some of the tools that are available to provide information and assistance with route selection:</p>\r\n<ul type=\"disc\">\r\n<li><a href=\"http://www.cas.org/products/scifinder\">SciFinder</a></li>\r\n<li><a href=\"https://www.elsevier.com/solutions/reaxys\">Reaxys</a></li>\r\n<li><a href=\"https://www.thieme.de/en/thieme-chemistry/science-of-synthesis-54780.htm\">Science of Synthesis</a></li>\r\n<ul type=\"circle\">\r\n<li><em>Information arranged according to structure</em></li>\r\n</ul>\r\n<li><a href=\"https://integrity.thomson-pharma.com/integrity/xmlxsl/\">Prous Science Integrity</a></li>\r\n<ul type=\"circle\">\r\n<li><em>Compounds which have entered clinical trials</em></li>\r\n</ul>\r\n<li><a href=\"http://www.row2technologies.com/smartchem.php\">Smartchem</a></li>\r\n<ul type=\"circle\">\r\n<li><em>Database of bulk chemicals</em></li>\r\n</ul>\r\n<li><a href=\"https://www.spresi.com/\">Spresi</a></li>\r\n<li><a href=\"http://chemplanner.com/\">Wiley ChemPlanner</a></li>\r\n<li><a href=\"https://scholar.google.co.uk/\">Google Scholar</a>&nbsp;&nbsp;</li>\r\n</ul>\r\n<p><span>These tools enable information to be sourced for route selection: ranging from searching for existing synthesis routes to an API; information and physical data on existing intermediate compounds; reagents and transformations; patents and even designing novel synthetic routes to a given target molecule.&nbsp;</span></p>\r\n<p><strong>Recommended reading:</strong></p>\r\n<p>There are also a wealth of journal articles and printed books on the subject. Here is a selection for further reading:</p>\r\n<p>[ibib]10.1039/C1CS15041C[/ibib]</p>\r\n<p>[ibib]10.1021/op200264t[/ibib]&nbsp;</p>\r\n<p>[ibib]10.1021/op300144g[/ibib]&nbsp;</p>\r\n<p>[ibib]10.1021/cr050982w[/ibib]</p>\r\n<p>[ibib]10.1126/science.1174501[/ibib]&nbsp;</p>\r\n<p>[ibib]10.1021/ar800257v[/ibib]</p>\r\n<p>[ibib]10.1021/op034165e[/ibib]&nbsp;</p>\r\n<p>[ibib]10.1021/op200270f[/ibib]<strong><br /></strong></p>\r\n<p>[ibib]10.1039/C3GC36854H[/ibib]</p>\r\n<p>[ibib]10.1002/adsc.201100488[/ibib]</p>\r\n<p>[ibib]10.1021/cr040677v[/ibib]<strong><br /></strong></p>\r\n<p>[ibib]10.1021/op0102114[/ibib]</p>\r\n<p>[ibib]10.1039/C3GC41376D[/ibib]</p>\r\n<p>[ibib]http://www.nature.com/nchem/journal/v5/n7/abs/nchem.1669.html#supplementary-information[/ibib]<strong><br /></strong></p>\r\n<p>[ibib]1052[/ibib]</p>\r\n<p>[ibib]529[/ibib]</p>\r\n<p><strong>&nbsp;</strong></p>",
+      "text": "<p>Route selection is at the foundation of designing a route that meets operational, environmental, legal and economic factors. The following are a selection of just some of the tools that are available to provide information and assistance with route selection:</p>\r\n<ul type=\"disc\">\r\n<li><a href=\"http://www.cas.org/products/scifinder\">SciFinder</a></li>\r\n<li><a href=\"https://www.elsevier.com/solutions/reaxys\">Reaxys</a></li>\r\n<li><a href=\"https://www.thieme.de/en/thieme-chemistry/science-of-synthesis-54780.htm\">Science of Synthesis</a>\r\n<ul type=\"circle\">\r\n<li><em>Information arranged according to structure</em></li>\r\n</ul>\r\n</li>\r\n<li><a href=\"https://integrity.thomson-pharma.com/integrity/xmlxsl/\">Prous Science Integrity</a>\r\n<ul type=\"circle\">\r\n<li><em>Compounds which have entered clinical trials</em></li>\r\n</ul>\r\n</li>\r\n<li><a href=\"http://www.row2technologies.com/smartchem.php\">Smartchem</a>\r\n<ul type=\"circle\">\r\n<li><em>Database of bulk chemicals</em></li>\r\n</ul>\r\n</li>\r\n<li><a href=\"https://www.spresi.com/\">Spresi</a></li>\r\n<li><a href=\"http://chemplanner.com/\">Wiley ChemPlanner</a></li>\r\n<li><a href=\"https://scholar.google.co.uk/\">Google Scholar</a>&nbsp;&nbsp;</li>\r\n</ul>\r\n<p><span>These tools enable information to be sourced for route selection: ranging from searching for existing synthesis routes to an API; information and physical data on existing intermediate compounds; reagents and transformations; patents and even designing novel synthetic routes to a given target molecule.&nbsp;</span></p>\r\n<p><strong>Recommended reading:</strong></p>\r\n<p>There are also a wealth of journal articles and printed books on the subject. Here is a selection for further reading:</p>\r\n<p>[ibib]10.1039/C1CS15041C[/ibib]</p>\r\n<p>[ibib]10.1021/op200264t[/ibib]&nbsp;</p>\r\n<p>[ibib]10.1021/op300144g[/ibib]&nbsp;</p>\r\n<p>[ibib]10.1021/cr050982w[/ibib]</p>\r\n<p>[ibib]10.1126/science.1174501[/ibib]&nbsp;</p>\r\n<p>[ibib]10.1021/ar800257v[/ibib]</p>\r\n<p>[ibib]10.1021/op034165e[/ibib]&nbsp;</p>\r\n<p>[ibib]10.1021/op200270f[/ibib]<strong><br /></strong></p>\r\n<p>[ibib]10.1039/C3GC36854H[/ibib]</p>\r\n<p>[ibib]10.1002/adsc.201100488[/ibib]</p>\r\n<p>[ibib]10.1021/cr040677v[/ibib]<strong><br /></strong></p>\r\n<p>[ibib]10.1021/op0102114[/ibib]</p>\r\n<p>[ibib]10.1039/C3GC41376D[/ibib]</p>\r\n<p>[ibib]http://www.nature.com/nchem/journal/v5/n7/abs/nchem.1669.html#supplementary-information[/ibib]<strong><br /></strong></p>\r\n<p>[ibib]1052[/ibib]</p>\r\n<p>[ibib]529[/ibib]</p>\r\n<p><strong>&nbsp;</strong></p>",
       "changed": true,
       "quiz_name": "",
       "slug": "summary-and-further-reading",
@@ -67646,8 +67598,8 @@
   {
     "fields": {
       "files": [
-        1627,
-        1598
+        1598,
+        1627
       ],
       "dummy": false,
       "order_dirty": true,
@@ -67913,9 +67865,9 @@
   {
     "fields": {
       "files": [
+        1613,
         1625,
-        1626,
-        1613
+        1626
       ],
       "dummy": false,
       "order_dirty": true,
@@ -68173,8 +68125,8 @@
   {
     "fields": {
       "files": [
-        1672,
-        1671
+        1671,
+        1672
       ],
       "dummy": false,
       "order_dirty": true,
@@ -70928,9 +70880,7 @@
       "order_dirty": true,
       "byline": "",
       "attribution": null,
-      "lessons": [
-        40
-      ],
+      "lessons": [],
       "title": "Case studies",
       "text": "",
       "changed": true,
@@ -72431,9 +72381,7 @@
       "order_dirty": true,
       "byline": "",
       "attribution": null,
-      "lessons": [
-        190
-      ],
+      "lessons": [],
       "title": "Test",
       "text": "",
       "changed": true,
