@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib import admin
 
+from .base import BaseModelAdmin
+
 
 def register_modeladmin(fn):
     def wrapper(*args, **kwargs):
@@ -67,7 +69,7 @@ def create_admin(
             ]
         final_admin = type(
             "NewAdmin",
-            (admin.ModelAdmin,),
+            (BaseModelAdmin, ),
             {'__module__': '', 'Media': Media})
     else:
         final_admin = base_admin

@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 from chem21repo.repo.admin.user import LocalUserForm
 from factories import create_admin, create_power_admin
+from .base import BaseModelAdmin
 from ..models import *
 from ..shortcodes import HTMLShortcodeParser
 from ..shortcodes.errors import BlockNotFoundError
@@ -14,7 +15,7 @@ admin.site.unregister(User)
 
 
 @admin.register(User)
-class LocalUserAdmin(admin.ModelAdmin):
+class LocalUserAdmin(BaseModelAdmin):
     form = LocalUserForm
     model = User
 
@@ -23,8 +24,6 @@ create_admin(
     fields=['name', 'code', 'text'],
     hidden_fields=['topic', ],
 )
-
-
 
 
 class BiblioAdmin(admin.ModelAdmin):
@@ -92,7 +91,7 @@ create_admin(
     base_admin=PresentationActionAdmin)
 
 
-class QuestionAdmin(admin.ModelAdmin):
+class QuestionAdmin(BaseModelAdmin):
     def get_urls(self):
         from django.conf.urls import url
         urls = super(QuestionAdmin, self).get_urls()
@@ -125,7 +124,6 @@ class QuestionAdmin(admin.ModelAdmin):
             shortcode.update(**request.POST)
         return shortcode.get_form(question)
 
-
     def edit_figure(self, request, qpk, block_id):
         context = {}
         try:
@@ -137,14 +135,14 @@ class QuestionAdmin(admin.ModelAdmin):
         renderer = renderers[0]
         form = self.get_shortcode_form(request, renderer, question)
         if request.method == "POST" and form.is_valid():
-            #shortcode.update(**form.cleaned_data)
+            # shortcode.update(**form.cleaned_data)
             new_html = parser.replace_shortcode(block_id, renderer)
             question.text = new_html
             question.save()
             return self._redirect(request)
         context['form'] = form
         context['token_type'] = 'figure'
-        #context['token'] = token
+        # context['token'] = token
         context['title'] = "Edit figure"
         return render(request, "admin/question_figure_form.html", context)
 
@@ -192,7 +190,7 @@ class QuestionAdmin(admin.ModelAdmin):
 create_admin(
     model=Question,
     hidden_fields=['lessons', ],
-    fields=["title", 'text', 'byline'],
+    fields=["title", 'text'],
     base_admin=QuestionAdmin)
 
 for md in [Question, UniqueFile, Author,

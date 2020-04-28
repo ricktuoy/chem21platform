@@ -541,8 +541,34 @@ class Question(OrderedModel, SCOBase, AttributionMixin, TitleUnicodeMixin):
         return self.current_lesson
 
     def get_canonical_page(self):
-        par = self.current_lesson
-        return par if par.is_question and par.first_question.pk == self.pk else self
+        pg = self._get_canonical_parent_via_page_relation()
+        return pg if pg else self
+
+    def _get_canonical_parent_via_page_relation(self):
+        return self.page_of_lesson if self.page_of_lesson else \
+            self.page_of_module if self.page_of_module else \
+            self.page_of_topic if self.page_of_topic else None
+
+    @property
+    def page_of_lesson(self):
+        try:
+            return Lesson.objects.get(page=self)
+        except Lesson.DoesNotExist:
+            return None
+
+    @property
+    def page_of_module(self):
+        try:
+            return Module.objects.get(page=self)
+        except Module.DoesNotExist:
+            return None
+
+    @property
+    def page_of_topic(self):
+        try:
+            return Topic.objects.get(page=self)
+        except Topic.DoesNotExist:
+            return None
 
     def save(self, *args, **kwargs):
         if getattr(self, 'fixture_files_only', False):
