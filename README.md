@@ -16,6 +16,7 @@ _note that this part won't be needed for production as there's already a bucket 
 4. Set up a local Python virtualenv for the app, using requirements.txt in the repository.
 5. Set yourself up to run the requireJS optimiser from the top level of the checked out repository.  It's easiest to do this with node: `npm install -g requirejs`
 6. At the top level of this repository, run the following commands to collect, build and deploy all static resources:
+
 - ` python manage.py collectstatic `
 - ` r.js -o require-build.js `
 - ` aws s3 sync collected-static/deploy/ s3://<BUCKET_NAME>/static/ `
@@ -36,32 +37,48 @@ The `setenv.template.sh` template contains the details of all needed env variabl
 A quick description:
 
 #### Django secret key
-SECRET_KEY
 
-#### To be able to view at elasticbeanstalk.com domains:
+```
+SECRET_KEY=<UNIQUE_APP_KEY>
+```
+
+
+#### Enable elasticbeanstalk.com domains:
+
+```
 DJANGO_AWS_EB_TEST = 1
+```
 
 #### PDF generation
+```
 WKHTMLTOPDF_CMD = wkhtmltopdf
+```
 
 #### AWS S3 access
 (used by django-storages/s3boto to treat S3 bucket as a file storage)
 See deployment instructions above for setting up the access credentials.
-AWS_ACCESS_KEY
+```AWS_ACCESS_KEY
 AWS_SECRET_ACCESS_KEY
 AWS_STORAGE_BUCKET_NAME
 AWS_STORAGE_REGION
+```
 
 #### Google Oauth 2
 See below for setting up Google API credentials
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+```SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
+```
 
 ### Google API Oauth2 config
 
-Create a project in the Google API console.  Enable:
-- Google+ API (deprecated!)
-- YouTube Data API v3
-Under credentials:
-Create Oauth (2.0) web application credential with the required domain origins.  This will provide key/secret for social auth environment vars.
+- Create a project in the Google API console 
+- Set up an OAuth consent screen
+
+- Under credentials, create an OAuth Client ID with application type "Web application" and the required authorised redirect URIs.  
+
+Redirect URIs will be, for any domains you need to use authentication on: 
+- <CMS_DOMAIN>/complete/google-oauth2
+- <CMS_DOMAIN>/complete/google-oauth2/
+
+Once the client has been created, you will be shown the key and secret for social auth environment vars as described above.
