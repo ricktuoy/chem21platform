@@ -87,7 +87,6 @@ class OrderedManagerBase:
     def _reset_order(self):
         i = 1
         for o in self.order_queryset().order_by(self.order_field):
-            print i
             self.set_order_value(o, i)
             i += 1
             o.save()

@@ -49,7 +49,6 @@ def save_slug(sender, instance, **kwargs):
 @disable_for_loaddata
 def save_order(sender, instance, **kwargs):
     if not (
-            isinstance(instance, Lesson) or
             isinstance(instance, Topic) or
             isinstance(instance, Module)):
         return
@@ -120,5 +119,5 @@ def save_m2m_order(
                 new_order = child_model.objects.new_order_val
                 if new_order > c.order:
                     c.order = new_order
-            child_model.objects._ensure_order_consistent()
             c.save()
+            child_model.objects._ensure_order_consistent()

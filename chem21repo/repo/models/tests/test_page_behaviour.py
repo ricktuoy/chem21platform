@@ -27,7 +27,6 @@ class PageSaveTestCase(TestCase):
         self.assertEqual(name, page.title)
 
         # and the question's canonical url is the same as its parent
-        print page.get_canonical_page().get_absolute_url()
         self.assertTrue(page.get_canonical_page().get_absolute_url())
         self.assertEqual(page.get_canonical_page().get_absolute_url(), self.module.get_absolute_url())
 
@@ -47,6 +46,5 @@ class PageSaveTestCase(TestCase):
         self.assertEqual(name, page.title)
 
         # and the question's canonical url is the same as its parent
-        print page.get_canonical_page().get_absolute_url()
         self.assertTrue(page.get_canonical_page().get_absolute_url())
         self.assertEqual(page.get_canonical_page().get_absolute_url(), test_lesson.get_absolute_url())
