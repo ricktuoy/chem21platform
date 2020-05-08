@@ -1,0 +1,20 @@
+#!/usr/bin/sh
+# This hook is sourced after this virtualenv is activated.
+
+export DJANGO_DEVELOPMENT=true
+export SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=
+export SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=
+export AWS_STORAGE_BUCKET_NAME=
+export AWS_STORAGE_REGION=
+export AWS_SECRET_ACCESS_KEY=
+export AWS_ACCESS_KEY=
+export CHEM21_SUPERUSERS={\"\":\"\"}
+export DJANGO_EB_TEST=true
+export DJANGO_DEBUG=true
+export SECRET_KEY=
+export RDS_DB_NAME=
+export RDS_USERNAME=
+export RDS_PASSWORD=
+export RDS_HOSTNAME=
+export RDS_PORT=
+

@@ -1,5 +1,27 @@
 # Chem21 CMS
 
+## Local development
+
+### Setting up local environment
+
+1. Set up a local Python 2.7 virtualenv for the app, using `requirements.txt` in the repository:
+```mkvirtualenv <MY_ENV_NAME> -p PATH/TO/PYTHON_EXEC/python2.7 -r requirements.txt```
+2. Copy the `local.postactivate.template` file to `bin/postactivate` within your virtualenv directory and populate it with local environment var settings (see below)
+3. Set yourself up to run the requireJS optimiser from the top level of the checked out repository.  It's easiest to do this with node: `npm install -g requirejs`
+4. copy `chem21repo/settings/local.template.py` to `chem21repo/settings/local.py` (and customise for local dev if needed).
+5. pull down git submodules:
+
+``` 
+git submodule init
+git submodule update
+```
+
+### Useful commands
+```
+python manage.py test
+python manage.py runserver --nostatic
+```
+
 ## Deploying to AWS - step-by-step
 
 Note that you'll want separate S3 buckets and EB deployments for each environment (production, staging, etc)
@@ -7,15 +29,15 @@ These notes assume knowledge of AWS S3, IAM, Elastic Beanstalk. Also Python/Djan
 
 Some/all of this infrastructure deployment process could probably be automated as a Cloudformation stack/equivalent.
 
+
 ### Set up the published site bucket with static resources
 _note that this part won't be needed for production as there's already a bucket set up_
 
 1. Create an S3 bucket for the published site.  Set it up to serve a public website. 
 2. Create an IAM deployment user/role for yourself, that has read-right permissions on the bucket
-3. Download and configure the AWS CLI if you haven't
-4. Set up a local Python virtualenv for the app, using requirements.txt in the repository.
-5. Set yourself up to run the requireJS optimiser from the top level of the checked out repository.  It's easiest to do this with node: `npm install -g requirejs`
-6. At the top level of this repository, run the following commands to collect, build and deploy all static resources:
+3. Set up your local development environment if you haven't (see instructions above)
+4. Download and configure the AWS CLI if you haven't
+5. At the top level of this repository, run the following commands to collect, build and deploy all static resources:
 
 ```
 python manage.py collectstatic
@@ -35,7 +57,10 @@ aws s3 sync collected-static/deploy/ s3://<BUCKET_NAME>/static/
 
 ### Environment variables
 
-The `setenv.template.sh` template contains the details of all needed env variables, which you can populate with your own settings.
+The `setenv.template.sh` template contains the details of all needed env variables for deployment.
+The `local.postactivate.template` is similar, but for local development - add copy to `bin/postactivate` in you local virtualenv directory.
+
+You can populate them with your own settings.
 A quick description:
 
 #### Django secret key
@@ -44,6 +69,15 @@ A quick description:
 SECRET_KEY=<UNIQUE_APP_KEY>
 ```
 
+#### Flag for local development
+
+```
+DJANGO_DEVELOPMENT=true
+```
+
+This tells the app to look for the `chem21repo/settings/local.py` file (which is gitignored) when initialising.  
+
+There's a copy of this file at `chem21repo/settings/local.template.py` which you can copy to `chem21repo/settings/local.py` and customise for local dev.
 
 #### Enable elasticbeanstalk.com domains:
 
@@ -52,6 +86,7 @@ DJANGO_AWS_EB_TEST = 1
 ```
 
 #### PDF generation
+
 ```
 WKHTMLTOPDF_CMD = wkhtmltopdf
 ```
@@ -59,6 +94,7 @@ WKHTMLTOPDF_CMD = wkhtmltopdf
 #### AWS S3 access
 (used by django-storages/s3boto to treat S3 bucket as a file storage)
 See deployment instructions above for setting up the access credentials.
+
 ```AWS_ACCESS_KEY
 AWS_SECRET_ACCESS_KEY
 AWS_STORAGE_BUCKET_NAME
@@ -68,7 +104,8 @@ AWS_STORAGE_REGION
 #### Google Oauth 2
 See below for setting up Google API credentials
 
-```SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+```
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
 ```
 
