@@ -1,13 +1,13 @@
 from django.test import TestCase
 
-from .. import Lesson, Module, Topic, Question
+from .helpers import Initialiser
+from .. import Module
 
 
 class PageOrderTestCase(TestCase):
 
     def setUp(self):
-        self.topic = Topic(name="Topic")
-        self.topic.save()
+        self.topic = Initialiser.create_base_topic()
 
     def test_that_saving_a_module_to_a_topic_adds_it_at_the_end(self):
         modules = []
@@ -25,8 +25,8 @@ class PageOrderTestCase(TestCase):
         module = Module(topic=self.topic, name='Fake module', code='FAKE')
         module.save()
 
-        lessons = self._add_lessons_to_module(module, range(0, 4))
-    
+        lessons = Initialiser.add_lessons_to_module(module, range(0, 4))
+
         self.assertEqual(module.get_next_object().title, lessons[0].title)
         self.assertEqual(lessons[0].get_previous_object().title, module.title)
 
@@ -35,8 +35,8 @@ class PageOrderTestCase(TestCase):
             self.assertEqual(lessons[i].get_previous_object().title, lessons[i - 1].title)
 
     def test_that_saving_a_question_to_a_lesson_adds_it_at_the_end(self):
-        lesson = self._create_base_lesson()
-        questions = self._add_questions_to_lesson(lesson, range(0, 4))
+        lesson = Initialiser.create_base_lesson(self.topic)
+        questions = Initialiser.add_questions_to_lesson(lesson, range(0, 4))
 
         self.assertEqual(lesson.get_next_object().title, questions[0].title)
         self.assertEqual(questions[0].get_previous_object().title, lesson.title)
@@ -45,49 +45,5 @@ class PageOrderTestCase(TestCase):
             self.assertEqual(questions[i].get_previous_object().title, questions[i - 1].title)
 
     def test_that_moving_a_question_up_generates_the_right_ordering(self):
-        lesson = self._create_base_lesson()
-        questions = self._add_questions_to_lesson(lesson, range(0, 10))
-
-    def _create_base_module(self):
-        module = Module(topic=self.topic, name='Base module', code='BASE')
-        module.save()
-        return module
-
-    def _create_base_lesson(self):
-        module = self._create_base_module()
-        lesson = Lesson(title='Base lesson')
-        lesson.save()
-        lesson.modules.add(module)
-        return lesson
-
-    def _add_lessons_to_module(self, module, rng):
-        lessons = []
-        pks = []
-
-        for i in rng:
-            les = Lesson(title='Lesson %s' % str(i))
-            les.save()
-            les.modules.add(module)
-            les.save()
-            pks.append(les.pk)
-
-        for i in rng:
-            lessons.append(Lesson.objects.get(pk=pks[i]))
-
-        return lessons
-
-    def _add_questions_to_lesson(self, lesson, rng):
-        questions = []
-        pks = []
-
-        for i in rng:
-            q = Question(title='Question %s' % str(i))
-            q.save()
-            q.lessons.add(lesson)
-            q.save()
-            pks.append(q.pk)
-
-        for i in rng:
-            questions.append(Question.objects.get(pk=pks[i]))
-
-        return questions
+        lesson = Initialiser.create_base_lesson(self.topic)
+        questions = Initialiser.add_questions_to_lesson(lesson, range(0, 10))
