@@ -106,6 +106,10 @@ class Topic(
     icon = FileBrowseField(max_length=500, null=True)
 
     @property
+    def title(self):
+        return self.name
+
+    @property
     def is_question(self):
         return False
 
@@ -200,6 +204,10 @@ class Module(
     is_question = models.BooleanField(default=False)
     _child_orders = {}
     child_attr_name = "lessons"
+
+    @property
+    def title(self):
+        return self.name
 
     @property
     def current_topic(self):
