@@ -6,6 +6,6 @@ eb setenv AWS_STORAGE_REGION=<YOUR_STORAGE_REGION>
 eb setenv AWS_SECRET_ACCESS_KEY=<YOUR_IAM_SECRET_ACCESS_KEY>
 eb setenv AWS_ACCESS_KEY=<YOUR_IAM_ACCESS_KEY>
 eb setenv CHEM21_SUPERUSERS={\"<YOUR_SUPERUSERNAME>\":\"<YOUR_SUPERUSER_EMAIL>\",\"<YOUR_SUPERUSERNAME2>\":\"<YOUR_SUPERUSER_EMAIL2>\"}
-eb setenv DJANGO_EB_TEST=true|false # true allows elasticbeanstalk hosts 
+eb setenv DJANGO_AWS_EB_TEST=true|false # true allows elasticbeanstalk hosts 
 eb setenv SECRET_KEY=A_VERY_SECRT_KEY # autogenerate this for your app
 
