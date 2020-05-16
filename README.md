@@ -6,10 +6,20 @@
 
 1. Set up a local Python 2.7 virtualenv for the app, using `requirements.txt` in the repository:
 ```mkvirtualenv <MY_ENV_NAME> -p PATH/TO/PYTHON_EXEC/python2.7 -r requirements.txt```
-2. Copy the `local.postactivate.template` file to `bin/postactivate` within your virtualenv directory and populate it with local environment var settings (see below)
-3. Set yourself up to run the requireJS optimiser from the top level of the checked out repository.  It's easiest to do this with node: `npm install -g requirejs`
-4. copy `chem21repo/settings/local.template.py` to `chem21repo/settings/local.py` (and customise for local dev if needed).
-5. pull down git submodules:
+2. You will probably want to set up a local postgresql database for development.  To run Django tests, you'll need a database user with sufficiently high privileges to be able to create new databases itself. 
+3. Copy the `local.postactivate.template` file to `bin/postactivate` within your virtualenv directory and populate it with local environment var settings (see below).  In particular if you are using a local database for development, assign the credentials here.
+4. If you're using a local database for development, you can initialise it by following the same steps as are run in the .ebextensions pipeline on AWS deployment, specifically:
+    
+   ```
+    python manage.py migrate
+    python manage.py initialise_data fixtures/init_data.json
+    python manage.py create_su
+    ```
+    
+    These commands 1. set up the database schema, 2. populate it with existing CMS content from a JSON fixture, then 3. create the superusers specified in environment variables (from step 3 above).
+5. Set yourself up to run the requireJS optimiser from the top level of the checked out repository.  It's easiest to do this with node: `npm install -g requirejs`
+6. copy `chem21repo/settings/local.template.py` to `chem21repo/settings/local.py` (and customise for local dev if needed).
+7. pull down git submodules:
 
 ``` 
 git submodule init
