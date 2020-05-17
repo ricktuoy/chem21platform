@@ -67,9 +67,8 @@ class PageOrderTestCase(TestCase):
         lesson = Lesson.objects.get(pk=lesson.pk)
         questions = [Question.objects.get(pk=q.pk) for q in questions]
 
-        expected_order = [lesson, ] + questions[0:2] + questions[3:10] + [questions[2],]
+        expected_order = [lesson, ] + questions[0:2] + questions[3:10] + [questions[2], ]
         self._assert_that_cms_order_matches_array_order(expected_order)
-
 
     def test_that_moving_a_lesson_to_top_generates_the_right_ordering(self):
         module = Initialiser.create_base_module(self.topic)

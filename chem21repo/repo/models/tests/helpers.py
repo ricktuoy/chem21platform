@@ -5,7 +5,7 @@ class Initialiser(object):
 
     @staticmethod
     def create_base_topic():
-        topic =Topic(name="Topic")
+        topic = Topic(name="Topic")
         topic.save()
         return topic
 
@@ -56,3 +56,10 @@ class Initialiser(object):
             questions.append(Question.objects.get(pk=pks[i]))
 
         return questions
+
+    @staticmethod
+    def create_question_with_ancestors():
+        topic = Initialiser.create_base_topic()
+        lesson = Initialiser.create_base_lesson(topic)
+        questions = Initialiser.add_questions_to_lesson(lesson, range(0, 1))
+        return questions[0]

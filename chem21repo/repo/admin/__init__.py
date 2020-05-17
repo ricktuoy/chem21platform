@@ -8,7 +8,7 @@ from .base import BaseModelAdmin
 from ..models import *
 from ..shortcodes import HTMLShortcodeParser
 from ..shortcodes.errors import BlockNotFoundError
-from ..shortcodes.renderers import FigureGroupRenderer
+from ..shortcodes.renderers import FigureGroupRenderer, FigureRenderer
 from ..views import BibTeXUploadView, LoadFromGDocView
 
 admin.site.unregister(User)
@@ -18,6 +18,7 @@ admin.site.unregister(User)
 class LocalUserAdmin(BaseModelAdmin):
     form = LocalUserForm
     model = User
+
 
 create_admin(
     model=Module,
@@ -133,9 +134,8 @@ class QuestionAdmin(BaseModelAdmin):
         parser = HTMLShortcodeParser(question.text)
         renderers = parser.get_renderers(block_id)
         renderer = renderers[0]
-        form = self.get_shortcode_form(request, renderer, question)
+        form = renderer.get_form(question, request.POST or None)
         if request.method == "POST" and form.is_valid():
-            # shortcode.update(**form.cleaned_data)
             new_html = parser.replace_shortcode(block_id, renderer)
             question.text = new_html
             question.save()
@@ -152,9 +152,13 @@ class QuestionAdmin(BaseModelAdmin):
             question = Question.objects.get(pk=qpk)
         except Question.DoesNotExist:
             raise Http404("Question does not exist")
-        renderer = FigureGroupRenderer()
-        form = self.get_shortcode_form(request, renderer, question)
+
+        form = FigureGroupRenderer.get_form(question, request.POST or None)
         if request.method == "POST" and form.is_valid():
+            images_pks = request.POST['media'] if isinstance(request.POST['media'], list) else [request.POST['media'],]
+            images = [UniqueFile.objects.get(id=pk) for pk in images_pks]
+            subrenderers = [FigureRenderer(file_obj=image) for image in images]
+            renderer = FigureGroupRenderer(figures=subrenderers, layout=request.POST['layout'])
             parser = HTMLShortcodeParser(question.text)
             new_html = parser.insert_shortcode(block_id, renderer)
             question.text = new_html

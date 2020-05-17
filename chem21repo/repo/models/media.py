@@ -91,10 +91,6 @@ class UniqueFile(OrderedModel, SCOBase):
         self.checksum, self.ext = os.path.splitext(val)
         if not self.title:
             self.title = self.checksum
-        try:
-            self.path = self.local_paths[0]
-        except IndexError:
-            pass
         mime = mimetypes.guess_type(val)
         self.type = mime[0].split("/")[0]
 
