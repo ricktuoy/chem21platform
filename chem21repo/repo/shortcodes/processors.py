@@ -22,6 +22,7 @@ from django.utils.html import strip_tags
 import logging
 import re
 
+
 class FigureProcessor(TokenShortcodeProcessor):
     name = "figure"
     renderer = FigureRenderer
@@ -49,7 +50,7 @@ class FigureProcessor(TokenShortcodeProcessor):
 
 class FigCaptionProcessor(TagShortcodeProcessor):
     name = "figcaption"
-    renderer = lambda self, caption: caption 
+    renderer = lambda self, caption: caption
 
     def renderer_args(self, caption):
         return [caption, ], {}
@@ -57,11 +58,10 @@ class FigCaptionProcessor(TagShortcodeProcessor):
 
 class TableCaptionProcessor(TagShortcodeProcessor):
     name = "caption"
-    renderer = lambda self, caption: caption 
+    renderer = lambda self, caption: caption
 
     def renderer_args(self, caption):
         return [caption, ], {}
-
 
 
 class FigureGroupProcessor(TagShortcodeProcessor):
@@ -72,7 +72,6 @@ class FigureGroupProcessor(TagShortcodeProcessor):
         figures = FigureProcessor(content).renderers()
         captions = FigCaptionProcessor(content).renderers()
         layouts_set = frozenset(layout.split(" "))
-        #print "+++++++++++++++++++++++++++"
         return [], {
             'figures': figures,
             'captions': captions,
@@ -86,9 +85,6 @@ class TableProcessor(TagShortcodeProcessor):
 
     def renderer_args(self, content, layout=""):
         captions = FigCaptionProcessor(content).renderers()
-        #print "~~~~~~~~~~~~~~~~~~~~" + content
-        #html = HTMLShortcodeParser(content).remove_shortcodes(["figcaption", ])
-        #print "********************" + html
         html = re.sub(r"\[figcaption\].*?\[\/figcaption\]", "", content)
 
         layouts_set = frozenset(layout.split(" "))
@@ -127,7 +123,7 @@ class BiblioInlineProcessor(TagShortcodeProcessor):
 
 
 class PageMixin(object):
-    def _get_page(self, *pks):
+    def _get_page_object_from_pk_list(self, pks):
         obj = None
         try:
             topic = Topic.objects.get(pk=pks[0])
@@ -151,14 +147,25 @@ class PageMixin(object):
             pass
         return obj
 
+    def _get_page(self, *pks):
+        try:
+            obj = self._get_page_object_from_pk_list(pks)
+        except (Topic.DoesNotExist, Module.DoesNotExist, Lesson.DoesNotExist, Question.DoesNotExist):
+            obj = None
+        return obj
+
 
 class InternalLinkProcessor(PageMixin, TagShortcodeProcessor):
     name = "inlink"
     renderer = InternalLinkRenderer
 
     def renderer_args(self, content, *page_pks):
+        try:
+            page = self._get_page(*[int(x) for x in page_pks])
+        except ValueError:
+            page = None
         return [], {
-            'page': self._get_page(*[int(x) for x in page_pks]),
+            'page': page,
             'inner_html': content}
 
 
@@ -167,8 +174,12 @@ class CTAProcessor(PageMixin, TokenShortcodeProcessor):
     renderer = CTARenderer
 
     def renderer_args(self, *page_pks):
+        try:
+            page = self._get_page(*[int(x) for x in page_pks])
+        except ValueError:
+            page = None
         return [], {
-            'page': self._get_page(*[int(x) for x in page_pks])
+            'page': page
         }
 
 

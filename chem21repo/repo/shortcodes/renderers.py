@@ -36,7 +36,8 @@ class FigureGroupRenderer(TagShortcodeRenderer):
     def reset_counter(cls):
         cls.counts = {}
 
-    def get_form(self, question, *args, **kwargs):
+    @classmethod
+    def get_form(cls, question, *args, **kwargs):
         return FigureGroupForm(question, *args, **kwargs)
 
     def get_html(self):
@@ -101,7 +102,8 @@ class TableRenderer(TagShortcodeRenderer):
         self.captions = captions
         self.layout = layout
 
-    def get_form(self, question, *args, **kwargs):
+    @classmethod
+    def get_form(cls, question, *args, **kwargs):
         return TableForm(question, *args, **kwargs)
 
     def get_html(self):
@@ -110,7 +112,6 @@ class TableRenderer(TagShortcodeRenderer):
         return caps + self.table_html
 
     def shortcode_args(self):
-        #layout = self.layout
         return []
 
     def shortcode_content(self):
@@ -220,7 +221,7 @@ class InternalLinkRenderer(BaseShortcodeRenderer):
 
     def get_html(self):
         return "<a class=\"internal\" href=\"%s\">%s</a>" % (
-            self.page.get_absolute_url(), self.inner_html)
+            self.page.get_absolute_url(), self.inner_html) if self.page else self.inner_html
 
 
 class CTARenderer(TokenShortcodeRenderer):
@@ -232,7 +233,7 @@ class CTARenderer(TokenShortcodeRenderer):
     def get_html(self):
 
         return "<p class=\"cta\">To study this area in more depth, see <a href=\"%s\"><span class=\"subject_title\">%s</span></a></p>" % (
-            self.page.get_absolute_url(), self.page.title)
+            self.page.get_absolute_url(), self.page.title) if self.page else ""
 
     def shortcode_args(self):
         args = []
@@ -278,6 +279,7 @@ class GHSStatementRenderer(BaseShortcodeRenderer):
     def get_html(self):
         url = static("img/ghs/symbol_%s.png" % self.num)
         return "<img src=\"%s\" alt=\"GHS symbol\" class=\"ghs_symbol\" />" % url
+
 
 class RSCRightsRenderer(BaseShortcodeRenderer):
     name = "rsc"

@@ -171,11 +171,11 @@ class HTMLShortcodeParser(object):
             BlockNotFoundError: when block ID does not match an HTML block
         """
         try:
-            match = self._blocks[block_id]
+            match = self._blocks[int(block_id)]
         except KeyError:
             raise BlockNotFoundError
         index = match.end() if after else match.start()
-        return self._html_snippet[:index] + renderer.get_shortcode() \
+        return self._html_snippet[:index] + "<p>" + renderer.get_shortcode() +"</p>" \
             + self._html_snippet[index:]
 
     def remove_shortcode(self, block_id):
@@ -303,20 +303,6 @@ class HTMLShortcodeParser(object):
         out = out.replace("</div></p>", "</div>")
         return out
 
-    @_add_attrs_to_block("data-admin-index", "data-shortcode")
-    def get_admin_block_html(self, block):
-        """Get snippet HTML for use on admin screens
-
-        Args:
-            block (:obj:`re.MatchObject`): HTML block to modify
-
-        Returns:
-            iterable: HTML attribute values corresponding to 
-                attr names in decorator
-
-        """
-        return self._get_id_of_match(block), self._get_shortcode_type(block)
-
     def _get_html_with_inlines_replaced(self):
         """get source snippet with all inline shortcodes substituted
             with HTML
@@ -363,11 +349,10 @@ class HTMLShortcodeParser(object):
         except AttributeError:
             pass
         self._c_matches = dict([
-            (self._get_id_of_match(match), match)
-            for match in self.pattern.finditer(
-                self._get_html_with_inlines_replaced())])
+            (i + 1, match)
+            for i, match in enumerate(self.pattern.finditer(
+                self._get_html_with_inlines_replaced()))])
 
-        logging.debug(sorted(self._c_matches))
         return self._c_matches
 
     def _get_renderers_for_shortcode(self, shortcode_html):
@@ -408,7 +393,7 @@ class HTMLShortcodeParser(object):
         raise ShortcodeLoadError
 
     def _get_id_of_match(self, match):
-        """Returns the unique ID of a matched block 
+        """Returns the unique ID of a matched block
 
         Args:
             match (TYPE): Description
