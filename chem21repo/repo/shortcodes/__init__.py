@@ -1,5 +1,5 @@
 from .parser import HTMLShortcodeParser
-from .processors import FigureGroupProcessor
+from .processors import FigureGroupProcessor, GHSStatementProcessor
 from .processors import TableProcessor
 from .processors import BiblioFootnoteProcessor
 from .processors import BiblioInlineProcessor
@@ -17,3 +17,4 @@ HTMLShortcodeParser.register_inline_shortcode(BiblioFootnoteProcessor)
 HTMLShortcodeParser.register_inline_shortcode(InternalLinkProcessor)
 HTMLShortcodeParser.register_inline_shortcode(RSCRightsProcessor)
 HTMLShortcodeParser.register_block_shortcode(AttributionProcessor)
+HTMLShortcodeParser.register_inline_shortcode(GHSStatementProcessor)

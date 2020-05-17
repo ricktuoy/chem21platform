@@ -17,7 +17,7 @@ class StubFileObj:
         return self.url
 
 
-class InsertShortcodeTestCase(TestCase):
+class FigureShortcodeTestCase(TestCase):
     para_text = "<p>Pellentesque habitant morbi tristique senectus et netus " + \
                 "et malesuada fames ac turpis egestas.</p>"
 

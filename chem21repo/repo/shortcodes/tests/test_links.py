@@ -4,7 +4,7 @@ from chem21repo.repo.models.tests.helpers import Initialiser
 from chem21repo.repo.shortcodes import HTMLShortcodeParser, InternalLinkProcessor
 
 
-class InlineShortcodeTestCase(TestCase):
+class LinkShortcodeTestCase(TestCase):
     noop_html = "<p>Pellentesque habitant morbi tristique " + \
                 "senectus et netus et malesuada fames ac turpis egestas.</p>"
     input_html_template = "<p>Pellentesque habitant [inlink:{page_ids}]morbi tristique[/inlink] senectus et netus " + \
