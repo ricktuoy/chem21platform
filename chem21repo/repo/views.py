@@ -1104,11 +1104,11 @@ class PublishLearningObjectsView(LoginRequiredMixin, YouTubeCaptionServiceMixin,
     @staticmethod
     def _extract_page_loader_args(post):
         return {
-            "topics": post.get('topics', []),
-            "modules": post.get('modules', []),
-            "lessons": post.get('questions', []),
-            "questions": post.get('lessons', []),
-            "publish_all": post.get('publish_all', []),
+            "topics": post.get('topics[]', []),
+            "modules": post.get('modules[]', []),
+            "lessons": post.get('questions[]', []),
+            "questions": post.get('lessons[]', []),
+            "get_all": post.get('publish_all', []),
         }
 
 

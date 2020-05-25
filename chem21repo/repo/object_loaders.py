@@ -39,7 +39,7 @@ class PageLoader(object):
         self.get_all = get_all
 
     def is_match(self, model_name, obj):
-        return self.get_all or obj.pk in self.pks[model_name]
+        return self.get_all or str(obj.pk) in self.pks[model_name]
 
     def get_list(self):
         # flatten tree structure

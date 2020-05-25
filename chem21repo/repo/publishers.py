@@ -46,8 +46,6 @@ class BasePublisher(object):
         # n.b. this can be achieved using a loader from .object_loaders
         self.request = request
         self.errors = []  # return this
-        # self.no_pages = {} # return debug book-keeping for instances with no
-        # pages (should be orphans)
         self.num_succeeded = 0  # return debug/notification tally
         super(BasePublisher, self).__init__()
 

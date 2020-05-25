@@ -158,6 +158,10 @@ class Topic(
         return self.name
 
     @property
+    def current_topic(self):
+        return self
+
+    @property
     def child_orders(self):
         try:
             return dict(
