@@ -374,7 +374,7 @@ class Lesson(
 
     @property
     def current_topic(self):
-        return self.current_module.topics.first()
+        return self.current_module.topic if self.current_module else None
 
     @classmethod
     def iter_descendent_models(kls):
@@ -384,7 +384,8 @@ class Lesson(
         yield self
 
     def iter_pdf_roots(self):
-        yield self.current_module
+        if self.current_module:
+            yield self.current_module
 
     @property
     def touched_structure_querysets(self):
@@ -492,11 +493,11 @@ class Question(OrderedModel, SCOBase, AttributionMixin, TitleUnicodeMixin):
 
     @property
     def current_module(self):
-        return self.current_lesson.modules.first()
+        return self.current_lesson.modules.first() if self.current_lesson else None
 
     @property
     def current_topic(self):
-        return self.current_module.topic
+        return self.current_module.topic if self.current_module else None
 
     @classmethod
     def iter_descendent_models(kls):
@@ -506,7 +507,8 @@ class Question(OrderedModel, SCOBase, AttributionMixin, TitleUnicodeMixin):
         yield self
 
     def iter_pdf_roots(self):
-        yield self.current_module
+        if self.current_module:
+            yield self.current_module
 
     @property
     def touched_structure_querysets(self):

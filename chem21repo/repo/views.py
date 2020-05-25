@@ -1021,20 +1021,36 @@ class ShowTouchedView(LoginRequiredMixin, LearningObjectRelationMixin, View):
             } )
 
 class PDFIDsView(LoginRequiredMixin, View):
+
+    @staticmethod
+    def get_reference_from_object(obj):
+        name = obj._meta.object_name.lower()+"s"
+        return {'name':name, 'value': obj.pk}
+
     def get(self, request, *args, **kwargs):
-        refs = PDFLoader().get_reference_list()
+        objects = PDFLoader().get_list()
+        refs = map(self.get_reference_from_object, objects)
         return JsonResponse({'objects':refs})
 
     def post(self, request, *args, **kwargs):
-        refs = PDFLoader(querydict=request.POST).get_reference_list()
+        objects = PDFLoader(**request.POST).get_list()
+        refs = map(self.get_reference_from_object, objects)
         return JsonResponse({'objects':refs})
 
 SCORMIDsView = PDFIDsView
 
+
 class PageIDsView(LoginRequiredMixin, View):
+
+    @staticmethod
+    def get_reference_from_object(obj):
+        name = obj._meta.object_name.lower()+"s"
+        return {'name':name, 'value': obj.pk}
+
     def get(self, request, *args, **kwargs):
-        refs = PageLoader().get_reference_list()
-        return JsonResponse({'objects':refs})
+        objects = PageLoader(get_all=True).get_list()
+        refs = map(self.get_reference_from_object, objects)
+        return JsonResponse({'objects': refs})
 
 
 class PublishPagesView(LoginRequiredMixin, PublicStorageMixin, TemplateView):
@@ -1050,8 +1066,8 @@ class PublishLearningObjectsView(LoginRequiredMixin, YouTubeCaptionServiceMixin,
     template_name = "chem21/publish_learning_objects_confirm.html"
     def get_context_data(self, **kwargs):
         context = super(PublishLearningObjectsView, self).get_context_data(**kwargs)
-        context['learning_objects'] = PageLoader(filter={'changed':True}).get_structure_queryset()
         return context
+
 
     def post(self, request, *args, **kwargs):
         # set up loading a list of objects from PK sets in the POST querydict
@@ -1060,25 +1076,18 @@ class PublishLearningObjectsView(LoginRequiredMixin, YouTubeCaptionServiceMixin,
         # see .object_loaders.py for more information
 
         publish_format = request.POST.get("publish_format", "html")
+        page_loader_args = self._extract_page_loader_args(request.POST)
+
         extra_args = {}
         if publish_format == "html":
-            loader = PageLoader(querydict=request.POST)
+            loader = PageLoader(**page_loader_args)
             publisher_class = LearningObjectHTMLPublisher
         elif publish_format == "pdf":
-            loader = PDFLoader(querydict=request.POST)
+            loader = PDFLoader(**page_loader_args)
             publisher_class = PDFPublisher
-            try:
-                youtube = self.get_service(request)
-            except GoogleOAuth2RedirectRequired, e:
-                return JsonResponse({'auth_url': e.url},  status=401)
-            extra_args['youtube_service'] = youtube
-        elif publish_format == "scorm":
-            loader = SCORMLoader(querydict=request.POST)
-            publisher_class = SCORMPublisher
-
         publisher = publisher_class(request=request,
-            pages=loader.get_list(),
-            **extra_args)
+                                    pages=loader.get_list(),
+                                    **extra_args)
         paths = publisher.publish_all()
 
         if len(publisher.errors):
@@ -1091,6 +1100,16 @@ class PublishLearningObjectsView(LoginRequiredMixin, YouTubeCaptionServiceMixin,
              'published_paths':paths,
              'errors':publisher.errors},
             status=code)
+
+    @staticmethod
+    def _extract_page_loader_args(post):
+        return {
+            "topics": post.get('topics', []),
+            "modules": post.get('modules', []),
+            "lessons": post.get('questions', []),
+            "questions": post.get('lessons', []),
+            "publish_all": post.get('publish_all', []),
+        }
 
 
 

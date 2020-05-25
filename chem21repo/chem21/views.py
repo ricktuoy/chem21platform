@@ -18,6 +18,8 @@ from abc import abstractproperty
 from abc import ABCMeta
 import hashlib
 
+from chem21repo.repo.object_loaders import TopicLoader
+
 
 class JSONResponseMixin:
 
@@ -118,17 +120,7 @@ class LearningView(DetailView):
         except KeyError:
             slug = self.kwargs['slug']
 
-        context['class_tree'] = Topic.objects.filter(
-            slug=slug).prefetch_related(
-            Prefetch("modules",
-                     queryset=Module.objects.all().exclude(archived=True).order_by('order')),
-            Prefetch("modules__lessons",
-                     queryset=Lesson.objects.all().exclude(archived=True).order_by('order'),
-                     to_attr="ordered_lessons"),
-            Prefetch("modules__ordered_lessons__questions",
-                     queryset=Question.objects.all().exclude(archived=True).order_by(
-                         'order'),
-                     to_attr="ordered_questions")).first()
+        context['class_tree'] = TopicLoader.get_pages_for_topic(slug)
 
         context['current_topic'] = context['class_tree']
 

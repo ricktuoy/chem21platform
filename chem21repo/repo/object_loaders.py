@@ -1,156 +1,76 @@
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from .models import Topic, Module, Lesson, Question
 from django.db.models import Prefetch
-from django.db.models import Q
-import logging
+
+from .models import Topic, Module, Lesson, Question
 
 
-class BaseLearningObjectLoader(object):
-    # efficiently load a bunch of learning objects from Primary Key sets in a querydict 
-    # if passing in a querydict on init:
-    #   the PKs should be in "questions[]", "lessons[]", "modules[]", "topics[]" by default
-    #   these field names correspond to the default model names ["question", "lesson", "module", "topic"]
-    #   these can be changed by passing a different list to the "model_names" kwarg on init
-    #   if a "publish_all" field is detected in the querydict any PK sets will be ignored and all possible objects will be loaded
-    # if no querydict on init:
-    #   the loader will try to load all possible objects
-    def __init__(self, querydict=None, **kwargs):
-        if querydict is not None:
-            if "publish_all" in querydict:
-                get_all = True
-            else:
-                get_all=False
-        else:
-            get_all = True
-        self.options = kwargs
-        self.get_all = get_all
-        self.querydict = querydict
-        self.model_names = kwargs.get("model_names", 
-            ["question", "lesson", "module", "topic"])
-        self.pk_sets = {}
+class TopicLoader(object):
+    @staticmethod
+    def get_pages_for_topic(topic_slug):
+        return TopicLoader._prefetch_pages(Topic.objects.filter(
+            slug=topic_slug)).first()
 
     @staticmethod
-    def get_model_name(model):
-        return model.__name__.lower()
+    def get_pages_for_all_topics():
+        return TopicLoader._prefetch_pages(Topic.objects.all().exclude(archived=True))
 
-    def get_pk_set(self, model_name):
-        if model_name not in self.pk_sets:
-            pkset = [int(pk) for pk in self.querydict.getlist(model_name+"s[]")]
-            if len(pkset) == 0:
-                pkset = [int(pk) for pk in self.querydict.getlist(model_name+"s")]
-            self.pk_sets[model_name] = pkset
-        return self.pk_sets[model_name]
-
-    def descendents_query_modifier(self, model, query_vars_fn):
-
-        descendent_models = list(model.iter_descendent_models())
-        clauses = Q(**query_vars_fn(model)) 
-        for descendent_model in descendent_models:
-            field_name = reduce(
-                    lambda acc, m: acc + m.get_model_name() +"s__",
-                    descendent_models[:descendent_models.index(descendent_model)],
-                    ""
-                )
-            this_query_vars = {}
-            orig_query_vars = query_vars_fn(descendent_model)
-            for k, v in orig_query_vars.iteritems():
-
-                this_query_vars[field_name+"%s" % k] = v
-            clauses |= Q(**this_query_vars)
-        return clauses
-
-    def pks_queryset(self, model, model_name=None, ancestors=False):
-
-        qs = model.objects.exclude(archived=True)
-
-        if not model_name:
-            model_name = self.get_model_name(model)
-
-        try:
-            qs = qs.exclude(**self.options['exclude'])
-        except KeyError:
-            pass
-
-        try:
-            if not ancestors:
-                qs = qs.filter(**self.options['filter'])
-            else:
-                qs = qs.filter(self.descendents_query_modifier(model, lambda model: self.options['filter']))
-        except KeyError:
-            logging.debug("Got a key error")
-            pass
-    
-        if not self.get_all:
-            get_pk_query_vars = lambda model: {'pk__in':self.get_pk_set(model.get_model_name())}
-            if not ancestors:
-                pk_vars = get_pk_query_vars(model)
-                #if model_name != "topic":
-                #    raise Exception(repr(model_name)+repr(pk_vars))
-                qs = qs.filter(**get_pk_query_vars(model))
-            else:
-                qs = qs.filter(self.descendents_query_modifier(model, get_pk_query_vars))
-
-
-
-        return qs
-
-    def learning_object_reducer(self, a, t):
-        model = ContentType.objects.get(
-            app_label="repo",
-            model=t).model_class()
-        return a + list(self.pks_queryset(model))
-
-    def get_list(self):
-        # returns a flat unsorted list of the objects
-        return reduce(self.learning_object_reducer, self.model_names, [])
-
-    def get_structure_queryset(self):
-        # returns a hierarchical ordered queryset of the objects
-        # note this
-        return self.pks_queryset(Topic, "topic", ancestors=True).prefetch_related(
+    @staticmethod
+    def _prefetch_pages(topic_queryset):
+        return topic_queryset.prefetch_related(
             Prefetch("modules",
-                     queryset=self.pks_queryset(Module, "module", ancestors=True).order_by('order').distinct()),
+                     queryset=Module.objects.all().exclude(archived=True).order_by('order')),
             Prefetch("modules__lessons",
-                     queryset=self.pks_queryset(Lesson, "lesson", ancestors=True).order_by('order').distinct(),
+                     queryset=Lesson.objects.all().exclude(archived=True).order_by('order'),
                      to_attr="ordered_lessons"),
             Prefetch("modules__ordered_lessons__questions",
-                     queryset=self.pks_queryset(Question,"question", ancestors=True).order_by('order').distinct(),
-                     to_attr="ordered_questions")).distinct()
+                     queryset=Question.objects.all().exclude(archived=True).order_by(
+                         'order'),
+                     to_attr="ordered_questions"))
 
 
-    @staticmethod
-    def get_reference_from_object(obj):
-        name = obj._meta.object_name.lower()+"s"
-        return {'name':name, 'value': obj.pk}
+class PageLoader(object):
+    pks = {}
+    get_all = True
 
-    def get_reference_list(self):
-        return map(self.get_reference_from_object, self.get_list())
+    def __init__(self, get_all=True, topics=None, modules=None, lessons=None, questions=None):
+        self.pks['question'] = questions if questions else []
+        self.pks['lesson'] = lessons if lessons else []
+        self.pks['module'] = modules if modules else []
+        self.pks['topic'] = topics if topics else []
+        self.get_all = get_all
 
-class PageLoader(BaseLearningObjectLoader):
-    # load all pages associated with learning objects from PKs passed in a querydict
-    # loads all pages if no querydict passed
-    @staticmethod
-    def page_reducer(a, obj):
-        return a.union(obj.iter_publishable()) # learning objects are compared (eq) by URL first
-    
-    def get_list(self):
-        # this adds 
-        objs = super(PageLoader, self).get_list()
-        return reduce(self.page_reducer, objs, set([]))
-
-
-class PDFLoader(BaseLearningObjectLoader):
-    # load all pdf roots associated with learning objects from PKs passed in a querydict
-    # loads all pdf roots if not querydict passed
-    @staticmethod
-    def pdf_reducer(a, b):
-        return a.union(b.iter_pdf_roots())
+    def is_match(self, model_name, obj):
+        return self.get_all or obj.pk in self.pks[model_name]
 
     def get_list(self):
-        objs = super(PDFLoader, self).get_list()
-        out = reduce(self.pdf_reducer, objs, set([]))
+        # flatten tree structure
+        tree = TopicLoader.get_pages_for_all_topics()
+        print tree
+        out = []
+        for topic in tree:
+            if self.is_match('topic', topic):
+                out.append(topic)
+            for module in topic.modules.all():
+                if self.is_match('module', module):
+                    out.append(module)
+                for lesson in module.ordered_lessons:
+                    if self.is_match('lesson', lesson):
+                        out.append(lesson)
+                    for question in lesson.ordered_questions:
+                        if self.is_match('question', question):
+                            out.append(question)
         return out
-        #raise Exception(repr(objs) + repr(out))
+
+
+class PDFLoader(PageLoader):
+
+    def get_list(self):
+        tree = TopicLoader.get_pages_for_all_topics()
+        out = []
+        for topic in tree:
+            for module in topic.modules.all():
+                if self.is_match('module', module):
+                    out.append(module)
+        return out
+
 
 SCORMLoader = PDFLoader
