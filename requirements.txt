@@ -40,7 +40,7 @@ python-openid==2.2.5
 pytz==2015.4
 pywkher==1.0.4
 -e git+https://github.com/bernii/querystring-parser.git@6bd45faa359516c19fdd76c4396c160f0ee67da6#egg=querystring_parser
-rsa==3.4.2
+rsa==4.1
 sh==1.11
 simplejson==3.8.2
 social-auth-app-django==3.1.0
